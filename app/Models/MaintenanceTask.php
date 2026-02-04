@@ -9,7 +9,7 @@ class MaintenanceTask extends Model
     protected $fillable = [
         'motorcycle_id', 
         'title', 
-        'description', 
+        'location', 
         'frequency_km', 
         'last_km_done', 
         'last_date_done', 

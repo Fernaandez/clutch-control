@@ -9,7 +9,8 @@ class MaintenanceLog extends Model
     protected $fillable = [
         'motorcycle_id', 
         'maintenance_task_id', 
-        'description', 
+        'task_title',
+        'location', 
         'date', 
         'km_at_moment', 
         'cost', 

@@ -46,6 +46,8 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // CANVI: En lloc d'anar a create, anem al Garatge (Index)
+        // Així si no vol afegir moto encara, no passa res.
+        return redirect()->route('motorcycles.index');
     }
 }

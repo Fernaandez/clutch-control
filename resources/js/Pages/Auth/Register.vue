@@ -1,9 +1,84 @@
+<template>
+    <GuestLayout>
+        <Head title="Registrar-se" />
+
+        <form @submit.prevent="submit">
+            
+            <div>
+                <label class="block font-medium text-sm text-gray-400 mb-1" for="name">Nom</label>
+                <input 
+                    id="name" 
+                    type="text" 
+                    class="w-full rounded-lg bg-brand-black border-brand-dark text-white focus:border-brand-neon focus:ring-brand-neon transition shadow-sm"
+                    v-model="form.name" 
+                    required 
+                    autofocus 
+                    autocomplete="name" 
+                />
+                <div v-if="form.errors.name" class="text-red-500 text-xs mt-1">{{ form.errors.name }}</div>
+            </div>
+
+            <div class="mt-4">
+                <label class="block font-medium text-sm text-gray-400 mb-1" for="email">Correu Electrònic</label>
+                <input 
+                    id="email" 
+                    type="email" 
+                    class="w-full rounded-lg bg-brand-black border-brand-dark text-white focus:border-brand-neon focus:ring-brand-neon transition shadow-sm"
+                    v-model="form.email" 
+                    required 
+                    autocomplete="username" 
+                />
+                <div v-if="form.errors.email" class="text-red-500 text-xs mt-1">{{ form.errors.email }}</div>
+            </div>
+
+            <div class="mt-4">
+                <label class="block font-medium text-sm text-gray-400 mb-1" for="password">Contrasenya</label>
+                <input 
+                    id="password" 
+                    type="password" 
+                    class="w-full rounded-lg bg-brand-black border-brand-dark text-white focus:border-brand-neon focus:ring-brand-neon transition shadow-sm"
+                    v-model="form.password" 
+                    required 
+                    autocomplete="new-password" 
+                />
+                <div v-if="form.errors.password" class="text-red-500 text-xs mt-1">{{ form.errors.password }}</div>
+            </div>
+
+            <div class="mt-4">
+                <label class="block font-medium text-sm text-gray-400 mb-1" for="password_confirmation">Confirmar Contrasenya</label>
+                <input 
+                    id="password_confirmation" 
+                    type="password" 
+                    class="w-full rounded-lg bg-brand-black border-brand-dark text-white focus:border-brand-neon focus:ring-brand-neon transition shadow-sm"
+                    v-model="form.password_confirmation" 
+                    required 
+                    autocomplete="new-password" 
+                />
+                <div v-if="form.errors.password_confirmation" class="text-red-500 text-xs mt-1">{{ form.errors.password_confirmation }}</div>
+            </div>
+
+            <div class="flex items-center justify-end mt-6">
+                <Link
+                    :href="route('login')"
+                    class="underline text-sm text-gray-500 hover:text-brand-neon rounded-md focus:outline-none transition"
+                >
+                    Ja tens compte?
+                </Link>
+
+                <button 
+                    type="submit" 
+                    :disabled="form.processing" 
+                    class="ms-4 bg-brand-neon text-brand-black px-5 py-2 rounded-lg font-bold uppercase tracking-wide text-xs hover:bg-white transition duration-300 shadow-[0_0_15px_rgba(12,225,181,0.4)]"
+                >
+                    Crear Compte
+                </button>
+            </div>
+        </form>
+    </GuestLayout>
+</template>
+
 <script setup>
 import GuestLayout from '@/Layouts/GuestLayout.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
 const form = useForm({
@@ -19,95 +94,3 @@ const submit = () => {
     });
 };
 </script>
-
-<template>
-    <GuestLayout>
-        <Head title="Register" />
-
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="name" value="Name" />
-
-                <TextInput
-                    id="name"
-                    type="text"
-                    class="mt-1 block w-full"
-                    v-model="form.name"
-                    required
-                    autofocus
-                    autocomplete="name"
-                />
-
-                <InputError class="mt-2" :message="form.errors.name" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel for="email" value="Email" />
-
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autocomplete="username"
-                />
-
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
-
-                <TextInput
-                    id="password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password"
-                    required
-                    autocomplete="new-password"
-                />
-
-                <InputError class="mt-2" :message="form.errors.password" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel
-                    for="password_confirmation"
-                    value="Confirm Password"
-                />
-
-                <TextInput
-                    id="password_confirmation"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password_confirmation"
-                    required
-                    autocomplete="new-password"
-                />
-
-                <InputError
-                    class="mt-2"
-                    :message="form.errors.password_confirmation"
-                />
-            </div>
-
-            <div class="mt-4 flex items-center justify-end">
-                <Link
-                    :href="route('login')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
-                >
-                    Already registered?
-                </Link>
-
-                <PrimaryButton
-                    class="ms-4"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    Register
-                </PrimaryButton>
-            </div>
-        </form>
-    </GuestLayout>
-</template>

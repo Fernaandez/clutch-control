@@ -21,6 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone_number',       
+        'role',               
+        'last_motorcycle_id', 
     ];
 
     /**
@@ -46,24 +49,11 @@ class User extends Authenticatable
         ];
     }
 
+    // --- RELACIONS ---
 
-    public function motorcycles() {
+    // Un usuari té moltes motos
+    public function motorcycles()
+    {
         return $this->hasMany(Motorcycle::class);
     }
-
-    public function routes() {
-        return $this->hasMany(Route::class);
-    }
-
-    public function events() {
-        return $this->hasMany(Event::class); // Els que organitza
-    }
-
-    // Events als que s'ha apuntat (N:M)
-    public function attendedEvents() {
-        return $this->belongsToMany(Event::class, 'event_participants')
-                    ->withPivot('status')
-                    ->withTimestamps();
-    }
-
 }

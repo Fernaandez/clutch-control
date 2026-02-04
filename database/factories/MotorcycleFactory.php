@@ -20,6 +20,7 @@ class MotorcycleFactory extends Factory
         'brand' => fake()->randomElement(['KTM', 'Honda', 'Yamaha', 'BMW', 'GasGas']),
         'model' => fake()->word() . ' ' . fake()->numberBetween(250, 1200),
         'year' => fake()->year(),
+        'plate' => strtoupper(fake()->bothify('####???')),
         'current_km' => fake()->randomFloat(1, 1000, 50000),
         'photo' => null, // De moment sense foto
         ];

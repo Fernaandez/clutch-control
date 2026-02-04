@@ -12,17 +12,22 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->string('phone_number')->nullable();
-            $table->string('role')->default('user');
+            $table->id(); // id integer [pk, increment]
+            $table->string('name'); // name string
+            $table->string('email')->unique(); // email string [unique]
+            $table->string('phone_number')->nullable(); // phone_number string (NOU)
+            $table->string('role')->default('user'); // role string (NOU - Per defecte 'user')
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password'); // password string
+            
+            // last_motorcycle_id integer
+            $table->unsignedBigInteger('last_motorcycle_id')->nullable(); 
+            
             $table->rememberToken();
-            $table->timestamps();
+            $table->timestamps(); // created_at, updated_at
         });
 
+        // Taula de reset de passwords i sessions (Laravel per defecte)
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
             $table->string('token');

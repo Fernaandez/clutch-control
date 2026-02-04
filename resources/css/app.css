@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* Forçar inputs foscos a tota la web */
+[type='text'],
+[type='email'],
+[type='url'],
+[type='password'],
+[type='number'],
+[type='date'],
+[type='datetime-local'],
+[type='month'],
+[type='search'],
+[type='tel'],
+[type='time'],
+[type='week'],
+[multiple],
+textarea,
+select {
+    @apply bg-brand-black border-brand-dark text-gray-200 focus:border-brand-neon focus:ring-brand-neon rounded-md shadow-sm;
+}

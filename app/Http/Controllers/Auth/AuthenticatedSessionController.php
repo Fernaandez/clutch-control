@@ -33,7 +33,23 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // AQUESTA LÍNIA ÉS LA MÀGIA QUE TREU EL VERMELL DE VS CODE
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // 1. Té una "última moto" guardada? -> Cap allà directe!
+        if ($user->last_motorcycle_id) {
+            return redirect()->route('dashboard', ['motorcycle' => $user->last_motorcycle_id]);
+        }
+
+        // 2. Ara 'motorcycles()' ja no sortirà vermell
+        $firstMoto = $user->motorcycles()->first();
+        if ($firstMoto) {
+            return redirect()->route('dashboard', ['motorcycle' => $firstMoto->id]);
+        }
+
+        // 3. No té motos? -> Al Garatge per crear-ne una.
+        return redirect()->intended(route('motorcycles.index', absolute: false));
     }
 
     /**
