@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MotorcycleController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\RouteController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -14,7 +15,7 @@ Route::get('/', function () {
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
-});
+})->name('welcome');
 
 Route::get('/dashboard/{motorcycle?}', [MotorcycleController::class, 'dashboard'])
     ->middleware(['auth', 'verified'])
@@ -52,5 +53,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // --- COMUNS ---
     Route::delete('/maintenance-tasks/{task}', [MaintenanceController::class, 'destroy'])->name('maintenance.destroy');
     Route::patch('/maintenance-tasks/{task}/done', [MaintenanceController::class, 'markDone'])->name('maintenance.mark-done');
+
+    // --- HISTORIAL GLOBAL ---
+    Route::get('/motorcycles/{motorcycle}/global-history', [MaintenanceController::class, 'globalHistory'])
+        ->name('motorcycles.global-history');
+
+    // --- RUTES (GPS) ---
+    Route::get('/routes', [RouteController::class, 'index'])->name('routes.index');
+    Route::get('/routes/create', [RouteController::class, 'create'])->name('routes.create');
+    Route::post('/routes', [RouteController::class, 'store'])->name('routes.store');
+
+    Route::get('/routes/{route}', [RouteController::class, 'show'])->name('routes.show');
+    Route::get('/routes/{route}/edit', [RouteController::class, 'edit'])->name('routes.edit');
+    Route::put('/routes/{route}', [RouteController::class, 'update'])->name('routes.update');
+    Route::delete('/routes/{route}', [RouteController::class, 'destroy'])->name('routes.destroy');
+    Route::get('/routes/{route}/edit', [RouteController::class, 'edit'])->name('routes.edit');
+    Route::put('/routes/{route}', [RouteController::class, 'update'])->name('routes.update');
 
 });

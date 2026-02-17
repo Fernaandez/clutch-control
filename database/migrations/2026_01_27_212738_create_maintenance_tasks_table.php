@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('maintenance_tasks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('motorcycle_id')->constrained()->onDelete('cascade'); //si s'esborra la moto, s'esborren les seves tasques
+            $table->string('type'); // 'maintenance' o 'repair'
             $table->string('title');
             $table->text('location')->nullable();
-            $table->integer('frequency_km'); //interval en quilòmetres per a realitzar la tasca
+            $table->integer('frequency_km')->nullable(); //interval en quilòmetres per a realitzar la tasca
             $table->integer('last_km_done')->default(0); //quilòmetres en què es va realitzar l'última vegada
             $table->date('last_date_done')->nullable(); //data en què es va realitzar l'última vegada
             $table->boolean('is_recurring')->default(true); //indica si la tasca es repeteix

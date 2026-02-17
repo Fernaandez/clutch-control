@@ -62,6 +62,18 @@
                         </div>
                     </Link>
 
+                    <Link :href="route('motorcycles.global-history', moto.id)" class="col-span-2 flex items-center gap-3 bg-brand-surface border border-brand-dark rounded-xl p-4 hover:border-yellow-500 hover:bg-brand-dark/50 transition group text-left">
+                        <div class="bg-yellow-500/20 p-2 rounded-lg text-yellow-400 group-hover:text-yellow-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                            </svg>
+                        </div>
+                        <div>
+                            <span class="block font-bold text-gray-200 text-sm">Historial Complet</span>
+                            <span class="block text-xs text-gray-500">Timeline de tota la vida de la moto</span>
+                        </div>
+                    </Link>
+
                 </div>
              </div>
         </div>

@@ -10,17 +10,17 @@ use Inertia\Inertia;
 
 class MaintenanceController extends Controller
 {
-    // --- 1. MANTENIMENT (Recurrent) ---
+    // --- 1. MANTENIMENT (Recurrent - Oli, Frens...) ---
     public function index(Motorcycle $motorcycle)
     {
         if ($motorcycle->user_id !== Auth::id()) { abort(403); }
 
-        // FILTRE CLAU: Només mostrem tasques de tipus 'maintenance'
+        // Filtrem només les que són de manteniment
         $tasks = $motorcycle->maintenanceTasks()
             ->where('type', 'maintenance') 
             ->get()->map(function ($task) use ($motorcycle) {
                 
-                // Lògica de semàfors (només per manteniment)
+                // Càlculs de semàfors i barres de progrés
                 $nextDueKm = $task->last_km_done + $task->frequency_km;
                 $kmRemaining = $nextDueKm - $motorcycle->current_km;
                 $kmSinceLast = $motorcycle->current_km - $task->last_km_done;
@@ -54,7 +54,7 @@ class MaintenanceController extends Controller
         ]);
 
         $motorcycle->maintenanceTasks()->create([
-            'type' => 'maintenance', // FORCEM EL TIPUS
+            'type' => 'maintenance',
             'title' => $validated['title'],
             'is_recurring' => true,
             'frequency_km' => $validated['frequency_km'],
@@ -72,18 +72,12 @@ class MaintenanceController extends Controller
         return Inertia::render('Maintenance/History', ['motorcycle' => $motorcycle, 'history' => $history]);
     }
 
-    // --- 2. REPARACIONS (Avaries) ---
+    // --- 2. REPARACIONS (Avaries puntuals) ---
     public function indexRepairs(Motorcycle $motorcycle)
     {
         if ($motorcycle->user_id !== Auth::id()) { abort(403); }
-        
-        // FILTRE CLAU: Només 'repair'
         $tasks = $motorcycle->maintenanceTasks()->where('type', 'repair')->get();
-        
-        return Inertia::render('Repairs/Index', [ // Carreguem la vista de Reparacions
-            'motorcycle' => $motorcycle,
-            'tasks' => $tasks
-        ]);
+        return Inertia::render('Repairs/Index', ['motorcycle' => $motorcycle, 'tasks' => $tasks]);
     }
 
     public function storeRepair(Request $request, Motorcycle $motorcycle)
@@ -92,7 +86,7 @@ class MaintenanceController extends Controller
         $validated = $request->validate(['title' => 'required|string|max:50', 'description' => 'nullable|string']);
         
         $motorcycle->maintenanceTasks()->create([
-            'type' => 'repair', // FORCEM EL TIPUS REPARACIÓ
+            'type' => 'repair',
             'title' => $validated['title'],
             'description' => $validated['description'],
             'is_recurring' => false,
@@ -113,14 +107,8 @@ class MaintenanceController extends Controller
     public function indexUpgrades(Motorcycle $motorcycle)
     {
         if ($motorcycle->user_id !== Auth::id()) { abort(403); }
-        
-        // FILTRE CLAU: Només 'upgrade'
         $tasks = $motorcycle->maintenanceTasks()->where('type', 'upgrade')->get();
-
-        return Inertia::render('Upgrades/Index', [ // Carreguem la vista de Millores
-            'motorcycle' => $motorcycle,
-            'tasks' => $tasks
-        ]);
+        return Inertia::render('Upgrades/Index', ['motorcycle' => $motorcycle, 'tasks' => $tasks]);
     }
 
     public function storeUpgrade(Request $request, Motorcycle $motorcycle)
@@ -129,7 +117,7 @@ class MaintenanceController extends Controller
         $validated = $request->validate(['title' => 'required|string|max:50', 'description' => 'nullable|string']);
         
         $motorcycle->maintenanceTasks()->create([
-            'type' => 'upgrade', // FORCEM EL TIPUS UPGRADE
+            'type' => 'upgrade',
             'title' => $validated['title'],
             'description' => $validated['description'],
             'is_recurring' => false,
@@ -146,7 +134,7 @@ class MaintenanceController extends Controller
         return Inertia::render('Upgrades/History', ['motorcycle' => $motorcycle, 'history' => $history]);
     }
 
-    // --- COMUNS ---
+    // --- COMUNS (Marcar com fet i Esborrar) ---
     public function markDone(Request $request, MaintenanceTask $task)
     {
         if ($task->motorcycle->user_id !== Auth::id()) { abort(403); }
@@ -158,31 +146,26 @@ class MaintenanceController extends Controller
             'description' => 'required|string|max:255',
         ]);
 
-        // 1. GUARDEM A L'HISTORIAL (Sempre, sigui el que sigui)
-        // Gràcies a "ON DELETE SET NULL" a la base de dades, si esborrem la tasca,
-        // l'historial NO s'esborra, simplement es queda allà com a registre permanent.
+        // 1. Guardar a l'historial
         $task->motorcycle->maintenanceLogs()->create([
             'maintenance_task_id' => $task->id,
-            'type' => $task->type, // Important: Guardem si era repair, upgrade o maintenance
-            'task_title' => $task->title, // Guardem el títol per si s'esborra la tasca pare
+            'type' => $task->type, 
+            'task_title' => $task->title,
             'date' => $validated['date'],
             'km_at_moment' => $validated['km_at_moment'],
             'cost' => $validated['cost'],
             'description' => $validated['description'],
         ]);
 
-        // 2. DECIDIM EL FUTUR DE LA TASCA
+        // 2. Gestionar la tasca
         if ($task->type === 'maintenance') {
-            // CAS A: Manteniment Recurrent (Oli, Frens...)
-            // NO l'esborrem, només actualitzem el comptador per a la pròxima vegada.
+            // Si és manteniment, reiniciem el comptador
             $task->update([
                 'last_km_done' => $validated['km_at_moment'],
                 'last_date_done' => $validated['date'],
             ]);
         } else {
-            // CAS B: Reparació o Millora (Puntual)
-            // Ja està feta i registrada a l'historial. No cal que ocupi espai a la llista.
-            // L'ESBORREM de les tasques pendents.
+            // Si és reparació o millora, l'esborrem de "pendents"
             $task->delete();
         }
 
@@ -194,5 +177,13 @@ class MaintenanceController extends Controller
         if ($task->motorcycle->user_id !== Auth::id()) { abort(403); }
         $task->delete();
         return redirect()->back();
+    }
+
+    public function globalHistory(Motorcycle $motorcycle)
+    {
+        if ($motorcycle->user_id !== Auth::id()) { abort(403); }
+        $history = $motorcycle->maintenanceLogs()->latest('date')->get();
+        $totalCost = $history->sum('cost');
+        return Inertia::render('Maintenance/GlobalHistory', ['motorcycle' => $motorcycle, 'history' => $history, 'totalCost' => $totalCost]);
     }
 }

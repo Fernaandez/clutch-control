@@ -56,4 +56,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Motorcycle::class);
     }
+
+    // AFEGEIX AIXÒ: Un usuari té moltes rutes
+    public function routes()
+    {
+        return $this->hasMany(Route::class);
+    }
 }

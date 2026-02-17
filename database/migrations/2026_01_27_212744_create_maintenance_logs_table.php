@@ -22,6 +22,7 @@ return new class extends Migration
                   ->on('maintenance_tasks')
                   ->onDelete('set null');
 
+            $table->string('type'); // 'maintenance' o 'repair'
             $table->string('task_title'); // Snapshot del nom
             $table->text('location')->nullable(); 
             $table->date('date');
