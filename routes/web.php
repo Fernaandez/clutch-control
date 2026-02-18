@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MotorcycleController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\RouteController;
+use App\Http\Controllers\EventController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -69,5 +70,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/routes/{route}', [RouteController::class, 'destroy'])->name('routes.destroy');
     Route::get('/routes/{route}/edit', [RouteController::class, 'edit'])->name('routes.edit');
     Route::put('/routes/{route}', [RouteController::class, 'update'])->name('routes.update');
+
+// --- QUEDADES (EVENTS) ---
+    Route::get('/events', [EventController::class, 'index'])->name('events.index');
+    Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
+    Route::post('/events', [EventController::class, 'store'])->name('events.store');
+    
+    // NOVA RUTA: LES MEVES QUEDADES
+    Route::get('/my-events', [EventController::class, 'myEvents'])->name('events.mine'); 
+
+    Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
+    Route::get('/events/{event}/edit', [EventController::class, 'edit'])->name('events.edit');
+    Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('events.destroy');
+    
+    Route::post('/events/{event}/join', [EventController::class, 'join'])->name('events.join');
+    Route::post('/events/{event}/leave', [EventController::class, 'leave'])->name('events.leave');
+    Route::put('/events/{event}', [EventController::class, 'update'])->name('events.update');
 
 });

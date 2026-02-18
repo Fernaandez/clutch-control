@@ -3,13 +3,20 @@
         <div class="px-4 py-6 pb-24">
             
             <div class="flex items-center justify-between mb-8">
-                <div>
-                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">Rutes <span class="text-brand-neon">GPS</span></h1>
-                    <p class="text-gray-400 text-sm">Planifica, grava i comparteix.</p>
-                </div>
-                <Link :href="route('routes.create')" class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.4)] hover:scale-110 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                </Link>
+                    <div>
+                        <h1 class="text-2xl font-black uppercase tracking-tighter text-white leading-none">
+                            Rutes <span class="text-brand-neon">GPS</span>
+                        </h1>
+                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">
+                            Planifica, grava i comparteix
+                        </p>
+                    </div>
+                    <Link 
+                        :href="route('routes.create')" 
+                        class="bg-brand-neon text-brand-black p-2 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.5)] hover:bg-white hover:scale-110 transition flex items-center justify-center"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path fill-rule="evenodd" d="M12 3.75a.75.75 0 01.75.75v6.75h6.75a.75.75 0 010 1.5h-6.75v6.75a.75.75 0 01-1.5 0v-6.75H4.5a.75.75 0 010-1.5h6.75V4.5a.75.75 0 01.75-.75z" clip-rule="evenodd" /></svg>
+                    </Link>
             </div>
 
             <div v-if="routes.length === 0" class="flex flex-col items-center justify-center py-12 text-center opacity-60">
