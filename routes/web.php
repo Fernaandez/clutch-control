@@ -59,17 +59,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/motorcycles/{motorcycle}/global-history', [MaintenanceController::class, 'globalHistory'])
         ->name('motorcycles.global-history');
 
-    // --- RUTES (GPS) ---
+// --- RUTES (GPS) ---
+    // 1. Llistats generals
     Route::get('/routes', [RouteController::class, 'index'])->name('routes.index');
+    Route::get('/my-routes', [RouteController::class, 'MyRoutes'])->name('routes.MyRoutes'); 
+    
+    // 2. Crear
     Route::get('/routes/create', [RouteController::class, 'create'])->name('routes.create');
     Route::post('/routes', [RouteController::class, 'store'])->name('routes.store');
 
+    // 3. Operacions sobre una ruta existent (Sempre sota de /create per evitar conflictes)
     Route::get('/routes/{route}', [RouteController::class, 'show'])->name('routes.show');
     Route::get('/routes/{route}/edit', [RouteController::class, 'edit'])->name('routes.edit');
     Route::put('/routes/{route}', [RouteController::class, 'update'])->name('routes.update');
     Route::delete('/routes/{route}', [RouteController::class, 'destroy'])->name('routes.destroy');
-    Route::get('/routes/{route}/edit', [RouteController::class, 'edit'])->name('routes.edit');
-    Route::put('/routes/{route}', [RouteController::class, 'update'])->name('routes.update');
+    
+    // 4. Accions extres
+    Route::post('/routes/{route}/clone', [RouteController::class, 'clone'])->name('routes.clone');
 
 // --- QUEDADES (EVENTS) ---
     Route::get('/events', [EventController::class, 'index'])->name('events.index');

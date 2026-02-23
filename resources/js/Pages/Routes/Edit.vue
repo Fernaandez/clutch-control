@@ -32,12 +32,26 @@
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Descripció</label>
                             <textarea v-model="form.description" rows="3" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0"></textarea>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Dificultat</label>
-                            <div class="grid grid-cols-3 gap-3">
-                                <button type="button" @click="form.difficulty = 'easy'" :class="form.difficulty === 'easy' ? 'bg-green-500/20 border-green-500 text-green-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="p-3 rounded-lg border text-sm font-bold transition hover:border-gray-500">🟢 Fàcil</button>
-                                <button type="button" @click="form.difficulty = 'medium'" :class="form.difficulty === 'medium' ? 'bg-yellow-500/20 border-yellow-500 text-yellow-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="p-3 rounded-lg border text-sm font-bold transition hover:border-gray-500">🟡 Mitjana</button>
-                                <button type="button" @click="form.difficulty = 'hard'" :class="form.difficulty === 'hard' ? 'bg-red-500/20 border-red-500 text-red-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="p-3 rounded-lg border text-sm font-bold transition hover:border-gray-500">🔴 Difícil</button>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Dificultat</label>
+                                <div class="grid grid-cols-3 gap-3 h-[42px]">
+                                    <button type="button" @click="form.difficulty = 'easy'" :class="form.difficulty === 'easy' ? 'bg-green-500/20 border-green-500 text-green-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border text-[10px] sm:text-xs font-bold transition hover:border-gray-500">🟢 Fàcil</button>
+                                    <button type="button" @click="form.difficulty = 'medium'" :class="form.difficulty === 'medium' ? 'bg-yellow-500/20 border-yellow-500 text-yellow-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border text-[10px] sm:text-xs font-bold transition hover:border-gray-500">🟡 Mitjana</button>
+                                    <button type="button" @click="form.difficulty = 'hard'" :class="form.difficulty === 'hard' ? 'bg-red-500/20 border-red-500 text-red-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border text-[10px] sm:text-xs font-bold transition hover:border-gray-500">🔴 Difícil</button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Visibilitat</label>
+                                <div class="flex items-center gap-3 bg-brand-black p-2 rounded-lg border border-brand-dark h-[42px]">
+                                    <button type="button" @click="form.is_public = true" class="flex-1 py-1 rounded text-[10px] sm:text-xs font-bold uppercase transition" :class="form.is_public ? 'bg-brand-neon text-black' : 'text-gray-500 hover:text-white'">
+                                        🌍 Pública
+                                    </button>
+                                    <button type="button" @click="form.is_public = false" class="flex-1 py-1 rounded text-[10px] sm:text-xs font-bold uppercase transition" :class="!form.is_public ? 'bg-gray-600 text-white' : 'text-gray-500 hover:text-white'">
+                                        🔒 Privada
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -158,7 +172,7 @@ const props = defineProps({
     mapRoute: Object // <--- CANVI: Ara es diu mapRoute per no xocar amb la funció route()
 });
 
-// Inicialitzem el form amb les dades de mapRoute
+// Inicialitzem el form amb les dades de mapRoute I ELS PUNTS!
 const form = useForm({
     title: props.mapRoute.title || '',
     description: props.mapRoute.description || '',
@@ -167,7 +181,12 @@ const form = useForm({
     planned_distance_km: props.mapRoute.planned_distance_km || 0,
     duration_seconds: props.mapRoute.duration_seconds || 0,
     geo_json: props.mapRoute.geo_json || null,
-    waypoints: [] 
+    is_public: Boolean(props.mapRoute.is_public),
+    // AQUESTA LÍNIA ÉS LA NOVA: Carreguem els punts previs
+    waypoints: props.mapRoute.waypoints ? props.mapRoute.waypoints.map(wp => ({
+        lat: parseFloat(wp.lat || wp.latitude),
+        lng: parseFloat(wp.lng || wp.longitude)
+    })) : []
 });
 
 const map = ref(null);
