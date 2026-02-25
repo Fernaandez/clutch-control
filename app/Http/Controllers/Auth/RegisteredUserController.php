@@ -15,30 +15,28 @@ use Inertia\Response;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
     public function create(): Response
     {
         return Inertia::render('Auth/Register');
     }
 
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            // AFEGIM UNIQUE AQUÍ. Buscarà a la taula 'users' la columna 'phone_number'
+            'phone' => 'nullable|string|max:20|unique:users,phone_number', 
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            // Personalitzem l'error perquè s'entengui bé
+            'phone.unique' => 'Aquest número de telèfon ja està registrat a una altra compte.'
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'phone_number' => $request->phone,
             'password' => Hash::make($request->password),
         ]);
 
@@ -46,8 +44,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        // CANVI: En lloc d'anar a create, anem al Garatge (Index)
-        // Així si no vol afegir moto encara, no passa res.
         return redirect()->route('motorcycles.index');
     }
 }

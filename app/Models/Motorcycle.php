@@ -16,7 +16,12 @@ class Motorcycle extends Model
         'year', 
         'plate',
         'current_km', 
-        'photo'
+        'photo',
+        'cc',
+        'power_cv',
+        'license_type',
+        'type',
+        'extras'
     ];
 
     public function user() {

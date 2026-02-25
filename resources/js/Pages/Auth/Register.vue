@@ -50,6 +50,20 @@
                 </div>
 
                 <div>
+                    <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="phone">Telèfon (Opcional)</label>
+                    <input 
+                        id="phone" 
+                        type="tel" 
+                        class="w-full rounded-xl bg-brand-surface border border-brand-dark text-white focus:border-brand-neon focus:ring-brand-neon transition py-3 px-4 placeholder-gray-600 shadow-none"
+                        placeholder="Ex: +34 600 000 000"
+                        v-model="form.phone" 
+                        autocomplete="tel" 
+                    />
+                    <p class="text-[10px] text-gray-500 mt-1 ml-1">Només necessari si en un futur vols vendre motos.</p>
+                    <div v-if="form.errors.phone" class="text-red-500 text-xs mt-1 ml-1">{{ form.errors.phone }}</div>
+                </div>
+
+                <div>
                     <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="password">Contrasenya</label>
                     <input 
                         id="password" 
@@ -102,6 +116,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 const form = useForm({
     name: '',
     email: '',
+    phone: '', // Afegim el camp aquí
     password: '',
     password_confirmation: '',
 });

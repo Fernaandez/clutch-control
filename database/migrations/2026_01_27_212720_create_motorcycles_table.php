@@ -6,20 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('motorcycles', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); //si esborres l'usuari, s'esborren les seves motos
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); 
             $table->string('brand');
             $table->string('model');
             $table->string('plate')->unique();
             $table->integer('year');
             $table->decimal('current_km', 10, 2)->default(0);
             $table->string('photo')->nullable();
+            
+            // --- NOUS CAMPS TÈCNICS (OPCIONALS) ---
+            $table->integer('cc')->nullable(); // Cilindrada
+            $table->integer('power_cv')->nullable(); // Cavalls de potència
+            $table->string('license_type')->nullable(); // AM, A1, A2, A
+            $table->string('type')->nullable(); // Naked, Sport, Trail, etc.
+            $table->text('extras')->nullable(); // Extres instal·lats (escapament, cúpula...)
+            
             $table->timestamps();
         });
 
@@ -27,13 +32,10 @@ return new class extends Migration
             $table->foreign('last_motorcycle_id')
                   ->references('id')
                   ->on('motorcycles')
-                  ->nullOnDelete(); // Si esborrem la moto, l'usuari deixa de tenir preferida
+                  ->nullOnDelete(); 
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('motorcycles');
