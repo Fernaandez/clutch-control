@@ -5,7 +5,7 @@
             
             <div id="map-detail" class="absolute inset-0 z-0 bg-gray-900"></div>
 
-            <Link :href="route('routes.index')" class="absolute top-4 right-4 z-20 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full backdrop-blur-md border border-white/10 transition">
+            <Link :href="route('routes.index')" class="absolute top-20 right-4 z-50 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full backdrop-blur-md border border-white/10 transition">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
             </Link>
 
@@ -35,13 +35,24 @@
                             </div>
                         </div>
                         
-                        <Link v-if="mapRoute.user_id === $page.props.auth.user.id" :href="route('routes.edit', mapRoute.id)" class="bg-gray-800 hover:bg-gray-700 text-white p-2.5 rounded-lg transition border border-gray-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>
-                        </Link>
+                        <div class="flex items-center gap-2">
+                            <button v-if="$page.props.auth.user && mapRoute.user_id === $page.props.auth.user.id" @click="copyShareLink" class="bg-gray-800 hover:bg-brand-neon hover:text-black text-white p-2.5 rounded-lg transition border border-gray-700 flex items-center justify-center relative" title="Copia l'enllaç de Compartició">
+                                <svg v-if="!copyLinkSuccess" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" /></svg>
+                                <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                            </button>
+
+                            <Link v-if="$page.props.auth.user && mapRoute.user_id === $page.props.auth.user.id" :href="route('routes.edit', mapRoute.id)" class="bg-gray-800 hover:bg-gray-700 text-white p-2.5 rounded-lg transition border border-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>
+                            </Link>
+                        </div>
                     </div>
 
                     <div class="p-4 pt-2 pb-0">
                         <p class="text-sm text-gray-400 line-clamp-2">{{ mapRoute.description || 'Sense descripció.' }}</p>
+                    </div>
+
+                    <div v-if="mapRoute.photo" class="px-4 pt-3">
+                        <img :src="$page.props.storageUrl + '/' + mapRoute.photo" alt="Foto Ruta" class="w-full h-32 object-cover rounded-xl border border-brand-dark">
                     </div>
 
                     <div class="grid grid-cols-2 gap-px bg-gray-800/50 mt-4 border-t border-gray-800">
@@ -62,7 +73,7 @@
                         </a>
 
                         <Link 
-                            v-if="mapRoute.user_id !== $page.props.auth.user.id"
+                            v-if="$page.props.auth.user && mapRoute.user_id !== $page.props.auth.user.id"
                             :href="route('routes.clone', mapRoute.id)" 
                             method="post" 
                             as="button"
@@ -91,6 +102,17 @@ const props = defineProps({
 });
 
 const map = ref(null);
+const copyLinkSuccess = ref(false);
+
+const copyShareLink = () => {
+    let rawUrl = route('routes.preview', props.mapRoute.share_token);
+    navigator.clipboard.writeText(rawUrl).then(() => {
+        copyLinkSuccess.value = true;
+        setTimeout(() => {
+            copyLinkSuccess.value = false;
+        }, 3000);
+    });
+};
 
 const formattedDuration = computed(() => {
     if (!props.mapRoute.duration_seconds) return '0h 0m';

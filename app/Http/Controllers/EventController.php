@@ -55,6 +55,24 @@ class EventController extends Controller
         ]);
     }
 
+    // NOVA FUNCIÓ: PREVISUALITZAR EVENT VIA ENLLAÇ (Guest/Public)
+    public function preview($token)
+    {
+        $event = Event::where('share_token', $token)->firstOrFail();
+        $event->load(['organizer', 'routes.waypoints', 'participants']);
+        
+        if (Auth::check()) {
+            $event->is_attending = $event->participants->contains(Auth::id());
+        } else {
+            $event->is_attending = false;
+        }
+        $event->participants_count = $event->participants->count();
+
+        return Inertia::render('Events/Show', [
+            'event' => $event
+        ]);
+    }
+
     // 2. FORMULARI PER CREAR (CREATE)
     public function create()
         {
@@ -83,6 +101,7 @@ class EventController extends Controller
             'stages.*.location_name' => 'nullable|string',
             'stages.*.latitude' => 'nullable|numeric',
             'stages.*.longitude' => 'nullable|numeric',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         // 2. CREEM L'EVENT FENT SERVIR LES DADES VALIDADES
@@ -96,6 +115,11 @@ class EventController extends Controller
         // però normalment el formulari ja envia true o false.
         if (!isset($validated['is_public'])) {
             $event->is_public = true;
+        }
+
+        if ($request->hasFile('photo')) {
+            $ext = $request->file('photo')->getClientOriginalExtension();
+            $event->photo = $request->file('photo')->storeAs('events', \Illuminate\Support\Str::random(40) . '.' . $ext, 'public');
         }
 
         // ... (Codi per calcular la ubicació inicial igual que abans) ...
@@ -174,24 +198,50 @@ class EventController extends Controller
     {
         if ($event->user_id !== Auth::id()) abort(403);
         
-        // Carreguem les rutes vinculades per omplir l'itinerari
         $event->load('routes');
-        
-        // Les meves rutes disponibles per si en vol afegir de noves
         $myRoutes = Route::where('user_id', Auth::id())->get();
+
+        // Construïm les etapes des del pivot: inclou tant rutes com punts de trobada
+        // L'event pot tenir stages guardats com a JSON a 'location' o com a relació de rutes
+        $currentStages = [];
+
+        // 1. Si l'event té un punt de trobada (location), sempre el posem primer
+        if ($event->location) {
+            $currentStages[] = [
+                'type'          => 'location',
+                'route_id'      => null,
+                'location_name' => $event->location,
+                'latitude'      => $event->latitude,
+                'longitude'     => $event->longitude,
+            ];
+        }
+
+        // 2. Afegim les rutes GPS (en ordre)
+        foreach ($event->routes->sortBy('pivot.day_order') as $route) {
+            $currentStages[] = [
+                'type'          => 'route',
+                'route_id'      => $route->id,
+                'location_name' => null,
+                'latitude'      => null,
+                'longitude'     => null,
+            ];
+        }
+
+        // 3. Si segueix completament buit, etapa per defecte
+        if (empty($currentStages)) {
+            $currentStages[] = [
+                'type'          => 'location',
+                'route_id'      => null,
+                'location_name' => '',
+                'latitude'      => null,
+                'longitude'     => null,
+            ];
+        }
         
         return Inertia::render('Events/Edit', [
-            'event' => $event,
-            'myRoutes' => $myRoutes,
-            // Passem les rutes actuals de l'event ja formatades
-            'currentStages' => $event->routes->map(function($route) {
-                return [
-                    'type' => 'route',
-                    'route_id' => $route->id,
-                    // Si tinguessis dades de 'location' per etapa a la DB, les posaries aquí.
-                    // Com que només guardem rutes, la resta ho deixem buit o per defecte.
-                ];
-            })
+            'event'         => $event,
+            'myRoutes'      => $myRoutes,
+            'currentStages' => array_values($currentStages),
         ]);
     }
 
@@ -201,48 +251,59 @@ class EventController extends Controller
         if ($event->user_id !== Auth::id()) abort(403);
 
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'start_time' => 'required|date',
-            'location' => 'nullable|string',
-            'latitude' => 'nullable|numeric',
-            'longitude' => 'nullable|numeric',
-            'is_public' => 'boolean',
-            'max_participants' => 'nullable|integer|min:1', // <--- NOU CAMP
-            
-            // Validem l'array d'etapes igual que al Create
-            'stages' => 'array',
-            'stages.*.type' => 'required|in:route,location',
-            'stages.*.route_id' => 'nullable|exists:routes,id',
-            'stages.*.location_name' => 'nullable|string',
-            'stages.*.latitude' => 'nullable|numeric',
-            'stages.*.longitude' => 'nullable|numeric',
+            'title'          => 'required|string|max:255',
+            'description'    => 'nullable|string',
+            'start_time'     => 'required|date',
+            'location'       => 'nullable|string',
+            'latitude'       => 'nullable|numeric',
+            'longitude'      => 'nullable|numeric',
+            'is_public'      => 'boolean',
+            'max_participants' => 'nullable|integer|min:1',
+            'stages_json'    => 'nullable|string', // <-- Rep les etapes com a JSON string
+            'photo'          => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
+
+        // Deserialitzem les etapes
+        $stages = [];
+        if (!empty($validated['stages_json'])) {
+            $stages = json_decode($validated['stages_json'], true) ?? [];
+        }
 
         // A. Actualitzem dades bàsiques
-        $event->update([
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'start_time' => $validated['start_time'],
-            'location' => $validated['location'],
-            'latitude' => $validated['latitude'],
-            'longitude' => $validated['longitude'],
-            'is_public' => $validated['is_public'],
-            'max_participants' => $validated['max_participants'], // <--- Guardem
-        ]);
+        $updateData = [
+            'title'           => $validated['title'],
+            'description'     => $validated['description'],
+            'start_time'      => $validated['start_time'],
+            'is_public'       => $validated['is_public'] ?? true,
+            'max_participants' => $validated['max_participants'] ?? null,
+        ];
+
+        // Localització principal: primer stage de tipus location
+        $locationStage = collect($stages)->firstWhere('type', 'location');
+        if ($locationStage) {
+            $updateData['location']  = $locationStage['location_name'] ?? null;
+            $updateData['latitude']  = $locationStage['latitude']  ?? null;
+            $updateData['longitude'] = $locationStage['longitude'] ?? null;
+        }
+
+        if ($request->hasFile('photo')) {
+            if ($event->photo) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($event->photo);
+            }
+            $ext = $request->file('photo')->getClientOriginalExtension();
+            $updateData['photo'] = $request->file('photo')->storeAs('events', \Illuminate\Support\Str::random(40) . '.' . $ext, 'public');
+        }
+
+        $event->update($updateData);
 
         // B. Actualitzem les Rutes / Etapes
-        // Estratègia: Esborrem les relacions antigues i creem les noves (és el més net per reordenar)
         $event->routes()->detach();
-
-        if ($request->stages) {
-            foreach ($request->stages as $index => $stage) {
-                if ($stage['type'] === 'route' && $stage['route_id']) {
-                    $event->routes()->attach($stage['route_id'], ['day_order' => $index + 1]);
-                }
+        foreach ($stages as $index => $stage) {
+            if (($stage['type'] ?? '') === 'route' && !empty($stage['route_id'])) {
+                $event->routes()->attach($stage['route_id'], ['day_order' => $index + 1]);
             }
         }
 
-        return redirect()->route('events.mine'); // Tornem a la gestió
+        return redirect()->route('events.mine');
     }
 }

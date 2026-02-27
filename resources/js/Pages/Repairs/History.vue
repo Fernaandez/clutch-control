@@ -32,6 +32,13 @@
                         </div>
                     </div>
 
+                    <div v-if="log.invoice_photo" class="mt-3">
+                        <a :href="$page.props.storageUrl + '/' + log.invoice_photo" target="_blank">
+                            <img :src="$page.props.storageUrl + '/' + log.invoice_photo" alt="Foto factura" class="h-28 w-full object-cover rounded-lg border border-red-900/30 hover:opacity-80 transition cursor-pointer">
+                        </a>
+                        <p class="text-[10px] text-gray-600 mt-1">📎 Foto / Factura — clica per veure-la gran</p>
+                    </div>
+
                 </div>
             </div>
 

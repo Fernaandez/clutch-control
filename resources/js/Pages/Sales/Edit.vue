@@ -4,38 +4,39 @@
             
             <div class="mb-8">
                 <Link :href="route('sales.mine')" class="text-gray-400 text-sm hover:text-white flex items-center gap-1 transition mb-4">
-                    &larr; Tornar a Els meus Anuncis
+                    &larr; Els meus Anuncis
                 </Link>
                 <h1 class="text-3xl font-black text-white uppercase tracking-tighter">Editar <span class="text-brand-neon">Anunci</span></h1>
-                <p class="text-gray-400 text-sm mt-1">Estàs editant: {{ sale.motorcycle?.brand }} {{ sale.motorcycle?.model }}</p>
+                <p class="text-gray-400 text-sm mt-1">{{ sale.motorcycle?.brand }} {{ sale.motorcycle?.model }}</p>
             </div>
 
-            <form @submit.prevent="submit" class="bg-brand-surface border border-brand-dark rounded-xl p-5 shadow-xl space-y-6">
-                
-                <div class="bg-brand-black p-4 rounded-xl border border-brand-dark">
-                    <h3 class="text-xs font-black text-brand-neon uppercase tracking-widest mb-3">Especificacions de la Moto</h3>
+            <form @submit.prevent="submit" class="space-y-6">
+
+                <!-- Especificacions tècniques -->
+                <div class="bg-brand-surface border border-brand-dark rounded-xl p-5 shadow-xl space-y-4">
+                    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2">Especificacions de la Moto</h2>
                     
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-                        <div class="col-span-1">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div>
                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">CC</label>
-                            <input v-model="form.cc" type="number" class="w-full text-sm rounded bg-brand-surface border-brand-dark text-white focus:border-brand-neon">
+                            <input v-model="form.cc" type="number" class="w-full text-sm rounded bg-brand-black border-brand-dark text-white focus:border-brand-neon">
                         </div>
-                        <div class="col-span-1">
+                        <div>
                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">CV</label>
-                            <input v-model="form.power_cv" type="number" class="w-full text-sm rounded bg-brand-surface border-brand-dark text-white focus:border-brand-neon">
+                            <input v-model="form.power_cv" type="number" class="w-full text-sm rounded bg-brand-black border-brand-dark text-white focus:border-brand-neon">
                         </div>
                         <div class="col-span-2">
                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Carnet</label>
-                            <select v-model="form.license_type" class="w-full text-sm rounded bg-brand-surface border-brand-dark text-white focus:border-brand-neon">
+                            <select v-model="form.license_type" class="w-full text-sm rounded bg-brand-black border-brand-dark text-white focus:border-brand-neon">
                                 <option value="">Sense definir</option>
                                 <option value="AM">AM</option><option value="A1">A1</option><option value="A2">A2</option><option value="A">A</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="mb-3">
+                    <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Estil</label>
-                        <select v-model="form.type" class="w-full text-sm rounded bg-brand-surface border-brand-dark text-white focus:border-brand-neon">
+                        <select v-model="form.type" class="w-full text-sm rounded bg-brand-black border-brand-dark text-white focus:border-brand-neon">
                             <option value="">Sense definir</option>
                             <option value="Naked">Naked</option><option value="Sport">Sport / R</option>
                             <option value="Trail">Trail / Adventure</option><option value="Custom">Custom / Cruiser</option>
@@ -46,91 +47,147 @@
 
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Extres instal·lats</label>
-                        <textarea v-model="form.extras" rows="2" class="w-full text-sm rounded bg-brand-surface border-brand-dark text-white focus:border-brand-neon resize-none"></textarea>
+                        <textarea v-model="form.extras" rows="2" class="w-full text-sm rounded bg-brand-black border-brand-dark text-white focus:border-brand-neon resize-none"></textarea>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Títol de l'anunci</label>
-                    <input v-model="form.title" type="text" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0">
-                    <p v-if="form.errors.title" class="text-red-500 text-xs mt-1">{{ form.errors.title }}</p>
-                </div>
+                <!-- Dades de l'anunci -->
+                <div class="bg-brand-surface border border-brand-dark rounded-xl p-5 shadow-xl space-y-5">
+                    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2">Dades de l'Anunci</h2>
 
-                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Preu (€)</label>
-                        <input v-model="form.price" type="number" step="0.01" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0 text-brand-neon font-bold text-lg">
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Títol</label>
+                        <input v-model="form.title" type="text" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0">
+                        <p v-if="form.errors.title" class="text-red-500 text-xs mt-1">{{ form.errors.title }}</p>
                     </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Preu (€)</label>
+                            <input v-model="form.price" type="number" step="0.01" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0 text-brand-neon font-bold text-lg">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Ubicació</label>
+                            <input v-model="form.location" type="text" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0">
+                        </div>
+                    </div>
+
                     <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Ubicació</label>
-                        <input v-model="form.location" type="text" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0">
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Descripció</label>
+                        <textarea v-model="form.description" rows="5" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0 resize-none"></textarea>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Descripció addicional</label>
-                    <textarea v-model="form.description" rows="5" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0 resize-none"></textarea>
+                <!-- Fotos existents -->
+                <div v-if="sale.images && sale.images.length > 0" class="bg-brand-surface border border-brand-dark rounded-xl p-5 shadow-xl">
+                    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2 mb-4">Fotos Actuals</h2>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div v-for="img in sale.images" :key="img.id" class="relative group">
+                            <img :src="$page.props.storageUrl + '/' + img.image_path" class="w-full h-24 object-cover rounded-lg border border-brand-dark">
+                            <Link
+                                :href="route('sales.images.destroy', { sale: sale.id, image: img.id })"
+                                method="delete" as="button"
+                                class="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                            >✕</Link>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="border-t border-brand-dark pt-4">
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-3">Estat de l'anunci</label>
+                <!-- Afegir fotos noves -->
+                <div class="bg-brand-surface border border-brand-dark rounded-xl p-5 shadow-xl">
+                    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2 mb-4">Afegir Fotos Noves</h2>
+                    <div class="border-2 border-dashed border-brand-dark hover:border-brand-neon rounded-xl p-5 text-center transition cursor-pointer bg-brand-black" @click="$refs.photoInput.click()">
+                        <p class="text-sm text-gray-500">Toca per seleccionar fotos (màx. {{ 8 - (sale.images?.length || 0) }} restants)</p>
+                    </div>
+                    <input ref="photoInput" type="file" multiple accept="image/*" class="hidden" @change="handleImages">
+                    <div v-if="imagePreviews.length > 0" class="grid grid-cols-3 gap-2 mt-3">
+                        <div v-for="(preview, i) in imagePreviews" :key="i" class="relative group">
+                            <img :src="preview" class="w-full h-24 object-cover rounded-lg border border-brand-neon/50">
+                            <button @click="removePreview(i)" type="button" class="absolute top-1 right-1 bg-red-600 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition">✕</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estat -->
+                <div class="bg-brand-surface border border-brand-dark rounded-xl p-5 shadow-xl">
+                    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2 mb-4">Estat de l'Anunci</h2>
                     <div class="flex flex-col gap-3">
-                        <label class="flex items-center gap-2 cursor-pointer">
+                        <label class="flex items-center gap-3 cursor-pointer">
                             <input v-model="form.is_active" type="checkbox" class="rounded bg-brand-black border-brand-dark text-brand-neon focus:ring-brand-neon h-5 w-5">
-                            <span class="text-sm font-bold text-gray-300">Anunci Visible al Mur (Actiu)</span>
+                            <span class="text-sm font-bold text-gray-300">Visible al Mercat (Actiu)</span>
                         </label>
-                        <label class="flex items-center gap-2 cursor-pointer">
+                        <label class="flex items-center gap-3 cursor-pointer">
                             <input v-model="form.is_sold" type="checkbox" class="rounded bg-brand-black border-brand-dark text-red-500 focus:ring-red-500 h-5 w-5">
                             <span class="text-sm font-bold text-red-400">Marcar com a VENUDA</span>
                         </label>
                     </div>
                 </div>
 
-                <div class="pt-6 border-t border-brand-dark flex flex-col gap-3">
-                    <button type="submit" :disabled="form.processing" class="w-full bg-brand-neon text-brand-black font-black uppercase tracking-wider py-4 rounded-xl hover:bg-white transition flex items-center justify-center gap-2">
-                        <span v-if="form.processing">Guardant...</span>
-                        <span v-else>Actualitzar Anunci i Moto</span>
+                <div class="flex flex-col gap-3">
+                    <button type="submit" :disabled="form.processing" class="w-full bg-brand-neon text-brand-black font-black uppercase tracking-wider py-4 rounded-xl hover:bg-white transition disabled:opacity-50">
+                        Actualitzar Anunci
                     </button>
-                    
-                    <button type="button" @click="destroy" class="w-full text-red-500 hover:text-red-400 hover:bg-brand-black py-2 rounded transition text-sm">
+                    <button type="button" @click="destroy" class="w-full text-red-500 hover:text-red-400 hover:bg-brand-black py-3 rounded-xl transition text-sm border border-red-900/30">
                         Eliminar Anunci Definitivament
                     </button>
                 </div>
-            </form>
 
+            </form>
         </div>
     </AppLayout>
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 
-const props = defineProps({
-    sale: Object
-});
+const props = defineProps({ sale: Object });
+
+const photoInput = ref(null);
+const imagePreviews = ref([]);
+const selectedFiles = ref([]);
 
 const form = useForm({
+    _method: 'PUT',
     title: props.sale.title,
     description: props.sale.description,
     price: props.sale.price,
     location: props.sale.location,
     is_active: Boolean(props.sale.is_active),
     is_sold: Boolean(props.sale.is_sold),
-    // Dades de la moto precargades per editar
     cc: props.sale.motorcycle?.cc || '',
     power_cv: props.sale.motorcycle?.power_cv || '',
     license_type: props.sale.motorcycle?.license_type || '',
     type: props.sale.motorcycle?.type || '',
-    extras: props.sale.motorcycle?.extras || ''
+    extras: props.sale.motorcycle?.extras || '',
+    images: [],
 });
 
+const handleImages = (e) => {
+    const files = Array.from(e.target.files);
+    const remaining = 8 - (props.sale.images?.length || 0) - selectedFiles.value.length;
+    files.slice(0, remaining).forEach(file => {
+        selectedFiles.value.push(file);
+        const reader = new FileReader();
+        reader.onload = (ev) => imagePreviews.value.push(ev.target.result);
+        reader.readAsDataURL(file);
+    });
+    form.images = selectedFiles.value;
+};
+
+const removePreview = (index) => {
+    imagePreviews.value.splice(index, 1);
+    selectedFiles.value.splice(index, 1);
+    form.images = selectedFiles.value;
+};
+
 const submit = () => {
-    form.put(route('sales.update', props.sale.id));
+    form.post(route('sales.update', props.sale.id), { forceFormData: true });
 };
 
 const destroy = () => {
-    if (confirm('Estàs segur que vols esborrar aquest anunci per sempre? La moto no s\'esborrarà del teu garatge.')) {
+    if (confirm("Estàs segur? La moto no s'esborrarà del teu garatge.")) {
         form.delete(route('sales.destroy', props.sale.id));
     }
 };

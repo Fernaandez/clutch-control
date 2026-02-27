@@ -18,6 +18,10 @@ Route::get('/', function () {
     ]);
 })->name('welcome');
 
+// --- ENLLAÇOS PÚBLICS COMPARTITS ---
+Route::get('/r/{token}', [RouteController::class, 'preview'])->name('routes.preview');
+Route::get('/e/{token}', [EventController::class, 'preview'])->name('events.preview');
+
 // El perfil NO demana 'verified' perquè l'usuari pugui entrar a canviar el seu correu si s'ha equivocat
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -88,5 +92,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/sales/{sale}/edit', [\App\Http\Controllers\SaleController::class, 'edit'])->name('sales.edit');
     Route::put('/sales/{sale}', [\App\Http\Controllers\SaleController::class, 'update'])->name('sales.update');
     Route::delete('/sales/{sale}', [\App\Http\Controllers\SaleController::class, 'destroy'])->name('sales.destroy');
+    Route::patch('/sales/{sale}/mark-sold', [\App\Http\Controllers\SaleController::class, 'markSold'])->name('sales.mark-sold');
+    Route::delete('/sales/{sale}/images/{image}', [\App\Http\Controllers\SaleController::class, 'destroyImage'])->name('sales.images.destroy');
 
 });

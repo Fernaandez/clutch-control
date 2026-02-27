@@ -28,8 +28,8 @@ class MotorcycleController extends Controller
         $validated = $request->validate([
             'brand' => 'required|string|max:50',
             'model' => 'required|string|max:50',
-            // Afegim unique:motorcycles perquè et mostri error si repeteixes matrícula
-            'plate' => 'required|string|max:15|unique:motorcycles,plate', 
+            // Matícula ara és opcional (ciclomotors poden tenir formats locals o no tenir-ne)
+            'plate' => 'nullable|string|max:15|unique:motorcycles,plate',
             'year'  => 'required|integer',
             'current_km' => 'required|numeric|min:0',
             
@@ -39,14 +39,20 @@ class MotorcycleController extends Controller
             'license_type' => 'nullable|string',
             'type' => 'nullable|string',
             'extras' => 'nullable|string|max:1000',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
-            // Personalitzem l'error de la matrícula perquè s'entengui
             'plate.unique' => 'Aquesta matrícula ja està registrada al sistema.'
         ]);
 
         // Guardem la moto a la base de dades (Format Anti-Errors VS Code)
         $data = $validated;
         $data['user_id'] = Auth::id(); // Assignem el propietari
+
+        if ($request->hasFile('photo')) {
+            $ext = $request->file('photo')->getClientOriginalExtension();
+            $data['photo'] = $request->file('photo')->storeAs('motorcycles', \Illuminate\Support\Str::random(40) . '.' . $ext, 'public');
+        }
+
         Motorcycle::create($data);
 
         return redirect()->route('motorcycles.index');
@@ -65,7 +71,8 @@ class MotorcycleController extends Controller
         $validated = $request->validate([
             'brand' => 'required|string|max:50',
             'model' => 'required|string|max:50',
-            'plate' => 'required|string|max:15', 
+            // nullable + ignore propi id per no fallar en update
+            'plate' => ['nullable', 'string', 'max:15', \Illuminate\Validation\Rule::unique('motorcycles', 'plate')->ignore($motorcycle->id)],
             'year'  => 'required|integer',
             'current_km' => 'required|numeric|min:0',
             'cc' => 'nullable|integer|min:0',
@@ -73,9 +80,22 @@ class MotorcycleController extends Controller
             'license_type' => 'nullable|string|in:AM,A1,A2,A',
             'type' => 'nullable|string|in:Naked,Sport,Trail,Custom,Scooter,Touring,Off-Road,Classic',
             'extras' => 'nullable|string|max:1000',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ], [
+            'plate.unique' => 'Aquesta matrícula ja està registrada per una altra moto.'
         ]);
 
-        $motorcycle->update($validated);
+        $data = $validated;
+        
+        if ($request->hasFile('photo')) {
+            if ($motorcycle->photo) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($motorcycle->photo);
+            }
+            $ext = $request->file('photo')->getClientOriginalExtension();
+            $data['photo'] = $request->file('photo')->storeAs('motorcycles', \Illuminate\Support\Str::random(40) . '.' . $ext, 'public');
+        }
+
+        $motorcycle->update($data);
 
         return redirect()->route('motorcycles.index');
     }
@@ -83,6 +103,19 @@ class MotorcycleController extends Controller
     public function destroy(Motorcycle $motorcycle)
     {
         if ($motorcycle->user_id !== Auth::id()) { abort(403); }
+        
+        // Esborrem foto principal de la moto
+        if ($motorcycle->photo) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($motorcycle->photo);
+        }
+
+        // Esborrem fotos secundàries de l'anunci de venda (si en té) per evitar brossa al servidor
+        if ($motorcycle->saleListing) {
+            foreach ($motorcycle->saleListing->images as $image) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($image->image_path);
+            }
+        }
+
         $motorcycle->delete();
         return redirect()->route('motorcycles.index');
     }

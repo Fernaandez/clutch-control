@@ -17,7 +17,7 @@
                         <div class="grid md:grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Nom de la Ruta</label>
-                                <input v-model="form.title" type="text" placeholder="Ex: Collada de Toses" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0">
+                                <input v-model="form.title" type="text" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0">
                                 <div v-if="form.errors.title" class="text-red-500 text-xs mt-1">{{ form.errors.title }}</div>
                             </div>
                             <div>
@@ -27,10 +27,18 @@
                                     <option v-for="moto in motorcycles" :key="moto.id" :value="moto.id">{{ moto.alias || moto.model }}</option>
                                 </select>
                             </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Tipus de Ruta</label>
+                                <select v-model="form.category_id" class="w-full bg-brand-black border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon">
+                                    <option :value="null">-- Selecciona Categoria --</option>
+                                    <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                                </select>
+                            </div>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Descripció</label>
-                            <textarea v-model="form.description" rows="3" placeholder="Explica detalls de la ruta, estat de la carretera..." class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0"></textarea>
+                            <textarea v-model="form.description" rows="3" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0"></textarea>
+                            <div v-if="form.errors.description" class="text-red-500 text-xs mt-1">{{ form.errors.description }}</div>
                         </div>
                         <div class="grid md:grid-cols-2 gap-6">
                             <div>
@@ -54,6 +62,18 @@
                                 </div>
                             </div>
                         </div>
+                        <div v-if="form.errors.motorcycle_id || form.errors.difficulty || form.errors.is_public" class="text-red-500 text-xs mt-1">
+                            Valors de selecció incorrectes.
+                        </div>
+                        <div v-if="form.errors.planned_distance_km || form.errors.duration_seconds || form.errors.geo_json || form.errors.waypoints" class="text-red-500 text-xs mt-1">
+                            Falta dibuixar la ruta correctament al mapa. (KMs o waypoints invàlids)
+                        </div>
+                    </div>
+
+                    <div class="bg-brand-surface p-4 rounded-xl border border-brand-dark">
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Foto de la Ruta</label>
+                        <input @change="e => form.photo = e.target.files[0]" type="file" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-brand-base/20 file:text-brand-neon hover:file:bg-brand-base/30 transition cursor-pointer">
+                        <div v-if="form.errors.photo" class="text-red-500 text-xs mt-1">{{ form.errors.photo }}</div>
                     </div>
 
                     <div class="bg-brand-surface p-6 rounded-xl border border-brand-dark shadow-lg">
@@ -109,10 +129,6 @@
                                 <input v-model="searchQuery" @input="handleSearchInput" type="text" class="block w-full py-2.5 pl-10 pr-3 text-sm text-white bg-transparent border-none focus:ring-0 placeholder-gray-600" placeholder="Afegeix una parada..." autocomplete="off">
                             </div>
                             
-                            <button @click="closeMap" class="bg-brand-neon text-brand-black px-4 py-2.5 rounded-xl font-bold text-xs uppercase hover:bg-white transition shadow-[0_0_15px_rgba(12,225,181,0.3)] flex items-center gap-2 flex-shrink-0">
-                                <span>Fet</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd" /></svg>
-                            </button>
                         </div>
 
                         <div v-if="searchResults.length > 0" class="border-t border-brand-dark/50 pt-2">
@@ -176,6 +192,9 @@
                         <button @click="locateUser" class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.5)] hover:scale-110 transition">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 transform rotate-45"><path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" /></svg>
                         </button>
+                        <button @click="closeMap" class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.5)] hover:scale-110 transition flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd" /></svg>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -194,7 +213,8 @@ import 'leaflet-routing-machine';
 import draggable from 'vuedraggable';
 
 const props = defineProps({
-    motorcycles: Array
+    motorcycles: Array,
+    categories: Array
 });
 
 const form = useForm({
@@ -202,11 +222,13 @@ const form = useForm({
     description: '',
     difficulty: 'medium',
     motorcycle_id: null,
+    category_id: null,
     planned_distance_km: 0,
     duration_seconds: 0,
     geo_json: null,
     waypoints: [],
-    is_public: false
+    is_public: false,
+    photo: null
 });
 
 const map = ref(null);
@@ -369,7 +391,7 @@ onMounted(() => {
         const summary = routes[0].summary;
         form.planned_distance_km = (summary.totalDistance / 1000).toFixed(1);
         duration.value = summary.totalTime;
-        form.duration_seconds = summary.totalTime;
+        form.duration_seconds = Math.round(summary.totalTime);
         form.geo_json = JSON.stringify(routes[0].coordinates); 
         const wps = routingControl.value.getWaypoints().filter(wp => wp.latLng);
         form.waypoints = wps.map(wp => ({ lat: wp.latLng.lat, lng: wp.latLng.lng }));
@@ -379,7 +401,7 @@ onMounted(() => {
 });
 
 const submit = () => {
-    form.post(route('routes.store'));
+    form.post(route('routes.store'), { forceFormData: true });
 };
 </script>
 

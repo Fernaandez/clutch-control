@@ -23,7 +23,7 @@
                     <div class="flex justify-between items-start mb-2 relative z-10">
                         <div>
                             <h3 class="text-lg font-bold text-white">{{ task.title }}</h3>
-                            <p class="text-sm text-gray-400">{{ task.description }}</p>
+                            <p class="text-sm text-gray-400">{{ task.location }}</p>
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 relative z-10 mt-4">
@@ -40,8 +40,16 @@
                 <h3 class="text-xl font-bold text-white mb-4">Nova Millora 🚀</h3>
                 <form @submit.prevent="submitCreate">
                     <div class="space-y-4">
-                        <div><label class="text-gray-400 text-sm">Què vols posar?</label><input v-model="createForm.title" type="text" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-purple-500" required></div>
-                        <div><label class="text-gray-400 text-sm">Detalls / Link</label><textarea v-model="createForm.description" rows="3" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-purple-500"></textarea></div>
+                        <div>
+                            <label class="text-gray-400 text-sm">Què vols posar?</label>
+                            <input v-model="createForm.title" type="text" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-purple-500" required>
+                            <p v-if="createForm.errors.title" class="text-red-500 text-xs mt-1">{{ createForm.errors.title }}</p>
+                        </div>
+                        <div>
+                            <label class="text-gray-400 text-sm">Detalls / Link</label>
+                            <textarea v-model="createForm.location" rows="3" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-purple-500"></textarea>
+                            <p v-if="createForm.errors.location" class="text-red-500 text-xs mt-1">{{ createForm.errors.location }}</p>
+                        </div>
                     </div>
                     <button type="submit" class="mt-6 w-full bg-purple-600 text-white font-bold py-2 rounded hover:bg-purple-500 transition">Guardar</button>
                 </form>
@@ -55,11 +63,32 @@
                 <p class="text-sm text-brand-muted mb-4">Tasca: <span class="text-purple-400">{{ selectedTask?.title }}</span></p>
                 <form @submit.prevent="submitComplete">
                     <div class="space-y-4">
-                        <div><label class="text-gray-400 text-sm">Data</label><input v-model="completeForm.date" type="date" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-purple-500" required></div>
-                        <div><label class="text-gray-400 text-sm">KM Actuals</label><input v-model="completeForm.km_at_moment" type="number" step="0.1" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-purple-500" required></div>
+                        <div>
+                            <label class="text-gray-400 text-sm">Data</label>
+                            <input v-model="completeForm.date" type="date" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-purple-500" required>
+                            <p v-if="completeForm.errors.date" class="text-red-500 text-xs mt-1">{{ completeForm.errors.date }}</p>
+                        </div>
+                        <div>
+                            <label class="text-gray-400 text-sm">KM Actuals</label>
+                            <input v-model="completeForm.km_at_moment" type="number" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-purple-500" required>
+                            <p v-if="completeForm.errors.km_at_moment" class="text-red-500 text-xs mt-1">{{ completeForm.errors.km_at_moment }}</p>
+                        </div>
                         <div class="grid grid-cols-2 gap-3">
-                            <div><label class="text-gray-400 text-sm">Preu (€)</label><input v-model="completeForm.cost" type="number" step="0.01" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-purple-500" required></div>
-                            <div><label class="text-gray-400 text-sm">Notes</label><input v-model="completeForm.description" type="text" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-purple-500" required></div>
+                            <div>
+                                <label class="text-gray-400 text-sm">Preu (€)</label>
+                                <input v-model="completeForm.cost" type="number" step="0.01" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-purple-500" required>
+                                <p v-if="completeForm.errors.cost" class="text-red-500 text-xs mt-1">{{ completeForm.errors.cost }}</p>
+                            </div>
+                            <div>
+                                <label class="text-gray-400 text-sm">Taller/Notes</label>
+                                <input v-model="completeForm.description" type="text" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-purple-500" required>
+                                <p v-if="completeForm.errors.description" class="text-red-500 text-xs mt-1">{{ completeForm.errors.description }}</p>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-gray-400 text-sm">Foto / Factura</label>
+                            <input @change="e => completeForm.invoice_photo = e.target.files[0]" type="file" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-purple-900/30 file:text-purple-400 hover:file:bg-purple-900/50 cursor-pointer mt-1">
+                            <p v-if="completeForm.errors.invoice_photo" class="text-red-500 text-xs mt-1">{{ completeForm.errors.invoice_photo }}</p>
                         </div>
                     </div>
                     <button type="submit" class="mt-6 w-full bg-purple-600 text-white font-bold py-3 rounded-lg hover:bg-purple-500 transition shadow-lg">Confirmar</button>
@@ -79,11 +108,11 @@ const showCreateModal = ref(false);
 const showCompleteModal = ref(false);
 const selectedTask = ref(null);
 
-const createForm = useForm({ title: '', description: '' });
-const completeForm = useForm({ date: new Date().toISOString().substr(0, 10), km_at_moment: props.motorcycle.current_km, cost: '', description: '' });
+const createForm = useForm({ title: '', location: '' });
+const completeForm = useForm({ _method: 'patch', date: new Date().toISOString().substr(0, 10), km_at_moment: Math.round(props.motorcycle.current_km), cost: '', description: '', invoice_photo: null });
 
-const submitCreate = () => { createForm.post(route('motorcycles.upgrades.store', props.motorcycle.id), { onSuccess: () => showCreateModal.value = false }); };
-const openCompleteModal = (task) => { selectedTask.value = task; completeForm.km_at_moment = props.motorcycle.current_km; showCompleteModal.value = true; };
-const submitComplete = () => { if (!selectedTask.value) return; completeForm.patch(route('maintenance.mark-done', selectedTask.value.id), { onSuccess: () => showCompleteModal.value = false }); };
+const submitCreate = () => { createForm.post(route('motorcycles.upgrades.store', props.motorcycle.id), { onSuccess: () => { showCreateModal.value = false; createForm.reset(); } }); };
+const openCompleteModal = (task) => { selectedTask.value = task; completeForm.km_at_moment = Math.round(props.motorcycle.current_km); showCompleteModal.value = true; };
+const submitComplete = () => { if (!selectedTask.value) return; completeForm.post(route('maintenance.mark-done', selectedTask.value.id), { forceFormData: true, onSuccess: () => showCompleteModal.value = false }); };
 const deleteTask = (task) => { if(confirm('Segur?')) useForm({}).delete(route('maintenance.destroy', task.id)); };
 </script>

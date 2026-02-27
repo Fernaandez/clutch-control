@@ -9,6 +9,16 @@ class Route extends Model
 {
     use HasFactory;
     
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            if (empty($model->share_token)) {
+                $model->share_token = \Illuminate\Support\Str::random(12);
+            }
+        });
+    }
+
     protected $fillable = [
         'user_id',
         'motorcycle_id', 
@@ -23,6 +33,8 @@ class Route extends Model
         'start_lng', 
         'location_city', 
         'is_public', 
+        'is_recorded',
+        'share_token',
         'difficulty', 
         'photo'
     ];
@@ -30,6 +42,7 @@ class Route extends Model
     protected $casts = [
         'geo_json' => 'array', // converteix el JSON a Array sol
         'is_public' => 'boolean',
+        'is_recorded' => 'boolean',
     ];
 
     public function user() {

@@ -9,6 +9,16 @@ class Event extends Model
 {
     use HasFactory;
 
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            if (empty($model->share_token)) {
+                $model->share_token = \Illuminate\Support\Str::random(12);
+            }
+        });
+    }
+
     protected $fillable = [
         'user_id', 
         'title', 
@@ -20,6 +30,7 @@ class Event extends Model
         'latitude', 
         'longitude', 
         'max_participants', 
+        'share_token',
         'photo'
     ];
 

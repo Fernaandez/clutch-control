@@ -13,29 +13,34 @@
         <form @submit.prevent="form.patch(route('profile.update'))" class="mt-6 space-y-6">
             
             <div>
-                <label class="block font-bold text-xs uppercase text-gray-400 mb-1 ml-1" for="name">Nom</label>
+                <label class="block font-bold text-xs uppercase text-gray-400 mb-1 ml-1" for="name">
+                    Nom <span class="text-red-400">*</span>
+                </label>
                 <input 
                     id="name" 
                     type="text" 
-                    class="w-full rounded-lg bg-brand-black border-brand-dark text-white focus:border-brand-neon focus:ring-0 transition"
+                    :class="form.errors.name ? 'w-full rounded-lg bg-brand-black border-red-500 ring-1 ring-red-500 text-white focus:border-red-400 focus:ring-0 transition' : 'w-full rounded-lg bg-brand-black border-brand-dark text-white focus:border-brand-neon focus:ring-0 transition'"
                     v-model="form.name" 
                     required 
                     autocomplete="name" 
                 />
-                <div v-if="form.errors.name" class="text-red-500 text-xs mt-1 ml-1">{{ form.errors.name }}</div>
+                <div v-if="form.errors.name" class="text-red-400 text-xs mt-1 ml-1">⚠ {{ form.errors.name }}</div>
             </div>
 
             <div>
-                <label class="block font-bold text-xs uppercase text-gray-400 mb-1 ml-1" for="email">Correu Electrònic</label>
+                <label class="block font-bold text-xs uppercase text-gray-400 mb-1 ml-1" for="email">
+                    Correu Electrònic <span class="text-red-400">*</span>
+                </label>
                 <input 
                     id="email" 
                     type="email" 
-                    class="w-full rounded-lg bg-brand-black border-brand-dark text-white focus:border-brand-neon focus:ring-0 transition"
+                    :class="form.errors.email ? 'w-full rounded-lg bg-brand-black border-red-500 ring-1 ring-red-500 text-white focus:border-red-400 focus:ring-0 transition' : 'w-full rounded-lg bg-brand-black border-brand-dark text-white focus:border-brand-neon focus:ring-0 transition'"
                     v-model="form.email" 
                     required 
                     autocomplete="username" 
                 />
-                <div v-if="form.errors.email" class="text-red-500 text-xs mt-1 ml-1">{{ form.errors.email }}</div>
+                <p class="text-[10px] text-gray-500 mt-1 ml-1">Format: <span class="text-brand-neon font-mono">nom@exemple.com</span></p>
+                <div v-if="form.errors.email" class="text-red-400 text-xs mt-1 ml-1">⚠ {{ form.errors.email }}</div>
             </div>
 
             <div v-if="mustVerifyEmail && user.email_verified_at === null" class="mt-4 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
@@ -56,17 +61,22 @@
             </div>
 
             <div>
-                <label class="block font-bold text-xs uppercase text-gray-400 mb-1 ml-1" for="phone_number">Telèfon (Únic)</label>
+                <label class="block font-bold text-xs uppercase text-gray-400 mb-1 ml-1" for="phone_number">
+                    Telèfon <span class="text-gray-600 font-normal">(opcional)</span>
+                </label>
                 <input 
                     id="phone_number" 
                     type="tel" 
-                    placeholder="Ex: +34 600 000 000"
-                    class="w-full rounded-lg bg-brand-black border-brand-dark text-white focus:border-brand-neon focus:ring-0 transition"
+                    placeholder="Ex: 612 345 678"
+                    :class="form.errors.phone_number ? 'w-full rounded-lg bg-brand-black border-red-500 ring-1 ring-red-500 text-white focus:border-red-400 focus:ring-0 transition' : 'w-full rounded-lg bg-brand-black border-brand-dark text-white focus:border-brand-neon focus:ring-0 transition'"
                     v-model="form.phone_number" 
                     autocomplete="tel" 
+                    maxlength="20"
                 />
-                <p class="text-[10px] text-gray-500 mt-1 ml-1">Sense el teu telèfon, l'opció de contactar per WhatsApp no estarà disponible al mercat.</p>
-                <div v-if="form.errors.phone_number" class="text-red-500 text-xs mt-1 ml-1">{{ form.errors.phone_number }}</div>
+                <p class="text-[10px] text-gray-500 mt-1 ml-1">
+                    Format: <span class="text-brand-neon font-mono">612 345 678</span> o <span class="text-brand-neon font-mono">+34 612 345 678</span> — Necessari per WhatsApp al mercat.
+                </p>
+                <div v-if="form.errors.phone_number" class="text-red-400 text-xs mt-1 ml-1">⚠ {{ form.errors.phone_number }}</div>
             </div>
 
             <div class="flex items-center gap-4 pt-4 border-t border-brand-dark">

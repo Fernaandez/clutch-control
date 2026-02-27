@@ -42,6 +42,13 @@
                         <span class="text-gray-500 font-mono text-xs">Fet als {{ log.km_at_moment }} km</span>
                     </div>
 
+                    <div v-if="log.invoice_photo" class="mt-2">
+                        <a :href="$page.props.storageUrl + '/' + log.invoice_photo" target="_blank">
+                            <img :src="$page.props.storageUrl + '/' + log.invoice_photo" alt="Foto factura" class="h-28 w-full object-cover rounded-lg border border-brand-dark hover:opacity-80 transition cursor-pointer">
+                        </a>
+                        <p class="text-[10px] text-gray-600 mt-1">📎 Foto / Factura — clica per veure-la gran</p>
+                    </div>
+
                     <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-dark"></div>
                 </div>
             </div>

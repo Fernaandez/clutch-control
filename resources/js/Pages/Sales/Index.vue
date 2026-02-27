@@ -154,12 +154,21 @@
                     </div>
 
                     <div class="h-40 bg-gray-900 relative w-full overflow-hidden flex items-center justify-center">
-                        <div class="absolute inset-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                        <!-- Foto real si n'hi ha -->
+                        <img
+                            v-if="sale.images && sale.images.length > 0"
+                            :src="$page.props.storageUrl + '/' + sale.images[0].image_path"
+                            class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                            alt="Foto"
+                        >
+                        <!-- Placeholder si no hi ha fotos -->
+                        <template v-else>
+                            <div class="absolute inset-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                            <h2 class="relative z-20 text-3xl font-black text-white/50 uppercase tracking-widest text-center px-4">
+                                {{ sale.motorcycle?.brand }}
+                            </h2>
+                        </template>
                         <div class="absolute inset-0 bg-gradient-to-t from-brand-surface via-transparent to-transparent z-10"></div>
-                        
-                        <h2 class="relative z-20 text-3xl font-black text-white/50 uppercase tracking-widest text-center px-4">
-                            {{ sale.motorcycle?.brand }}
-                        </h2>
 
                         <div class="absolute top-2 right-2 px-3 py-1.5 rounded text-sm font-black tracking-wide z-20 bg-brand-neon text-black shadow-lg">
                             {{ parseFloat(sale.price).toLocaleString('ca-ES') }} €

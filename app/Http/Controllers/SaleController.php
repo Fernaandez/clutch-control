@@ -3,70 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Models\SaleListing;
+use App\Models\SaleImage;
 use App\Models\Motorcycle;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class SaleController extends Controller
 {
-    // 1. EL MUR (Totes les motos a la venda de la comunitat)
-    // 1. APARADOR (Llistat d'anuncis amb FILTRES)
+    // 1. APARADOR (Llistat d'anuncis amb filtres frontend)
     public function index(Request $request)
     {
-        // Comencem la consulta: només anuncis actius i no venuts, amb la info de la moto i l'usuari
-        $query = SaleListing::with(['motorcycle.user'])
+        $sales = SaleListing::with(['motorcycle', 'images'])
             ->where('is_active', true)
-            ->where('is_sold', false);
+            ->where('is_sold', false)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        // --- FILTRES DE L'ANUNCI ---
-        if ($request->filled('min_price')) {
-            $query->where('price', '>=', $request->min_price);
-        }
-        if ($request->filled('max_price')) {
-            $query->where('price', '<=', $request->max_price);
-        }
-
-        // --- FILTRES DE LA MOTO ---
-        // Utilitzem 'whereHas' per filtrar per columnes que estan a la taula 'motorcycles'
-        $query->whereHas('motorcycle', function ($q) use ($request) {
-            
-            if ($request->filled('brand')) {
-                $q->where('brand', 'like', '%' . $request->brand . '%');
-            }
-            if ($request->filled('type')) {
-                $q->where('type', $request->type);
-            }
-            if ($request->filled('license_type')) {
-                $q->where('license_type', $request->license_type);
-            }
-            if ($request->filled('min_cc')) {
-                $q->where('cc', '>=', $request->min_cc);
-            }
-            if ($request->filled('max_cc')) {
-                $q->where('cc', '<=', $request->max_cc);
-            }
-        });
-
-        // Ordenem pels més recents i fem un paginat (o get si les vols totes de cop)
-        $sales = $query->orderBy('created_at', 'desc')->get();
-
-        return Inertia::render('Sales/Index', [
-            'sales' => $sales,
-            'filters' => $request->all(), // Enviem els filtres actuals de tornada a Vue perquè no s'esborrin del formulari
-        ]);
+        return Inertia::render('Sales/Index', ['sales' => $sales]);
     }
 
     // 2. ELS MEUS ANUNCIS
-    // 2. ELS MEUS ANUNCIS (Consulta a prova de bales)
     public function mine()
     {
-        // 1. Agafem les IDs exactes de totes les teves motos
-        $misMotosIds = Motorcycle::where('user_id', Auth::id())->pluck('id');
+        $myMotoIds = Motorcycle::where('user_id', Auth::id())->pluck('id');
 
-        // 2. Busquem els anuncis que pertanyin a aquestes motos
-        $sales = SaleListing::with('motorcycle')
-            ->whereIn('motorcycle_id', $misMotosIds)
+        $sales = SaleListing::with(['motorcycle', 'images'])
+            ->whereIn('motorcycle_id', $myMotoIds)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -76,8 +41,6 @@ class SaleController extends Controller
     // 3. FORMULARI CREAR
     public function create()
     {
-        // En lloc de preguntar-li a l'usuari quines motos té, 
-        // li preguntem directament al model de Motos (Així VS Code no es queixa)
         $availableMotorcycles = Motorcycle::where('user_id', Auth::id())
             ->whereDoesntHave('saleListing')
             ->get();
@@ -91,94 +54,163 @@ class SaleController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'motorcycle_id' => 'required|exists:motorcycles,id',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'location' => 'required|string|max:255',
+            'motorcycle_id'  => 'required|exists:motorcycles,id',
+            'title'          => 'required|string|max:255',
+            'description'    => 'nullable|string',
+            'price'          => 'required|numeric|min:0',
+            'location'       => 'required|string|max:255',
+            // Dades tècniques de la moto
+            'cc'             => 'nullable|integer|min:0',
+            'power_cv'       => 'nullable|integer|min:0',
+            'license_type'   => 'nullable|string|in:AM,A1,A2,A',
+            'type'           => 'nullable|string|in:Naked,Sport,Trail,Custom,Scooter,Touring,Off-Road,Classic',
+            'has_abs'        => 'boolean',
+            'extras'         => 'nullable|string|max:1000',
+            // Fotos
+            'images'         => 'nullable|array|max:8',
+            'images.*'       => 'image|mimes:jpeg,png,jpg,gif,webp|max:3072',
         ]);
 
-        // Igual aquí, ho busquem directament al model Motorcycle
-        $moto = Motorcycle::where('user_id', Auth::id())
-            ->findOrFail($validated['motorcycle_id']);
+        // Seguretat: la moto ha de ser de l'usuari
+        $moto = Motorcycle::where('user_id', Auth::id())->findOrFail($validated['motorcycle_id']);
 
-        SaleListing::create([
+        // Validació de contacte: ha de tenir telèfon o email al perfil
+        $user = Auth::user();
+        if (!$user->phone_number && !$user->email) {
+            return back()->withErrors(['contact' => 'Necessites un telèfon o email al teu perfil per publicar un anunci.']);
+        }
+
+        // Crear l'anunci
+        $sale = SaleListing::create([
             'motorcycle_id' => $moto->id,
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'price' => $validated['price'],
-            'location' => $validated['location'],
-            'is_active' => true,
-            'is_sold' => false,
+            'title'         => $validated['title'],
+            'description'   => $validated['description'],
+            'price'         => $validated['price'],
+            'location'      => $validated['location'],
+            'is_active'     => true,
+            'is_sold'       => false,
         ]);
+
+        // Actualitzar dades tècniques de la moto
+        $moto->update([
+            'cc'           => $validated['cc'] ?? $moto->cc,
+            'power_cv'     => $validated['power_cv'] ?? $moto->power_cv,
+            'license_type' => $validated['license_type'] ?? $moto->license_type,
+            'type'         => $validated['type'] ?? $moto->type,
+            'has_abs'      => $request->boolean('has_abs'),
+            'extras'       => $validated['extras'] ?? $moto->extras,
+        ]);
+
+        // Guardar fotos
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $ext  = $image->getClientOriginalExtension();
+                $path = $image->storeAs('sales', Str::random(40) . '.' . $ext, 'public');
+                SaleImage::create(['sale_listing_id' => $sale->id, 'image_path' => $path]);
+            }
+        }
 
         return redirect()->route('sales.mine');
     }
 
-    // 5. VEURE DETALL DE L'ANUNCI
+    // 5. VEURE DETALL
     public function show(SaleListing $sale)
     {
-        $sale->load(['motorcycle.user']); // Carreguem info de la moto i el venedor
+        $sale->load(['motorcycle.user', 'images']);
         return Inertia::render('Sales/Show', ['sale' => $sale]);
     }
 
     // 6. EDITAR
     public function edit(SaleListing $sale)
     {
-        // Comprovem que sigui el propietari de la moto
-        if ($sale->motorcycle->user_id !== Auth::id()) { abort(403); }
-
-        return Inertia::render('Sales/Edit', ['sale' => $sale->load('motorcycle')]);
+        if ($sale->motorcycle->user_id !== Auth::id()) abort(403);
+        return Inertia::render('Sales/Edit', ['sale' => $sale->load(['motorcycle', 'images'])]);
     }
 
     // 7. ACTUALITZAR
-    // 7. ACTUALITZAR ANUNCI I MOTO ALHORA
     public function update(Request $request, SaleListing $sale)
     {
-        if ($sale->motorcycle->user_id !== Auth::id()) { abort(403); }
+        if ($sale->motorcycle->user_id !== Auth::id()) abort(403);
 
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'location' => 'required|string|max:255',
-            'is_active' => 'boolean',
-            'is_sold' => 'boolean',
-            
-            // Validem també els camps tècnics de la moto (Sense l'ABS)
-            'cc' => 'nullable|integer|min:0',
-            'power_cv' => 'nullable|integer|min:0',
-            'license_type' => 'nullable|string|in:AM,A1,A2,A',
-            'type' => 'nullable|string|in:Naked,Sport,Trail,Custom,Scooter,Touring,Off-Road,Classic',
-            'extras' => 'nullable|string|max:1000',
+            'title'          => 'required|string|max:255',
+            'description'    => 'nullable|string',
+            'price'          => 'required|numeric|min:0',
+            'location'       => 'required|string|max:255',
+            'is_active'      => 'boolean',
+            'is_sold'        => 'boolean',
+            // Dades tècniques de la moto
+            'cc'             => 'nullable|integer|min:0',
+            'power_cv'       => 'nullable|integer|min:0',
+            'license_type'   => 'nullable|string|in:AM,A1,A2,A',
+            'type'           => 'nullable|string|in:Naked,Sport,Trail,Custom,Scooter,Touring,Off-Road,Classic',
+            'extras'         => 'nullable|string|max:1000',
+            // Fotos noves
+            'images'         => 'nullable|array|max:8',
+            'images.*'       => 'image|mimes:jpeg,png,jpg,gif,webp|max:3072',
         ]);
 
-        // 1. Actualitzem l'anunci
+        // Actualitzar l'anunci
         $sale->update([
-            'title' => $validated['title'],
+            'title'       => $validated['title'],
             'description' => $validated['description'],
-            'price' => $validated['price'],
-            'location' => $validated['location'],
-            'is_active' => $validated['is_active'],
-            'is_sold' => $validated['is_sold'],
+            'price'       => $validated['price'],
+            'location'    => $validated['location'],
+            'is_active'   => $validated['is_active'] ?? $sale->is_active,
+            'is_sold'     => $validated['is_sold'] ?? $sale->is_sold,
         ]);
 
-        // 2. Actualitzem les dades tècniques de la moto
+        // Actualitzar dades tècniques de la moto
         $sale->motorcycle->update([
-            'cc' => $validated['cc'],
-            'power_cv' => $validated['power_cv'],
+            'cc'           => $validated['cc'],
+            'power_cv'     => $validated['power_cv'],
             'license_type' => $validated['license_type'],
-            'type' => $validated['type'],
-            'extras' => $validated['extras'],
+            'type'         => $validated['type'],
+            'extras'       => $validated['extras'],
         ]);
+
+        // Afegir fotos noves (sense esborrar les existents)
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $ext  = $image->getClientOriginalExtension();
+                $path = $image->storeAs('sales', Str::random(40) . '.' . $ext, 'public');
+                SaleImage::create(['sale_listing_id' => $sale->id, 'image_path' => $path]);
+            }
+        }
 
         return redirect()->route('sales.mine');
     }
 
-    // 8. ESBORRAR ANUNCI
+    // 8. MARCAR COM A VENUT (ràpid, sense entrar a l'edit)
+    public function markSold(SaleListing $sale)
+    {
+        if ($sale->motorcycle->user_id !== Auth::id()) abort(403);
+        $sale->update(['is_sold' => true, 'is_active' => false]);
+        return back();
+    }
+
+    // 9. ESBORRAR FOTO INDIVIDUAL
+    public function destroyImage(SaleListing $sale, SaleImage $image)
+    {
+        if ($sale->motorcycle->user_id !== Auth::id()) abort(403);
+        if ($image->sale_listing_id !== $sale->id) abort(403);
+
+        Storage::disk('public')->delete($image->image_path);
+        $image->delete();
+
+        return back();
+    }
+
+    // 10. ESBORRAR ANUNCI
     public function destroy(SaleListing $sale)
     {
-        if ($sale->motorcycle->user_id !== Auth::id()) { abort(403); }
+        if ($sale->motorcycle->user_id !== Auth::id()) abort(403);
+
+        // Esborrem les fotos de storage
+        foreach ($sale->images as $image) {
+            Storage::disk('public')->delete($image->image_path);
+        }
+
         $sale->delete();
         return redirect()->route('sales.mine');
     }

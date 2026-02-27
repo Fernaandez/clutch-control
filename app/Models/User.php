@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail; // <-- 1. DESCOMENTAT
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Notifications\VerifyEmailNotification;
 
 // 2. AFEGIM "implements MustVerifyEmail" AQUÍ SOTA
 class User extends Authenticatable implements MustVerifyEmail 
@@ -44,5 +45,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function routes()
     {
         return $this->hasMany(Route::class);
+    }
+
+    // --- EMAIL VERIFICACIÓ PERSONALITZADA ---
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new VerifyEmailNotification());
     }
 }

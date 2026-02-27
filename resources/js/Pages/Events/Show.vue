@@ -6,6 +6,16 @@
                 <Link :href="route('events.index')" class="text-gray-400 text-sm hover:text-white flex items-center gap-1 transition">
                     &larr; Tornar
                 </Link>
+
+                <button v-if="$page.props.auth.user && event.user_id === $page.props.auth.user.id" @click="copyShareLink" class="bg-gray-800 hover:bg-brand-neon hover:text-black text-white px-3 py-1.5 rounded-lg transition border border-gray-700 flex items-center gap-2 text-xs font-bold" title="Copia l'enllaç de Compartició">
+                    <span v-if="copyLinkSuccess">Copiada!</span>
+                    <span v-else>🔗 Compartir</span>
+                </button>
+            </div>
+
+        <div v-if="event.photo" class="relative h-56 w-full overflow-hidden mb-6 rounded-xl border border-brand-dark shadow-lg">
+                <img :src="$page.props.storageUrl + '/' + event.photo" alt="Foto Quedada" class="absolute inset-0 w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-brand-black via-black/30 to-transparent"></div>
             </div>
 
             <div class="mb-6">
@@ -105,6 +115,18 @@ const mapColors = ['#0CE1B5', '#E10C38', '#0C84E1', '#E1B50C', '#B50CE1'];
 const isMapOpen = ref(false);
 const map = ref(null);
 const mapLayers = ref([]); // Per guardar les línies i poder netejar-les
+
+const copyLinkSuccess = ref(false);
+
+const copyShareLink = () => {
+    let rawUrl = route('events.preview', props.event.share_token);
+    navigator.clipboard.writeText(rawUrl).then(() => {
+        copyLinkSuccess.value = true;
+        setTimeout(() => {
+            copyLinkSuccess.value = false;
+        }, 3000);
+    });
+};
 
 // Càlcul del total de km de tota la quedada
 const totalDistance = computed(() => {

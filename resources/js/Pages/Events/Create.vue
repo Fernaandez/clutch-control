@@ -11,19 +11,37 @@
 
             <form @submit.prevent="submit" class="space-y-8">
 
+                <!-- Errors globals -->
+                <div v-if="Object.keys(form.errors).length > 0" class="p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+                    <p class="text-red-500 font-black text-xs uppercase tracking-widest mb-2">⚠️ Revisa els errors:</p>
+                    <ul class="list-disc pl-5 text-red-400 text-sm space-y-1">
+                        <li v-for="(error, field) in form.errors" :key="field">{{ error }}</li>
+                    </ul>
+                </div>
+
+                <p class="text-[10px] text-gray-600 uppercase tracking-widest"><span class="text-red-400 font-bold">*</span> Camp obligatori</p>
+
                 <div class="bg-brand-surface p-6 rounded-xl border border-brand-dark shadow-lg space-y-5">
                     <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2 mb-4">Informació Bàsica</h2>
                     
                     <div class="grid md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Títol</label>
-                            <input v-model="form.title" type="text" placeholder="Ex: Esmorzar a Rupit" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0">
-                            <div v-if="form.errors.title" class="text-red-500 text-xs mt-1">{{ form.errors.title }}</div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">
+                                Títol <span class="text-red-400">*</span>
+                            </label>
+                            <input v-model="form.title" type="text" placeholder="Ex: Esmorzar a Rupit"
+                                :class="form.errors.title ? 'w-full bg-brand-black border-red-500 ring-1 ring-red-500 rounded-lg text-white focus:border-red-400 focus:ring-0' : 'w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0'">
+                            <p v-if="form.errors.title" class="text-red-400 text-xs mt-1">⚠ {{ form.errors.title }}</p>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Dia i Hora</label>
-                            <input v-model="form.start_time" type="datetime-local" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0 [color-scheme:dark]">
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">
+                                Dia i Hora <span class="text-red-400">*</span>
+                            </label>
+                            <input v-model="form.start_time" type="datetime-local"
+                                :class="form.errors.start_time ? 'w-full bg-brand-black border-red-500 ring-1 ring-red-500 rounded-lg text-white focus:border-red-400 focus:ring-0 [color-scheme:dark]' : 'w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0 [color-scheme:dark]'">
+                            <p class="text-[10px] text-gray-500 mt-1">Format: <span class="text-brand-neon font-mono">DD/MM/AAAA HH:MM</span></p>
+                            <p v-if="form.errors.start_time" class="text-red-400 text-xs mt-1">⚠ {{ form.errors.start_time }}</p>
                         </div>
                     </div>
 
@@ -35,12 +53,15 @@
                     <div class="grid md:grid-cols-2 gap-6 pt-2">
                         
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Límit de Riders</label>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">
+                                Límit de Riders <span class="text-gray-600 font-normal">(opcional)</span>
+                            </label>
                             <div class="relative">
                                 <input 
                                     v-model="form.max_participants" 
                                     type="number" 
-                                    min="1" 
+                                    min="2" 
+                                    max="999"
                                     placeholder="Sense límit (∞)" 
                                     class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0 placeholder-gray-600"
                                 >
@@ -48,6 +69,7 @@
                                     {{ form.max_participants ? 'persones' : 'il·limitat' }}
                                 </div>
                             </div>
+                            <p class="text-[10px] text-gray-500 mt-1">Número enter ≥ 2 (o deixa buit per il·limitat)</p>
                         </div>
 
                         <div>
@@ -61,6 +83,13 @@
                                 </button>
                             </div>
                         </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Foto de la Quedada (Opcional)</label>
+                        <input @change="e => form.photo = e.target.files[0]" type="file" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-brand-base/20 file:text-brand-neon hover:file:bg-brand-base/30 transition cursor-pointer">
+                        <div v-if="form.errors.photo" class="text-red-500 text-xs mt-1">{{ form.errors.photo }}</div>
+                        <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">📐 Recomanat: <span class="text-brand-neon font-bold">1200×800 px</span> (3:2) &mdash; JPG o PNG &mdash; Màx 2MB</p>
                     </div>
                 </div>
 
@@ -170,7 +199,8 @@ const form = useForm({
     description: '',
     start_time: '',
     is_public: true,
-    max_participants: null, // CAMP PER AL LÍMIT DE RIDERS
+    max_participants: null,
+    photo: null,
     stages: [{ type: 'location', route_id: null, location_name: '', latitude: null, longitude: null }]
 });
 
@@ -208,7 +238,7 @@ const confirmLocation = () => {
     }
 };
 
-const submit = () => form.post(route('events.store'));
+const submit = () => form.post(route('events.store'), { forceFormData: true });
 </script>
 
 <style>

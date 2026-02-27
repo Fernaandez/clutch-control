@@ -96,14 +96,17 @@
                         <div>
                             <label class="text-gray-400 text-sm">Què cal fer?</label>
                             <input v-model="createForm.title" type="text" placeholder="Ex: Canvi Oli" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
+                            <p v-if="createForm.errors.title" class="text-red-500 text-xs mt-1">{{ createForm.errors.title }}</p>
                         </div>
                         <div>
-                            <label class="text-gray-400 text-sm">Cada quants km?</label>
-                            <input v-model="createForm.frequency_km" type="number" step="0.01" placeholder="5000" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
+                            <label class="text-gray-400 text-sm">Cada quants KM es fa?</label>
+                            <input v-model="createForm.frequency_km" type="number" placeholder="Ex: 5000" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
+                            <p v-if="createForm.errors.frequency_km" class="text-red-500 text-xs mt-1">{{ createForm.errors.frequency_km }}</p>
                         </div>
                         <div>
-                            <label class="text-gray-400 text-sm">Última vegada (km moto)</label>
-                            <input v-model="createForm.last_km_done" type="number" step="0.01" :placeholder="motorcycle.current_km" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
+                            <label class="text-gray-400 text-sm">Quan es va fer l'últim cop? (KM)</label>
+                            <input v-model="createForm.last_km_done" type="number" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
+                            <p v-if="createForm.errors.last_km_done" class="text-red-500 text-xs mt-1">{{ createForm.errors.last_km_done }}</p>
                         </div>
                     </div>
                     <button type="submit" :disabled="createForm.processing" class="mt-6 w-full bg-brand-neon text-brand-black font-bold py-2 rounded hover:bg-white transition">
@@ -123,24 +126,34 @@
                 <form @submit.prevent="submitComplete">
                     <div class="space-y-4">
                         <div>
-                            <label class="text-gray-400 text-sm">Quan ho vas fer?</label>
+                            <label class="text-gray-400 text-sm">Data</label>
                             <input v-model="completeForm.date" type="date" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
+                            <p v-if="completeForm.errors.date" class="text-red-500 text-xs mt-1">{{ completeForm.errors.date }}</p>
                         </div>
                         
                         <div>
-                            <label class="text-gray-400 text-sm">Quilòmetres en aquell moment</label>
-                            <input v-model="completeForm.km_at_moment" type="number" step="0.01" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
+                            <label class="text-gray-400 text-sm">KM Actuals de la Moto</label>
+                            <input v-model="completeForm.km_at_moment" type="number" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
+                            <p v-if="completeForm.errors.km_at_moment" class="text-red-500 text-xs mt-1">{{ completeForm.errors.km_at_moment }}</p>
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="text-gray-400 text-sm">Preu (€) *</label>
-                                <input v-model="completeForm.cost" type="number" step="0.01" placeholder="0.00" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
+                                <label class="text-gray-400 text-sm">Taller / Lloc</label>
+                                <input v-model="completeForm.description" type="text" placeholder="Marca, taller..." class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
+                                <p v-if="completeForm.errors.description" class="text-red-500 text-xs mt-1">{{ completeForm.errors.description }}</p>
                             </div>
                             <div>
-                                <label class="text-gray-400 text-sm">Notes *</label>
-                                <input v-model="completeForm.description" type="text" placeholder="Marca, taller..." class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
+                                <label class="text-gray-400 text-sm">Preu (€)</label>
+                                <input v-model="completeForm.cost" type="number" step="0.01" placeholder="0.00" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
+                                <p v-if="completeForm.errors.cost" class="text-red-500 text-xs mt-1">{{ completeForm.errors.cost }}</p>
                             </div>
+                        </div>
+
+                        <div>
+                            <label class="text-gray-400 text-sm">Foto de la factura / recanvi</label>
+                            <input @change="e => completeForm.invoice_photo = e.target.files[0]" type="file" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-brand-base/20 file:text-brand-neon hover:file:bg-brand-base/30 cursor-pointer mt-1">
+                            <p v-if="completeForm.errors.invoice_photo" class="text-red-500 text-xs mt-1">{{ completeForm.errors.invoice_photo }}</p>
                         </div>
                     </div>
                     
@@ -170,19 +183,20 @@ const showCreateModal = ref(false);
 const createForm = useForm({
     title: '',
     frequency_km: '',
-    last_km_done: props.motorcycle.current_km
+    last_km_done: Math.round(props.motorcycle.current_km)
 });
 
 const openCreateModal = () => {
     createForm.title = '';
     createForm.frequency_km = '';
-    createForm.last_km_done = props.motorcycle.current_km;
+    createForm.last_km_done = Math.round(props.motorcycle.current_km);
+    createForm.clearErrors();
     showCreateModal.value = true;
 };
 
 const submitCreate = () => {
     createForm.post(route('motorcycles.maintenance.store', props.motorcycle.id), {
-        onSuccess: () => { showCreateModal.value = false; }
+        onSuccess: () => { showCreateModal.value = false; createForm.reset(); }
     });
 };
 
@@ -191,16 +205,18 @@ const showCompleteModal = ref(false);
 const selectedTask = ref(null);
 
 const completeForm = useForm({
+    _method: 'patch',
     date: new Date().toISOString().substr(0, 10), 
-    km_at_moment: props.motorcycle.current_km,    
+    km_at_moment: Math.round(props.motorcycle.current_km),    
     cost: '',
-    description: ''
+    description: '',
+    invoice_photo: null
 });
 
 const openCompleteModal = (task) => {
     selectedTask.value = task;
     completeForm.date = new Date().toISOString().substr(0, 10);
-    completeForm.km_at_moment = props.motorcycle.current_km;
+    completeForm.km_at_moment = Math.round(props.motorcycle.current_km);
     completeForm.cost = '';
     completeForm.description = '';
     showCompleteModal.value = true;
@@ -214,7 +230,8 @@ const closeCompleteModal = () => {
 const submitComplete = () => {
     if (!selectedTask.value) return;
 
-    completeForm.patch(route('maintenance.mark-done', selectedTask.value.id), {
+    completeForm.post(route('maintenance.mark-done', selectedTask.value.id), {
+        forceFormData: true,
         onSuccess: () => closeCompleteModal()
     });
 };

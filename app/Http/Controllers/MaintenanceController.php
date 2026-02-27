@@ -83,12 +83,12 @@ class MaintenanceController extends Controller
     public function storeRepair(Request $request, Motorcycle $motorcycle)
     {
         if ($motorcycle->user_id !== Auth::id()) { abort(403); }
-        $validated = $request->validate(['title' => 'required|string|max:50', 'description' => 'nullable|string']);
+        $validated = $request->validate(['title' => 'required|string|max:50', 'location' => 'nullable|string']);
         
         $motorcycle->maintenanceTasks()->create([
             'type' => 'repair',
             'title' => $validated['title'],
-            'description' => $validated['description'],
+            'location' => $validated['location'] ?? null,
             'is_recurring' => false,
             'frequency_km' => null,
             'last_km_done' => 0
@@ -114,12 +114,12 @@ class MaintenanceController extends Controller
     public function storeUpgrade(Request $request, Motorcycle $motorcycle)
     {
         if ($motorcycle->user_id !== Auth::id()) { abort(403); }
-        $validated = $request->validate(['title' => 'required|string|max:50', 'description' => 'nullable|string']);
+        $validated = $request->validate(['title' => 'required|string|max:50', 'location' => 'nullable|string']);
         
         $motorcycle->maintenanceTasks()->create([
             'type' => 'upgrade',
             'title' => $validated['title'],
-            'description' => $validated['description'],
+            'location' => $validated['location'] ?? null,
             'is_recurring' => false,
             'frequency_km' => null,
             'last_km_done' => 0
@@ -144,10 +144,10 @@ class MaintenanceController extends Controller
             'km_at_moment' => 'required|numeric|min:0',
             'cost' => 'required|numeric|min:0',       
             'description' => 'required|string|max:255',
+            'invoice_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
-        // 1. Guardar a l'historial
-        $task->motorcycle->maintenanceLogs()->create([
+        $logData = [
             'maintenance_task_id' => $task->id,
             'type' => $task->type, 
             'task_title' => $task->title,
@@ -155,7 +155,15 @@ class MaintenanceController extends Controller
             'km_at_moment' => $validated['km_at_moment'],
             'cost' => $validated['cost'],
             'description' => $validated['description'],
-        ]);
+        ];
+
+        if ($request->hasFile('invoice_photo')) {
+            $ext = $request->file('invoice_photo')->getClientOriginalExtension();
+            $logData['invoice_photo'] = $request->file('invoice_photo')->storeAs('maintenance', \Illuminate\Support\Str::random(40) . '.' . $ext, 'public');
+        }
+
+        // 1. Guardar a l'historial
+        $task->motorcycle->maintenanceLogs()->create($logData);
 
         // 2. Gestionar la tasca
         if ($task->type === 'maintenance') {
