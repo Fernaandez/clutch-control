@@ -26,11 +26,52 @@
             </div>
 
             <div class="bg-brand-surface rounded-xl p-5 border border-brand-dark shadow-lg mb-8">
-                <div class="flex items-center gap-4 text-sm font-bold text-white mb-4">
+                <div class="flex flex-wrap items-center gap-4 text-sm font-bold text-white mb-4">
                     <span class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark">📅 {{ new Date(event.start_time).toLocaleDateString('ca-ES') }}</span>
                     <span class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark">⏰ {{ new Date(event.start_time).toLocaleTimeString('ca-ES', {hour: '2-digit', minute:'2-digit'}) }}</span>
+                    
+                    <!-- Comptador d'assistents -->
+                    <span class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark flex items-center gap-2" :class="{'text-red-400': event.max_participants && event.participants_count >= event.max_participants, 'text-brand-neon': !event.max_participants}">
+                        👤 
+                        <span v-if="event.max_participants">
+                            {{ event.participants_count }} / {{ event.max_participants }}
+                        </span>
+                        <span v-else>
+                            {{ event.participants_count }} assistents
+                        </span>
+                        <span v-if="event.max_participants && event.participants_count >= event.max_participants" class="ml-1 text-[9px] bg-red-500 text-black px-1 rounded uppercase">FULL</span>
+                    </span>
                 </div>
-                <p class="text-gray-300 text-sm">{{ event.description || 'Sense descripció.' }}</p>
+                <p class="text-gray-300 text-sm mb-6">{{ event.description || 'Sense descripció.' }}</p>
+
+                <!-- Botons d'apuntar-se / desapuntar-se -->
+                <div v-if="$page.props.auth.user && event.user_id !== $page.props.auth.user.id" class="border-t border-brand-dark pt-5 flex justify-center">
+                    <div v-if="event.is_attending">
+                        <Link :href="route('events.leave', event.id)" method="post" as="button" class="bg-red-500/10 text-red-500 border border-red-500/50 hover:bg-red-500 hover:text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest transition flex items-center gap-2 shadow-lg">
+                            ❌ Desapuntar-me
+                        </Link>
+                    </div>
+                    <div v-else>
+                        <div v-if="event.max_participants && event.participants_count >= event.max_participants" class="text-red-500 font-bold bg-red-500/10 px-6 py-3 rounded-xl border border-red-500/30 text-center">
+                            Aquesta quedada ja està plena ({{ event.max_participants }} places)
+                        </div>
+                        <Link v-else :href="route('events.join', event.id)" method="post" as="button" class="bg-brand-neon text-brand-black hover:bg-white hover:scale-105 px-8 py-3 rounded-xl font-black uppercase tracking-widest transition flex items-center gap-2 shadow-[0_0_20px_rgba(12,225,181,0.4)]">
+                            ✌️ Apuntar-me!
+                        </Link>
+                    </div>
+                </div>
+
+                <div v-else-if="!$page.props.auth.user" class="border-t border-brand-dark pt-5">
+                    <p class="text-center text-gray-400 text-sm mb-3">Has d'iniciar sessió per apuntar-te.</p>
+                    <div class="flex justify-center gap-4">
+                        <Link :href="route('login')" class="bg-brand-dark text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-700 transition">Inicia Sessió</Link>
+                        <Link :href="route('register')" class="bg-brand-neon text-brand-black px-6 py-2 rounded-lg font-bold hover:bg-white transition shadow-neon">Registra't</Link>
+                    </div>
+                </div>
+                
+                <div v-else class="border-t border-brand-dark pt-5 text-center text-brand-neon font-bold text-sm bg-brand-neon/10 rounded-lg p-3">
+                    👑 Ets l'organitzador d'aquesta quedada
+                </div>
             </div>
 
             <div v-if="event.routes && event.routes.length > 0" class="mb-8">
@@ -119,8 +160,8 @@ const mapLayers = ref([]); // Per guardar les línies i poder netejar-les
 const copyLinkSuccess = ref(false);
 
 const copyShareLink = () => {
-    let rawUrl = route('events.preview', props.event.share_token);
-    navigator.clipboard.writeText(rawUrl).then(() => {
+    let tokenToCopy = props.event.share_token;
+    navigator.clipboard.writeText(tokenToCopy).then(() => {
         copyLinkSuccess.value = true;
         setTimeout(() => {
             copyLinkSuccess.value = false;

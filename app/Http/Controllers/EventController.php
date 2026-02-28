@@ -158,9 +158,15 @@ class EventController extends Controller
             // Carreguem tota la info necessària
             $event->load(['organizer', 'routes', 'participants']);
             
+            if (Auth::check()) {
+                $event->is_attending = $event->participants->contains(Auth::id());
+            } else {
+                $event->is_attending = false;
+            }
+            $event->participants_count = $event->participants->count();
+            
             return Inertia::render('Events/Show', [
-                'event' => $event,
-                'isAttending' => $event->participants->contains(Auth::id())
+                'event' => $event
             ]);
         }
 

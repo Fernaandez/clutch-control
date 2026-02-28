@@ -52,4 +52,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new VerifyEmailNotification());
     }
+
+    public function favoriteSales()
+    {
+        return $this->belongsToMany(SaleListing::class, 'sale_favorites')->withTimestamps();
+    }
 }

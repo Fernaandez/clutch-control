@@ -1,32 +1,19 @@
 <template>
-    <AppLayout title="Mercat de Motos">
+    <AppLayout title="Els Meus Preferits">
         <div class="px-4 py-6 pb-24 max-w-7xl mx-auto">
             
             <div class="flex items-center justify-between mb-6">
                 <div>
-                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">Mercat <span class="text-brand-neon">Riders</span></h1>
-                    <p class="text-gray-400 text-sm">Troba la teva pròxima companya de ruta 🏍️</p>
+                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">Motos <span class="text-red-500">Guardades</span></h1>
+                    <p class="text-gray-400 text-sm">Aquestes són les motos que t'han agradat ❤️</p>
                 </div>
-                <Link :href="route('sales.create')" class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.4)] hover:scale-110 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                </Link>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <Link :href="route('sales.mine')" class="w-full bg-brand-surface border border-brand-neon/30 text-white py-3 rounded-xl flex items-center justify-between px-4 hover:bg-brand-neon/10 transition group shadow-lg">
-                    <span class="font-bold uppercase flex items-center gap-2 text-sm">
-                        🏷️ Gestionar els meus anuncis
-                    </span>
-                    <span class="text-brand-neon group-hover:translate-x-1 transition">&rarr;</span>
-                </Link>
-
-                <Link :href="route('sales.favorites')" class="w-full bg-brand-surface border border-red-500/30 text-white py-3 rounded-xl flex items-center justify-between px-4 hover:bg-red-500/10 transition group shadow-lg">
-                    <span class="font-bold uppercase flex items-center gap-2 text-sm">
-                        ❤️ Els meus Preferits
-                    </span>
-                    <span class="text-red-400 group-hover:translate-x-1 transition">&rarr;</span>
-                </Link>
-            </div>
+            <Link :href="route('sales.index')" class="w-full mb-6 bg-brand-surface border border-brand-dark hover:border-brand-neon text-white py-3 rounded-xl flex items-center justify-center px-4 hover:text-brand-neon transition group shadow-lg">
+                <span class="font-bold uppercase flex items-center gap-2 text-sm text-center w-full justify-center">
+                    &larr; Tornar al Mercat
+                </span>
+            </Link>
 
             <button 
                 @click="showFilters = !showFilters"
@@ -177,9 +164,7 @@
                                 {{ sale.motorcycle?.brand }}
                             </h2>
                         </template>
-                        <div class="absolute inset-0 bg-gradient-to-t from-brand-surface via-transparent to-transparent z-10"></div>
-
-                        <!-- Botó de Favorit (Cor) a dalt a l'esquerra (només si no ets l'amo) -->
+                        <!-- Botó de Favorit (Cor) a dalt a l'esquerra -->
                         <Link 
                             v-if="!$page.props.auth.user || sale.motorcycle?.user_id !== $page.props.auth.user.id"
                             :href="route('sales.toggle-favorite', sale.id)" 
@@ -193,8 +178,8 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                             </svg>
                         </Link>
+                        <div class="absolute inset-0 bg-gradient-to-t from-brand-surface via-transparent to-transparent z-10"></div>
 
-                        <!-- Preu -->
                         <div class="absolute top-2 right-2 px-3 py-1.5 rounded text-sm font-black tracking-wide z-20 bg-brand-neon text-black shadow-lg">
                             {{ parseFloat(sale.price).toLocaleString('ca-ES') }} €
                         </div>

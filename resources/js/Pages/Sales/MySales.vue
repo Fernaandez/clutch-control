@@ -17,66 +17,58 @@
                 <Link :href="route('sales.create')" class="text-brand-neon text-sm font-bold mt-2 hover:underline">Crear el meu primer anunci</Link>
             </div>
 
-            <div v-else class="space-y-4">
-                <div 
-                    v-for="sale in sales" :key="sale.id" 
-                    class="bg-brand-surface rounded-xl border shadow-lg transition overflow-hidden"
-                    :class="sale.is_sold ? 'border-red-500/40 opacity-80' : (!sale.is_active ? 'border-gray-700 opacity-60' : 'border-brand-dark hover:border-brand-neon/50')"
-                >
-                    <div class="flex gap-0">
-                        <!-- Foto o placeholder -->
-                        <div class="w-28 h-28 flex-shrink-0 bg-gray-900 relative overflow-hidden">
-                            <img 
-                                v-if="sale.images && sale.images.length > 0"
-                                :src="$page.props.storageUrl + '/' + sale.images[0].image_path"
-                                class="w-full h-full object-cover"
-                                alt="Foto"
-                            >
-                            <div v-else class="w-full h-full flex items-center justify-center">
-                                <div class="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-                                <span class="text-3xl font-black text-white/20 uppercase relative z-10">{{ sale.motorcycle?.brand?.[0] }}</span>
-                            </div>
-                            <!-- Badge venut -->
-                            <div v-if="sale.is_sold" class="absolute inset-0 bg-black/60 flex items-center justify-center">
-                                <span class="bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded uppercase transform -rotate-12">Venut</span>
+            <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div v-for="sale in sales" :key="sale.id" class="bg-brand-surface rounded-xl overflow-hidden border border-brand-dark shadow-lg group hover:border-brand-neon transition duration-300 flex flex-col" :class="sale.is_sold ? 'opacity-70 grayscale-[30%]' : (!sale.is_active ? 'opacity-60' : '')">
+                    
+                    <div class="h-40 bg-gray-900 relative w-full overflow-hidden flex items-center justify-center">
+                        <img v-if="sale.images && sale.images.length > 0" :src="$page.props.storageUrl + '/' + sale.images[0].image_path" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Foto">
+                        <template v-else>
+                            <div class="absolute inset-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                            <h2 class="relative z-20 text-3xl font-black text-white/50 uppercase tracking-widest text-center px-4">{{ sale.motorcycle?.brand }}</h2>
+                        </template>
+                        <div class="absolute inset-0 bg-gradient-to-t from-brand-surface via-transparent to-transparent z-10"></div>
+
+                        <!-- Pill d'estat a dalt esquerra -->
+                        <div v-if="sale.is_sold" class="absolute top-2 left-2 bg-red-600/90 border border-red-500 text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md">Venuda</div>
+                        <div v-else-if="!sale.is_active" class="absolute top-2 left-2 bg-gray-700/90 border border-gray-600 text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md">Oculta</div>
+                        <div v-else class="absolute top-2 left-2 bg-brand-neon/90 border border-brand-neon text-black px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md">Activa</div>
+
+                        <!-- Vistes & Cors (badges petits on normalment aniria la dificultat) a dalt dreta -->
+                        <div class="absolute top-2 right-2 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] bg-brand-black/80 text-white shadow-md border border-brand-dark flex gap-2 backdrop-blur-sm">
+                            <span class="text-brand-neon">👁️ {{ sale.views_count || 0 }}</span>
+                            <span v-if="sale.favorited_by_count > 0" class="text-red-400">❤️ {{ sale.favorited_by_count }}</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 flex-1 flex flex-col justify-between relative z-20">
+                        <div>
+                            <h3 class="text-lg font-bold text-white mb-1 truncate">{{ sale.title }}</h3>
+                            <p class="text-xs text-gray-400 mb-3 truncate uppercase tracking-widest">{{ sale.motorcycle?.brand }} {{ sale.motorcycle?.model }}</p>
+                            
+                            <div class="flex items-center gap-4 text-xs text-brand-neon font-black font-mono tracking-wider bg-brand-black/30 p-2 rounded-lg">
+                                <span>{{ parseFloat(sale.price).toLocaleString('ca-ES') }} €</span>
+                                <span class="text-[9px] text-gray-500 font-sans tracking-tight uppercase ml-auto">{{ new Date(sale.created_at).toLocaleDateString('ca-ES') }}</span>
                             </div>
                         </div>
 
-                        <!-- Info + accions -->
-                        <div class="flex-1 p-3 flex flex-col justify-between min-w-0">
-                            <div>
-                                <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                    <span v-if="sale.is_sold" class="bg-red-500/20 text-red-400 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase border border-red-500/30">Venuda</span>
-                                    <span v-else-if="sale.is_active" class="bg-brand-neon/10 text-brand-neon text-[9px] font-bold px-2 py-0.5 rounded-full uppercase border border-brand-neon/20">Actiu</span>
-                                    <span v-else class="bg-gray-700 text-gray-300 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">Ocult</span>
-                                    <span class="text-[10px] text-gray-600">{{ new Date(sale.created_at).toLocaleDateString('ca-ES') }}</span>
-                                </div>
-                                <h3 class="text-sm font-bold text-white truncate">{{ sale.title }}</h3>
-                                <p class="text-[10px] text-gray-500 uppercase truncate">{{ sale.motorcycle?.brand }} {{ sale.motorcycle?.model }}</p>
-                            </div>
+                        <div class="flex gap-2 mt-4 pt-4 border-t border-brand-dark/50">
+                            <Link :href="route('sales.show', sale.id)" class="flex-1 text-center bg-brand-dark hover:bg-white hover:text-black text-white text-xs font-bold uppercase py-2 rounded transition">
+                                Veure Detall
+                            </Link>
 
-                            <div class="flex items-center justify-between mt-2">
-                                <span class="text-lg font-mono font-bold text-brand-neon">{{ parseFloat(sale.price).toLocaleString('ca-ES') }} €</span>
+                            <Link :href="route('sales.edit', sale.id)" class="px-3 flex items-center justify-center bg-brand-dark border border-gray-600 hover:border-brand-neon hover:text-brand-neon text-gray-400 rounded transition" title="Editar">
+                                ✏️
+                            </Link>
 
-                                <div class="flex gap-1.5">
-                                    <Link :href="route('sales.show', sale.id)" class="px-3 py-1.5 bg-brand-black border border-brand-dark rounded-lg text-white text-[10px] font-bold uppercase hover:bg-gray-800 transition">
-                                        Veure
-                                    </Link>
-                                    <Link :href="route('sales.edit', sale.id)" class="px-3 py-1.5 bg-brand-dark text-white rounded-lg text-[10px] font-bold uppercase hover:bg-brand-neon hover:text-black transition">
-                                        Editar
-                                    </Link>
-                                    <!-- Marcar venut ràpid (només si no ja venut) -->
-                                    <Link 
-                                        v-if="!sale.is_sold"
-                                        :href="route('sales.mark-sold', sale.id)"
-                                        method="patch" as="button"
-                                        class="px-3 py-1.5 bg-red-900/30 border border-red-700/30 text-red-400 rounded-lg text-[10px] font-bold uppercase hover:bg-red-900/60 hover:text-red-300 transition"
-                                        :title="'Marcar com a venuda'"
-                                    >
-                                        ✓ Venuda
-                                    </Link>
-                                </div>
-                            </div>
+                            <Link 
+                                v-if="!sale.is_sold"
+                                :href="route('sales.mark-sold', sale.id)"
+                                method="patch" as="button"
+                                class="px-3 flex items-center justify-center bg-brand-dark border border-red-900/50 text-red-700 hover:bg-red-500 hover:text-white hover:border-red-500 rounded transition" 
+                                title="Marcar com a Venuda"
+                            >
+                                ✓
+                            </Link>
                         </div>
                     </div>
                 </div>

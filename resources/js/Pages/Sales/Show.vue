@@ -44,11 +44,31 @@
                 <h1 class="text-3xl font-black text-white uppercase tracking-tighter leading-tight">{{ sale.title }}</h1>
                 <div class="flex items-center justify-between mt-2 flex-wrap gap-2">
                     <p class="text-3xl font-mono font-bold text-brand-neon">{{ parseFloat(sale.price).toLocaleString('ca-ES') }} €</p>
-                    <p class="text-sm text-gray-400 font-bold uppercase flex items-center gap-1">📍 {{ sale.location }}</p>
+                    
+                    <div class="flex gap-4 items-center">
+                        <p class="text-sm text-gray-400 font-bold uppercase flex items-center gap-1">📍 {{ sale.location }}</p>
+                        <!-- Favorits a la dreta del preu -->
+                        <Link 
+                            v-if="!isOwner"
+                            :href="route('sales.toggle-favorite', sale.id)" 
+                            method="post" 
+                            as="button" 
+                            preserve-scroll
+                            class="p-2 rounded-full border shadow-lg transition-transform hover:scale-110 flex items-center justify-center gap-2 text-sm font-bold uppercase"
+                            :class="sale.is_favorited ? 'bg-red-500/10 border-red-500/50 text-red-500' : 'bg-brand-surface border-brand-dark text-gray-400 hover:text-white'"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" :fill="sale.is_favorited ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                            </svg>
+                            <span v-if="sale.is_favorited">Guardat</span>
+                        </Link>
+                    </div>
                 </div>
-                <p class="text-xs text-gray-500 mt-2">
-                    Venedor: <span class="text-white">{{ sale.motorcycle?.user?.name || 'Rider' }}</span> 
-                    • Publicat el {{ new Date(sale.created_at).toLocaleDateString('ca-ES') }}
+                <p class="text-xs text-gray-500 mt-2 flex items-center gap-3">
+                    <span>Venedor: <span class="text-white">{{ sale.motorcycle?.user?.name || 'Rider' }}</span></span>
+                    <span>• Publicat el {{ new Date(sale.created_at).toLocaleDateString('ca-ES') }}</span>
+                    <span>• 👁️ {{ sale.views_count || 0 }} vistes</span>
+                    <span v-if="sale.favorited_by_count > 0">• ❤️ {{ sale.favorited_by_count }} guardats</span>
                 </p>
             </div>
 

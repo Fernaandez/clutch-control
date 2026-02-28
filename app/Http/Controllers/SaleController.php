@@ -17,10 +17,15 @@ class SaleController extends Controller
     public function index(Request $request)
     {
         $sales = SaleListing::with(['motorcycle', 'images'])
+            ->withCount('favoritedBy')
             ->where('is_active', true)
             ->where('is_sold', false)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($sale) {
+                $sale->is_favorited = $sale->isFavoritedBy(Auth::user());
+                return $sale;
+            });
 
         return Inertia::render('Sales/Index', ['sales' => $sales]);
     }
@@ -31,6 +36,7 @@ class SaleController extends Controller
         $myMotoIds = Motorcycle::where('user_id', Auth::id())->pluck('id');
 
         $sales = SaleListing::with(['motorcycle', 'images'])
+            ->withCount('favoritedBy')
             ->whereIn('motorcycle_id', $myMotoIds)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -116,7 +122,21 @@ class SaleController extends Controller
     // 5. VEURE DETALL
     public function show(SaleListing $sale)
     {
+        // Augmentem vistes si no és l'amo i només un cop per compte/IP
+        if (!Auth::check() || $sale->motorcycle->user_id !== Auth::id()) {
+            $viewerKey = Auth::check() ? 'user_' . Auth::id() : 'ip_' . request()->ip();
+            $cacheKey = 'viewed_sale_' . $sale->id . '_' . $viewerKey;
+            
+            if (!\Illuminate\Support\Facades\Cache::has($cacheKey)) {
+                $sale->increment('views_count');
+                \Illuminate\Support\Facades\Cache::put($cacheKey, true, now()->addDays(30));
+            }
+        }
+
         $sale->load(['motorcycle.user', 'images']);
+        $sale->loadCount('favoritedBy');
+        $sale->is_favorited = $sale->isFavoritedBy(Auth::user());
+
         return Inertia::render('Sales/Show', ['sale' => $sale]);
     }
 
@@ -213,5 +233,33 @@ class SaleController extends Controller
 
         $sale->delete();
         return redirect()->route('sales.mine');
+    }
+
+    // 11. AFEGIR / TREURE FAVORITS
+    public function toggleFavorite(SaleListing $sale)
+    {
+        $user = Auth::user();
+        $user->favoriteSales()->toggle($sale->id);
+        
+        return back();
+    }
+
+    // 12. LLISTA DE FAVORITS
+    public function favorites()
+    {
+        $user = Auth::user();
+        
+        $sales = $user->favoriteSales()
+            ->with(['motorcycle', 'images'])
+            ->withCount('favoritedBy')
+            ->where('is_active', true)
+            ->orderBy('sale_favorites.created_at', 'desc')
+            ->get()
+            ->map(function ($sale) {
+                $sale->is_favorited = true; // Tots aquí són favorits
+                return $sale;
+            });
+
+        return Inertia::render('Sales/Favorites', ['sales' => $sales]);
     }
 }

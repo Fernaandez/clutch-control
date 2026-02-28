@@ -5,6 +5,7 @@ use App\Http\Controllers\MotorcycleController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\SearchController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -21,6 +22,7 @@ Route::get('/', function () {
 // --- ENLLAÇOS PÚBLICS COMPARTITS ---
 Route::get('/r/{token}', [RouteController::class, 'preview'])->name('routes.preview');
 Route::get('/e/{token}', [EventController::class, 'preview'])->name('events.preview');
+Route::post('/search-token', [SearchController::class, 'searchToken'])->name('search.token');
 
 // El perfil NO demana 'verified' perquè l'usuari pugui entrar a canviar el seu correu si s'ha equivocat
 Route::middleware('auth')->group(function () {
@@ -85,6 +87,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // --- COMPRA / VENDA (Sales) ---
     Route::get('/sales', [\App\Http\Controllers\SaleController::class, 'index'])->name('sales.index');
+    Route::get('/sales/favorites', [\App\Http\Controllers\SaleController::class, 'favorites'])->name('sales.favorites');
+    Route::post('/sales/{sale}/favorite', [\App\Http\Controllers\SaleController::class, 'toggleFavorite'])->name('sales.toggle-favorite');
     Route::get('/my-sales', [\App\Http\Controllers\SaleController::class, 'mine'])->name('sales.mine');
     Route::get('/sales/create', [\App\Http\Controllers\SaleController::class, 'create'])->name('sales.create');
     Route::post('/sales', [\App\Http\Controllers\SaleController::class, 'store'])->name('sales.store');

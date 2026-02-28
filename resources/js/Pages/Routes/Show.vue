@@ -105,8 +105,8 @@ const map = ref(null);
 const copyLinkSuccess = ref(false);
 
 const copyShareLink = () => {
-    let rawUrl = route('routes.preview', props.mapRoute.share_token);
-    navigator.clipboard.writeText(rawUrl).then(() => {
+    let tokenToCopy = props.mapRoute.share_token;
+    navigator.clipboard.writeText(tokenToCopy).then(() => {
         copyLinkSuccess.value = true;
         setTimeout(() => {
             copyLinkSuccess.value = false;
