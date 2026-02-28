@@ -1,0 +1,1 @@
+.pt-safe-top{padding-top:env(safe-area-inset-top,40px)}.top-safe-top{top:calc(env(safe-area-inset-top,40px) + 1rem)}.pb-safe-bottom{padding-bottom:env(safe-area-inset-bottom,20px)}.map-tiles-inverse{filter:brightness(150%) contrast(150%)}

@@ -1,7 +1,7 @@
 <template>
-    <AppLayout :title="event.title">
+    <AppLayout v-if="event" :title="event.title || 'Detall Quedada'">
         <div class="px-4 py-6 pb-24">
-            
+
             <div class="flex items-center justify-between mb-6">
                 <Link :href="route('events.index')" class="text-gray-400 text-sm hover:text-white flex items-center gap-1 transition">
                     &larr; Tornar
@@ -13,13 +13,13 @@
                 </button>
             </div>
 
-        <div v-if="event.photo" class="relative h-56 w-full overflow-hidden mb-6 rounded-xl border border-brand-dark shadow-lg">
+            <div v-if="event.photo" class="relative h-56 w-full overflow-hidden mb-6 rounded-xl border border-brand-dark shadow-lg">
                 <img :src="$page.props.storageUrl + '/' + event.photo" alt="Foto Quedada" class="absolute inset-0 w-full h-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-t from-brand-black via-black/30 to-transparent"></div>
             </div>
 
             <div class="mb-6">
-                <h1 class="text-3xl font-black text-white uppercase tracking-tighter">{{ event.title }}</h1>
+                <h1 class="text-3xl font-black text-white uppercase tracking-tighter">{{ event.title || 'Sense Títol' }}</h1>
                 <p class="text-gray-400 text-sm mt-1 flex items-center gap-2">
                     📍 {{ event.location || 'Ubicació pendent' }}
                 </p>
@@ -27,19 +27,19 @@
 
             <div class="bg-brand-surface rounded-xl p-5 border border-brand-dark shadow-lg mb-8">
                 <div class="flex flex-wrap items-center gap-4 text-sm font-bold text-white mb-4">
-                    <span class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark">📅 {{ new Date(event.start_time).toLocaleDateString('ca-ES') }}</span>
-                    <span class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark">⏰ {{ new Date(event.start_time).toLocaleTimeString('ca-ES', {hour: '2-digit', minute:'2-digit'}) }}</span>
-                    
+                    <span v-if="event.start_time" class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark">📅 {{ formatDate(event.start_time) }}</span>
+                    <span v-if="event.start_time" class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark">⏰ {{ formatTime(event.start_time) }}</span>
+
                     <!-- Comptador d'assistents -->
-                    <span class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark flex items-center gap-2" :class="{'text-red-400': event.max_participants && event.participants_count >= event.max_participants, 'text-brand-neon': !event.max_participants}">
-                        👤 
+                    <span class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark flex items-center gap-2" :class="{'text-red-400': event.max_participants && (event.participants_count || 0) >= event.max_participants, 'text-brand-neon': !event.max_participants}">
+                        👤
                         <span v-if="event.max_participants">
-                            {{ event.participants_count }} / {{ event.max_participants }}
+                            {{ event.participants_count || 0 }} / {{ event.max_participants }}
                         </span>
                         <span v-else>
-                            {{ event.participants_count }} assistents
+                            {{ event.participants_count || 0 }} assistents
                         </span>
-                        <span v-if="event.max_participants && event.participants_count >= event.max_participants" class="ml-1 text-[9px] bg-red-500 text-black px-1 rounded uppercase">FULL</span>
+                        <span v-if="event.max_participants && (event.participants_count || 0) >= event.max_participants" class="ml-1 text-[9px] bg-red-500 text-black px-1 rounded uppercase">FULL</span>
                     </span>
                 </div>
                 <p class="text-gray-300 text-sm mb-6">{{ event.description || 'Sense descripció.' }}</p>
@@ -52,7 +52,7 @@
                         </Link>
                     </div>
                     <div v-else>
-                        <div v-if="event.max_participants && event.participants_count >= event.max_participants" class="text-red-500 font-bold bg-red-500/10 px-6 py-3 rounded-xl border border-red-500/30 text-center">
+                        <div v-if="event.max_participants && (event.participants_count || 0) >= event.max_participants" class="text-red-500 font-bold bg-red-500/10 px-6 py-3 rounded-xl border border-red-500/30 text-center">
                             Aquesta quedada ja està plena ({{ event.max_participants }} places)
                         </div>
                         <Link v-else :href="route('events.join', event.id)" method="post" as="button" class="bg-brand-neon text-brand-black hover:bg-white hover:scale-105 px-8 py-3 rounded-xl font-black uppercase tracking-widest transition flex items-center gap-2 shadow-[0_0_20px_rgba(12,225,181,0.4)]">
@@ -68,7 +68,7 @@
                         <Link :href="route('register')" class="bg-brand-neon text-brand-black px-6 py-2 rounded-lg font-bold hover:bg-white transition shadow-neon">Registra't</Link>
                     </div>
                 </div>
-                
+
                 <div v-else class="border-t border-brand-dark pt-5 text-center text-brand-neon font-bold text-sm bg-brand-neon/10 rounded-lg p-3">
                     👑 Ets l'organitzador d'aquesta quedada
                 </div>
@@ -80,15 +80,15 @@
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" /></svg>
                         Traçat ({{ event.routes.length }})
                     </h3>
-                    
+
                     <button @click="openGlobalMap" class="text-xs font-bold bg-brand-neon text-brand-black px-3 py-1.5 rounded uppercase shadow-[0_0_10px_rgba(12,225,181,0.3)] hover:scale-105 transition">
                         Veure Mapa Complet
                     </button>
                 </div>
-                
+
                 <div class="space-y-3">
-                    <Link 
-                        v-for="(ruta, index) in event.routes" 
+                    <Link
+                        v-for="(ruta, index) in event.routes"
                         :key="ruta.id"
                         :href="route('routes.show', ruta.id)"
                         class="bg-brand-black border border-brand-dark rounded-xl p-3 flex items-center justify-between group hover:border-brand-neon transition shadow-lg relative overflow-hidden"
@@ -113,7 +113,7 @@
                 </div>
             </div>
 
-            </div>
+        </div>
 
         <div v-show="isMapOpen" class="fixed inset-0 z-[5000] bg-gray-900 flex flex-col">
             <div id="event-global-map" class="absolute inset-0 w-full h-full z-0 bg-gray-900"></div>
@@ -137,6 +137,9 @@
         </div>
 
     </AppLayout>
+    <div v-else class="h-screen bg-gray-900 flex items-center justify-center text-white">
+        <p class="animate-pulse">Carregant quedada...</p>
+    </div>
 </template>
 
 <script setup>
@@ -159,7 +162,24 @@ const mapLayers = ref([]); // Per guardar les línies i poder netejar-les
 
 const copyLinkSuccess = ref(false);
 
+const formatDate = (dateStr) => {
+    if(!dateStr) return '';
+    try {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('ca-ES');
+    } catch(e) { return ''; }
+};
+
+const formatTime = (dateStr) => {
+    if(!dateStr) return '';
+    try {
+        const d = new Date(dateStr);
+        return d.toLocaleTimeString('ca-ES', {hour: '2-digit', minute:'2-digit'});
+    } catch(e) { return ''; }
+};
+
 const copyShareLink = () => {
+    if(!props.event || !props.event.share_token) return;
     let tokenToCopy = props.event.share_token;
     navigator.clipboard.writeText(tokenToCopy).then(() => {
         copyLinkSuccess.value = true;
@@ -171,7 +191,7 @@ const copyShareLink = () => {
 
 // Càlcul del total de km de tota la quedada
 const totalDistance = computed(() => {
-    if (!props.event.routes) return 0;
+    if (!props.event || !props.event.routes) return 0;
     const total = props.event.routes.reduce((acc, route) => acc + parseFloat(route.planned_distance_km || 0), 0);
     return total.toFixed(1);
 });
@@ -181,16 +201,18 @@ const openGlobalMap = async () => {
     await nextTick(); // Esperem a que el div existeixi al DOM
 
     if (!map.value) {
-        // Inicialitzem el mapa 
+        // Inicialitzem el mapa
         map.value = L.map('event-global-map', { zoomControl: false, attributionControl: false }).setView([41.3851, 2.1734], 13);
-        
+
         L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
             maxZoom: 20,
             className: 'map-tiles-inverse'
         }).addTo(map.value);
     } else {
         // Si ja estava creat, netegem les rutes velles abans de tornar a dibuixar
-        mapLayers.value.forEach(layer => map.value.removeLayer(layer));
+        mapLayers.value.forEach(layer => {
+            if(map.value && layer) map.value.removeLayer(layer);
+        });
         mapLayers.value = [];
         map.value.invalidateSize();
     }
@@ -198,43 +220,55 @@ const openGlobalMap = async () => {
     let allPoints = [];
 
     // Dibuixem cada ruta amb el seu color
-    props.event.routes.forEach((route, index) => {
-        let data = route.geo_json;
-        if (!data) return;
+    if(props.event && props.event.routes) {
+        props.event.routes.forEach((route, index) => {
+            let data = route.geo_json;
+            if (!data) return;
 
-        // Parsejem el JSON (a vegades ve com a string doble)
-        if (typeof data === 'string') {
-            try {
-                data = JSON.parse(data);
-                if (typeof data === 'string') data = JSON.parse(data);
-            } catch (e) { console.error("Error parsejant JSON", e); }
-        }
+            // Seguretat en el parseig
+            if (typeof data === 'string') {
+                try {
+                    // Netegem possibles caràcters extra o doble encoding
+                    data = JSON.parse(data);
+                    if (typeof data === 'string') data = JSON.parse(data);
+                } catch (e) {
+                    console.error("Error parsejant JSON de la ruta " + route.id, e);
+                    return;
+                }
+            }
 
-        if (Array.isArray(data) && data.length > 0) {
-            const color = mapColors[index % mapColors.length];
-            const points = data.map(p => [p.lat || p.latitude, p.lng || p.longitude]);
-            
-            // Dibuixem la línia
-            const polyline = L.polyline(points, {
-                color: color,
-                weight: 6,
-                opacity: 0.9,
-                lineJoin: 'round'
-            }).addTo(map.value);
+            if (Array.isArray(data) && data.length > 0) {
+                const color = mapColors[index % mapColors.length];
+                const points = data.map(p => [p.lat || p.latitude, p.lng || p.longitude]);
 
-            // Marquem el punt d'inici de cada tram amb una rodoneta
-            const startMarker = L.circleMarker(points[0], {
-                radius: 6, color: color, fillColor: '#111827', fillOpacity: 1, weight: 3
-            }).addTo(map.value);
+                // Filtrem punts nuls o mal formats per no fer petar Leaflet
+                const validPoints = points.filter(p => p[0] != null && p[1] != null);
+                if(validPoints.length === 0) return;
 
-            mapLayers.value.push(polyline, startMarker);
-            allPoints = allPoints.concat(points);
-        }
-    });
+                // Dibuixem la línia
+                const polyline = L.polyline(validPoints, {
+                    color: color,
+                    weight: 6,
+                    opacity: 0.9,
+                    lineJoin: 'round'
+                }).addTo(map.value);
+
+                // Marquem el punt d'inici de cada tram amb una rodoneta
+                const startMarker = L.circleMarker(validPoints[0], {
+                    radius: 6, color: color, fillColor: '#111827', fillOpacity: 1, weight: 3
+                }).addTo(map.value);
+
+                mapLayers.value.push(polyline, startMarker);
+                allPoints = allPoints.concat(validPoints);
+            }
+        });
+    }
 
     // Fem zoom automàtic perquè es vegi TODO l'itinerari junt!
-    if (allPoints.length > 0) {
-        map.value.fitBounds(L.latLngBounds(allPoints), { padding: [50, 100] }); // 100 per baix perquè la targeta no ho tapi
+    if (allPoints.length > 0 && map.value) {
+        try {
+            map.value.fitBounds(L.latLngBounds(allPoints), { padding: [50, 100] });
+        } catch(e) { console.error("Error fitBounds", e); }
     }
 };
 

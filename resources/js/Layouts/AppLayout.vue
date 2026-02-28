@@ -1,7 +1,7 @@
 <template>
-    <div class="min-h-screen bg-brand-black text-gray-200 font-sans pb-24 relative"> 
+    <div class="min-h-screen bg-brand-black text-gray-200 font-sans relative" style="padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));"> 
         
-        <nav class="bg-brand-surface border-b border-brand-dark sticky top-0 z-[3000] px-4 h-14 grid grid-cols-3 items-center shadow-lg">
+        <nav class="bg-brand-surface border-b border-brand-dark sticky top-0 z-[3000] px-4 grid grid-cols-3 items-center shadow-lg" style="padding-top: env(safe-area-inset-top); height: calc(3.5rem + env(safe-area-inset-top));">
             
             <div class="justify-self-start w-7"></div>
 
@@ -21,7 +21,7 @@
             <slot />
         </main>
 
-        <nav class="fixed bottom-[-2px] left-0 right-0 w-full bg-brand-surface border-t border-b-2 border-brand-surface border-t-brand-dark h-16 flex justify-around items-center z-[3000] shadow-[0_-4px_10px_rgba(0,0,0,0.5)]">
+        <nav class="fixed bottom-[-2px] left-0 right-0 w-full bg-brand-surface border-t border-b-2 border-brand-surface border-t-brand-dark flex justify-around items-center z-[3000] shadow-[0_-4px_10px_rgba(0,0,0,0.5)]" style="padding-bottom: calc(0.75rem + env(safe-area-inset-bottom)); height: calc(4.75rem + env(safe-area-inset-bottom));">
             
             <Link 
                 :href="currentMotoId ? route('dashboard', currentMotoId) : route('dashboard')" 

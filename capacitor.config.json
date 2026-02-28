@@ -1,5 +1,9 @@
 {
   "appId": "com.clutchcontrol.app",
   "appName": "Clutch Control",
-  "webDir": "dist"
+  "webDir": "dist",
+  "server": {
+    "url": "http://192.168.1.44:8000",
+    "cleartext": true
+  }
 }

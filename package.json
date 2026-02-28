@@ -22,8 +22,11 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
+        "@capacitor-community/background-geolocation": "^1.2.26",
         "@capacitor/android": "^8.0.2",
         "@capacitor/core": "^8.0.2",
+        "@capacitor/geolocation": "^8.1.0",
+        "@capacitor/local-notifications": "^8.0.1",
         "leaflet": "^1.9.4",
         "leaflet-control-geocoder": "^3.3.1",
         "leaflet-routing-machine": "^3.2.12",

@@ -54,15 +54,16 @@
                         </div>
 
                         <div class="flex gap-2 mt-4 pt-4 border-t border-brand-dark/50">
-                            <Link :href="route('routes.show', ruta.id)" class="flex-1 text-center bg-brand-dark hover:bg-white hover:text-black text-white text-xs font-bold uppercase py-2 rounded transition">
+                            <Link v-if="ruta && ruta.id" :href="route('routes.show', ruta.id)" class="flex-1 text-center bg-brand-dark hover:bg-white hover:text-black text-white text-xs font-bold uppercase py-2 rounded transition">
                                 Veure Detall
                             </Link>
                             
-                            <Link :href="route('routes.edit', ruta.id)" class="px-3 flex items-center justify-center bg-brand-dark border border-gray-600 hover:border-brand-neon hover:text-brand-neon text-gray-400 rounded transition" title="Editar">
+                            <Link v-if="ruta && ruta.id" :href="route('routes.edit', ruta.id)" class="px-3 flex items-center justify-center bg-brand-dark border border-gray-600 hover:border-brand-neon hover:text-brand-neon text-gray-400 rounded transition" title="Editar">
                                 ✏️
                             </Link>
 
                             <button 
+                                v-if="ruta && ruta.id"
                                 @click="deleteRoute(ruta.id)"
                                 class="px-3 flex items-center justify-center bg-brand-dark border border-red-900/50 text-red-700 hover:bg-red-500 hover:text-white hover:border-red-500 rounded transition" 
                                 title="Eliminar"

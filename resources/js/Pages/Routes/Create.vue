@@ -91,15 +91,17 @@
                                 <span class="text-[10px] text-gray-500 uppercase">Temps Estimat</span>
                             </div>
                         </div>
-                        <button type="button" @click="openMap" class="w-full group relative overflow-hidden rounded-xl bg-brand-black border border-brand-dark hover:border-brand-neon transition-all duration-300 h-32 flex flex-col items-center justify-center gap-2">
-                            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-                            <div class="relative z-10 bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_20px_rgba(12,225,181,0.4)] group-hover:scale-110 transition-transform">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
-                            </div>
-                            <span class="relative z-10 text-brand-neon font-bold uppercase tracking-widest text-sm group-hover:text-white transition-colors">
-                                {{ uiWaypoints.length > 0 ? 'Editar Mapa' : 'Dibuixar Ruta' }}
-                            </span>
-                        </button>
+                        <div class="grid grid-cols-1 gap-4">
+                            <button type="button" @click="openMap" class="w-full group relative overflow-hidden rounded-xl bg-brand-black border border-brand-dark hover:border-brand-neon transition-all duration-300 h-32 flex flex-col items-center justify-center gap-2">
+                                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+                                <div class="relative z-10 bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_20px_rgba(12,225,181,0.4)] group-hover:scale-110 transition-transform">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                                </div>
+                                <span class="relative z-10 text-brand-neon font-bold uppercase tracking-widest text-sm group-hover:text-white transition-colors">
+                                    {{ uiWaypoints.length > 0 ? 'Editar Mapa' : 'Dibuixar' }}
+                                </span>
+                            </button>
+                        </div>
                     </div>
 
                     <button type="submit" :disabled="form.processing || uiWaypoints.length < 2" class="w-full bg-white text-black font-black py-4 rounded-xl uppercase tracking-widest hover:bg-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-xl">
@@ -397,7 +399,22 @@ onMounted(() => {
         form.waypoints = wps.map(wp => ({ lat: wp.latLng.lat, lng: wp.latLng.lng }));
     });
     
-    locateUser();
+    // Check if recorded route exists in localstorage
+    const recordedRouteData = localStorage.getItem('clutch_recorded_route');
+    if (recordedRouteData) {
+        try {
+            const recordedPoints = JSON.parse(recordedRouteData);
+            if (Array.isArray(recordedPoints) && recordedPoints.length > 0) {
+                uiWaypoints.value = recordedPoints;
+                syncWaypointsToMap();
+            }
+        } catch (e) {
+            console.error("Error parsing stored route:", e);
+        }
+        localStorage.removeItem('clutch_recorded_route');
+    } else {
+        locateUser();
+    }
 });
 
 const submit = () => {
@@ -406,7 +423,7 @@ const submit = () => {
 </script>
 
 <style>
-.pt-safe-top { padding-top: env(safe-area-inset-top, 20px); }
+.pt-safe-top { padding-top: env(safe-area-inset-top, 40px); }
 .pb-safe-bottom { padding-bottom: env(safe-area-inset-bottom, 20px); }
 .leaflet-routing-container { display: none !important; }
 .map-tiles-inverse { filter: brightness(150%) contrast(150%); }

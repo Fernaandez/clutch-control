@@ -43,7 +43,15 @@ onMounted(() => {
         maxZoom: 20
     }).addTo(map);
 
-    const latlngs = points.map(p => [p.lat, p.lng]);
+    const validPoints = points.map(p => {
+        if (Array.isArray(p) && p.length >= 2) return [p[1], p[0]]; // [lng, lat] -> [lat, lng]
+        if (p && (p.lat !== undefined || p.latitude !== undefined)) return [p.lat ?? p.latitude, p.lng ?? p.longitude];
+        return null;
+    }).filter(Boolean);
+
+    if (validPoints.length === 0) return;
+
+    const latlngs = validPoints;
     const polyline = L.polyline(latlngs, {
         color: '#0CE1B5',
         weight: 3,
