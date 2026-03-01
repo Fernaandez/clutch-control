@@ -50,8 +50,9 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { computed, onMounted, onUnmounted } from 'vue';
+import { Head, Link, useForm, router } from '@inertiajs/vue3';
+import axios from 'axios';
 
 const props = defineProps({
     status: {
@@ -68,6 +69,26 @@ const submit = () => {
 const verificationLinkSent = computed(
     () => props.status === 'verification-link-sent',
 );
+
+let intervalId = null;
+
+onMounted(() => {
+    intervalId = setInterval(async () => {
+        try {
+            const response = await axios.get(route('verification.check-status'));
+            if (response.data.verified) {
+                clearInterval(intervalId);
+                router.visit(route('dashboard'));
+            }
+        } catch (error) {
+            // Silently ignore errors during polling
+        }
+    }, 3000);
+});
+
+onUnmounted(() => {
+    if (intervalId) clearInterval(intervalId);
+});
 </script>
 
 <style scoped>
