@@ -75,7 +75,7 @@ let intervalId = null;
 onMounted(() => {
     intervalId = setInterval(async () => {
         try {
-            const response = await axios.get(route('verification.check-status'));
+            const response = await axios.get(route('verification.check-status', { t: Date.now() }));
             if (response.data.verified) {
                 clearInterval(intervalId);
                 router.visit(route('dashboard'));

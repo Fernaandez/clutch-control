@@ -40,7 +40,8 @@ Route::middleware('auth')->group(function () {
         ->name('verification.notice');
 
     Route::get('verify-email/check-status', function (Illuminate\Http\Request $request) {
-        return response()->json(['verified' => $request->user()->hasVerifiedEmail()]);
+        return response()->json(['verified' => $request->user()->hasVerifiedEmail()])
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     })->name('verification.check-status');
 
 
