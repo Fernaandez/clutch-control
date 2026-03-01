@@ -246,7 +246,7 @@ const startRecording = async () => {
     isRecording.value = true;
     recordedWaypoints.value = [];
 
-    window.alert("Gravació iniciada! Nota: Perquè es guardin punts, has de moure't físicament almenys 50 metres, o utilitzar el 'Play Route' de l'emulador.");
+    window.alert("Gravació iniciada! Nota: Perquè es guardin punts, has de moure't físicament almenys 15 metres, o utilitzar el 'Play Route' de l'emulador.");
 
     BackgroundGeolocation.addWatcher(
         {
@@ -254,7 +254,7 @@ const startRecording = async () => {
             backgroundTitle: "Gravant Ruta",
             requestPermissions: true,
             stale: false,
-            distanceFilter: 50
+            distanceFilter: 15
         },
         function callback(location, error) {
             if (error) {
