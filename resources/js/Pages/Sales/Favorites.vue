@@ -145,8 +145,11 @@
             <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 <div v-for="sale in filteredSales" :key="sale.id" class="bg-brand-surface rounded-xl overflow-hidden border border-brand-dark shadow-lg hover:border-brand-neon transition duration-300 flex flex-col group animate-fade-in relative">
                     
-                    <div v-if="sale.is_sold" class="absolute inset-0 bg-black/60 backdrop-blur-sm z-30 flex items-center justify-center">
+                    <div v-if="sale.state === 'venuda'" class="absolute inset-0 bg-black/60 backdrop-blur-sm z-30 flex items-center justify-center">
                         <span class="bg-red-600 text-white px-6 py-2 font-black uppercase tracking-widest text-xl transform -rotate-12 border-2 border-red-900 shadow-2xl">Venuda</span>
+                    </div>
+                    <div v-else-if="sale.state === 'actiu (reservat) (nou)'" class="absolute inset-0 bg-black/40 backdrop-blur-sm z-30 flex items-center justify-center">
+                        <span class="bg-yellow-500 text-black px-6 py-2 font-black uppercase tracking-widest text-xl transform -rotate-12 border-2 border-yellow-700 shadow-2xl">Reservada</span>
                     </div>
 
                     <div class="h-40 bg-gray-900 relative w-full overflow-hidden flex items-center justify-center">

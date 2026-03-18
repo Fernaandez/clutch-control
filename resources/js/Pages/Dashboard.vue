@@ -5,7 +5,7 @@
             <img v-if="moto.photo" :src="$page.props.storageUrl + '/' + moto.photo" alt="Moto Background" class="absolute inset-0 w-full h-full object-cover">
             
             <!-- Overlay -->
-            <div :class="['absolute inset-0 flex items-center justify-center', moto.photo ? 'bg-gradient-to-t from-brand-black via-black/40 to-black/10' : 'bg-gradient-to-br from-brand-dark to-brand-black opacity-80']">
+            <div :class="['absolute inset-0 flex items-center justify-center', moto.photo ? 'photo-gradient-overlay' : 'bg-gradient-to-br from-brand-dark to-brand-black opacity-80']">
                  <svg v-if="!moto.photo" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-32 h-32 text-brand-muted opacity-20">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
                 </svg>
@@ -13,10 +13,12 @@
             <Link :href="route('motorcycles.index')" class="absolute top-4 right-4 z-20 text-white/80 hover:text-brand-neon hover:scale-110 transition duration-300 p-2 bg-black/40 rounded-full backdrop-blur-sm border border-white/10 shadow-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
             </Link>
-            <div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-brand-black to-transparent">
-                <h1 class="text-2xl sm:text-3xl font-black text-white italic tracking-tighter uppercase line-clamp-1">{{ moto.brand }}</h1>
-                <h2 class="text-lg sm:text-xl text-brand-neon font-bold line-clamp-1">{{ moto.model }}</h2>
-                <p class="text-gray-400 text-xs sm:text-sm mt-1">{{ moto.plate }} <span v-if="moto.plate">|</span> {{ moto.year }}</p>
+            <div class="absolute bottom-0 left-0 w-full p-4 photo-gradient-bottom">
+                <div class="inline-block bg-black/65 backdrop-blur-sm border border-white/15 rounded-xl px-4 py-3 shadow-lg">
+                    <h1 class="text-2xl sm:text-3xl font-black italic tracking-tighter uppercase line-clamp-1" style="color: white;">{{ moto.brand }}</h1>
+                    <h2 class="text-lg sm:text-xl text-brand-neon font-bold line-clamp-1">{{ moto.model }}</h2>
+                    <p class="text-gray-300 text-xs sm:text-sm mt-0.5">{{ moto.plate }} <span v-if="moto.plate">|</span> {{ moto.year }}</p>
+                </div>
             </div>
         </div>
 

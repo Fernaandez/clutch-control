@@ -20,9 +20,11 @@
                                     :class="{
                                         'border-green-500 text-green-400 bg-green-500/10': mapRoute.difficulty === 'easy',
                                         'border-yellow-500 text-yellow-400 bg-yellow-500/10': mapRoute.difficulty === 'medium',
-                                        'border-red-500 text-red-400 bg-red-500/10': mapRoute.difficulty === 'hard'
+                                        'border-red-500 text-red-400 bg-red-500/10': mapRoute.difficulty === 'hard',
+                                        'border-purple-500 text-purple-400 bg-purple-500/10': mapRoute.difficulty === 'expert',
+                                        'border-gray-500 text-white bg-gray-800': mapRoute.difficulty === 'extreme'
                                     }">
-                                    {{ mapRoute.difficulty === 'easy' ? 'Fàcil' : (mapRoute.difficulty === 'medium' ? 'Mitjana' : 'Difícil') }}
+                                    {{ mapRoute.difficulty === 'easy' ? 'Fàcil' : (mapRoute.difficulty === 'medium' ? 'Mitjana' : (mapRoute.difficulty === 'hard' ? 'Difícil' : (mapRoute.difficulty === 'expert' ? 'Experta' : 'Extrema'))) }}
                                 </span>
 
                                 <span v-if="mapRoute.is_public" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border border-brand-neon/30 text-brand-neon bg-brand-neon/10">🌍 Pública</span>

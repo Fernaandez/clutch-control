@@ -112,14 +112,11 @@
                 <div class="bg-brand-surface border border-brand-dark rounded-xl p-5 shadow-xl">
                     <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2 mb-4">Estat de l'Anunci</h2>
                     <div class="flex flex-col gap-3">
-                        <label class="flex items-center gap-3 cursor-pointer">
-                            <input v-model="form.is_active" type="checkbox" class="rounded bg-brand-black border-brand-dark text-brand-neon focus:ring-brand-neon h-5 w-5">
-                            <span class="text-sm font-bold text-gray-300">Visible al Mercat (Actiu)</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer">
-                            <input v-model="form.is_sold" type="checkbox" class="rounded bg-brand-black border-brand-dark text-red-500 focus:ring-red-500 h-5 w-5">
-                            <span class="text-sm font-bold text-red-400">Marcar com a VENUDA</span>
-                        </label>
+                        <select v-model="form.state" class="w-full bg-brand-black border-brand-dark rounded-lg text-white font-bold focus:border-brand-neon focus:ring-brand-neon p-3">
+                            <option value="actiu">Visible al Mercat (Actiu)</option>
+                            <option value="actiu (reservat) (nou)">Actiu (Reservat)</option>
+                            <option value="venuda">Marcar com a VENUDA</option>
+                        </select>
                     </div>
                 </div>
 
@@ -154,8 +151,7 @@ const form = useForm({
     description: props.sale.description,
     price: props.sale.price,
     location: props.sale.location,
-    is_active: Boolean(props.sale.is_active),
-    is_sold: Boolean(props.sale.is_sold),
+    state: props.sale.state || 'actiu',
     cc: props.sale.motorcycle?.cc || '',
     power_cv: props.sale.motorcycle?.power_cv || '',
     license_type: props.sale.motorcycle?.license_type || '',

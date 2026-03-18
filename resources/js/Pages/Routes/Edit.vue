@@ -43,10 +43,12 @@
                         <div class="grid md:grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Dificultat</label>
-                                <div class="grid grid-cols-3 gap-3 h-[42px]">
-                                    <button type="button" @click="form.difficulty = 'easy'" :class="form.difficulty === 'easy' ? 'bg-green-500/20 border-green-500 text-green-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border text-[10px] sm:text-xs font-bold transition hover:border-gray-500">🟢 Fàcil</button>
-                                    <button type="button" @click="form.difficulty = 'medium'" :class="form.difficulty === 'medium' ? 'bg-yellow-500/20 border-yellow-500 text-yellow-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border text-[10px] sm:text-xs font-bold transition hover:border-gray-500">🟡 Mitjana</button>
-                                    <button type="button" @click="form.difficulty = 'hard'" :class="form.difficulty === 'hard' ? 'bg-red-500/20 border-red-500 text-red-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border text-[10px] sm:text-xs font-bold transition hover:border-gray-500">🔴 Difícil</button>
+                                <div class="grid grid-cols-2 md:grid-cols-5 gap-2 h-auto">
+                                    <button type="button" @click="form.difficulty = 'easy'" :class="form.difficulty === 'easy' ? 'bg-green-500/20 border-green-500 text-green-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border py-2 px-1 text-[10px] sm:text-xs font-bold transition hover:border-gray-500">🟢 Fàcil</button>
+                                    <button type="button" @click="form.difficulty = 'medium'" :class="form.difficulty === 'medium' ? 'bg-yellow-500/20 border-yellow-500 text-yellow-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border py-2 px-1 text-[10px] sm:text-xs font-bold transition hover:border-gray-500">🟡 Mitjana</button>
+                                    <button type="button" @click="form.difficulty = 'hard'" :class="form.difficulty === 'hard' ? 'bg-red-500/20 border-red-500 text-red-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border py-2 px-1 text-[10px] sm:text-xs font-bold transition hover:border-gray-500">🔴 Difícil</button>
+                                    <button type="button" @click="form.difficulty = 'expert'" :class="form.difficulty === 'expert' ? 'bg-purple-500/20 border-purple-500 text-purple-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border py-2 px-1 text-[10px] sm:text-xs font-bold transition hover:border-gray-500">🟣 Experta</button>
+                                    <button type="button" @click="form.difficulty = 'extreme'" :class="form.difficulty === 'extreme' ? 'bg-gray-800 border-gray-500 text-white' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border py-2 px-1 text-[10px] sm:text-xs font-bold transition hover:border-gray-500">☠️ Extrema</button>
                                 </div>
                             </div>
 

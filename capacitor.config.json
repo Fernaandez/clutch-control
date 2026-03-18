@@ -3,7 +3,7 @@
   "appName": "Clutch Control",
   "webDir": "dist",
   "server": {
-    "url": "https://clutchcontrol.alwaysdata.net",
+    "url": "http://192.168.1.45:8000",
     "cleartext": true
   }
 }

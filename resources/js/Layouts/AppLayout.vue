@@ -1,20 +1,21 @@
 <template>
     <div class="min-h-screen bg-brand-black text-gray-200 font-sans relative" style="padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));"> 
         
-        <nav class="bg-brand-surface border-b border-brand-dark sticky top-0 z-[3000] px-4 grid grid-cols-3 items-center shadow-lg" style="padding-top: env(safe-area-inset-top); height: calc(3.5rem + env(safe-area-inset-top));">
+        <nav class="bg-brand-surface border-b border-brand-dark sticky top-0 z-[3000] px-4 flex items-center justify-between shadow-lg relative" style="padding-top: env(safe-area-inset-top); height: calc(3.5rem + env(safe-area-inset-top));">
             
-            <div class="justify-self-start w-7"></div>
-
-            <div class="justify-self-center flex items-center gap-1">
-                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-brand-base">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 0 0 6.16-12.12A14.98 14.98 0 0 0 9.631 8.41m5.96 5.96a14.926 14.926 0 0 1-5.841 2.58m-.119-8.54a6 6 0 0 0-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 0 0-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 0 1-2.448-2.448 14.9 14.9 0 0 1 .06-.312m-2.24 2.39a4.493 4.493 0 0 0-1.757 4.306 4.493 4.493 0 0 0 4.306-1.758M16.5 9a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
-                </svg>
-                <span class="text-lg font-black tracking-tighter text-white">
-                    CLUTCH<span class="text-brand-neon">CONTROL</span>
-                </span>
+            <div class="min-w-[1.75rem]">
+                <Link v-if="$page.props.auth.user && $page.props.auth.user.role === 'admin'" :href="route('admin.dashboard')" class="text-brand-neon text-[10px] font-bold border border-brand-neon px-2 py-1 rounded shadow-[0_0_5px_rgba(12,225,181,0.3)]">
+                    ADMIN
+                </Link>
             </div>
 
-            <div class="justify-self-end w-7"></div>
+            <!-- Centrat absolutament per garantir simetria perfecta -->
+            <div class="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/70 backdrop-blur-sm border border-white/15 px-5 py-2 rounded-xl shadow whitespace-nowrap">
+                <img :src="appLogo" alt="Clutch Control Logo" class="h-5 w-auto flex-shrink-0">
+                <span class="text-base font-black tracking-tighter" style="color: white;">CLUTCH<span class="text-brand-neon">CONTROL</span></span>
+            </div>
+
+            <div class="w-7"></div>
         </nav>
 
         <main class="relative">
@@ -84,7 +85,16 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import appLogo from '@/../images/logo.svg';
+import { useTheme } from '@/Composables/useTheme.js';
+
+const { initTheme } = useTheme();
+
+onMounted(() => {
+    initTheme();
+});
 
 defineProps({
     currentMotoId: Number

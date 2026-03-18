@@ -12,8 +12,7 @@ class SaleListing extends Model
         'description', 
         'price', 
         'location', 
-        'is_active', 
-        'is_sold',
+        'state',
         'views_count'
     ];
 

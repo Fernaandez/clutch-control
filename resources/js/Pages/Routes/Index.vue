@@ -57,6 +57,8 @@
                             <option value="easy">🟢 Fàcil</option>
                             <option value="medium">🟡 Mitjana</option>
                             <option value="hard">🔴 Difícil</option>
+                            <option value="expert">🟣 Experta</option>
+                            <option value="extreme">☠️ Extrema</option>
                         </select>
                     </div>
                 </div>
@@ -105,9 +107,11 @@
                             :class="{
                                 'bg-green-500/80 text-white': ruta.difficulty === 'easy',
                                 'bg-yellow-500/80 text-black': ruta.difficulty === 'medium',
-                                'bg-red-500/80 text-white': ruta.difficulty === 'hard'
+                                'bg-red-500/80 text-white': ruta.difficulty === 'hard',
+                                'bg-purple-500/80 text-white': ruta.difficulty === 'expert',
+                                'bg-gray-800 text-white border border-gray-600': ruta.difficulty === 'extreme'
                             }">
-                            {{ ruta.difficulty === 'easy' ? 'Fàcil' : (ruta.difficulty === 'medium' ? 'Mitjana' : 'Difícil') }}
+                            {{ ruta.difficulty === 'easy' ? 'Fàcil' : (ruta.difficulty === 'medium' ? 'Mitjana' : (ruta.difficulty === 'hard' ? 'Difícil' : (ruta.difficulty === 'expert' ? 'Experta' : 'Extrema'))) }}
                         </div>
                     </div>
 

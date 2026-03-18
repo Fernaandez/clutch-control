@@ -1,7 +1,37 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-/* Forçar inputs foscos a tota la web */
+
+/* ============================================
+   DARK MODE (default)
+   ============================================ */
+:root {
+    --color-brand-base: #27B699;
+    --color-brand-muted: #358B7A;
+    --color-brand-neon: #0CE1B5;
+    --color-brand-dark: #356158;
+    --color-brand-black: #273633;
+    --color-brand-surface: #343B39;
+    --color-text-primary: #f3f4f6;
+    --color-text-muted: #9ca3af;
+    --color-text-input: #e5e7eb;
+}
+
+/* ============================================
+   LIGHT MODE – override variables on html.light
+   ============================================ */
+html.light {
+    --color-brand-black: #f0faf8;
+    --color-brand-surface: #ffffff;
+    --color-brand-dark: #b2d8d0;
+    --color-text-primary: #111827;
+    --color-text-muted: #4b5563;
+    --color-text-input: #1f2937;
+}
+
+/* ============================================
+   Input styling – adapts to current theme vars
+   ============================================ */
 [type='text'],
 [type='email'],
 [type='url'],
@@ -17,5 +47,80 @@
 [multiple],
 textarea,
 select {
-    @apply bg-brand-black border-brand-dark text-gray-200 focus:border-brand-neon focus:ring-brand-neon rounded-md shadow-sm;
+    @apply bg-brand-black border-brand-dark focus:border-brand-neon focus:ring-brand-neon rounded-md shadow-sm;
+    color: var(--color-text-input);
+}
+
+/* General text adaptations to theme */
+html.light body {
+    color: var(--color-text-primary);
+}
+
+html.light .text-white {
+    color: var(--color-text-primary) !important;
+}
+
+html.light .text-gray-200 {
+    color: #374151 !important;
+}
+
+html.light .text-gray-300 {
+    color: #4b5563 !important;
+}
+
+html.light .text-gray-400 {
+    color: #6b7280 !important;
+}
+
+html.light .text-gray-500 {
+    color: #6b7280 !important;
+}
+
+/* ============================================
+   PHOTO OVERLAY – always dark regardless of theme
+   (used on hero sections that overlay a photo)
+   ============================================ */
+.photo-gradient-overlay {
+    background: linear-gradient(to top,
+            rgba(20, 30, 28, 0.96) 0%,
+            rgba(0, 0, 0, 0.40) 50%,
+            rgba(0, 0, 0, 0.10) 100%);
+}
+
+.photo-gradient-bottom {
+    background: linear-gradient(to top,
+            rgba(20, 30, 28, 0.95) 0%,
+            transparent 100%);
+}
+
+/* ============================================
+   NAVIGATION BAR – light mode
+   ============================================ */
+html.light nav.bg-brand-surface {
+    border-color: #d1d5db;
+}
+
+/* ============================================
+   CARD ITEMS – light mode text
+   ============================================ */
+html.light .text-gray-200.text-sm {
+    color: #1f2937 !important;
+}
+
+html.light .text-gray-500.text-xs {
+    color: #6b7280 !important;
+}
+
+/* ============================================
+   SECTION HEADINGS (like "Tauler de Control")
+   ============================================ */
+html.light .text-brand-muted {
+    color: var(--color-brand-muted);
+}
+
+/* ============================================
+   MODALS – light mode
+   ============================================ */
+html.light .bg-brand-black.p-4 {
+    background-color: #e8f5f2;
 }

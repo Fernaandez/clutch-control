@@ -15,7 +15,7 @@
 
             <div v-if="event.photo" class="relative h-56 w-full overflow-hidden mb-6 rounded-xl border border-brand-dark shadow-lg">
                 <img :src="$page.props.storageUrl + '/' + event.photo" alt="Foto Quedada" class="absolute inset-0 w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-brand-black via-black/30 to-transparent"></div>
+                <div class="absolute inset-0 photo-gradient-overlay"></div>
             </div>
 
             <div class="mb-6">

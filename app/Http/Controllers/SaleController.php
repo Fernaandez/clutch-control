@@ -18,8 +18,7 @@ class SaleController extends Controller
     {
         $sales = SaleListing::with(['motorcycle', 'images'])
             ->withCount('favoritedBy')
-            ->where('is_active', true)
-            ->where('is_sold', false)
+            ->whereIn('state', ['actiu', 'actiu (reservat) (nou)'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($sale) {
@@ -93,8 +92,7 @@ class SaleController extends Controller
             'description'   => $validated['description'],
             'price'         => $validated['price'],
             'location'      => $validated['location'],
-            'is_active'     => true,
-            'is_sold'       => false,
+            'state'         => 'actiu',
         ]);
 
         // Actualitzar dades tècniques de la moto
@@ -157,8 +155,7 @@ class SaleController extends Controller
             'description'    => 'nullable|string',
             'price'          => 'required|numeric|min:0',
             'location'       => 'required|string|max:255',
-            'is_active'      => 'boolean',
-            'is_sold'        => 'boolean',
+            'state'          => 'required|string|in:actiu,actiu (reservat) (nou),venuda',
             // Dades tècniques de la moto
             'cc'             => 'nullable|integer|min:0',
             'power_cv'       => 'nullable|integer|min:0',
@@ -176,8 +173,7 @@ class SaleController extends Controller
             'description' => $validated['description'],
             'price'       => $validated['price'],
             'location'    => $validated['location'],
-            'is_active'   => $validated['is_active'] ?? $sale->is_active,
-            'is_sold'     => $validated['is_sold'] ?? $sale->is_sold,
+            'state'       => $validated['state'] ?? $sale->state,
         ]);
 
         // Actualitzar dades tècniques de la moto
@@ -205,7 +201,7 @@ class SaleController extends Controller
     public function markSold(SaleListing $sale)
     {
         if ($sale->motorcycle->user_id !== Auth::id()) abort(403);
-        $sale->update(['is_sold' => true, 'is_active' => false]);
+        $sale->update(['state' => 'venuda']);
         return back();
     }
 
@@ -252,7 +248,7 @@ class SaleController extends Controller
         $sales = $user->favoriteSales()
             ->with(['motorcycle', 'images'])
             ->withCount('favoritedBy')
-            ->where('is_active', true)
+            ->whereIn('state', ['actiu', 'actiu (reservat) (nou)'])
             ->orderBy('sale_favorites.created_at', 'desc')
             ->get()
             ->map(function ($sale) {

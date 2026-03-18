@@ -93,6 +93,7 @@ class EventController extends Controller
             'description' => 'nullable|string',
             'start_time' => 'required|date',
             'is_public' => 'boolean', // <--- IMPORTANT: Validem que sigui true/false
+            'max_participants' => 'nullable|integer|min:1',
             
             // Validació d'etapes (la deixem igual)
             'stages' => 'array',

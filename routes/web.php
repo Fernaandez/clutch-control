@@ -100,3 +100,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/sales/{sale}/images/{image}', [\App\Http\Controllers\SaleController::class, 'destroyImage'])->name('sales.images.destroy');
 
 });
+
+// --- ADMIN PANEL ---
+Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+    Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+    Route::resource('routes', \App\Http\Controllers\Admin\RouteController::class);
+    Route::resource('events', \App\Http\Controllers\Admin\EventController::class);
+    Route::resource('sales', \App\Http\Controllers\Admin\SaleController::class);
+    Route::resource('motorcycles', \App\Http\Controllers\Admin\MotorcycleController::class);
+    Route::resource('maintenance', \App\Http\Controllers\Admin\MaintenanceController::class);
+});
