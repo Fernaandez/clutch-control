@@ -9,6 +9,28 @@
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
             </Link>
 
+            <!-- LIVE TRACKING OVERLAY -->
+            <div v-if="isRecording" class="absolute top-safe-top left-1/2 -translate-x-1/2 z-50 bg-brand-black/90 backdrop-blur-xl border border-brand-dark rounded-full px-6 py-3 shadow-[0_0_20px_rgba(239,68,68,0.3)] mt-2 flex items-center gap-6">
+                <!-- Parpelleig LIVE -->
+                <div class="flex items-center gap-2">
+                    <span class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                    </span>
+                    <span class="text-xs font-black text-red-500 uppercase tracking-widest">LIVE</span>
+                </div>
+                <!-- Temps -->
+                <div class="flex flex-col items-center">
+                    <span class="text-[10px] text-gray-500 uppercase font-bold leading-none mb-1">Crono</span>
+                    <span class="text-lg font-mono font-bold text-white leading-none">{{ formattedRecordingTime }}</span>
+                </div>
+                <!-- Distància -->
+                <div class="flex flex-col items-center">
+                    <span class="text-[10px] text-gray-500 uppercase font-bold leading-none mb-1">Distància</span>
+                    <span class="text-lg font-mono font-bold text-brand-neon leading-none">{{ (recordedDistance / 1000).toFixed(2) }}<span class="text-xs text-gray-400 ml-1">km</span></span>
+                </div>
+            </div>
+
             <div class="absolute bottom-20 left-0 w-full p-4 z-10 pb-safe-bottom">
                 <div class="bg-brand-black/95 backdrop-blur-xl border border-brand-dark rounded-2xl shadow-2xl overflow-hidden">
 
@@ -89,11 +111,11 @@
 
                         <button v-if="!isRecording" @click="startRecording" class="w-full flex items-center justify-center gap-2 bg-red-600 text-white font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_15px_rgba(220,38,38,0.4)] hover:scale-[1.02] transition">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><circle cx="12" cy="12" r="8" fill="currentColor" /></svg>
-                            <span>Gravar la meva Ruta</span>
+                            <span>Seguir En Viu</span>
                         </button>
                         <button v-else @click="stopRecording" class="w-full flex items-center justify-center gap-2 bg-red-900 border border-red-500 text-white font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_15px_rgba(220,38,38,0.4)] animate-pulse transition">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z" fill="currentColor" /></svg>
-                            <span>Aturar i Guardar</span>
+                            <span>Aturar Seguiment</span>
                         </button>
                     </div>
                 </div>
@@ -126,6 +148,18 @@ const copyLinkSuccess = ref(false);
 const isRecording = ref(false);
 const recordWatcherId = ref(null);
 const recordedWaypoints = ref([]);
+const recordedDistance = ref(0);
+const recordingTime = ref(0);
+let timerInterval = null;
+const trackingPolyline = ref(null);
+const currentLocationMarker = ref(null);
+
+const formattedRecordingTime = computed(() => {
+    const h = Math.floor(recordingTime.value / 3600);
+    const m = Math.floor((recordingTime.value % 3600) / 60);
+    const s = recordingTime.value % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+});
 
 const copyShareLink = () => {
     if(!props.mapRoute || !props.mapRoute.share_token) return;
@@ -247,21 +281,44 @@ const startRecording = async () => {
 
     isRecording.value = true;
     recordedWaypoints.value = [];
+    recordedDistance.value = 0;
+    recordingTime.value = 0;
 
-    window.alert("Gravació iniciada! Nota: Perquè es guardin punts, has de moure't físicament almenys 15 metres, o utilitzar el 'Play Route' de l'emulador.");
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        recordingTime.value += 1;
+    }, 1000);
+
+    // Prepare Polyline on map
+    if (map.value) {
+        if (trackingPolyline.value) map.value.removeLayer(trackingPolyline.value);
+        if (currentLocationMarker.value) map.value.removeLayer(currentLocationMarker.value);
+
+        trackingPolyline.value = L.polyline([], {
+            color: '#ef4444', // Vermell/Taronja viu per contrastar amb la original
+            weight: 5,
+            opacity: 0.9,
+            dashArray: '10, 10', // Una mica puntejat per donar sensació de telemetria
+            lineJoin: 'round'
+        }).addTo(map.value);
+
+        currentLocationMarker.value = L.circleMarker([0, 0], {
+            radius: 7, color: '#ffffff', fillColor: '#ef4444', weight: 2, fillOpacity: 1
+        }).addTo(map.value);
+    }
 
     BackgroundGeolocation.addWatcher(
         {
-            backgroundMessage: "Clutch Control està gravant la ruta...",
-            backgroundTitle: "Gravant Ruta",
+            backgroundMessage: "Clutch Control està seguint els teus passos...",
+            backgroundTitle: "Seguiment de Ruta Actiu",
             requestPermissions: true,
             stale: false,
-            distanceFilter: 15
+            distanceFilter: 10 // Punts cada 10 metres
         },
         function callback(location, error) {
             if (error) {
                 if (error.code === "NOT_AUTHORIZED") {
-                    if (window.confirm("Clutch Control necessita la teva ubicació per gravar la ruta. Vols obrir la configuració per posar-ho a 'Sempre'?")) {
+                    if (window.confirm("Clutch Control necessita la teva ubicació. Vols obrir la configuració per posar-ho a 'Sempre'?")) {
                         BackgroundGeolocation.openSettings();
                     }
                 }
@@ -270,17 +327,28 @@ const startRecording = async () => {
             }
 
             if (location) {
+                const newLatLng = L.latLng(location.latitude, location.longitude);
+                
+                // Mirem si hi havia un punt anterior per calcular distància línia recta
+                if (recordedWaypoints.value.length > 0 && map.value) {
+                    const lastPoint = recordedWaypoints.value[recordedWaypoints.value.length - 1];
+                    const lastLatLng = L.latLng(lastPoint.lat, lastPoint.lng);
+                    const literalDistanceMeters = map.value.distance(lastLatLng, newLatLng);
+                    recordedDistance.value += literalDistanceMeters;
+                }
+
                 recordedWaypoints.value.push({
-                    id: Date.now() + Math.random(),
+                    id: Date.now(),
                     lat: location.latitude,
                     lng: location.longitude,
-                    name: `Punt gravat GPS`
                 });
 
-                if (map.value) {
-                    L.circleMarker([location.latitude, location.longitude], {
-                        radius: 4, color: '#ff0000', fillColor: '#ff0000', fillOpacity: 1
-                    }).addTo(map.value);
+                if (map.value && trackingPolyline.value) {
+                    trackingPolyline.value.addLatLng(newLatLng);
+                    currentLocationMarker.value.setLatLng(newLatLng);
+                    
+                    // Opcional: Centrar el mapa a la nova posició de l'usuari automàticament
+                    map.value.panTo(newLatLng, { animate: true, duration: 1 });
                 }
             }
         }
@@ -291,16 +359,20 @@ const startRecording = async () => {
 
 const stopRecording = () => {
     isRecording.value = false;
+    if (timerInterval) clearInterval(timerInterval);
+
     if (recordWatcherId.value) {
         BackgroundGeolocation.removeWatcher({ id: recordWatcherId.value });
         recordWatcherId.value = null;
     }
 
     if (recordedWaypoints.value.length > 1) {
-        localStorage.setItem('clutch_recorded_route', JSON.stringify(recordedWaypoints.value));
-        router.visit(route('routes.create'));
+        alert(`📍 Seguiment aturat!\nHas recorregut ${(recordedDistance.value / 1000).toFixed(2)} km de trajectòria real.`);
+        // Note: No hi ha redirecció a Create. S'ha acabat la molèstia.
     } else {
-        alert("No s'han enregistrat suficients punts per crear una ruta.");
+        alert("S'ha aturat el seguiment, però no t'has mogut com per registrar la distància.");
+        if (trackingPolyline.value) map.value.removeLayer(trackingPolyline.value);
+        if (currentLocationMarker.value) map.value.removeLayer(currentLocationMarker.value);
     }
 };
 </script>
