@@ -35,6 +35,9 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'storageUrl' => asset('storage'),
+            'has_pending_maintenance' => $request->user() 
+                ? $request->user()->motorcycles()->with('maintenanceTasks')->get()->contains('has_pending_maintenance', true) 
+                : false,
         ];
     }
 }

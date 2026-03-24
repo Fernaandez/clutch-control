@@ -90,6 +90,42 @@
                         </div>
                     </div>
 
+                    <!-- Ressenyes Section -->
+                    <div v-if="mapRoute.is_public" class="px-4 py-3 border-t border-gray-800 bg-brand-black/80 max-h-60 overflow-y-auto w-full overscroll-contain">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Valoracions</h3>
+                            <span v-if="mapRoute.reviews && mapRoute.reviews.length" class="text-brand-neon font-bold text-sm">⭐ {{ (mapRoute.reviews.reduce((a, b) => a + b.rating, 0) / mapRoute.reviews.length).toFixed(1) }}</span>
+                        </div>
+                        
+                        <div v-if="mapRoute.reviews && mapRoute.reviews.length" class="space-y-2 mb-3">
+                            <div v-for="review in mapRoute.reviews" :key="review.id" class="bg-brand-surface border border-brand-dark p-2 rounded-lg text-sm">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="font-bold text-gray-200">{{ review.user.name }}</span>
+                                    <span class="text-yellow-400 text-xs">⭐ {{ review.rating }}/5</span>
+                                </div>
+                                <p class="text-gray-400 text-xs">{{ review.comment }}</p>
+                            </div>
+                        </div>
+                        <p v-else class="text-xs text-brand-muted italic mb-3">Cap ressenya encara. Sigues el primer!</p>
+
+                        <!-- Form on Auth && not author -->
+                        <div v-if="$page.props.auth && $page.props.auth.user && mapRoute.user_id !== $page.props.auth.user.id" class="space-y-2 mt-4 pt-4 border-t border-gray-800/50">
+                            <div v-if="userHasReviewed" class="text-xs text-brand-neon bg-brand-neon/10 border border-brand-neon/30 p-2 rounded text-center font-bold">
+                                ✅ Ja has valorat aquesta ruta.
+                            </div>
+                            <form v-else @submit.prevent="submitReview" class="flex flex-col gap-2">
+                                <p class="text-[10px] uppercase font-bold text-gray-400 text-center">Deixa la teva opinió</p>
+                                <div class="flex items-center gap-1 justify-center py-1">
+                                    <button type="button" @click="reviewForm.rating = n" v-for="n in 5" :key="n" :class="reviewForm.rating >= n ? 'text-yellow-400' : 'text-gray-600'" class="text-2xl transition-transform hover:scale-110">
+                                        ★
+                                    </button>
+                                </div>
+                                <textarea v-model="reviewForm.comment" rows="2" placeholder="Com ha anat la ruta?" class="w-full bg-brand-black/50 border border-brand-dark rounded-lg text-white text-xs p-2 focus:border-brand-neon focus:ring-1 focus:ring-brand-neon transition"></textarea>
+                                <button type="submit" :disabled="reviewForm.processing || reviewForm.rating === 0" class="w-full bg-gray-800 text-white text-xs font-bold py-2 rounded-lg hover:bg-brand-neon hover:text-black transition uppercase tracking-widest disabled:opacity-50">Publicar</button>
+                            </form>
+                        </div>
+                    </div>
+
                     <div class="p-4 flex flex-col gap-3">
                         <div class="flex gap-3">
                             <a :href="googleMapsLink" target="_blank" class="flex-1 flex items-center justify-center gap-2 bg-brand-neon text-brand-black font-black py-3.5 rounded-xl uppercase tracking-widest shadow-[0_0_15px_rgba(12,225,181,0.4)] hover:scale-[1.02] transition">
@@ -130,7 +166,7 @@
 <script setup>
 import { onMounted, computed, ref, nextTick } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Link, router } from '@inertiajs/vue3';
+import { Link, router, useForm, usePage } from '@inertiajs/vue3';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { registerPlugin } from '@capacitor/core';
@@ -146,6 +182,26 @@ const props = defineProps({
 const map = ref(null);
 const copyLinkSuccess = ref(false);
 const isRecording = ref(false);
+
+const reviewForm = useForm({
+    rating: 0,
+    comment: ''
+});
+
+const userHasReviewed = computed(() => {
+    if (!props.mapRoute || !props.mapRoute.reviews || !usePage().props.auth.user) return false;
+    return props.mapRoute.reviews.some(r => r.user_id === usePage().props.auth.user.id);
+});
+
+const submitReview = () => {
+    reviewForm.post(route('routes.reviews.store', props.mapRoute.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            reviewForm.reset();
+        }
+    });
+};
+
 const recordWatcherId = ref(null);
 const recordedWaypoints = ref([]);
 const recordedDistance = ref(0);

@@ -72,6 +72,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/routes/{route}', [RouteController::class, 'update'])->name('routes.update');
     Route::delete('/routes/{route}', [RouteController::class, 'destroy'])->name('routes.destroy');
     Route::post('/routes/{route}/clone', [RouteController::class, 'clone'])->name('routes.clone');
+    Route::post('/routes/{route}/reviews', [\App\Http\Controllers\RouteReviewController::class, 'store'])->name('routes.reviews.store');
 
     // --- QUEDADES (EVENTS) ---
     Route::get('/events', [EventController::class, 'index'])->name('events.index');

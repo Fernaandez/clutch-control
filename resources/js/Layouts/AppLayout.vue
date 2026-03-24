@@ -18,8 +18,12 @@
             <div class="w-7"></div>
         </nav>
 
-        <main class="relative">
-            <slot />
+        <main class="relative flex-1">
+            <Transition name="page" mode="out-in">
+                <div :key="$page.url" class="w-full h-full">
+                    <slot />
+                </div>
+            </Transition>
         </main>
 
         <nav class="fixed bottom-[-2px] left-0 right-0 w-full bg-brand-surface border-t border-b-2 border-brand-surface border-t-brand-dark flex justify-around items-center z-[3000] shadow-[0_-4px_10px_rgba(0,0,0,0.5)]" style="padding-bottom: calc(0.75rem + env(safe-area-inset-bottom)); height: calc(4.75rem + env(safe-area-inset-bottom));">
@@ -27,8 +31,11 @@
             <Link 
                 :href="currentMotoId ? route('dashboard', currentMotoId) : route('dashboard')" 
                 :class="{'text-brand-neon drop-shadow-[0_0_5px_rgba(12,225,181,0.6)]': route().current('dashboard')}" 
-                class="flex flex-col items-center justify-center gap-0.5 text-gray-500 hover:text-gray-300 transition w-16 h-full cursor-pointer"
+                class="flex flex-col items-center justify-center gap-0.5 text-gray-500 hover:text-gray-300 transition w-16 h-full cursor-pointer relative"
             >
+                <!-- Alerta Intel·ligent de Manteniment -->
+                <div v-if="$page.props.has_pending_maintenance" class="absolute top-2 right-4 w-2.5 h-2.5 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse ring-2 ring-brand-surface"></div>
+                
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
                 </svg>
@@ -100,3 +107,20 @@ defineProps({
     currentMotoId: Number
 });
 </script>
+
+<style>
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(10px) scale(0.99);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.99);
+}
+</style>

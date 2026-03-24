@@ -61,6 +61,10 @@ class Route extends Model
         return $this->hasMany(RouteWaypoint::class)->orderBy('order');
     }
 
+    public function reviews() {
+        return $this->hasMany(RouteReview::class);
+    }
+
     public function likes() {
         return $this->belongsToMany(User::class, 'route_likes');
     }

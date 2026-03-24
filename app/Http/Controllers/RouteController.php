@@ -38,7 +38,7 @@ class RouteController extends Controller
         $route = Route::where('share_token', $token)->firstOrFail();
         
         return Inertia::render('Routes/Show', [
-            'mapRoute' => $route->load('waypoints'),
+            'mapRoute' => $route->load(['waypoints', 'reviews.user']),
             'motorcycle' => $route->motorcycle
         ]);
     }
@@ -121,7 +121,7 @@ class RouteController extends Controller
     public function show(Route $route)
     {
         return Inertia::render('Routes/Show', [
-            'mapRoute' => $route->load('waypoints'),
+            'mapRoute' => $route->load(['waypoints', 'reviews.user']),
             'motorcycle' => $route->motorcycle
         ]);
     }

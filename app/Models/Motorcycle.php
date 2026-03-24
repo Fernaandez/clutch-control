@@ -24,6 +24,21 @@ class Motorcycle extends Model
         'extras'
     ];
 
+    protected $appends = ['has_pending_maintenance'];
+
+    public function getPendingMaintenanceTasksAttribute()
+    {
+        return $this->maintenanceTasks->filter(function ($task) {
+            if (!$task->frequency_km) return false;
+            return ($this->current_km - $task->last_km_done) >= $task->frequency_km;
+        })->values();
+    }
+
+    public function getHasPendingMaintenanceAttribute()
+    {
+        return $this->pending_maintenance_tasks->count() > 0;
+    }
+
     public function user() {
         return $this->belongsTo(User::class);
     }
