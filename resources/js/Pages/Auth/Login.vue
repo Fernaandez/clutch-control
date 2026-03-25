@@ -55,14 +55,9 @@
                 </div>
 
                 <div class="flex items-center justify-between mt-2 px-1">
-                    <label class="flex items-center cursor-pointer">
-                        <input 
-                            type="checkbox" 
-                            name="remember" 
-                            v-model="form.remember" 
-                            class="rounded bg-brand-surface border-brand-dark text-brand-neon focus:ring-brand-neon focus:ring-offset-0"
-                        />
-                        <span class="ms-2 text-sm text-gray-400 hover:text-white transition">Recorda'm</span>
+                    <!-- Recorda'm està amagat i sempre és true per defecte per evitar pèrdues de sessió al mòbil -->
+                    <label class="hidden">
+                        <input type="checkbox" name="remember" v-model="form.remember" />
                     </label>
 
                     <Link
@@ -109,7 +104,7 @@ defineProps({
 const form = useForm({
     email: '',
     password: '',
-    remember: false,
+    remember: true,
 });
 
 const submit = () => {
