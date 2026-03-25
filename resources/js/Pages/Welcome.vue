@@ -1,71 +1,39 @@
 <template>
     <Head title="Benvingut" />
 
-    <div class="min-h-screen bg-brand-black text-white selection:bg-brand-neon selection:text-brand-black overflow-hidden relative">
+    <div class="h-[100dvh] w-full bg-brand-black text-white selection:bg-brand-neon selection:text-brand-black overflow-hidden flex flex-col relative">
         
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-4xl opacity-20 pointer-events-none">
-            <div class="absolute top-20 left-20 w-72 h-72 bg-brand-neon rounded-full blur-[128px]"></div>
-            <div class="absolute bottom-20 right-20 w-96 h-96 bg-purple-600 rounded-full blur-[128px]"></div>
+        <!-- Ambient Glowing Background -->
+        <div class="absolute inset-0 w-full h-full opacity-20 pointer-events-none flex items-center justify-center">
+            <div class="absolute top-10 -left-20 w-96 h-96 bg-brand-neon rounded-full blur-[150px]"></div>
+            <div class="absolute bottom-10 -right-20 w-96 h-96 bg-purple-600 rounded-full blur-[150px]"></div>
         </div>
 
-        <nav class="relative z-10 flex justify-between items-center p-6 max-w-7xl mx-auto">
-            <div class="flex items-center gap-2">
-                <img :src="appLogo" alt="Clutch Control Logo" class="h-8 w-auto">
-            </div>
-
-            <div v-if="canLogin" class="flex gap-4">
-                <Link v-if="$page.props.auth.user" :href="route('dashboard')" class="text-sm font-bold text-white hover:text-brand-neon transition">
-                    Garatge
-                </Link>
-                <template v-else>
-                    <Link :href="route('login')" class="text-sm font-bold text-gray-300 hover:text-white transition">
-                        Entrar
-                    </Link>
-                    <Link v-if="canRegister" :href="route('register')" class="text-sm font-bold text-brand-neon hover:text-white transition">
-                        Registrar-se
-                    </Link>
-                </template>
-            </div>
-        </nav>
-
-        <main class="relative z-10 flex flex-col items-center justify-center text-center mt-20 px-4 min-h-[60vh]">
+        <main class="relative z-10 flex flex-col flex-1 items-center justify-center p-6 h-full">
             
-            <div class="mb-8 p-6 border border-brand-neon/30 rounded-full bg-brand-black/50 backdrop-blur-sm shadow-[0_0_40px_rgba(12,225,181,0.2)]">
-                <img :src="appLogo" alt="Clutch Control Main Logo" class="h-24 w-auto drop-shadow-[0_0_10px_rgba(12,225,181,0.8)]">
+            <!-- Centered Large Logo -->
+            <div class="mb-14 p-8 border border-brand-neon/30 rounded-[3rem] bg-brand-black/50 backdrop-blur-sm shadow-[0_0_50px_rgba(12,225,181,0.15)] flex items-center justify-center">
+                <img :src="appLogo" alt="Clutch Control Logo" class="h-32 md:h-40 w-auto drop-shadow-[0_0_15px_rgba(12,225,181,0.8)]">
             </div>
 
-            <h1 class="text-5xl md:text-7xl font-black uppercase tracking-tighter text-white mb-6 drop-shadow-xl">
-                Controla la teva <br />
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-neon to-blue-500">Passió</span>
-            </h1>
-
-            <p class="text-lg md:text-xl text-gray-400 max-w-2xl mb-10 leading-relaxed">
-                La plataforma definitiva per gestionar el <span class="text-white font-bold">manteniment</span>, 
-                les <span class="text-white font-bold">reparacions</span> i les <span class="text-white font-bold">millores</span> 
-                de la teva moto. Tot en un sol lloc.
-            </p>
-
-            <div v-if="canLogin" class="flex flex-col sm:flex-row gap-4 w-full max-w-md justify-center">
-                <Link v-if="$page.props.auth.user" :href="route('dashboard')" class="bg-brand-neon text-brand-black px-8 py-4 rounded-xl font-black uppercase tracking-wider hover:bg-white hover:scale-105 transition shadow-[0_0_20px_rgba(12,225,181,0.4)]">
-                    Anar al Garatge ➜
+            <!-- Big Action Buttons -->
+            <div v-if="canLogin" class="flex flex-col gap-5 w-full max-w-sm">
+                <Link v-if="$page.props.auth.user" :href="route('dashboard')" class="w-full text-center bg-brand-neon text-brand-black px-6 py-5 mx-auto rounded-2xl font-black uppercase tracking-widest hover:bg-white active:scale-95 transition-all shadow-[0_0_25px_rgba(12,225,181,0.4)] text-lg">
+                    Entrar al Garatge ➜
                 </Link>
 
                 <template v-else>
-                    <Link :href="route('register')" class="bg-brand-neon text-brand-black px-8 py-4 rounded-xl font-black uppercase tracking-wider hover:bg-white hover:scale-105 transition shadow-[0_0_20px_rgba(12,225,181,0.4)]">
-                        Començar Ara
+                    <Link :href="route('login')" class="w-full text-center bg-brand-neon text-brand-black px-6 py-5 mx-auto rounded-2xl font-black uppercase tracking-widest hover:bg-white active:scale-95 transition-all shadow-[0_0_25px_rgba(12,225,181,0.4)] text-lg">
+                        Iniciar Sessió
                     </Link>
-                    <Link :href="route('login')" class="border border-brand-dark bg-brand-surface text-white px-8 py-4 rounded-xl font-bold uppercase tracking-wider hover:border-brand-neon hover:text-brand-neon transition">
-                        Ja tinc compte
+                    
+                    <Link v-if="canRegister" :href="route('register')" class="w-full text-center border border-gray-700 bg-gray-900/50 backdrop-blur-sm text-gray-300 px-6 py-5 mx-auto rounded-2xl font-bold uppercase tracking-widest hover:border-brand-neon hover:text-white active:scale-95 transition-all text-lg">
+                        Registrar-se
                     </Link>
                 </template>
             </div>
 
         </main>
-
-        <footer class="absolute bottom-6 w-full text-center text-gray-600 text-xs uppercase tracking-widest">
-            &copy; 2024 Clutch Control. Gas a fons.
-        </footer>
-
     </div>
 </template>
 
