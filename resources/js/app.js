@@ -8,6 +8,19 @@ import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
+import { registerSW } from 'virtual:pwa-register';
+
+// Register PWA Service Worker for offline support
+registerSW({
+    immediate: true,
+    onRegistered(r) {
+        console.log('SW Registered:', r);
+    },
+    onRegisterError(error) {
+        console.error('SW registration error', error);
+    }
+});
+
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) =>
