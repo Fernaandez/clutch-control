@@ -3,6 +3,7 @@
   "appName": "Clutch Control",
   "webDir": "dist",
   "server": {
-    "url": "https://clutchcontrol.alwaysdata.net"
+    "url": "https://clutchcontrol.alwaysdata.net",
+    "errorPath": "error.html"
   }
 }

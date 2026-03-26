@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sense Connexió - Clutch Control</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #273633; /* brand-black */
+            color: #f3f4f6;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            padding: 2rem;
+        }
+        .icon {
+            background-color: #356158;
+            color: #0CE1B5;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 20px rgba(12, 225, 181, 0.3);
+            animation: pulse 3s infinite;
+        }
+        .icon svg { width: 40px; height: 40px; stroke-width: 2; }
+        h1 { font-size: 1.5rem; font-weight: 900; text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+        p { color: #9ca3af; font-size: 0.95rem; line-height: 1.5; margin-bottom: 2rem; }
+        button {
+            background-color: #0CE1B5;
+            color: #273633;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            border-radius: 0.75rem;
+            box-shadow: 0 0 15px rgba(12, 225, 181, 0.4);
+            cursor: pointer;
+            width: 100%;
+            max-width: 300px;
+        }
+        button:active { transform: scale(0.98); }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(12, 225, 181, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(12, 225, 181, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(12, 225, 181, 0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5" />
+            <!-- Strikethrough for offline -->
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18" stroke="#ef4444" stroke-width="3" />
+        </svg>
+    </div>
+    <h1>Estàs Offline</h1>
+    <p>Clutch Control requereix accés a internet per obrir-se. Si estaves enmig d'una ruta, aquesta se segueix gravant en segon pla localment!<br><br>Connecta't per sincronitzar-la.</p>
+    <button onclick="window.location.href = 'https://clutchcontrol.alwaysdata.net/'">
+        Reintentar Connexió
+    </button>
+</body>
+</html>
