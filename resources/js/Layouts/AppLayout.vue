@@ -10,9 +10,9 @@
             </div>
 
             <!-- Centrat absolutament per garantir simetria perfecta -->
-            <div class="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/70 backdrop-blur-sm border border-white/15 px-5 py-2 rounded-xl shadow whitespace-nowrap">
+            <div class="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5 whitespace-nowrap">
                 <img :src="appLogo" alt="Clutch Control Logo" class="h-5 w-auto flex-shrink-0">
-                <span class="text-base font-black tracking-tighter" style="color: white;">CLUTCH<span class="text-brand-neon">CONTROL</span></span>
+                <span class="text-base font-black tracking-tighter text-white">CLUTCH<span class="text-brand-neon">CONTROL</span></span>
             </div>
 
             <div class="w-7"></div>
