@@ -2,20 +2,16 @@
     <AppLayout title="Rutes de la Comunitat">
         <div class="px-4 py-6 pb-24">
             
-            <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center justify-between mb-6">
                 <div>
-                    <h1 class="text-2xl font-black uppercase tracking-tighter text-white leading-none">
-                        Explorar <span class="text-brand-neon">Rutes</span>
-                    </h1>
-                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">
-                        Descobreix nous traçats
-                    </p>
+                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">Explorar <span class="text-brand-neon">Rutes</span></h1>
+                    <p class="text-gray-400 text-sm">Descobreix nous traçats 🏍️</p>
                 </div>
                 <Link 
                     :href="route('routes.create')" 
-                    class="bg-brand-neon text-brand-black p-2 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.5)] hover:bg-white hover:scale-110 transition flex items-center justify-center"
+                    class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.4)] hover:scale-110 transition"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path fill-rule="evenodd" d="M12 3.75a.75.75 0 01.75.75v6.75h6.75a.75.75 0 010 1.5h-6.75v6.75a.75.75 0 01-1.5 0v-6.75H4.5a.75.75 0 010-1.5h6.75V4.5a.75.75 0 01.75-.75z" clip-rule="evenodd" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                 </Link>
             </div>
 
@@ -74,12 +70,23 @@
                     </div>
                 </div>
 
+                <div>
+                    <label class="text-xs text-gray-500 uppercase font-bold">Valoració Mínima</label>
+                    <select v-model="filters.ratingMin" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
+                        <option value="0">Totes</option>
+                        <option value="3">⭐⭐⭐ 3+ estrelles</option>
+                        <option value="4">⭐⭐⭐⭐ 4+ estrelles</option>
+                        <option value="5">⭐⭐⭐⭐⭐ 5 estrelles</option>
+                    </select>
+                </div>
+
                 <div class="border-t border-brand-dark pt-3 mt-2">
                     <label class="text-xs text-brand-neon uppercase font-bold mb-2 block">Ordenar per:</label>
                     <div class="flex gap-2">
                         <select v-model="filters.sortBy" class="flex-1 bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon">
                             <option value="created_at">Data de Publicació</option>
                             <option value="planned_distance_km">Distància (KM)</option>
+                            <option value="avg_rating">Valoració Mitja</option>
                         </select>
                         <button @click="toggleSortDir" class="bg-brand-surface border border-brand-dark px-3 rounded-lg text-white hover:border-brand-neon transition">
                             {{ filters.sortDir === 'desc' ? '⬇ Desc' : '⬆ Asc' }}
@@ -123,10 +130,15 @@
                             </p>
                             <p class="text-xs text-gray-500 line-clamp-2 mb-3">{{ ruta.description || 'Sense descripció' }}</p>
                             
-                            <div class="flex items-center gap-4 text-xs text-gray-300 font-mono bg-brand-black/30 p-2 rounded-lg">
+                            <div class="flex items-center gap-4 text-xs text-gray-300 font-mono bg-brand-black/30 p-2 rounded-lg flex-wrap">
                                 <span class="flex items-center gap-1">
                                     🏁 {{ ruta.planned_distance_km }} km
                                 </span>
+                                <span v-if="ruta.reviews && ruta.reviews.length" class="flex items-center gap-1 text-yellow-400 font-bold">
+                                    ⭐ {{ (ruta.reviews.reduce((a, b) => a + b.rating, 0) / ruta.reviews.length).toFixed(1) }}
+                                    <span class="text-gray-500 font-normal">({{ ruta.reviews.length }})</span>
+                                </span>
+                                <span v-else class="text-gray-600 text-[10px]">Sense valoracions</span>
                             </div>
                         </div>
 
@@ -217,6 +229,7 @@ const filters = ref({
     difficulty: 'all',
     kmMin: '',
     kmMax: '',
+    ratingMin: 0,
     sortBy: 'created_at',
     sortDir: 'desc'
 });
@@ -226,6 +239,7 @@ const activeFiltersCount = computed(() => {
     if (filters.value.search) count++;
     if (filters.value.difficulty !== 'all') count++;
     if (filters.value.kmMin !== '' || filters.value.kmMax !== '') count++;
+    if (filters.value.ratingMin > 0) count++;
     return count;
 });
 
@@ -239,6 +253,7 @@ const resetFilters = () => {
         difficulty: 'all',
         kmMin: '',
         kmMax: '',
+        ratingMin: 0,
         sortBy: 'created_at',
         sortDir: 'desc'
     };
@@ -266,14 +281,29 @@ const filteredRoutes = computed(() => {
         result = result.filter(r => parseFloat(r.planned_distance_km || 0) <= filters.value.kmMax);
     }
 
-    // 4. Ordenació
-    return result.sort((a, b) => {
-        let fieldA = a[filters.value.sortBy];
-        let fieldB = b[filters.value.sortBy];
+    // 4. Filtre valoració mínima
+    if (filters.value.ratingMin > 0) {
+        result = result.filter(r => {
+            if (!r.reviews || r.reviews.length === 0) return false;
+            const avg = r.reviews.reduce((a, b) => a + b.rating, 0) / r.reviews.length;
+            return avg >= filters.value.ratingMin;
+        });
+    }
 
-        if (filters.value.sortBy === 'planned_distance_km') {
-            fieldA = parseFloat(fieldA || 0);
-            fieldB = parseFloat(fieldB || 0);
+    // 5. Ordenació
+    return result.sort((a, b) => {
+        let fieldA, fieldB;
+
+        if (filters.value.sortBy === 'avg_rating') {
+            fieldA = a.reviews && a.reviews.length ? a.reviews.reduce((s, r) => s + r.rating, 0) / a.reviews.length : 0;
+            fieldB = b.reviews && b.reviews.length ? b.reviews.reduce((s, r) => s + r.rating, 0) / b.reviews.length : 0;
+        } else {
+            fieldA = a[filters.value.sortBy];
+            fieldB = b[filters.value.sortBy];
+            if (filters.value.sortBy === 'planned_distance_km') {
+                fieldA = parseFloat(fieldA || 0);
+                fieldB = parseFloat(fieldB || 0);
+            }
         }
 
         if (fieldA < fieldB) return filters.value.sortDir === 'asc' ? -1 : 1;

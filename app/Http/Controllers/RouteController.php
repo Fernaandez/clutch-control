@@ -14,10 +14,11 @@ class RouteController extends Controller
     public function index()
     {
         // Carreguem l'usuari per poder mostrar el nom del creador
-        $routes = Route::with('user')
+        $routes = Route::with(['user', 'reviews'])
             ->where('is_public', true)
             ->orderBy('created_at', 'desc')
             ->get();
+
 
         return Inertia::render('Routes/Index', ['routes' => $routes]);
     }
@@ -41,6 +42,54 @@ class RouteController extends Controller
             'mapRoute' => $route->load(['waypoints', 'reviews.user']),
             'motorcycle' => $route->motorcycle
         ]);
+    }
+
+    // NOVA FUNCIÓ: RUTES PENDENTS (OFFLINE)
+    public function pending()
+    {
+        return Inertia::render('Routes/Pending');
+    }
+
+    // NOVA FUNCIÓ: SINCRONITZAR RUTA OFFLINE
+    public function syncOffline(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'is_public' => 'boolean',
+            'distance_km' => 'nullable|numeric',
+            'duration_seconds' => 'nullable|integer',
+            'waypoints' => 'required|array',
+            'created_at' => 'required|date',
+            'original_route_id' => 'nullable|exists:routes,id',
+        ]);
+
+        // Crear la ruta a base de dades
+        $route = $request->user()->routes()->create([
+            'title' => $validated['title'],
+            'description' => 'Ruta gravada sense connexió.',
+            'difficulty' => 'medium', // Per defecte
+            'is_public' => $validated['is_public'] ?? false,
+            'is_recorded' => true,
+            'planned_distance_km' => $validated['distance_km'],
+            'distance_km' => $validated['distance_km'],
+            'duration_seconds' => $validated['duration_seconds'],
+            'created_at' => $validated['created_at'],
+            'starting_lat' => $validated['waypoints'][0]['lat'] ?? null,
+            'starting_lng' => $validated['waypoints'][0]['lng'] ?? null,
+            'geo_json' => json_encode(['type' => 'FeatureCollection', 'features' => []]), // Placeholder
+        ]);
+
+        // Guardar tots els waypoints del GPS
+        foreach ($validated['waypoints'] as $index => $point) {
+            $route->waypoints()->create([
+                'latitude' => $point['lat'],
+                'longitude' => $point['lng'],
+                'order' => $index,
+                'name' => 'Punt ' . $index,
+            ]);
+        }
+
+        return response()->json(['success' => true, 'route_id' => $route->id]);
     }
 
     // FORMULARI CREAR

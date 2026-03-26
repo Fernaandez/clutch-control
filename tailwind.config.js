@@ -30,7 +30,10 @@ export default {
             boxShadow: {
                 'neon': '0 0 10px rgba(12, 225, 181, 0.5)',
                 'neon-hover': '0 0 20px rgba(12, 225, 181, 0.7)',
-            }
+            },
+            borderColor: {
+                DEFAULT: 'var(--color-brand-dark)',
+            },
         },
     },
 

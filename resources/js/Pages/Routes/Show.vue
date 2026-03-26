@@ -87,27 +87,32 @@
                     </div>
 
                     <!-- EXPANDED BODY -->
-                    <div v-show="isExpanded" class="border-t border-gray-800 overflow-y-auto max-h-[50vh] overscroll-contain">
-                        
-                        <div class="px-4 py-2 bg-brand-black/50 border-b border-gray-800 flex justify-end gap-2">
-                            <button v-if="$page.props.auth.user && mapRoute.user_id === $page.props.auth.user.id" @click="copyShareLink" class="bg-gray-800 hover:bg-brand-neon hover:text-black text-white p-2 rounded-lg transition border border-gray-700 flex items-center justify-center relative" title="Copia l'enllaç de Compartició">
+                    <div v-show="isExpanded" class="border-t border-gray-800 overflow-y-auto max-h-[55vh] overscroll-contain">
+
+                        <!-- Utilitats (compartir / editar) -->
+                        <div v-if="$page.props.auth.user && mapRoute.user_id === $page.props.auth.user.id" class="px-4 py-2 bg-brand-black/50 border-b border-gray-800 flex justify-end gap-2">
+                            <button @click="copyShareLink" class="bg-gray-800 hover:bg-brand-neon hover:text-black text-white p-2 rounded-lg transition border border-gray-700 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest" title="Copia l'enllaç de Compartició">
                                 <svg v-if="!copyLinkSuccess" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" /></svg>
                                 <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                                Compartir
                             </button>
-
-                            <Link v-if="$page.props.auth.user && mapRoute.user_id === $page.props.auth.user.id" :href="route('routes.edit', mapRoute.id)" class="bg-gray-800 hover:bg-gray-700 text-white p-2 rounded-lg transition border border-gray-700">
+                            <Link :href="route('routes.edit', mapRoute.id)" class="bg-gray-800 hover:bg-gray-700 text-white p-2 rounded-lg transition border border-gray-700 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>
+                                Editar
                             </Link>
                         </div>
 
-                        <div class="p-4 pt-4 pb-0">
-                            <p class="text-sm text-gray-400 line-clamp-3">{{ mapRoute.description || 'Sense descripció.' }}</p>
+                        <!-- Descripció -->
+                        <div class="px-4 pt-4 pb-2">
+                            <p class="text-sm text-gray-400">{{ mapRoute.description || 'Sense descripció.' }}</p>
                         </div>
 
-                        <div v-if="mapRoute.photo" class="px-4 pt-3">
+                        <!-- Foto -->
+                        <div v-if="mapRoute.photo" class="px-4 pt-2">
                             <img :src="$page.props.storageUrl + '/' + mapRoute.photo" alt="Foto Ruta" class="w-full h-32 object-cover rounded-xl border border-brand-dark">
                         </div>
 
+                        <!-- Stats -->
                         <div class="grid grid-cols-2 gap-px bg-gray-800/50 mt-4 border-t border-gray-800">
                             <div class="p-3 text-center bg-brand-black/50">
                                 <span class="block text-xl font-mono font-bold text-brand-neon">{{ mapRoute.planned_distance_km || 0 }}</span>
@@ -119,13 +124,12 @@
                             </div>
                         </div>
 
-                        <!-- Ressenyes Section -->
-                        <div v-if="mapRoute.is_public" class="px-4 py-3 border-t border-gray-800 bg-brand-black/80 max-h-60 overflow-y-auto w-full overscroll-contain">
+                        <!-- Valoracions -->
+                        <div v-if="mapRoute.is_public" class="px-4 py-3 border-t border-gray-800">
                             <div class="flex items-center justify-between mb-2">
                                 <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Valoracions</h3>
                                 <span v-if="mapRoute.reviews && mapRoute.reviews.length" class="text-brand-neon font-bold text-sm">⭐ {{ (mapRoute.reviews.reduce((a, b) => a + b.rating, 0) / mapRoute.reviews.length).toFixed(1) }}</span>
                             </div>
-                            
                             <div v-if="mapRoute.reviews && mapRoute.reviews.length" class="space-y-2 mb-3">
                                 <div v-for="review in mapRoute.reviews" :key="review.id" class="bg-brand-surface border border-brand-dark p-2 rounded-lg text-sm">
                                     <div class="flex justify-between items-start mb-1">
@@ -135,19 +139,16 @@
                                     <p class="text-gray-400 text-xs">{{ review.comment }}</p>
                                 </div>
                             </div>
-                            <p v-else class="text-xs text-brand-muted italic mb-3">Cap ressenya encara. Sigues el primer!</p>
+                            <p v-else class="text-xs text-gray-500 italic mb-3">Cap ressenya encara. Sigues el primer!</p>
 
-                            <!-- Form on Auth && not author -->
-                            <div v-if="$page.props.auth && $page.props.auth.user && mapRoute.user_id !== $page.props.auth.user.id" class="space-y-2 mt-4 pt-4 border-t border-gray-800/50">
+                            <div v-if="$page.props.auth && $page.props.auth.user && mapRoute.user_id !== $page.props.auth.user.id" class="space-y-2 mt-3 pt-3 border-t border-gray-800/50">
                                 <div v-if="userHasReviewed" class="text-xs text-brand-neon bg-brand-neon/10 border border-brand-neon/30 p-2 rounded text-center font-bold">
                                     ✅ Ja has valorat aquesta ruta.
                                 </div>
                                 <form v-else @submit.prevent="submitReview" class="flex flex-col gap-2">
                                     <p class="text-[10px] uppercase font-bold text-gray-400 text-center">Deixa la teva opinió</p>
                                     <div class="flex items-center gap-1 justify-center py-1">
-                                        <button type="button" @click="reviewForm.rating = n" v-for="n in 5" :key="n" :class="reviewForm.rating >= n ? 'text-yellow-400' : 'text-gray-600'" class="text-2xl transition-transform hover:scale-110">
-                                            ★
-                                        </button>
+                                        <button type="button" @click="reviewForm.rating = n" v-for="n in 5" :key="n" :class="reviewForm.rating >= n ? 'text-yellow-400' : 'text-gray-600'" class="text-2xl transition-transform hover:scale-110">★</button>
                                     </div>
                                     <textarea v-model="reviewForm.comment" rows="2" placeholder="Com ha anat la ruta?" class="w-full bg-brand-black/50 border border-brand-dark rounded-lg text-white text-xs p-2 focus:border-brand-neon focus:ring-1 focus:ring-brand-neon transition"></textarea>
                                     <button type="submit" :disabled="reviewForm.processing || reviewForm.rating === 0" class="w-full bg-gray-800 text-white text-xs font-bold py-2 rounded-lg hover:bg-brand-neon hover:text-black transition uppercase tracking-widest disabled:opacity-50">Publicar</button>
@@ -155,32 +156,23 @@
                             </div>
                         </div>
 
-                        <div class="p-4 flex flex-col gap-3">
-                            <div class="flex gap-3">
-                                <a :href="googleMapsLink" target="_blank" class="flex-1 flex items-center justify-center gap-2 bg-brand-neon text-brand-black font-black py-3.5 rounded-xl uppercase tracking-widest shadow-[0_0_15px_rgba(12,225,181,0.4)] hover:scale-[1.02] transition">
-                                    <span>Navegar</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M8.161 2.58a1.875 1.875 0 0 1 1.678 0l4.993 2.498c.106.052.23.052.336 0l3.869-1.935A1.875 1.875 0 0 1 21.75 4.82v12.485c0 .71-.401 1.36-1.037 1.677l-4.875 2.437a1.875 1.875 0 0 1-1.678 0l-4.993-2.498a.75.75 0 0 0-.336 0l-3.868 1.935A1.875 1.875 0 0 1 2.25 19.18V6.695c0-.71.401-1.36 1.036-1.677l4.875-2.437ZM9 6a.75.75 0 0 1 .75.75V15a.75.75 0 0 1-1.5 0V6.75A.75.75 0 0 1 9 6Zm6.75 3a.75.75 0 0 0-1.5 0v8.25a.75.75 0 0 0 1.5 0V9Z" clip-rule="evenodd" /></svg>
-                                </a>
-
-                                <Link
-                                    v-if="$page.props.auth.user && mapRoute.user_id !== $page.props.auth.user.id"
-                                    :href="route('routes.clone', mapRoute.id)"
-                                    method="post"
-                                    as="button"
-                                    class="px-4 flex items-center justify-center bg-transparent border-2 border-brand-neon hover:bg-brand-neon hover:text-black text-brand-neon font-black rounded-xl transition"
-                                    title="Guardar i Editar"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" /></svg>
-                                </Link>
-                            </div>
-
-                            <button v-if="!isRecording" @click="startRecording" class="w-full flex items-center justify-center gap-2 bg-red-600 text-white font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_15px_rgba(220,38,38,0.4)] hover:scale-[1.02] transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><circle cx="12" cy="12" r="8" fill="currentColor" /></svg>
-                                <span>Seguir En Viu</span>
+                        <!-- Accions principals (igual que els mini botons de dalt) -->
+                        <div class="p-4 flex items-center gap-2 border-t border-gray-800">
+                            <a :href="googleMapsLink" target="_blank" class="flex-1 flex items-center justify-center gap-1.5 bg-brand-neon/10 text-brand-neon border border-brand-neon/30 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-brand-neon/20 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M8.161 2.58a1.875 1.875 0 0 1 1.678 0l4.993 2.498c.106.052.23.052.336 0l3.869-1.935A1.875 1.875 0 0 1 21.75 4.82v12.485c0 .71-.401 1.36-1.037 1.677l-4.875 2.437a1.875 1.875 0 0 1-1.678 0l-4.993-2.498a.75.75 0 0 0-.336 0l-3.868 1.935A1.875 1.875 0 0 1 2.25 19.18V6.695c0-.71.401-1.36 1.036-1.677l4.875-2.437ZM9 6a.75.75 0 0 1 .75.75V15a.75.75 0 0 1-1.5 0V6.75A.75.75 0 0 1 9 6Zm6.75 3a.75.75 0 0 0-1.5 0v8.25a.75.75 0 0 0 1.5 0V9Z" clip-rule="evenodd" /></svg>
+                                Navegar
+                            </a>
+                            <Link v-if="$page.props.auth.user && mapRoute.user_id !== $page.props.auth.user.id" :href="route('routes.clone', mapRoute.id)" method="post" as="button" class="flex-1 flex items-center justify-center gap-1.5 bg-gray-800 text-brand-neon border border-brand-neon/30 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-brand-neon/20 transition" title="Guardar i Editar">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" /></svg>
+                                Guardar
+                            </Link>
+                            <button v-if="!isRecording" @click="startRecording" class="flex-1 flex items-center justify-center gap-1.5 bg-red-600/10 text-red-500 border border-red-500/30 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600/20 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><circle cx="12" cy="12" r="8" fill="currentColor" /></svg>
+                                Seguir
                             </button>
-                            <button v-else @click="stopRecording" class="w-full flex items-center justify-center gap-2 bg-red-900 border border-red-500 text-white font-black py-4 rounded-xl uppercase tracking-widest shadow-[0_0_15px_rgba(220,38,38,0.4)] animate-pulse transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z" fill="currentColor" /></svg>
-                                <span>Aturar Seguiment</span>
+                            <button v-else @click="stopRecording" class="flex-1 flex items-center justify-center gap-1.5 bg-red-900 border border-red-500 text-white py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest animate-pulse">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z" fill="currentColor" /></svg>
+                                Aturar
                             </button>
                         </div>
                     </div>
@@ -240,6 +232,7 @@ const recordingTime = ref(0);
 let timerInterval = null;
 const trackingPolyline = ref(null);
 const currentLocationMarker = ref(null);
+let recordingStartTime = 0;
 
 const formattedRecordingTime = computed(() => {
     const h = Math.floor(recordingTime.value / 3600);
@@ -371,9 +364,11 @@ const startRecording = async () => {
     recordedDistance.value = 0;
     recordingTime.value = 0;
 
+    // Usem timestamp real: setInterval + 1 s'endarrereix quan l'app va al background
+    recordingStartTime = Date.now();
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(() => {
-        recordingTime.value += 1;
+        recordingTime.value = Math.floor((Date.now() - recordingStartTime) / 1000);
     }, 1000);
 
     // Prepare Polyline on map
@@ -454,8 +449,29 @@ const stopRecording = () => {
     }
 
     if (recordedWaypoints.value.length > 1) {
-        alert(`📍 Seguiment aturat!\nHas recorregut ${(recordedDistance.value / 1000).toFixed(2)} km de trajectòria real.`);
-        // Note: No hi ha redirecció a Create. S'ha acabat la molèstia.
+        const distanceKm = (recordedDistance.value / 1000).toFixed(2);
+        
+        // --- OFFLINE FIX: Save to localStorage ---
+        try {
+            const existingPending = JSON.parse(localStorage.getItem('pending_routes') || '[]');
+            
+            const newPendingRoute = {
+                id: 'offline_' + Date.now(),
+                created_at: new Date().toISOString(),
+                original_route_id: props.mapRoute?.id || null, // If tracking a specific route
+                distance_km: parseFloat(distanceKm),
+                duration_seconds: recordingTime.value,
+                waypoints: recordedWaypoints.value
+            };
+            
+            existingPending.push(newPendingRoute);
+            localStorage.setItem('pending_routes', JSON.stringify(existingPending));
+            
+            alert(`📍 Seguiment aturat!\nHas recorregut ${distanceKm} km. La ruta s'ha guardat localment al teu telèfon. Vés a "Les Meves Rutes" per sincronitzar-la quan tinguis connexió.`);
+        } catch (e) {
+            console.error('Error saving offline route:', e);
+            alert(`📍 Seguiment aturat!\nHas recorregut ${distanceKm} km, però hi ha hagut un error guardant-la localment.`);
+        }
     } else {
         alert("S'ha aturat el seguiment, però no t'has mogut com per registrar la distància.");
         if (trackingPolyline.value) map.value.removeLayer(trackingPolyline.value);

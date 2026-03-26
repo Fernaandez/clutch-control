@@ -19,6 +19,24 @@
                 </div>
             </div>
 
+            <!-- BÀNNER RUTES OFFLINE -->
+            <div v-if="pendingRoutes.length > 0" class="mb-6 bg-brand-dark/30 border border-brand-neon rounded-xl p-4 shadow-[0_0_15px_rgba(12,225,181,0.2)] animate-pulse-slow">
+                <div class="flex items-start gap-4">
+                    <div class="bg-brand-neon text-black rounded-full p-2 mt-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-white font-bold text-lg">Tens {{ pendingRoutes.length }} ruta{{ pendingRoutes.length > 1 ? 's' : '' }} pendent{{ pendingRoutes.length > 1 ? 's' : '' }} de pujar!</h3>
+                        <p class="text-gray-400 text-sm mt-1">Aquestes rutes s'han gravat sense connexió i només existeixen en aquest dispositiu.</p>
+                        <div class="mt-3">
+                            <Link :href="route('routes.pending')" class="inline-block bg-brand-neon text-black font-black uppercase tracking-wider text-xs px-4 py-2 rounded-lg hover:bg-white transition shadow-neon">
+                                Pujar ara
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <button 
                 v-if="routes.length > 0"
                 @click="showFilters = !showFilters"
@@ -160,7 +178,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Link, router } from '@inertiajs/vue3';
 import RouteMiniMap from '@/Components/RouteMiniMap.vue';
@@ -170,6 +188,18 @@ const props = defineProps({
 });
 
 const showFilters = ref(false);
+const pendingRoutes = ref([]);
+
+onMounted(() => {
+    try {
+        const stored = localStorage.getItem('pending_routes');
+        if (stored) {
+            pendingRoutes.value = JSON.parse(stored) || [];
+        }
+    } catch (e) {
+        console.error('No es poden llegir les rutes pendents:', e);
+    }
+});
 
 const filters = ref({
     search: '',
