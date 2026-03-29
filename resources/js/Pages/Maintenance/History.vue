@@ -5,21 +5,21 @@
             <div class="flex items-center justify-between mb-6">
                 <div>
                     <Link :href="route('motorcycles.maintenance.index', motorcycle.id)" class="text-gray-400 text-sm hover:text-white flex items-center gap-1">
-                        &larr; Tornar a Tasques
+                        {{ $t('maintenance.back_to_tasks') }}
                     </Link>
-                    <h1 class="text-2xl font-bold text-white mt-1">Historial</h1>
+                    <h1 class="text-2xl font-bold text-white mt-1">{{ $t('maintenance.title') }}</h1>
                     <p class="text-brand-muted text-sm">{{ motorcycle.brand }} {{ motorcycle.model }}</p>
                 </div>
                 
                 <div class="text-right">
-                    <p class="text-xs text-gray-500 uppercase">Total Registres</p>
+                    <p class="text-xs text-gray-500 uppercase">{{ $t('maintenance.total_records') }}</p>
                     <p class="text-xl font-mono text-white">{{ history.length }}</p>
                 </div>
             </div>
 
             <div v-if="history.length === 0" class="text-center py-12 text-gray-500 bg-brand-surface rounded-xl border border-brand-dark border-dashed">
-                <p class="text-lg">Encara no hi ha historial.</p>
-                <p class="text-sm mt-2">Quan completis una tasca, sortirà aquí.</p>
+                <p class="text-lg">{{ $t('maintenance.no_history') }}</p>
+                <p class="text-sm mt-2">{{ $t('maintenance.no_history_hint') }}</p>
             </div>
 
             <div v-else class="space-y-4">
@@ -39,14 +39,14 @@
 
                     <div class="bg-brand-black/50 p-3 rounded-lg border border-brand-dark/50 text-sm flex justify-between items-center">
                         <span class="text-gray-300 italic">"{{ log.description }}"</span>
-                        <span class="text-gray-500 font-mono text-xs">Fet als {{ log.km_at_moment }} km</span>
+                        <span class="text-gray-500 font-mono text-xs">{{ $t('maintenance.done_at') }} {{ log.km_at_moment }} km</span>
                     </div>
 
                     <div v-if="log.invoice_photo" class="mt-2">
                         <a :href="$page.props.storageUrl + '/' + log.invoice_photo" target="_blank">
                             <img :src="$page.props.storageUrl + '/' + log.invoice_photo" alt="Foto factura" class="h-28 w-full object-cover rounded-lg border border-brand-dark hover:opacity-80 transition cursor-pointer">
                         </a>
-                        <p class="text-[10px] text-gray-600 mt-1">📎 Foto / Factura — clica per veure-la gran</p>
+                        <p class="text-[10px] text-gray-600 mt-1">{{ $t('maintenance.invoice_hint') }}</p>
                     </div>
 
                     <div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-dark"></div>

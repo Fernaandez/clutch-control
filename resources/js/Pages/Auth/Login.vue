@@ -1,5 +1,5 @@
 <template>
-    <Head title="Iniciar Sessió" />
+    <Head :title="$t('login.title')" />
 
     <div class="min-h-screen flex flex-col justify-center items-center bg-brand-black px-6 py-12">
         
@@ -26,7 +26,7 @@
             <form @submit.prevent="submit" class="space-y-6">
                 
                 <div>
-                    <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="email">Correu Electrònic</label>
+                    <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="email">{{ $t('login.email') }}</label>
                     <input 
                         id="email" 
                         type="email" 
@@ -41,7 +41,7 @@
                 </div>
 
                 <div>
-                    <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="password">Contrasenya</label>
+                    <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="password">{{ $t('login.password') }}</label>
                     <input 
                         id="password" 
                         type="password" 
@@ -65,7 +65,7 @@
                         :href="route('password.request')"
                         class="text-sm text-brand-neon hover:text-white transition underline-offset-4 hover:underline"
                     >
-                        Contrasenya oblidada?
+                        {{ $t('login.forgot') }}
                     </Link>
                 </div>
 
@@ -74,13 +74,13 @@
                     :disabled="form.processing" 
                     class="w-full mt-6 bg-brand-neon text-brand-black px-6 py-4 rounded-xl font-black uppercase tracking-wider text-sm hover:bg-white hover:scale-[1.02] transition duration-300 shadow-[0_0_20px_rgba(12,225,181,0.4)]"
                 >
-                    Entrar
+                    {{ $t('login.submit') }}
                 </button>
                 
                 <div class="pt-8 text-center">
-                    <span class="text-gray-500 text-sm">No tens compte?</span>
+                    <span class="text-gray-500 text-sm">{{ $t('login.no_account') }}</span>
                     <Link :href="route('register')" class="ml-2 text-white font-bold hover:text-brand-neon transition">
-                        Registra't aquí
+                        {{ $t('login.register_here') }}
                     </Link>
                 </div>
 

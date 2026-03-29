@@ -5,14 +5,14 @@
             <div class="flex items-center justify-between mb-6">
                 <div>
                     <Link :href="route('dashboard', motorcycle.id)" class="text-gray-400 text-sm hover:text-white flex items-center gap-1 transition">
-                        &larr; Tornar
+                        {{ $t('maintenance.back') }}
                     </Link>
-                    <h1 class="text-2xl font-bold text-white mt-1">Historial Complet 📜</h1>
+                    <h1 class="text-2xl font-bold text-white mt-1">{{ $t('maintenance.full_history_title') }}</h1>
                     <p class="text-brand-muted text-sm">{{ motorcycle.brand }} {{ motorcycle.model }}</p>
                 </div>
                 
                 <div class="text-right bg-brand-surface border border-brand-dark px-3 py-2 rounded-lg shadow-lg">
-                    <p class="text-[10px] text-gray-400 uppercase tracking-widest">Total Filtrat</p>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-widest">{{ $t('maintenance.total_filtered') }}</p>
                     <p class="text-xl font-mono font-bold text-brand-neon">{{ totalFilteredCost.toFixed(2) }} €</p>
                 </div>
             </div>
@@ -23,7 +23,7 @@
             >
                 <span class="flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
-                    {{ showFilters ? 'Amagar Filtres' : 'Mostrar Filtres i Ordenació' }}
+                    {{ showFilters ? $t('maintenance.hide_filters') : $t('maintenance.show_filters') }}
                 </span>
                 <span v-if="activeFiltersCount > 0" class="bg-brand-neon text-brand-black text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     {{ activeFiltersCount }}
@@ -35,72 +35,72 @@
                 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">Cercar</label>
-                        <input v-model="filters.search" type="text" placeholder="Ex: Rodes, Oli..." class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0 mt-1">
+                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('maintenance.search') }}</label>
+                        <input v-model="filters.search" type="text" :placeholder="$t('maintenance.search_placeholder')" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0 mt-1">
                     </div>
                     <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">Tipus</label>
+                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('maintenance.type') }}</label>
                         <select v-model="filters.type" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0 mt-1">
-                            <option value="all">Tots</option>
-                            <option value="maintenance">Manteniment</option>
-                            <option value="repair">Reparació</option>
-                            <option value="upgrade">Millora</option>
+                            <option value="all">{{ $t('maintenance.type_all') }}</option>
+                            <option value="maintenance">{{ $t('maintenance.type_maintenance') }}</option>
+                            <option value="repair">{{ $t('maintenance.type_repair') }}</option>
+                            <option value="upgrade">{{ $t('maintenance.type_upgrade') }}</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">Data Inici</label>
+                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('maintenance.date_start') }}</label>
                         <input v-model="filters.dateStart" type="date" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
                     </div>
                     <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">Data Fi</label>
+                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('maintenance.date_end') }}</label>
                         <input v-model="filters.dateEnd" type="date" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
                     </div>
 
                     <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">KM Mínim</label>
+                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('maintenance.km_min') }}</label>
                         <input v-model="filters.kmMin" type="number" placeholder="0" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
                     </div>
                     <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">KM Màxim</label>
+                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('maintenance.km_max') }}</label>
                         <input v-model="filters.kmMax" type="number" placeholder="Max" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
                     </div>
 
                     <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">Preu Mín (€)</label>
+                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('maintenance.price_min') }}</label>
                         <input v-model="filters.priceMin" type="number" placeholder="0" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
                     </div>
                     <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">Preu Màx (€)</label>
+                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('maintenance.price_max') }}</label>
                         <input v-model="filters.priceMax" type="number" placeholder="Max" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
                     </div>
                 </div>
 
                 <div class="border-t border-brand-dark pt-3 mt-2">
-                    <label class="text-xs text-brand-neon uppercase font-bold mb-2 block">Ordenar per:</label>
+                    <label class="text-xs text-brand-neon uppercase font-bold mb-2 block">{{ $t('maintenance.sort_by') }}</label>
                     <div class="flex gap-2">
                         <select v-model="filters.sortBy" class="flex-1 bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
-                            <option value="date">Data</option>
-                            <option value="cost">Preu</option>
-                            <option value="km_at_moment">Quilometratge</option>
+                            <option value="date">{{ $t('maintenance.sort_date') }}</option>
+                            <option value="cost">{{ $t('maintenance.sort_price') }}</option>
+                            <option value="km_at_moment">{{ $t('maintenance.sort_km') }}</option>
                         </select>
                         <button @click="toggleSortDir" class="bg-brand-surface border border-brand-dark px-3 rounded-lg text-white hover:border-brand-neon transition">
-                            {{ filters.sortDir === 'desc' ? '⬇ Desc' : '⬆ Asc' }}
+                            {{ filters.sortDir === 'desc' ? $t('common.desc') : $t('common.asc') }}
                         </button>
                     </div>
                 </div>
                 
                 <button @click="resetFilters" class="w-full text-xs text-gray-500 hover:text-white underline mt-2">
-                    Netejar tots els filtres
+                    {{ $t('maintenance.clear_all_filters') }}
                 </button>
             </div>
 
 
             <div v-if="filteredHistory.length === 0" class="text-center py-10 text-gray-500 bg-brand-surface rounded-xl border border-brand-dark border-dashed">
-                <p>No s'han trobat resultats amb aquests filtres.</p>
-                <button @click="resetFilters" class="text-brand-neon text-sm font-bold mt-2 hover:underline">Netejar Filtres</button>
+                <p>{{ $t('maintenance.no_results') }}</p>
+                <button @click="resetFilters" class="text-brand-neon text-sm font-bold mt-2 hover:underline">{{ $t('maintenance.clear_filters') }}</button>
             </div>
 
             <div v-else class="space-y-4">
@@ -108,9 +108,9 @@
                     
                     <div>
                         <div class="flex items-center gap-2 mb-1">
-                            <span v-if="log.type === 'maintenance'" class="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded uppercase border border-blue-500/30">Manteniment</span>
-                            <span v-else-if="log.type === 'repair'" class="bg-red-500/20 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded uppercase border border-red-500/30">Reparació</span>
-                            <span v-else-if="log.type === 'upgrade'" class="bg-purple-500/20 text-purple-400 text-[10px] font-bold px-2 py-0.5 rounded uppercase border border-purple-500/30">Millora</span>
+                            <span v-if="log.type === 'maintenance'" class="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded uppercase border border-blue-500/30">{{ $t('maintenance.type_maintenance') }}</span>
+                            <span v-else-if="log.type === 'repair'" class="bg-red-500/20 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded uppercase border border-red-500/30">{{ $t('maintenance.type_repair') }}</span>
+                            <span v-else-if="log.type === 'upgrade'" class="bg-purple-500/20 text-purple-400 text-[10px] font-bold px-2 py-0.5 rounded uppercase border border-purple-500/30">{{ $t('maintenance.type_upgrade') }}</span>
                             
                             <span class="text-xs text-gray-500 font-mono">{{ formatDate(log.date) }}</span>
                         </div>
@@ -134,17 +134,18 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
+
+const { locale } = useI18n();
 
 const props = defineProps({
     motorcycle: Object,
     history: Array, 
-    // Ignorem el totalCost que ve del backend perquè el calculem dinàmicament
 });
 
 const showFilters = ref(false);
 
-// ESTAT DELS FILTRES
 const filters = ref({
     search: '',
     type: 'all',
@@ -158,11 +159,9 @@ const filters = ref({
     sortDir: 'desc'
 });
 
-// FUNCIÓ MÀGICA: FILTRATGE I ORDENACIÓ
 const filteredHistory = computed(() => {
     let result = props.history;
 
-    // 1. Filtre Cerca (Text)
     if (filters.value.search) {
         const q = filters.value.search.toLowerCase();
         result = result.filter(log => 
@@ -171,12 +170,10 @@ const filteredHistory = computed(() => {
         );
     }
 
-    // 2. Filtre Tipus
     if (filters.value.type !== 'all') {
         result = result.filter(log => log.type === filters.value.type);
     }
 
-    // 3. Filtre Data
     if (filters.value.dateStart) {
         result = result.filter(log => log.date >= filters.value.dateStart);
     }
@@ -184,7 +181,6 @@ const filteredHistory = computed(() => {
         result = result.filter(log => log.date <= filters.value.dateEnd);
     }
 
-    // 4. Filtre KM
     if (filters.value.kmMin !== '') {
         result = result.filter(log => log.km_at_moment >= filters.value.kmMin);
     }
@@ -192,7 +188,6 @@ const filteredHistory = computed(() => {
         result = result.filter(log => log.km_at_moment <= filters.value.kmMax);
     }
 
-    // 5. Filtre Preu
     if (filters.value.priceMin !== '') {
         result = result.filter(log => parseFloat(log.cost) >= filters.value.priceMin);
     }
@@ -200,12 +195,10 @@ const filteredHistory = computed(() => {
         result = result.filter(log => parseFloat(log.cost) <= filters.value.priceMax);
     }
 
-    // 6. Ordenació
     return result.sort((a, b) => {
         let fieldA = a[filters.value.sortBy];
         let fieldB = b[filters.value.sortBy];
 
-        // Convertir a números si cal
         if (filters.value.sortBy === 'cost' || filters.value.sortBy === 'km_at_moment') {
             fieldA = parseFloat(fieldA);
             fieldB = parseFloat(fieldB);
@@ -217,12 +210,10 @@ const filteredHistory = computed(() => {
     });
 });
 
-// CÀLCUL DINÀMIC DEL TOTAL (Basat en la llista filtrada)
 const totalFilteredCost = computed(() => {
     return filteredHistory.value.reduce((acc, log) => acc + parseFloat(log.cost || 0), 0);
 });
 
-// Comptar quants filtres actius hi ha (per l'indicador visual)
 const activeFiltersCount = computed(() => {
     let count = 0;
     if (filters.value.search) count++;
@@ -254,12 +245,11 @@ const resetFilters = () => {
 
 const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('ca-ES', options);
+    return new Date(dateString).toLocaleDateString(locale.value + '-ES', options);
 };
 </script>
 
 <style scoped>
-/* Petita animació d'entrada suau */
 .animate-fade-in {
     animation: fadeIn 0.3s ease-out forwards;
 }

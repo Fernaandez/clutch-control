@@ -1,11 +1,11 @@
 <template>
-    <AppLayout title="Mercat de Motos">
+    <AppLayout :title="$t('sales.marketplace_title')">
         <div class="px-4 py-6 pb-24 max-w-7xl mx-auto">
             
             <div class="flex items-center justify-between mb-6">
                 <div>
-                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">Mercat <span class="text-brand-neon">Riders</span></h1>
-                    <p class="text-gray-400 text-sm">Troba la teva pròxima companya de ruta 🏍️</p>
+                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">{{ $t('sales.marketplace_title') }} <span class="text-brand-neon">Riders</span></h1>
+                    <p class="text-gray-400 text-sm">{{ $t('sales.marketplace_subtitle') }} 🏍️</p>
                 </div>
                 <Link :href="route('sales.create')" class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.4)] hover:scale-110 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
@@ -15,14 +15,14 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 <Link :href="route('sales.mine')" class="w-full bg-brand-surface border border-brand-neon/30 text-white py-3 rounded-xl flex items-center justify-between px-4 hover:bg-brand-neon/10 transition group shadow-lg">
                     <span class="font-bold uppercase flex items-center gap-2 text-sm">
-                        🏷️ Gestionar els meus anuncis
+                        🏷️ {{ $t('sales.manage_mine') }}
                     </span>
                     <span class="text-brand-neon group-hover:translate-x-1 transition">&rarr;</span>
                 </Link>
 
                 <Link :href="route('sales.favorites')" class="w-full bg-brand-surface border border-red-500/30 text-white py-3 rounded-xl flex items-center justify-between px-4 hover:bg-red-500/10 transition group shadow-lg">
                     <span class="font-bold uppercase flex items-center gap-2 text-sm">
-                        ❤️ Els meus Preferits
+                        ❤️ {{ $t('sales.favorites') }}
                     </span>
                     <span class="text-red-400 group-hover:translate-x-1 transition">&rarr;</span>
                 </Link>
@@ -34,7 +34,7 @@
             >
                 <span class="flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-brand-neon"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
-                    {{ showFilters ? 'Amagar Filtres' : 'Cerca Avançada de Motos' }}
+                    {{ showFilters ? $t('sales.hide_filters') : $t('sales.show_filters') }}
                 </span>
                 <span v-if="activeFiltersCount > 0" class="bg-brand-neon text-brand-black text-xs rounded-full w-5 h-5 flex items-center justify-center font-black">
                     {{ activeFiltersCount }}
@@ -45,33 +45,33 @@
             <div v-if="showFilters" class="bg-brand-black border border-brand-dark rounded-xl p-5 mb-6 shadow-2xl space-y-6 animate-fade-in">
                 
                 <div>
-                    <label class="text-[10px] text-gray-500 uppercase tracking-widest font-black mb-1 block">Paraula clau</label>
-                    <input v-model="filters.search" type="text" placeholder="Model, marca o ubicació..." class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
+                    <label class="text-[10px] text-gray-500 uppercase tracking-widest font-black mb-1 block">{{ $t('sales.search') }}</label>
+                    <input v-model="filters.search" type="text" :placeholder="$t('sales.search_placeholder')" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     
                     <div class="space-y-4 bg-brand-surface/50 p-4 rounded-xl border border-brand-dark/50">
-                        <h3 class="text-xs font-black text-brand-neon uppercase tracking-widest mb-3 border-b border-brand-dark pb-2">Preu i Estat</h3>
+                        <h3 class="text-xs font-black text-brand-neon uppercase tracking-widest mb-3 border-b border-brand-dark pb-2">{{ $t('sales.filter_price') }} &amp; Estat</h3>
                         
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="text-[10px] text-gray-500 uppercase font-bold block mb-1">Preu Mín (€)</label>
+                                <label class="text-[10px] text-gray-500 uppercase font-bold block mb-1">{{ $t('sales.price_min') }} (€)</label>
                                 <input v-model="filters.priceMin" type="number" placeholder="0" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
                             </div>
                             <div>
-                                <label class="text-[10px] text-gray-500 uppercase font-bold block mb-1">Preu Màx (€)</label>
-                                <input v-model="filters.priceMax" type="number" placeholder="Sense límit" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
+                                <label class="text-[10px] text-gray-500 uppercase font-bold block mb-1">{{ $t('sales.price_max') }} (€)</label>
+                                <input v-model="filters.priceMax" type="number" :placeholder="$t('common.no')" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="text-[10px] text-gray-500 uppercase font-bold block mb-1">Any Mínim</label>
+                                <label class="text-[10px] text-gray-500 uppercase font-bold block mb-1">{{ $t('sales.year_min') }}</label>
                                 <input v-model="filters.yearMin" type="number" placeholder="Ex: 2010" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
                             </div>
                             <div>
-                                <label class="text-[10px] text-gray-500 uppercase font-bold block mb-1">Màx Quilòmetres</label>
+                                <label class="text-[10px] text-gray-500 uppercase font-bold block mb-1">{{ $t('sales.km_max') }}</label>
                                 <input v-model="filters.kmMax" type="number" placeholder="Ex: 50000" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
                             </div>
                         </div>
@@ -128,20 +128,20 @@
 
                 <div class="border-t border-brand-dark pt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div class="w-full sm:w-auto flex items-center gap-2">
-                        <label class="text-xs text-gray-400 uppercase font-bold">Ordenar per:</label>
+                        <label class="text-xs text-gray-400 uppercase font-bold">{{ $t('sales.sort_by') }}</label>
                         <select v-model="filters.sortBy" class="bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
-                            <option value="created_at">Més Recents</option>
-                            <option value="price">Preu</option>
-                            <option value="year">Any</option>
-                            <option value="current_km">Quilòmetres</option>
+                            <option value="created_at">{{ $t('sales.sort_date') }}</option>
+                            <option value="price">{{ $t('sales.sort_price') }}</option>
+                            <option value="year">{{ $t('sales.sort_year') }}</option>
+                            <option value="current_km">{{ $t('sales.sort_km') }}</option>
                         </select>
                         <button @click="toggleSortDir" class="bg-brand-surface border border-brand-dark px-3 py-2 rounded-lg text-white hover:border-brand-neon transition text-xs font-bold">
-                            {{ filters.sortDir === 'asc' ? '⬆ Asc' : '⬇ Desc' }}
+                            {{ filters.sortDir === 'asc' ? $t('common.asc') : $t('common.desc') }}
                         </button>
                     </div>
                     
                     <button @click="resetFilters" class="w-full sm:w-auto text-xs font-bold text-red-400 hover:text-red-300 uppercase tracking-widest px-4 py-2 border border-red-900/50 bg-red-900/10 rounded-lg transition">
-                        Netejar Filtres
+                        {{ $t('sales.clear_filters') }}
                     </button>
                 </div>
             </div>
@@ -150,9 +150,9 @@
                 <div class="p-4 bg-brand-black rounded-full mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-gray-500"><path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" /></svg>
                 </div>
-                <p class="text-white font-black uppercase tracking-widest text-lg">Cap moto trobada</p>
-                <p class="text-gray-400 text-sm mt-1">Prova de relaxar una mica els filtres.</p>
-                <button @click="resetFilters" class="bg-brand-neon text-black px-6 py-2 rounded-lg text-sm font-black uppercase tracking-widest mt-4 hover:bg-white transition">Veure Tot</button>
+                <p class="text-white font-black uppercase tracking-widest text-lg">{{ $t('sales.no_results') }}</p>
+                <p class="text-gray-400 text-sm mt-1">{{ $t('sales.clear_all_filters') }}...</p>
+                <button @click="resetFilters" class="bg-brand-neon text-black px-6 py-2 rounded-lg text-sm font-black uppercase tracking-widest mt-4 hover:bg-white transition">{{ $t('common.no_results') }}</button>
             </div>
 
             <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -237,7 +237,7 @@
 
                         <div class="mt-2 pt-4 border-t border-brand-dark/50">
                             <Link :href="route('sales.show', sale.id)" class="block w-full text-center bg-brand-dark hover:bg-white hover:text-black text-white text-xs font-bold uppercase py-2.5 rounded transition">
-                                Veure Detall
+                                {{ $t('sales.view_detail') }}
                             </Link>
                         </div>
                     </div>
@@ -250,7 +250,10 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
+
+const { t } = useI18n();
 
 const props = defineProps({ sales: Array });
 

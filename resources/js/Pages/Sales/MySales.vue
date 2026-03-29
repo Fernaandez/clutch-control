@@ -1,11 +1,11 @@
 <template>
-    <AppLayout title="Els Meus Anuncis">
+    <AppLayout :title="$t('sales.my_listings_title')">
         <div class="px-4 py-6 pb-24">
             
             <div class="flex items-center justify-between mb-6">
                 <div>
-                    <Link :href="route('sales.index')" class="text-gray-400 text-sm hover:text-white flex items-center gap-1 transition">&larr; Tornar al Mercat</Link>
-                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter mt-1">Els Meus <span class="text-brand-neon">Anuncis</span></h1>
+                    <Link :href="route('sales.index')" class="text-gray-400 text-sm hover:text-white flex items-center gap-1 transition">{{ $t('sales.back') }}</Link>
+                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter mt-1">{{ $t('sales.my_listings_title') }} <span class="text-brand-neon">↗</span></h1>
                 </div>
                 <Link :href="route('sales.create')" class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.4)] hover:scale-110 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
@@ -19,7 +19,7 @@
             >
                 <span class="flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
-                    {{ showFilters ? 'Amagar Filtres' : 'Mostrar Filtres i Ordenació' }}
+                    {{ showFilters ? $t('sales.hide_filters') : $t('sales.show_filters') }}
                 </span>
                 <span v-if="activeFiltersCount > 0" class="bg-brand-neon text-brand-black text-xs rounded-full w-5 h-5 flex items-center justify-center font-black">
                     {{ activeFiltersCount }}
@@ -31,16 +31,16 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">Cercar</label>
-                        <input v-model="filters.search" type="text" placeholder="Títol, marca o model..." class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
+                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('sales.search') }}</label>
+                        <input v-model="filters.search" type="text" :placeholder="$t('sales.search_placeholder')" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
                     </div>
                     <div>
                         <label class="text-xs text-gray-500 uppercase font-bold">Estat</label>
                         <select v-model="filters.state" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
-                            <option value="all">Tots</option>
-                            <option value="actiu">Només Actius</option>
+                            <option value="all">{{ $t('events.role_all') }}</option>
+                            <option value="actiu">{{ $t('sales.active') }}</option>
                             <option value="actiu (reservat) (nou)">Reservats</option>
-                            <option value="venuda">Venuts</option>
+                            <option value="venuda">{{ $t('sales.sold') }}</option>
                         </select>
                     </div>
                 </div>
@@ -49,8 +49,8 @@
                     <label class="text-xs text-brand-neon uppercase font-bold mb-2 block">Ordenar per:</label>
                     <div class="flex gap-2">
                         <select v-model="filters.sortBy" class="flex-1 bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon">
-                            <option value="created_at">Data de Publicació</option>
-                            <option value="price">Preu</option>
+                            <option value="created_at">{{ $t('sales.sort_date') }}</option>
+                            <option value="price">{{ $t('sales.sort_price') }}</option>
                             <option value="views_count">Més Vistos</option>
                             <option value="favorited_by_count">Més Favorits</option>
                         </select>
@@ -61,18 +61,18 @@
                 </div>
                 
                 <button @click="resetFilters" class="w-full text-xs text-gray-500 hover:text-white underline mt-2">
-                    Netejar tots els filtres
+                    {{ $t('sales.clear_all_filters') }}
                 </button>
             </div>
 
             <div v-if="sales.length === 0" class="flex flex-col items-center justify-center py-12 text-center opacity-60 bg-brand-surface rounded-xl border border-brand-dark border-dashed">
-                <p class="text-gray-400 font-medium">Encara no tens cap moto a la venda.</p>
-                <Link :href="route('sales.create')" class="text-brand-neon text-sm font-bold mt-2 hover:underline">Crear el meu primer anunci</Link>
+                <p class="text-gray-400 font-medium">{{ $t('sales.no_listings') }}</p>
+                <Link :href="route('sales.create')" class="text-brand-neon text-sm font-bold mt-2 hover:underline">{{ $t('sales.create_listing') }}</Link>
             </div>
 
             <div v-else-if="filteredSales.length === 0" class="flex flex-col items-center justify-center py-12 text-center opacity-60 bg-brand-surface rounded-xl border border-brand-dark border-dashed">
-                <p class="text-gray-400 font-medium">No s'ha trobat cap anunci amb aquests filtres.</p>
-                <button @click="resetFilters" class="text-brand-neon text-sm font-bold mt-2 hover:underline">Netejar Filtres</button>
+                <p class="text-gray-400 font-medium">{{ $t('sales.no_filter_listings') }}</p>
+                <button @click="resetFilters" class="text-brand-neon text-sm font-bold mt-2 hover:underline">{{ $t('sales.clear_filters') }}</button>
             </div>
 
             <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -87,9 +87,9 @@
                         <div class="absolute inset-0 bg-gradient-to-t from-brand-surface via-transparent to-transparent z-10"></div>
 
                         <!-- Pill d'estat a dalt esquerra -->
-                        <div v-if="sale.state === 'venuda'" class="absolute top-2 left-2 bg-red-600/90 border border-red-500 text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md">Venuda</div>
+                        <div v-if="sale.state === 'venuda'" class="absolute top-2 left-2 bg-red-600/90 border border-red-500 text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md">{{ $t('sales.sold') }}</div>
                         <div v-else-if="sale.state === 'actiu (reservat) (nou)'" class="absolute top-2 left-2 bg-yellow-500/90 border border-yellow-400 text-black px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md">Reservada</div>
-                        <div v-else class="absolute top-2 left-2 bg-brand-neon/90 border border-brand-neon text-black px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md">Activa</div>
+                        <div v-else class="absolute top-2 left-2 bg-brand-neon/90 border border-brand-neon text-black px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md">{{ $t('sales.active') }}</div>
 
                         <!-- Vistes & Cors (badges petits on normalment aniria la dificultat) a dalt dreta -->
                         <div class="absolute top-2 right-2 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] bg-brand-black/80 text-white shadow-md border border-brand-dark flex gap-2 backdrop-blur-sm">
@@ -111,10 +111,10 @@
 
                         <div class="flex gap-2 mt-4 pt-4 border-t border-brand-dark/50">
                             <Link :href="route('sales.show', sale.id)" class="flex-1 text-center bg-brand-dark hover:bg-white hover:text-black text-white text-xs font-bold uppercase py-2 rounded transition">
-                                Veure Detall
+                                {{ $t('sales.view_detail') }}
                             </Link>
 
-                            <Link :href="route('sales.edit', sale.id)" class="px-3 flex items-center justify-center bg-brand-dark border border-gray-600 hover:border-brand-neon hover:text-brand-neon text-gray-400 rounded transition" title="Editar">
+                            <Link :href="route('sales.edit', sale.id)" class="px-3 flex items-center justify-center bg-brand-dark border border-gray-600 hover:border-brand-neon hover:text-brand-neon text-gray-400 rounded transition" :title="$t('common.edit')">
                                 ✏️
                             </Link>
 
@@ -123,7 +123,7 @@
                                 :href="route('sales.mark-sold', sale.id)"
                                 method="patch" as="button"
                                 class="px-3 flex items-center justify-center bg-brand-dark border border-red-900/50 text-red-700 hover:bg-red-500 hover:text-white hover:border-red-500 rounded transition" 
-                                title="Marcar com a Venuda"
+                                :title="$t('sales.mark_sold')"
                             >
                                 ✓
                             </Link>
@@ -139,7 +139,10 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
+
+const { t } = useI18n();
 
 const props = defineProps({ sales: Array });
 

@@ -24,6 +24,15 @@ Route::get('/r/{token}', [RouteController::class, 'preview'])->name('routes.prev
 Route::get('/e/{token}', [EventController::class, 'preview'])->name('events.preview');
 Route::post('/search-token', [SearchController::class, 'searchToken'])->name('search.token');
 
+// --- PÀGINES LEGALS (Google Play & Públic) ---
+Route::get('/privacy-policy', function () {
+    return Inertia::render('Legal/PrivacyPolicy');
+})->name('privacy.policy');
+
+Route::get('/terms-of-service', function () {
+    return Inertia::render('Legal/TermsOfService');
+})->name('terms.service');
+
 // El perfil NO demana 'verified' perquè l'usuari pugui entrar a canviar el seu correu si s'ha equivocat
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

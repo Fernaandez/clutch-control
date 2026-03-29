@@ -1,27 +1,27 @@
 <template>
-    <AppLayout v-if="event" :title="event.title || 'Detall Quedada'">
+    <AppLayout v-if="event" :title="event.title || $t('events.loading_event')">
         <div class="px-4 py-6 pb-24">
 
             <div class="flex items-center justify-between mb-6">
                 <Link :href="route('events.index')" class="text-gray-400 text-sm hover:text-white flex items-center gap-1 transition">
-                    &larr; Tornar
+                    {{ $t('events.back') }}
                 </Link>
 
-                <button v-if="$page.props.auth.user && event.user_id === $page.props.auth.user.id" @click="copyShareLink" class="bg-gray-800 hover:bg-brand-neon hover:text-black text-white px-3 py-1.5 rounded-lg transition border border-gray-700 flex items-center gap-2 text-xs font-bold" title="Copia l'enllaç de Compartició">
-                    <span v-if="copyLinkSuccess">Copiada!</span>
-                    <span v-else>🔗 Compartir</span>
+                <button v-if="$page.props.auth.user && event.user_id === $page.props.auth.user.id" @click="copyShareLink" class="bg-gray-800 hover:bg-brand-neon hover:text-black text-white px-3 py-1.5 rounded-lg transition border border-gray-700 flex items-center gap-2 text-xs font-bold">
+                    <span v-if="copyLinkSuccess">{{ $t('events.link_copied') }}</span>
+                    <span v-else>{{ $t('events.copy_link') }}</span>
                 </button>
             </div>
 
             <div v-if="event.photo" class="relative h-56 w-full overflow-hidden mb-6 rounded-xl border border-brand-dark shadow-lg">
-                <img :src="$page.props.storageUrl + '/' + event.photo" alt="Foto Quedada" class="absolute inset-0 w-full h-full object-cover">
+                <img :src="$page.props.storageUrl + '/' + event.photo" :alt="$t('events.event_title')" class="absolute inset-0 w-full h-full object-cover">
                 <div class="absolute inset-0 photo-gradient-overlay"></div>
             </div>
 
             <div class="mb-6">
-                <h1 class="text-3xl font-black text-white uppercase tracking-tighter">{{ event.title || 'Sense Títol' }}</h1>
+                <h1 class="text-3xl font-black text-white uppercase tracking-tighter">{{ event.title || $t('events.no_title') }}</h1>
                 <p class="text-gray-400 text-sm mt-1 flex items-center gap-2">
-                    📍 {{ event.location || 'Ubicació pendent' }}
+                    📍 {{ event.location || $t('events.no_location_info') }}
                 </p>
             </div>
 
@@ -30,47 +30,46 @@
                     <span v-if="event.start_time" class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark">📅 {{ formatDate(event.start_time) }}</span>
                     <span v-if="event.start_time" class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark">⏰ {{ formatTime(event.start_time) }}</span>
 
-                    <!-- Comptador d'assistents -->
                     <span class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark flex items-center gap-2" :class="{'text-red-400': event.max_participants && (event.participants_count || 0) >= event.max_participants, 'text-brand-neon': !event.max_participants}">
                         👤
                         <span v-if="event.max_participants">
                             {{ event.participants_count || 0 }} / {{ event.max_participants }}
                         </span>
                         <span v-else>
-                            {{ event.participants_count || 0 }} assistents
+                            {{ $t('events.num_attendees', { n: event.participants_count || 0 }) }}
                         </span>
                         <span v-if="event.max_participants && (event.participants_count || 0) >= event.max_participants" class="ml-1 text-[9px] bg-red-500 text-black px-1 rounded uppercase">FULL</span>
                     </span>
                 </div>
-                <p class="text-gray-300 text-sm mb-6">{{ event.description || 'Sense descripció.' }}</p>
+                <p class="text-gray-300 text-sm mb-6">{{ event.description || $t('events.no_description') }}</p>
 
                 <!-- Botons d'apuntar-se / desapuntar-se -->
                 <div v-if="$page.props.auth.user && event.user_id !== $page.props.auth.user.id" class="border-t border-brand-dark pt-5 flex justify-center">
                     <div v-if="event.is_attending">
                         <Link :href="route('events.leave', event.id)" method="post" as="button" class="bg-red-500/10 text-red-500 border border-red-500/50 hover:bg-red-500 hover:text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest transition flex items-center gap-2 shadow-lg">
-                            ❌ Desapuntar-me
+                            {{ $t('events.leave') }}
                         </Link>
                     </div>
                     <div v-else>
                         <div v-if="event.max_participants && (event.participants_count || 0) >= event.max_participants" class="text-red-500 font-bold bg-red-500/10 px-6 py-3 rounded-xl border border-red-500/30 text-center">
-                            Aquesta quedada ja està plena ({{ event.max_participants }} places)
+                            {{ $t('events.full', { n: event.max_participants }) }}
                         </div>
                         <Link v-else :href="route('events.join', event.id)" method="post" as="button" class="bg-brand-neon text-brand-black hover:bg-white hover:scale-105 px-8 py-3 rounded-xl font-black uppercase tracking-widest transition flex items-center gap-2 shadow-[0_0_20px_rgba(12,225,181,0.4)]">
-                            ✌️ Apuntar-me!
+                            {{ $t('events.join') }}
                         </Link>
                     </div>
                 </div>
 
                 <div v-else-if="!$page.props.auth.user" class="border-t border-brand-dark pt-5">
-                    <p class="text-center text-gray-400 text-sm mb-3">Has d'iniciar sessió per apuntar-te.</p>
+                    <p class="text-center text-gray-400 text-sm mb-3">{{ $t('events.login_to_join') }}</p>
                     <div class="flex justify-center gap-4">
-                        <Link :href="route('login')" class="bg-brand-dark text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-700 transition">Inicia Sessió</Link>
-                        <Link :href="route('register')" class="bg-brand-neon text-brand-black px-6 py-2 rounded-lg font-bold hover:bg-white transition shadow-neon">Registra't</Link>
+                        <Link :href="route('login')" class="bg-brand-dark text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-700 transition">{{ $t('events.login') }}</Link>
+                        <Link :href="route('register')" class="bg-brand-neon text-brand-black px-6 py-2 rounded-lg font-bold hover:bg-white transition shadow-neon">{{ $t('events.register') }}</Link>
                     </div>
                 </div>
 
                 <div v-else class="border-t border-brand-dark pt-5 text-center text-brand-neon font-bold text-sm bg-brand-neon/10 rounded-lg p-3">
-                    👑 Ets l'organitzador d'aquesta quedada
+                    {{ $t('events.organizer') }}
                 </div>
             </div>
 
@@ -78,11 +77,11 @@
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-sm font-black text-brand-neon uppercase tracking-widest flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" /></svg>
-                        Traçat ({{ event.routes.length }})
+                        {{ $t('events.itinerary') }} ({{ event.routes.length }})
                     </h3>
 
                     <button @click="openGlobalMap" class="text-xs font-bold bg-brand-neon text-brand-black px-3 py-1.5 rounded uppercase shadow-[0_0_10px_rgba(12,225,181,0.3)] hover:scale-105 transition">
-                        Veure Mapa Complet
+                        {{ $t('events.view_full_map') }}
                     </button>
                 </div>
 
@@ -125,12 +124,12 @@
             <div class="absolute bottom-6 left-0 w-full p-4 z-[5010] pb-safe-bottom pointer-events-none">
                 <div class="bg-brand-black/95 backdrop-blur-xl border border-brand-dark rounded-2xl shadow-2xl p-4 flex items-center justify-between pointer-events-auto max-w-lg mx-auto">
                     <div>
-                        <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Itinerari Complet</p>
-                        <h2 class="text-lg font-black text-white uppercase mt-0.5">{{ event.routes ? event.routes.length : 0 }} Trams</h2>
+                        <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">{{ $t('events.full_itinerary') }}</p>
+                        <h2 class="text-lg font-black text-white uppercase mt-0.5">{{ event.routes ? event.routes.length : 0 }} {{ $t('events.sections') }}</h2>
                     </div>
                     <div class="text-right">
                         <span class="block text-2xl font-mono font-bold text-brand-neon">{{ totalDistance }}</span>
-                        <span class="text-[10px] text-gray-500 uppercase">Quilòmetres Totals</span>
+                        <span class="text-[10px] text-gray-500 uppercase">{{ $t('events.total_km') }}</span>
                     </div>
                 </div>
             </div>
@@ -138,143 +137,89 @@
 
     </AppLayout>
     <div v-else class="h-screen bg-gray-900 flex items-center justify-center text-white">
-        <p class="animate-pulse">Carregant quedada...</p>
+        <p class="animate-pulse">{{ $t('events.loading_event') }}</p>
     </div>
 </template>
 
 <script setup>
 import { ref, computed, nextTick } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-const props = defineProps({
-    event: Object
-});
+const { locale } = useI18n();
 
-// Paleta de colors Neó per separar les rutes al mapa
+const props = defineProps({ event: Object });
+
 const mapColors = ['#0CE1B5', '#E10C38', '#0C84E1', '#E1B50C', '#B50CE1'];
 
 const isMapOpen = ref(false);
 const map = ref(null);
-const mapLayers = ref([]); // Per guardar les línies i poder netejar-les
-
+const mapLayers = ref([]);
 const copyLinkSuccess = ref(false);
 
 const formatDate = (dateStr) => {
-    if(!dateStr) return '';
-    try {
-        const d = new Date(dateStr);
-        return d.toLocaleDateString('ca-ES');
-    } catch(e) { return ''; }
+    if (!dateStr) return '';
+    try { return new Date(dateStr).toLocaleDateString(locale.value); } catch (e) { return ''; }
 };
 
 const formatTime = (dateStr) => {
-    if(!dateStr) return '';
-    try {
-        const d = new Date(dateStr);
-        return d.toLocaleTimeString('ca-ES', {hour: '2-digit', minute:'2-digit'});
-    } catch(e) { return ''; }
+    if (!dateStr) return '';
+    try { return new Date(dateStr).toLocaleTimeString(locale.value, { hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; }
 };
 
 const copyShareLink = () => {
-    if(!props.event || !props.event.share_token) return;
-    let tokenToCopy = props.event.share_token;
-    navigator.clipboard.writeText(tokenToCopy).then(() => {
+    if (!props.event || !props.event.share_token) return;
+    navigator.clipboard.writeText(props.event.share_token).then(() => {
         copyLinkSuccess.value = true;
-        setTimeout(() => {
-            copyLinkSuccess.value = false;
-        }, 3000);
+        setTimeout(() => { copyLinkSuccess.value = false; }, 3000);
     });
 };
 
-// Càlcul del total de km de tota la quedada
 const totalDistance = computed(() => {
     if (!props.event || !props.event.routes) return 0;
-    const total = props.event.routes.reduce((acc, route) => acc + parseFloat(route.planned_distance_km || 0), 0);
-    return total.toFixed(1);
+    return props.event.routes.reduce((acc, route) => acc + parseFloat(route.planned_distance_km || 0), 0).toFixed(1);
 });
 
 const openGlobalMap = async () => {
     isMapOpen.value = true;
-    await nextTick(); // Esperem a que el div existeixi al DOM
-
+    await nextTick();
     if (!map.value) {
-        // Inicialitzem el mapa
         map.value = L.map('event-global-map', { zoomControl: false, attributionControl: false }).setView([41.3851, 2.1734], 13);
-
-        L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-            maxZoom: 20,
-            className: 'map-tiles-inverse'
-        }).addTo(map.value);
+        L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', { maxZoom: 20, className: 'map-tiles-inverse' }).addTo(map.value);
     } else {
-        // Si ja estava creat, netegem les rutes velles abans de tornar a dibuixar
-        mapLayers.value.forEach(layer => {
-            if(map.value && layer) map.value.removeLayer(layer);
-        });
+        mapLayers.value.forEach(layer => { if (map.value && layer) map.value.removeLayer(layer); });
         mapLayers.value = [];
         map.value.invalidateSize();
     }
-
     let allPoints = [];
-
-    // Dibuixem cada ruta amb el seu color
-    if(props.event && props.event.routes) {
+    if (props.event && props.event.routes) {
         props.event.routes.forEach((route, index) => {
             let data = route.geo_json;
             if (!data) return;
-
-            // Seguretat en el parseig
             if (typeof data === 'string') {
-                try {
-                    // Netegem possibles caràcters extra o doble encoding
-                    data = JSON.parse(data);
-                    if (typeof data === 'string') data = JSON.parse(data);
-                } catch (e) {
-                    console.error("Error parsejant JSON de la ruta " + route.id, e);
-                    return;
-                }
+                try { data = JSON.parse(data); if (typeof data === 'string') data = JSON.parse(data); } catch (e) { return; }
             }
-
             if (Array.isArray(data) && data.length > 0) {
                 const color = mapColors[index % mapColors.length];
                 const points = data.map(p => [p.lat || p.latitude, p.lng || p.longitude]);
-
-                // Filtrem punts nuls o mal formats per no fer petar Leaflet
                 const validPoints = points.filter(p => p[0] != null && p[1] != null);
-                if(validPoints.length === 0) return;
-
-                // Dibuixem la línia
-                const polyline = L.polyline(validPoints, {
-                    color: color,
-                    weight: 6,
-                    opacity: 0.9,
-                    lineJoin: 'round'
-                }).addTo(map.value);
-
-                // Marquem el punt d'inici de cada tram amb una rodoneta
-                const startMarker = L.circleMarker(validPoints[0], {
-                    radius: 6, color: color, fillColor: '#111827', fillOpacity: 1, weight: 3
-                }).addTo(map.value);
-
+                if (validPoints.length === 0) return;
+                const polyline = L.polyline(validPoints, { color, weight: 6, opacity: 0.9, lineJoin: 'round' }).addTo(map.value);
+                const startMarker = L.circleMarker(validPoints[0], { radius: 6, color, fillColor: '#111827', fillOpacity: 1, weight: 3 }).addTo(map.value);
                 mapLayers.value.push(polyline, startMarker);
                 allPoints = allPoints.concat(validPoints);
             }
         });
     }
-
-    // Fem zoom automàtic perquè es vegi TODO l'itinerari junt!
     if (allPoints.length > 0 && map.value) {
-        try {
-            map.value.fitBounds(L.latLngBounds(allPoints), { padding: [50, 100] });
-        } catch(e) { console.error("Error fitBounds", e); }
+        try { map.value.fitBounds(L.latLngBounds(allPoints), { padding: [50, 100] }); } catch (e) {}
     }
 };
 
-const closeMap = () => {
-    isMapOpen.value = false;
-};
+const closeMap = () => { isMapOpen.value = false; };
 </script>
 
 <style scoped>

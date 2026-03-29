@@ -1,8 +1,10 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3';
 import { nextTick, ref } from 'vue';
-import Modal from '@/Components/Modal.vue'; // Assegura't que tens aquest component, ve amb Breeze
+import { useI18n } from 'vue-i18n';
+import Modal from '@/Components/Modal.vue';
 
+const { t } = useI18n();
 const confirmingUserDeletion = ref(false);
 const passwordInput = ref(null);
 
@@ -32,9 +34,9 @@ const closeModal = () => {
 <template>
     <section class="space-y-6">
         <header>
-            <h2 class="text-lg font-bold text-red-500">Esborrar Compte</h2>
+            <h2 class="text-lg font-bold text-red-500">{{ $t('profile.delete_account') }}</h2>
             <p class="mt-1 text-sm text-gray-400">
-                Un cop esborris el compte, tota la informació de les teves motos es perdrà per sempre.
+                {{ $t('profile.delete_account_hint') }}
             </p>
         </header>
 
@@ -42,27 +44,27 @@ const closeModal = () => {
             @click="confirmUserDeletion" 
             class="bg-red-900/50 border border-red-700 text-red-400 px-4 py-2 rounded font-bold hover:bg-red-800 hover:text-white transition text-sm uppercase"
         >
-            Esborrar Compte
+            {{ $t('profile.delete_button') }}
         </button>
 
         <Modal :show="confirmingUserDeletion" @close="closeModal">
             <div class="p-6 bg-brand-surface border border-brand-dark">
                 <h2 class="text-lg font-bold text-white">
-                    Estàs segur que vols esborrar el compte?
+                    {{ $t('profile.delete_confirm_title') }}
                 </h2>
 
                 <p class="mt-1 text-sm text-gray-400">
-                    Siusplau, introdueix la contrasenya per confirmar que vols eliminar permanentment les teves dades.
+                    {{ $t('profile.delete_confirm_hint') }}
                 </p>
 
                 <div class="mt-6">
-                    <label class="sr-only">Password</label>
+                    <label class="sr-only">{{ $t('profile.change_password') }}</label>
                     <input 
                         ref="passwordInput"
                         v-model="form.password"
                         type="password"
                         class="w-full rounded-lg bg-brand-black border-brand-dark text-white focus:border-red-500 focus:ring-red-500 transition"
-                        placeholder="Contrasenya"
+                        :placeholder="$t('profile.password_placeholder')"
                         @keyup.enter="deleteUser"
                     />
                     <div v-if="form.errors.password" class="text-red-500 text-xs mt-1">{{ form.errors.password }}</div>
@@ -70,7 +72,7 @@ const closeModal = () => {
 
                 <div class="mt-6 flex justify-end gap-3">
                     <button @click="closeModal" class="text-gray-400 hover:text-white transition">
-                        Cancel·lar
+                        {{ $t('profile.cancel') }}
                     </button>
 
                     <button
@@ -79,7 +81,7 @@ const closeModal = () => {
                         :disabled="form.processing"
                         @click="deleteUser"
                     >
-                        Eliminar definitivament
+                        {{ $t('profile.delete_permanently') }}
                     </button>
                 </div>
             </div>

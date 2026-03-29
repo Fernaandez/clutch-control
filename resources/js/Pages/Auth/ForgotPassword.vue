@@ -1,5 +1,5 @@
 <template>
-    <Head title="Recuperar Contrasenya" />
+    <Head :title="$t('forgot_password.title')" />
 
     <div class="min-h-screen flex flex-col justify-center items-center bg-brand-black px-6 py-12">
         
@@ -15,11 +15,10 @@
                 </div>
             </div>
 
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight mb-4 text-center">Recuperar <span class="text-brand-neon">Accés</span></h2>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight mb-4 text-center">{{ $t('forgot_password.title') }}</h2>
 
             <div class="mb-6 text-sm text-gray-400 leading-relaxed text-center">
-                Has oblidat la contrasenya? Cap problema. 
-                Deixa'ns el teu correu electrònic i t'enviarem un enllaç per crear-ne una de nova i tornar a donar-li gas.
+                {{ $t('forgot_password.description') }}
             </div>
 
             <div v-if="status" class="mb-6 text-xs font-bold text-brand-black bg-brand-neon p-3 rounded-lg animate-fade-in shadow-[0_0_15px_rgba(12,225,181,0.3)] text-center">
@@ -28,7 +27,7 @@
 
             <form @submit.prevent="submit" class="space-y-6">
                 <div>
-                    <label class="block font-bold text-xs uppercase tracking-wider text-gray-400 mb-2 ml-1" for="email">Correu Electrònic</label>
+                    <label class="block font-bold text-xs uppercase tracking-wider text-gray-400 mb-2 ml-1" for="email">{{ $t('forgot_password.email') }}</label>
                     <input 
                         id="email" 
                         type="email" 
@@ -48,14 +47,14 @@
                         :disabled="form.processing" 
                         class="w-full bg-brand-neon text-brand-black px-6 py-4 rounded-xl font-black uppercase tracking-wider text-sm hover:bg-white transition duration-300 shadow-[0_0_20px_rgba(12,225,181,0.4)] disabled:opacity-50"
                     >
-                        {{ form.processing ? 'Enviant...' : 'Enviar enllaç de recuperació' }}
+                        {{ form.processing ? $t('forgot_password.sending') : $t('forgot_password.submit') }}
                     </button>
 
                     <Link
                         :href="route('login')"
                         class="text-gray-500 hover:text-white text-xs font-bold uppercase tracking-widest text-center transition mt-2"
                     >
-                        &larr; Tornar a Iniciar Sessió
+                        {{ $t('forgot_password.back_to_login') }}
                     </Link>
                 </div>
             </form>

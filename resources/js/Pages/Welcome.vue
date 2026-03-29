@@ -1,5 +1,5 @@
 <template>
-    <Head title="Benvingut" />
+    <Head :title="$t('welcome.title')" />
 
     <div class="h-[100dvh] w-full bg-brand-black text-white selection:bg-brand-neon selection:text-brand-black overflow-hidden flex flex-col relative">
         
@@ -19,16 +19,16 @@
             <!-- Big Action Buttons -->
             <div v-if="canLogin" class="flex flex-col gap-5 w-full max-w-sm">
                 <Link v-if="$page.props.auth.user" :href="route('dashboard')" class="w-full text-center bg-brand-neon text-brand-black px-6 py-5 mx-auto rounded-2xl font-black uppercase tracking-widest hover:bg-white active:scale-95 transition-all shadow-[0_0_25px_rgba(12,225,181,0.4)] text-lg">
-                    Entrar al Garatge ➜
+                    {{ $t('welcome.enter_garage') }}
                 </Link>
 
                 <template v-else>
                     <Link :href="route('login')" class="w-full text-center bg-brand-neon text-brand-black px-6 py-5 mx-auto rounded-2xl font-black uppercase tracking-widest hover:bg-white active:scale-95 transition-all shadow-[0_0_25px_rgba(12,225,181,0.4)] text-lg">
-                        Iniciar Sessió
+                        {{ $t('welcome.login') }}
                     </Link>
                     
                     <Link v-if="canRegister" :href="route('register')" class="w-full text-center border border-gray-700 bg-gray-900/50 backdrop-blur-sm text-gray-300 px-6 py-5 mx-auto rounded-2xl font-bold uppercase tracking-widest hover:border-brand-neon hover:text-white active:scale-95 transition-all text-lg">
-                        Registrar-se
+                        {{ $t('welcome.register') }}
                     </Link>
                 </template>
             </div>

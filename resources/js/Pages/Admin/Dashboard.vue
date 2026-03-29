@@ -1,17 +1,16 @@
 <template>
     <AdminLayout>
         <template #header>
-            Dashboard
+            {{ $t('admin.dashboard') }}
         </template>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Stats Cards -->
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center space-x-4">
                 <div class="p-3 bg-blue-100 text-blue-600 rounded-full">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"></path></svg>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Users</p>
+                    <p class="text-sm font-medium text-gray-500">{{ $t('admin.users') }}</p>
                     <p class="text-2xl font-bold text-gray-800">{{ stats.users }}</p>
                 </div>
             </div>
@@ -21,7 +20,7 @@
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z"></path></svg>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Routes</p>
+                    <p class="text-sm font-medium text-gray-500">{{ $t('admin.routes') }}</p>
                     <p class="text-2xl font-bold text-gray-800">{{ stats.routes }}</p>
                 </div>
             </div>
@@ -31,7 +30,7 @@
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"></path></svg>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Events</p>
+                    <p class="text-sm font-medium text-gray-500">{{ $t('admin.events') }}</p>
                     <p class="text-2xl font-bold text-gray-800">{{ stats.events }}</p>
                 </div>
             </div>
@@ -41,7 +40,7 @@
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path></svg>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Sales</p>
+                    <p class="text-sm font-medium text-gray-500">{{ $t('admin.sales') }}</p>
                     <p class="text-2xl font-bold text-gray-800">{{ stats.sales }}</p>
                 </div>
             </div>
@@ -51,7 +50,7 @@
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm0 2.25c.579 0 1.135.077 1.666.222L11 9.387v5.226l2.666 4.665c-.531.145-1.087.222-1.666.222-4.14 0-7.5-3.36-7.5-7.5s3.36-7.5 7.5-7.5Zm3.02 2.665a5.228 5.228 0 0 1 2.307 2.307l-3.315 2.21V9.387l1.008-2.222ZM15.02 16.83l-1.008-2.222V11.23l3.315 2.21a5.228 5.228 0 0 1-2.307 2.307Z" clip-rule="evenodd" /></svg>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Motorcycles</p>
+                    <p class="text-sm font-medium text-gray-500">{{ $t('admin.motorcycles') }}</p>
                     <p class="text-2xl font-bold text-gray-800">{{ stats.motorcycles }}</p>
                 </div>
             </div>
@@ -61,7 +60,7 @@
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.83-5.83M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" clip-rule="evenodd" /></svg>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Maintenance</p>
+                    <p class="text-sm font-medium text-gray-500">{{ $t('admin.maintenance') }}</p>
                     <p class="text-2xl font-bold text-gray-800">{{ stats.maintenance }}</p>
                 </div>
             </div>
@@ -72,9 +71,9 @@
                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
             <div>
-                <h2 class="text-lg font-bold text-gray-800 mb-1">Welcome to Clutch Control Form Admin</h2>
+                <h2 class="text-lg font-bold text-gray-800 mb-1">{{ $t('admin.welcome_title') }}</h2>
                 <p class="text-gray-600 leading-relaxed">
-                    You have full backend control to manage all platform components from here. Use the sidebar to navigate through users, routes, events, and sales. Any change made here, such as deleting a user or editing a route, directly affects the live database.
+                    {{ $t('admin.welcome_text') }}
                 </p>
             </div>
         </div>
@@ -84,7 +83,5 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
-defineProps({
-    stats: Object,
-});
+defineProps({ stats: Object });
 </script>

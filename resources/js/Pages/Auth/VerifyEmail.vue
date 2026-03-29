@@ -1,5 +1,5 @@
 <template>
-    <Head title="Verificació de Correu" />
+    <Head :title="$t('verify_email.title')" />
 
     <div class="min-h-screen flex flex-col justify-center items-center bg-brand-black px-6 py-12">
         
@@ -15,16 +15,14 @@
                 </div>
             </div>
 
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight mb-4">Revisa el teu <span class="text-brand-neon">Correu</span></h2>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight mb-4">{{ $t('verify_email.title') }}</h2>
 
             <div class="mb-6 text-sm text-gray-400 leading-relaxed">
-                Gràcies per unir-te a la comunitat! Abans de donar-li gas, necessitem que verifiquis la teva adreça de correu. 
-                <br><br>
-                Fes clic a l'enllaç que t'acabem d'enviar. Si no l'has rebut (revisa l'Spam per si de cas), te n'enviarem un altre encantats.
+                {{ $t('verify_email.description') }}
             </div>
 
             <div v-if="verificationLinkSent" class="mb-6 text-xs font-bold text-brand-black bg-brand-neon p-3 rounded-lg animate-fade-in shadow-[0_0_15px_rgba(12,225,181,0.3)]">
-                ✅ S'ha enviat un nou enllaç de verificació a la teva adreça!
+                {{ $t('verify_email.link_sent') }}
             </div>
 
             <form @submit.prevent="submit" class="flex flex-col gap-4">
@@ -33,7 +31,7 @@
                     :disabled="form.processing" 
                     class="w-full bg-brand-dark border border-brand-neon/50 text-brand-neon px-6 py-4 rounded-xl font-black uppercase tracking-wider text-sm hover:bg-brand-neon hover:text-black transition duration-300"
                 >
-                    Tornar a enviar l'enllaç
+                    {{ $t('verify_email.resend') }}
                 </button>
 
                 <Link
@@ -42,7 +40,7 @@
                     as="button"
                     class="text-gray-500 hover:text-white text-xs font-bold uppercase tracking-widest underline underline-offset-4 transition mt-2"
                 >
-                    Tancar Sessió
+                    {{ $t('verify_email.logout') }}
                 </Link>
             </form>
         </div>

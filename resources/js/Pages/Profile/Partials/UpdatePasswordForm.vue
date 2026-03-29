@@ -32,16 +32,16 @@ const updatePassword = () => {
 <template>
     <section>
         <header>
-            <h2 class="text-lg font-bold text-white">Actualitzar Contrasenya</h2>
+            <h2 class="text-lg font-bold text-white">{{ $t('profile.update_password') }}</h2>
             <p class="mt-1 text-sm text-gray-400">
-                Assegura't de fer servir una contrasenya llarga i segura.
+                {{ $t('profile.update_password_hint') }}
             </p>
         </header>
 
         <form @submit.prevent="updatePassword" class="mt-6 space-y-6">
             
             <div>
-                <label class="block font-medium text-sm text-gray-400 mb-1">Contrasenya Actual</label>
+                <label class="block font-medium text-sm text-gray-400 mb-1">{{ $t('profile.current_password') }}</label>
                 <input 
                     ref="currentPasswordInput"
                     type="password" 
@@ -53,7 +53,7 @@ const updatePassword = () => {
             </div>
 
             <div>
-                <label class="block font-medium text-sm text-gray-400 mb-1">Nova Contrasenya</label>
+                <label class="block font-medium text-sm text-gray-400 mb-1">{{ $t('profile.new_password') }}</label>
                 <input 
                     ref="passwordInput"
                     type="password" 
@@ -65,7 +65,7 @@ const updatePassword = () => {
             </div>
 
             <div>
-                <label class="block font-medium text-sm text-gray-400 mb-1">Confirmar Contrasenya</label>
+                <label class="block font-medium text-sm text-gray-400 mb-1">{{ $t('profile.confirm_password') }}</label>
                 <input 
                     type="password" 
                     class="w-full rounded-lg bg-brand-black border-brand-dark text-white focus:border-brand-neon focus:ring-brand-neon transition"
@@ -80,7 +80,7 @@ const updatePassword = () => {
                     :disabled="form.processing" 
                     class="bg-brand-base text-brand-black px-4 py-2 rounded font-bold hover:bg-brand-neon transition shadow-neon text-sm uppercase"
                 >
-                    Canviar Password
+                    {{ $t('profile.change_password') }}
                 </button>
 
                 <Transition
@@ -89,7 +89,7 @@ const updatePassword = () => {
                     leave-active-class="transition ease-in-out"
                     leave-to-class="opacity-0"
                 >
-                    <p v-if="form.recentlySuccessful" class="text-sm text-green-400">Guardat.</p>
+                    <p v-if="form.recentlySuccessful" class="text-sm text-green-400">{{ $t('profile.saved') }}</p>
                 </Transition>
             </div>
         </form>

@@ -1,16 +1,13 @@
 <template>
-    <AppLayout title="Rutes de la Comunitat">
+    <AppLayout :title="$t('routes.explore_title')">
         <div class="px-4 py-6 pb-24">
             
             <div class="flex items-center justify-between mb-6">
                 <div>
-                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">Explorar <span class="text-brand-neon">Rutes</span></h1>
-                    <p class="text-gray-400 text-sm">Descobreix nous traçats 🏍️</p>
+                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">{{ $t('routes.explore_title') }} <span class="text-brand-neon">Rutes</span></h1>
+                    <p class="text-gray-400 text-sm">{{ $t('routes.explore_subtitle') }}</p>
                 </div>
-                <Link 
-                    :href="route('routes.create')" 
-                    class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.4)] hover:scale-110 transition"
-                >
+                <Link :href="route('routes.create')" class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.4)] hover:scale-110 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                 </Link>
             </div>
@@ -18,12 +15,10 @@
             <Link :href="route('routes.MyRoutes')" class="w-full mb-4 bg-brand-surface border border-brand-neon/30 text-white py-3 rounded-xl flex items-center justify-between px-4 hover:bg-brand-neon/10 transition group shadow-lg">
                 <span class="font-bold uppercase flex items-center gap-2 text-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-brand-neon"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" /></svg>
-                    Gestionar les meves Rutes
+                    {{ $t('routes.manage_mine') }}
                 </span>
                 <span class="text-brand-neon group-hover:translate-x-1 transition">&rarr;</span>
             </Link>
-
-
 
             <button 
                 @click="showFilters = !showFilters"
@@ -31,7 +26,7 @@
             >
                 <span class="flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
-                    {{ showFilters ? 'Amagar Filtres' : 'Mostrar Filtres i Ordenació' }}
+                    {{ showFilters ? $t('routes.hide_filters') : $t('routes.show_filters') }}
                 </span>
                 <span v-if="activeFiltersCount > 0" class="bg-brand-neon text-brand-black text-xs rounded-full w-5 h-5 flex items-center justify-center font-black">
                     {{ activeFiltersCount }}
@@ -43,65 +38,65 @@
                 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">Cercar per nom</label>
+                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('routes.search') }}</label>
                         <input v-model="filters.search" type="text" placeholder="Ex: Collada..." class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
                     </div>
                     <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">Dificultat</label>
+                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('routes.difficulty') }}</label>
                         <select v-model="filters.difficulty" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
-                            <option value="all">Totes</option>
-                            <option value="easy">🟢 Fàcil</option>
-                            <option value="medium">🟡 Mitjana</option>
-                            <option value="hard">🔴 Difícil</option>
-                            <option value="expert">🟣 Experta</option>
-                            <option value="extreme">☠️ Extrema</option>
+                            <option value="all">{{ $t('routes.difficulty_all') }}</option>
+                            <option value="easy">{{ $t('routes.difficulty_easy') }}</option>
+                            <option value="medium">{{ $t('routes.difficulty_medium') }}</option>
+                            <option value="hard">{{ $t('routes.difficulty_hard') }}</option>
+                            <option value="expert">{{ $t('routes.difficulty_expert') }}</option>
+                            <option value="extreme">{{ $t('routes.difficulty_extreme') }}</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">KM Mínim</label>
+                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('routes.km_min') }}</label>
                         <input v-model="filters.kmMin" type="number" placeholder="0" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
                     </div>
                     <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">KM Màxim</label>
+                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('routes.km_max') }}</label>
                         <input v-model="filters.kmMax" type="number" placeholder="Max" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
                     </div>
                 </div>
 
                 <div>
-                    <label class="text-xs text-gray-500 uppercase font-bold">Valoració Mínima</label>
+                    <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('routes.rating_min') }}</label>
                     <select v-model="filters.ratingMin" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
-                        <option value="0">Totes</option>
-                        <option value="3">⭐⭐⭐ 3+ estrelles</option>
-                        <option value="4">⭐⭐⭐⭐ 4+ estrelles</option>
-                        <option value="5">⭐⭐⭐⭐⭐ 5 estrelles</option>
+                        <option value="0">{{ $t('routes.rating_all') }}</option>
+                        <option value="3">⭐⭐⭐ 3+</option>
+                        <option value="4">⭐⭐⭐⭐ 4+</option>
+                        <option value="5">⭐⭐⭐⭐⭐ 5</option>
                     </select>
                 </div>
 
                 <div class="border-t border-brand-dark pt-3 mt-2">
-                    <label class="text-xs text-brand-neon uppercase font-bold mb-2 block">Ordenar per:</label>
+                    <label class="text-xs text-brand-neon uppercase font-bold mb-2 block">{{ $t('routes.sort_by') }}</label>
                     <div class="flex gap-2">
                         <select v-model="filters.sortBy" class="flex-1 bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon">
-                            <option value="created_at">Data de Publicació</option>
-                            <option value="planned_distance_km">Distància (KM)</option>
-                            <option value="avg_rating">Valoració Mitja</option>
+                            <option value="created_at">{{ $t('routes.sort_date') }}</option>
+                            <option value="planned_distance_km">{{ $t('routes.sort_km') }}</option>
+                            <option value="avg_rating">{{ $t('routes.sort_rating') }}</option>
                         </select>
                         <button @click="toggleSortDir" class="bg-brand-surface border border-brand-dark px-3 rounded-lg text-white hover:border-brand-neon transition">
-                            {{ filters.sortDir === 'desc' ? '⬇ Desc' : '⬆ Asc' }}
+                            {{ filters.sortDir === 'desc' ? $t('common.desc') : $t('common.asc') }}
                         </button>
                     </div>
                 </div>
                 
                 <button @click="resetFilters" class="w-full text-xs text-gray-500 hover:text-white underline mt-2">
-                    Netejar tots els filtres
+                    {{ $t('routes.clear_all_filters') }}
                 </button>
             </div>
 
             <div v-if="filteredRoutes.length === 0" class="flex flex-col items-center justify-center py-12 text-center opacity-60 bg-brand-surface rounded-xl border border-brand-dark border-dashed">
-                <p class="text-gray-400 font-medium">No s'han trobat rutes amb aquests filtres.</p>
-                <button @click="resetFilters" class="text-brand-neon text-sm font-bold mt-2 hover:underline">Netejar Filtres</button>
+                <p class="text-gray-400 font-medium">{{ $t('routes.no_results') }}</p>
+                <button @click="resetFilters" class="text-brand-neon text-sm font-bold mt-2 hover:underline">{{ $t('routes.clear_filters') }}</button>
             </div>
 
             <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -118,7 +113,7 @@
                                 'bg-purple-500/80 text-white': ruta.difficulty === 'expert',
                                 'bg-gray-800 text-white border border-gray-600': ruta.difficulty === 'extreme'
                             }">
-                            {{ ruta.difficulty === 'easy' ? 'Fàcil' : (ruta.difficulty === 'medium' ? 'Mitjana' : (ruta.difficulty === 'hard' ? 'Difícil' : (ruta.difficulty === 'expert' ? 'Experta' : 'Extrema'))) }}
+                            {{ difficultyLabel(ruta.difficulty) }}
                         </div>
                     </div>
 
@@ -126,25 +121,23 @@
                         <div>
                             <h3 class="text-lg font-bold text-white mb-1 truncate">{{ ruta.title }}</h3>
                             <p class="text-[10px] text-brand-neon uppercase tracking-wider mb-2 font-bold">
-                                Per: {{ ruta.user ? ruta.user.name : 'Rider' }}
+                                {{ $t('routes.by_user') }} {{ ruta.user ? ruta.user.name : 'Rider' }}
                             </p>
-                            <p class="text-xs text-gray-500 line-clamp-2 mb-3">{{ ruta.description || 'Sense descripció' }}</p>
+                            <p class="text-xs text-gray-500 line-clamp-2 mb-3">{{ ruta.description || $t('routes.no_description') }}</p>
                             
                             <div class="flex items-center gap-4 text-xs text-gray-300 font-mono bg-brand-black/30 p-2 rounded-lg flex-wrap">
-                                <span class="flex items-center gap-1">
-                                    🏁 {{ ruta.planned_distance_km }} km
-                                </span>
+                                <span class="flex items-center gap-1">🏁 {{ ruta.planned_distance_km }} km</span>
                                 <span v-if="ruta.reviews && ruta.reviews.length" class="flex items-center gap-1 text-yellow-400 font-bold">
                                     ⭐ {{ (ruta.reviews.reduce((a, b) => a + b.rating, 0) / ruta.reviews.length).toFixed(1) }}
                                     <span class="text-gray-500 font-normal">({{ ruta.reviews.length }})</span>
                                 </span>
-                                <span v-else class="text-gray-600 text-[10px]">Sense valoracions</span>
+                                <span v-else class="text-gray-600 text-[10px]">{{ $t('routes.no_reviews') }}</span>
                             </div>
                         </div>
 
                         <div class="flex gap-2 mt-4 pt-4 border-t border-brand-dark/50">
                             <Link v-if="ruta && ruta.id" :href="route('routes.show', ruta.id)" class="flex-1 text-center bg-brand-dark hover:bg-white hover:text-black text-white text-xs font-bold uppercase py-2 rounded transition">
-                                Veure Detall
+                                {{ $t('routes.view_detail') }}
                             </Link>
                             
                             <Link 
@@ -153,7 +146,7 @@
                                 method="post" 
                                 as="button"
                                 class="px-3 flex items-center justify-center bg-brand-black border border-brand-neon/50 hover:bg-brand-neon hover:text-black text-brand-neon rounded transition" 
-                                title="Guardar i Editar"
+                                :title="$t('common.save')"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" /></svg>
                             </Link>
@@ -173,15 +166,15 @@
             <div @click="closeTokenModal" class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity"></div>
             <div class="relative bg-brand-surface border border-brand-neon rounded-2xl shadow-[0_0_30px_rgba(12,225,181,0.3)] w-full max-w-sm overflow-hidden transform transition-all scale-100">
                 <div class="bg-brand-black p-4 flex justify-between items-center border-b border-brand-dark">
-                    <h3 class="text-white font-bold text-lg">Tens un codi de ruta?</h3>
+                    <h3 class="text-white font-bold text-lg">{{ $t('routes.route_code') }}</h3>
                     <button @click="closeTokenModal" class="text-gray-400 hover:text-white">✕</button>
                 </div>
                 <div class="p-6">
                     <form @submit.prevent="submitSearchForm" class="flex flex-col gap-4">
-                        <input ref="tokenInputRef" v-model="searchForm.token" type="text" placeholder="Introdueix els 12 caràcters..." class="w-full bg-brand-black border border-brand-dark rounded-lg text-white font-mono uppercase focus:ring-brand-neon focus:border-brand-neon placeholder-gray-600 px-4 py-3 text-center tracking-widest">
+                        <input ref="tokenInputRef" v-model="searchForm.token" type="text" :placeholder="$t('routes.code_placeholder')" class="w-full bg-brand-black border border-brand-dark rounded-lg text-white font-mono uppercase focus:ring-brand-neon focus:border-brand-neon placeholder-gray-600 px-4 py-3 text-center tracking-widest">
                         <div v-if="searchForm.errors.token" class="text-red-500 text-sm font-bold text-center">{{ searchForm.errors.token }}</div>
                         <button type="submit" class="w-full bg-brand-neon text-brand-black font-black px-6 py-3 rounded-lg uppercase tracking-wider hover:bg-white transition whitespace-nowrap shadow-neon flex justify-center items-center gap-2" :disabled="searchForm.processing || !searchForm.token">
-                            {{ searchForm.processing ? 'Buscant...' : 'Obrir Ruta 🧭' }}
+                            {{ searchForm.processing ? $t('routes.searching') : $t('routes.open_route') }}
                         </button>
                     </form>
                 </div>
@@ -192,20 +185,19 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from 'vue';
+import { ref, computed } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Link, usePage, useForm } from '@inertiajs/vue3';
+import { Link, useForm } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import RouteMiniMap from '@/Components/RouteMiniMap.vue';
 
-const props = defineProps({
-    routes: Array
-});
+const { t } = useI18n();
+
+const props = defineProps({ routes: Array });
 
 const showFilters = ref(false);
-
 const showTokenModal = ref(false);
 const tokenInputRef = ref(null);
-
 const searchForm = useForm({ token: '' });
 
 const closeTokenModal = () => {
@@ -215,13 +207,8 @@ const closeTokenModal = () => {
 };
 
 const submitSearchForm = () => {
-    if(!searchForm.token) return;
-    searchForm.post(route('search.token'), {
-        preserveScroll: true,
-        onError: () => {
-             // Es queda obert mostrant l'error
-        }
-    });
+    if (!searchForm.token) return;
+    searchForm.post(route('search.token'), { preserveScroll: true });
 };
 
 const filters = ref({
@@ -243,69 +230,42 @@ const activeFiltersCount = computed(() => {
     return count;
 });
 
-const toggleSortDir = () => {
-    filters.value.sortDir = filters.value.sortDir === 'asc' ? 'desc' : 'asc';
-};
+const toggleSortDir = () => { filters.value.sortDir = filters.value.sortDir === 'asc' ? 'desc' : 'asc'; };
 
 const resetFilters = () => {
-    filters.value = {
-        search: '',
-        difficulty: 'all',
-        kmMin: '',
-        kmMax: '',
-        ratingMin: 0,
-        sortBy: 'created_at',
-        sortDir: 'desc'
-    };
+    filters.value = { search: '', difficulty: 'all', kmMin: '', kmMax: '', ratingMin: 0, sortBy: 'created_at', sortDir: 'desc' };
+};
+
+const difficultyLabel = (d) => {
+    const map = { easy: t('routes.diff_label_easy'), medium: t('routes.diff_label_medium'), hard: t('routes.diff_label_hard'), expert: t('routes.diff_label_expert'), extreme: t('routes.diff_label_extreme') };
+    return map[d] || d;
 };
 
 const filteredRoutes = computed(() => {
-    let result = [...props.routes]; // Creem còpia per no mutar la prop
-    
-    // 1. Filtre text
+    let result = [...props.routes];
     if (filters.value.search) {
         const q = filters.value.search.toLowerCase();
         result = result.filter(r => r.title.toLowerCase().includes(q) || (r.description && r.description.toLowerCase().includes(q)));
     }
-    
-    // 2. Filtre dificultat
-    if (filters.value.difficulty !== 'all') {
-        result = result.filter(r => r.difficulty === filters.value.difficulty);
-    }
-
-    // 3. Filtre KM
-    if (filters.value.kmMin !== '') {
-        result = result.filter(r => parseFloat(r.planned_distance_km || 0) >= filters.value.kmMin);
-    }
-    if (filters.value.kmMax !== '') {
-        result = result.filter(r => parseFloat(r.planned_distance_km || 0) <= filters.value.kmMax);
-    }
-
-    // 4. Filtre valoració mínima
+    if (filters.value.difficulty !== 'all') result = result.filter(r => r.difficulty === filters.value.difficulty);
+    if (filters.value.kmMin !== '') result = result.filter(r => parseFloat(r.planned_distance_km || 0) >= filters.value.kmMin);
+    if (filters.value.kmMax !== '') result = result.filter(r => parseFloat(r.planned_distance_km || 0) <= filters.value.kmMax);
     if (filters.value.ratingMin > 0) {
         result = result.filter(r => {
             if (!r.reviews || r.reviews.length === 0) return false;
-            const avg = r.reviews.reduce((a, b) => a + b.rating, 0) / r.reviews.length;
-            return avg >= filters.value.ratingMin;
+            return r.reviews.reduce((a, b) => a + b.rating, 0) / r.reviews.length >= filters.value.ratingMin;
         });
     }
-
-    // 5. Ordenació
     return result.sort((a, b) => {
         let fieldA, fieldB;
-
         if (filters.value.sortBy === 'avg_rating') {
             fieldA = a.reviews && a.reviews.length ? a.reviews.reduce((s, r) => s + r.rating, 0) / a.reviews.length : 0;
             fieldB = b.reviews && b.reviews.length ? b.reviews.reduce((s, r) => s + r.rating, 0) / b.reviews.length : 0;
         } else {
             fieldA = a[filters.value.sortBy];
             fieldB = b[filters.value.sortBy];
-            if (filters.value.sortBy === 'planned_distance_km') {
-                fieldA = parseFloat(fieldA || 0);
-                fieldB = parseFloat(fieldB || 0);
-            }
+            if (filters.value.sortBy === 'planned_distance_km') { fieldA = parseFloat(fieldA || 0); fieldB = parseFloat(fieldB || 0); }
         }
-
         if (fieldA < fieldB) return filters.value.sortDir === 'asc' ? -1 : 1;
         if (fieldA > fieldB) return filters.value.sortDir === 'asc' ? 1 : -1;
         return 0;
@@ -314,11 +274,6 @@ const filteredRoutes = computed(() => {
 </script>
 
 <style scoped>
-.animate-fade-in {
-    animation: fadeIn 0.3s ease-out forwards;
-}
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+.animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 </style>

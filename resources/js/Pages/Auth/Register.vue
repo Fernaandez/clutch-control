@@ -1,5 +1,5 @@
 <template>
-    <Head title="Registrar-se" />
+    <Head :title="$t('register.title')" />
 
     <div class="min-h-screen flex flex-col justify-center items-center bg-brand-black px-6 py-12">
         
@@ -21,12 +21,12 @@
             <form @submit.prevent="submit" class="space-y-5">
                 
                 <div>
-                    <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="name">Nom</label>
+                    <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="name">{{ $t('register.name') }}</label>
                     <input 
                         id="name" 
                         type="text" 
                         class="w-full rounded-xl bg-brand-surface border border-brand-dark text-white focus:border-brand-neon focus:ring-brand-neon transition py-3 px-4 placeholder-gray-600 shadow-none"
-                        placeholder="Com et dius?"
+                        :placeholder="$t('register.name_placeholder')"
                         v-model="form.name" 
                         required 
                         autofocus 
@@ -36,7 +36,7 @@
                 </div>
 
                 <div>
-                    <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="email">Correu Electrònic</label>
+                    <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="email">{{ $t('register.email') }}</label>
                     <input 
                         id="email" 
                         type="email" 
@@ -50,7 +50,7 @@
                 </div>
 
                 <div>
-                    <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="phone">Telèfon (Opcional)</label>
+                    <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="phone">{{ $t('register.phone') }}</label>
                     <input 
                         id="phone" 
                         type="tel" 
@@ -59,12 +59,12 @@
                         v-model="form.phone" 
                         autocomplete="tel" 
                     />
-                    <p class="text-[10px] text-gray-500 mt-1 ml-1">Només necessari si en un futur vols vendre motos.</p>
+                    <p class="text-[10px] text-gray-500 mt-1 ml-1">{{ $t('register.phone_hint') }}</p>
                     <div v-if="form.errors.phone" class="text-red-500 text-xs mt-1 ml-1">{{ form.errors.phone }}</div>
                 </div>
 
                 <div>
-                    <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="password">Contrasenya</label>
+                    <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="password">{{ $t('register.password') }}</label>
                     <input 
                         id="password" 
                         type="password" 
@@ -78,7 +78,7 @@
                 </div>
 
                 <div>
-                    <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="password_confirmation">Confirmar Contrasenya</label>
+                    <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="password_confirmation">{{ $t('register.confirm_password') }}</label>
                     <input 
                         id="password_confirmation" 
                         type="password" 
@@ -91,18 +91,31 @@
                     <div v-if="form.errors.password_confirmation" class="text-red-500 text-xs mt-1 ml-1">{{ form.errors.password_confirmation }}</div>
                 </div>
 
+                <div class="mt-4 pt-2">
+                    <p class="text-[11px] text-gray-500 text-center uppercase tracking-wide">
+                        {{ $t('legal.auth_accept') }} 
+                        <Link :href="route('terms.service')" target="_blank" class="text-brand-neon hover:text-white underline transition">
+                            {{ $t('legal.terms_title') }}
+                        </Link> 
+                        {{ $t('legal.and') }} 
+                        <Link :href="route('privacy.policy')" target="_blank" class="text-brand-neon hover:text-white underline transition">
+                            {{ $t('legal.privacy_title') }}
+                        </Link>.
+                    </p>
+                </div>
+
                 <button 
                     type="submit" 
                     :disabled="form.processing" 
                     class="w-full mt-8 bg-brand-neon text-brand-black px-6 py-4 rounded-xl font-black uppercase tracking-wider text-sm hover:bg-white hover:scale-[1.02] transition duration-300 shadow-[0_0_20px_rgba(12,225,181,0.4)]"
                 >
-                    Crear Compte
+                    {{ $t('register.submit') }}
                 </button>
 
                 <div class="pt-8 text-center">
-                    <span class="text-gray-500 text-sm">Ja tens compte?</span>
+                    <span class="text-gray-500 text-sm">{{ $t('register.already') }}</span>
                     <Link :href="route('login')" class="ml-2 text-white font-bold hover:text-brand-neon transition">
-                        Entrar
+                        {{ $t('register.login_here') }}
                     </Link>
                 </div>
             </form>
@@ -116,7 +129,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 const form = useForm({
     name: '',
     email: '',
-    phone: '', // Afegim el camp aquí
+    phone: '',
     password: '',
     password_confirmation: '',
 });
