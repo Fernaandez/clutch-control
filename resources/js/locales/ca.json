@@ -595,8 +595,10 @@
     "privacy_h2_1": "1. Recopilació d'Informació",
     "privacy_h2_2": "2. Ús de la Informació",
     "privacy_h2_3": "3. Protecció de Dades",
+    "privacy_h2_4": "4. Eliminació de Compte",
     "terms_h2_1": "1. Responsabilitat al Conduir",
     "terms_h2_2": "2. Creació de Rutes i Quedades",
-    "terms_h2_3": "3. Suspensions i Moderació"
+    "terms_h2_3": "3. Suspensions i Moderació",
+    "privacy_p5": "Pots sol·licitar l'eliminació del teu compte i de totes les dades associades en qualsevol moment. Tens dues opcions: 1) Des de l'aplicació, anant a Ajustos > El meu perfil > Esborrar compte. 2) Enviant un correu electrònic a clutchcontrolapp@gmail.com amb l'assumpte 'Sol·licitud d'eliminació de compte'. Un cop processada la sol·licitud, totes les teves dades personals, vehicles i historial seran eliminats permanentment dels nostres servidors en un termini màxim de 7 dies."
   }
 }
