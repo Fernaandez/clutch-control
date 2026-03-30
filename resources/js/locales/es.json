@@ -599,6 +599,7 @@
     "terms_h2_1": "1. Responsabilidad al Conducir",
     "terms_h2_2": "2. Creación de Rutas y Eventos",
     "terms_h2_3": "3. Suspensiones y Moderación",
-    "privacy_p5": "Puedes solicitar la eliminación de tu cuenta y de todos los datos asociados en cualquier momento. Tienes dos opciones: 1) Desde la aplicación, yendo a Ajustes > Mi perfil > Borrar cuenta. 2) Enviando un correo electrónico a clutchcontrolapp@gmail.com con el asunto 'Solicitud de eliminación de cuenta'. Una vez procesada la solicitud, todos tus datos personales, vehículos e historial serán eliminados permanentemente de nuestros servidores en un plazo máximo de 7 días."
+    "privacy_p5": "Puedes solicitar la eliminación de tu cuenta y de todos los datos asociados en cualquier momento. Tienes dos opciones: 1) Desde la aplicación, yendo a Ajustes > Mi perfil > Borrar cuenta. 2) Enviando un correo electrónico a clutchcontrolapp@gmail.com con el asunto 'Solicitud de eliminación de cuenta'.",
+    "privacy_delete_btn": "Ir a borrar mi cuenta"
   }
 }

@@ -599,6 +599,7 @@
     "terms_h2_1": "1. Responsabilitat al Conduir",
     "terms_h2_2": "2. Creació de Rutes i Quedades",
     "terms_h2_3": "3. Suspensions i Moderació",
-    "privacy_p5": "Pots sol·licitar l'eliminació del teu compte i de totes les dades associades en qualsevol moment. Tens dues opcions: 1) Des de l'aplicació, anant a Ajustos > El meu perfil > Esborrar compte. 2) Enviant un correu electrònic a clutchcontrolapp@gmail.com amb l'assumpte 'Sol·licitud d'eliminació de compte'. Un cop processada la sol·licitud, totes les teves dades personals, vehicles i historial seran eliminats permanentment dels nostres servidors en un termini màxim de 7 dies."
+    "privacy_p5": "Pots sol·licitar l'eliminació del teu compte i de totes les dades associades en qualsevol moment. Tens dues opcions: 1) Des de l'aplicació, anant a Ajustos > El meu perfil > Esborrar compte. 2) Enviant un correu electrònic a clutchcontrolapp@gmail.com amb l'assumpte 'Sol·licitud d'eliminació de compte'.",
+    "privacy_delete_btn": "Anar a esborrar el meu compte"
   }
 }

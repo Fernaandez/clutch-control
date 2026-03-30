@@ -599,6 +599,7 @@
     "terms_h2_1": "1. Liability & Driving",
     "terms_h2_2": "2. Generating Routes & Events",
     "terms_h2_3": "3. Suspensions & Moderation",
-    "privacy_p5": "You can request the deletion of your account and all associated data at any time. You have two options: 1) From the application, by going to Settings > My profile > Delete account. 2) By sending an email to clutchcontrolapp@gmail.com with the subject 'Account deletion request'. Once the request is processed, all your personal data, vehicles, and history will be permanently deleted from our servers within a maximum of 7 days."
+    "privacy_p5": "You can request the deletion of your account and all associated data at any time. You have two options: 1) From the application, by going to Settings > My profile > Delete account. 2) By sending an email to clutchcontrolapp@gmail.com with the subject 'Account deletion request'.",
+    "privacy_delete_btn": "Go to delete my account"
   }
 }
