@@ -99,7 +99,7 @@ class DemoDataSeeder extends Seeder
                 'description' => 'Ruta espectacular per les carreteres pirinenques. Corbes interminables amb vistes increïbles al Parc Nacional d\'Aigüestortes.',
                 'distance_km' => 187,
                 'difficulty' => 'medium',
-                'duration_min' => 210,
+                'duration_seconds' => 12600,
                 'is_public' => true,
             ],
             [
@@ -108,7 +108,7 @@ class DemoDataSeeder extends Seeder
                 'description' => 'Sortida des de Barcelona, baixant per la C-32 fins a Sitges i tornant per la carretera de la costa.',
                 'distance_km' => 92,
                 'difficulty' => 'easy',
-                'duration_min' => 110,
+                'duration_seconds' => 6600,
                 'is_public' => true,
             ],
             [
@@ -117,7 +117,7 @@ class DemoDataSeeder extends Seeder
                 'description' => 'Ruta pel litoral gironí. Des de Blanes fins a Portbou seguint la GI-682 amb els miradors costaners.',
                 'distance_km' => 145,
                 'difficulty' => 'easy',
-                'duration_min' => 165,
+                'duration_seconds' => 9900,
                 'is_public' => true,
             ],
             [
@@ -126,7 +126,7 @@ class DemoDataSeeder extends Seeder
                 'description' => 'Pujada al cim del Montseny per la cara nord. Camins de terra i asfalt, perfecte per trail.',
                 'distance_km' => 78,
                 'difficulty' => 'hard',
-                'duration_min' => 130,
+                'duration_seconds' => 7800,
                 'is_public' => true,
             ],
             [
@@ -135,7 +135,7 @@ class DemoDataSeeder extends Seeder
                 'description' => 'Volta a la icònica muntanya del Pedraforca. Baixades tècniques i vistes de 360 graus.',
                 'distance_km' => 213,
                 'difficulty' => 'hard',
-                'duration_min' => 270,
+                'duration_seconds' => 16200,
                 'is_public' => true,
             ],
             [
@@ -144,7 +144,7 @@ class DemoDataSeeder extends Seeder
                 'description' => 'Baixant pel Delta de l\'Ebre fins a Amposta. Carreteres amples i fresques amb paisatge únic.',
                 'distance_km' => 310,
                 'difficulty' => 'easy',
-                'duration_min' => 330,
+                'duration_seconds' => 19800,
                 'is_public' => true,
             ],
         ];
