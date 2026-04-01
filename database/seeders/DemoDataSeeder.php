@@ -54,13 +54,13 @@ class DemoDataSeeder extends Seeder
         // 2. MOTOS
         // ═══════════════════════════════════════════════
         $motos = [
-            ['user_id' => $admin->id,    'brand' => 'Yamaha',   'model' => 'MT-09',         'year' => 2022, 'km' => 18340, 'color' => 'Cyan Storm',    'plate' => 'AB1234CD'],
-            ['user_id' => $admin->id,    'brand' => 'Honda',    'model' => 'Africa Twin',   'year' => 2021, 'km' => 32100, 'color' => 'Gris Fosco',    'plate' => 'XY9876ZW'],
-            ['user_id' => $users[0]->id, 'brand' => 'Kawasaki', 'model' => 'Z900',          'year' => 2023, 'km' => 5200,  'color' => 'Verde Lluís',    'plate' => 'CD5678EF'],
-            ['user_id' => $users[1]->id, 'brand' => 'Ducati',   'model' => 'Monster 821',   'year' => 2020, 'km' => 22000, 'color' => 'Roig Ducati',   'plate' => 'EF2345GH'],
-            ['user_id' => $users[2]->id, 'brand' => 'BMW',      'model' => 'GS 1250',       'year' => 2022, 'km' => 41000, 'color' => 'Blanc Alp',     'plate' => 'GH6789IJ'],
-            ['user_id' => $users[3]->id, 'brand' => 'KTM',      'model' => '890 Duke R',    'year' => 2023, 'km' => 8700,  'color' => 'Taronja KTM',   'plate' => 'IJ3456KL'],
-            ['user_id' => $users[4]->id, 'brand' => 'Triumph',  'model' => 'Speed Triple',  'year' => 2021, 'km' => 15600, 'color' => 'Negre Mat',     'plate' => 'KL7890MN'],
+            ['user_id' => $admin->id,    'brand' => 'Yamaha',   'model' => 'MT-09',         'year' => 2022, 'current_km' => 18340, 'plate' => 'AB1234CD'],
+            ['user_id' => $admin->id,    'brand' => 'Honda',    'model' => 'Africa Twin',   'year' => 2021, 'current_km' => 32100, 'plate' => 'XY9876ZW'],
+            ['user_id' => $users[0]->id, 'brand' => 'Kawasaki', 'model' => 'Z900',          'year' => 2023, 'current_km' => 5200,  'plate' => 'CD5678EF'],
+            ['user_id' => $users[1]->id, 'brand' => 'Ducati',   'model' => 'Monster 821',   'year' => 2020, 'current_km' => 22000, 'plate' => 'EF2345GH'],
+            ['user_id' => $users[2]->id, 'brand' => 'BMW',      'model' => 'GS 1250',       'year' => 2022, 'current_km' => 41000, 'plate' => 'GH6789IJ'],
+            ['user_id' => $users[3]->id, 'brand' => 'KTM',      'model' => '890 Duke R',    'year' => 2023, 'current_km' => 8700,  'plate' => 'IJ3456KL'],
+            ['user_id' => $users[4]->id, 'brand' => 'Triumph',  'model' => 'Speed Triple',  'year' => 2021, 'current_km' => 15600, 'plate' => 'KL7890MN'],
         ];
 
         $motorcycles = [];
@@ -76,15 +76,15 @@ class DemoDataSeeder extends Seeder
         // ═══════════════════════════════════════════════
         $moto1 = $motorcycles[0]; // Yamaha MT-09 de l'admin
         $maintenanceTasks = [
-            ['motorcycle_id' => $moto1->id, 'task_name' => 'Canvi d\'oli', 'interval_km' => 6000, 'last_done_km' => 14000, 'notes' => 'Oli 10W-40 semisintètic'],
-            ['motorcycle_id' => $moto1->id, 'task_name' => 'Pneumàtics', 'interval_km' => 15000, 'last_done_km' => 8000, 'notes' => 'Michelin Road 5'],
-            ['motorcycle_id' => $moto1->id, 'task_name' => 'Cadena i pinyons', 'interval_km' => 10000, 'last_done_km' => 12000, 'notes' => 'Greixar cada 500km'],
-            ['motorcycle_id' => $moto1->id, 'task_name' => 'Pastilles de fre', 'interval_km' => 20000, 'last_done_km' => 5000, 'notes' => 'EBC HH'],
-            ['motorcycle_id' => $moto1->id, 'task_name' => 'Revisió ITV', 'interval_km' => 12000, 'last_done_km' => 16000, 'notes' => 'Cada 2 anys'],
+            ['motorcycle_id' => $moto1->id, 'title' => 'Canvi d\'oli', 'type' => 'oil', 'frequency_km' => 6000, 'last_km_done' => 14000],
+            ['motorcycle_id' => $moto1->id, 'title' => 'Pneumàtics', 'type' => 'tires', 'frequency_km' => 15000, 'last_km_done' => 8000],
+            ['motorcycle_id' => $moto1->id, 'title' => 'Cadena i pinyons', 'type' => 'chain', 'frequency_km' => 10000, 'last_km_done' => 12000],
+            ['motorcycle_id' => $moto1->id, 'title' => 'Pastilles de fre', 'type' => 'brakes', 'frequency_km' => 20000, 'last_km_done' => 5000],
+            ['motorcycle_id' => $moto1->id, 'title' => 'Revisió ITV', 'type' => 'inspection', 'frequency_km' => 12000, 'last_km_done' => 16000],
         ];
         foreach ($maintenanceTasks as $task) {
             MaintenanceTask::firstOrCreate(
-                ['motorcycle_id' => $task['motorcycle_id'], 'task_name' => $task['task_name']],
+                ['motorcycle_id' => $task['motorcycle_id'], 'title' => $task['title']],
                 $task
             );
         }
