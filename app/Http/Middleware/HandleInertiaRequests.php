@@ -29,15 +29,22 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
             ],
             'storageUrl' => asset('storage'),
-            'has_pending_maintenance' => $request->user() 
-                ? $request->user()->motorcycles()->with('maintenanceTasks')->get()->contains('has_pending_maintenance', true) 
+            'has_pending_maintenance' => $user 
+                ? $user->motorcycles()->with('maintenanceTasks')->get()->contains('has_pending_maintenance', true) 
                 : false,
+            'unread_chats_count' => $user
+                ? \App\Models\Message::whereIn('conversation_id', 
+                    \App\Models\Conversation::whereHas('participants', fn($q) => $q->where('user_id', $user->id))->pluck('id')
+                  )->where('sender_id', '!=', $user->id)->whereNull('read_at')->count()
+                : 0,
         ];
     }
 }

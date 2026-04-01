@@ -25,7 +25,8 @@
     "forgot": "Forgot your password?",
     "submit": "Sign In",
     "no_account": "Don't have an account?",
-    "register_here": "Sign up here"
+    "register_here": "Sign up here",
+    "continue_with_google": "Continue with Google"
   },
   "register": {
     "title": "Sign Up",
@@ -38,7 +39,8 @@
     "confirm_password": "Confirm Password",
     "submit": "Create Account",
     "already": "Already have an account?",
-    "login_here": "Sign in"
+    "login_here": "Sign in",
+    "continue_with_google": "Sign up with Google"
   },
   "forgot_password": {
     "title": "Recover Access",
@@ -149,7 +151,7 @@
     "history": "History",
     "new_task": "+ Task",
     "back_to_tasks": "← Back to Tasks",
-    "back": "← Back",
+    "back": "Back",
     "no_tasks": "You have no scheduled tasks.",
     "no_tasks_hint": "Add \"Oil Change\" or \"Tires\" to get started!",
     "done_at": "Done at:",
@@ -211,7 +213,7 @@
     "title": "Repairs",
     "history_link": "History",
     "new_repair": "+ Breakdown",
-    "back": "← Back",
+    "back": "Back",
     "no_repairs": "No pending repairs.",
     "no_repairs_hint": "The bike is perfect! 👌",
     "fixed": "Fixed ✅",
@@ -233,7 +235,7 @@
     "title": "Upgrades & Mods 🚀",
     "history_link": "History",
     "new_upgrade": "+ Upgrade",
-    "back": "← Back",
+    "back": "Back",
     "no_upgrades": "No planned upgrades.",
     "no_upgrades_hint": "Want to add a new exhaust? Some grips? 😉",
     "installed": "Installed ✅",
@@ -280,7 +282,7 @@
     "code_placeholder": "Enter the 12 characters...",
     "join_event": "Join the Meetup ✅",
     "searching": "Searching...",
-    "back": "← Back",
+    "back": "Back",
     "back_to_public": "← Back to Public",
     "my_agenda_title": "My Agenda",
     "my_agenda_subtitle": "Events you organize or attend.",
@@ -395,7 +397,7 @@
     "sort_date": "Date",
     "sort_year": "Year",
     "sort_km": "Kilometers",
-    "back": "← Back",
+    "back": "Back",
     "no_phone": "The seller has not provided a phone number.",
     "sold_out": "SOLD",
     "available": "Available",
@@ -482,7 +484,7 @@
     "searching": "Searching...",
     "distance": "Distance",
     "duration": "Duration",
-    "back": "← Back",
+    "back": "Back",
     "my_routes_title": "My Routes",
     "my_routes_subtitle": "Routes you have created or saved.",
     "delete_confirm": "Are you sure you want to delete this route?",
@@ -540,20 +542,20 @@
   },
   "repairs_history": {
     "title": "Breakdown History",
-    "back": "← Back",
+    "back": "Back",
     "no_history": "No records in history.",
     "no_history_hint": "Nothing's broken yet! 🎉",
     "at_km": "at {n} km"
   },
   "upgrades_history": {
     "title": "Upgrades History",
-    "back": "← Back",
+    "back": "Back",
     "no_history": "No upgrades recorded.",
     "no_history_hint": "The bike is stock.",
     "at_km": "at {n} km"
   },
   "common": {
-    "back": "← Back",
+    "back": "Back",
     "save": "Save",
     "saving": "Saving...",
     "cancel": "Cancel",
@@ -595,11 +597,11 @@
     "privacy_h2_1": "1. Information Collection",
     "privacy_h2_2": "2. Information Usage",
     "privacy_h2_3": "3. Information Protection",
-    "privacy_h2_4": "4. Account Deletion",
+    "privacy_h2_4": "4. Data and Account Deletion",
     "terms_h2_1": "1. Liability & Driving",
     "terms_h2_2": "2. Generating Routes & Events",
     "terms_h2_3": "3. Suspensions & Moderation",
-    "privacy_p5": "You can request the deletion of your account and all associated data at any time. You have two options: 1) From the application, by going to Settings > My profile > Delete account. 2) By sending an email to clutchcontrolapp@gmail.com with the subject 'Account deletion request'.",
+    "privacy_p5": "You can request the deletion of your account and all associated data at any time. You have two options: 1) From the application, by going to Settings > My profile > Delete account. 2) By sending an email to clutchcontrolapp{'@'}gmail.com with the subject 'Account deletion request'.",
     "privacy_delete_btn": "Go to delete my account"
   }
 }

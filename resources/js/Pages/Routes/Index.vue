@@ -185,15 +185,24 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Link, useForm } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import RouteMiniMap from '@/Components/RouteMiniMap.vue';
+import { useRoutesStore } from '@/Stores/useRoutesStore';
 
 const { t } = useI18n();
 
 const props = defineProps({ routes: Array });
+
+const routesStore = useRoutesStore();
+
+onMounted(() => {
+    if (props.routes && props.routes.length > 0) {
+        routesStore.setRoutes(props.routes);
+    }
+});
 
 const showFilters = ref(false);
 const showTokenModal = ref(false);
@@ -242,7 +251,10 @@ const difficultyLabel = (d) => {
 };
 
 const filteredRoutes = computed(() => {
-    let result = [...props.routes];
+    // FASE 3: Fallback Offline amb Pinia
+    let sourceRoutes = props.routes?.length ? props.routes : routesStore.routes;
+    let result = [...sourceRoutes];
+    
     if (filters.value.search) {
         const q = filters.value.search.toLowerCase();
         result = result.filter(r => r.title.toLowerCase().includes(q) || (r.description && r.description.toLowerCase().includes(q)));

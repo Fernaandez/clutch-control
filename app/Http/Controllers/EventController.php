@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\Route;
+use App\Models\Conversation;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
@@ -141,6 +142,14 @@ class EventController extends Controller
         // 3. ESTAT: CONFIRMED (Arreglem també el 'going' aquí)
         $event->participants()->attach(Auth::id(), ['status' => 'confirmed']);
 
+        // 3b. CREAR GRUP DE XAT PER A LA QUEDADA
+        $groupChat = Conversation::create([
+            'type' => 'group',
+            'name' => '📅 ' . $event->title,
+            'event_id' => $event->id,
+        ]);
+        $groupChat->participants()->attach(Auth::id());
+
         // 4. GUARDEM RUTES
         if ($request->stages) {
             foreach ($request->stages as $index => $stage) {
@@ -161,8 +170,12 @@ class EventController extends Controller
             
             if (Auth::check()) {
                 $event->is_attending = $event->participants->contains(Auth::id());
+                // Find group chat id
+                $groupChat = \App\Models\Conversation::where('type', 'group')->where('event_id', $event->id)->first();
+                $event->group_chat_id = $groupChat ? $groupChat->id : null;
             } else {
                 $event->is_attending = false;
+                $event->group_chat_id = null;
             }
             $event->participants_count = $event->participants->count();
             
@@ -176,6 +189,12 @@ class EventController extends Controller
         {
             if (!$event->participants->contains(Auth::id())) {
                 $event->participants()->attach(Auth::id(), ['status' => 'confirmed']);
+
+                // Afegir al grup de xat de la quedada
+                $groupChat = Conversation::where('type', 'group')->where('event_id', $event->id)->first();
+                if ($groupChat && !$groupChat->participants()->where('user_id', Auth::id())->exists()) {
+                    $groupChat->participants()->attach(Auth::id());
+                }
             }
             return back();
         }
@@ -184,6 +203,12 @@ class EventController extends Controller
     public function leave(Event $event)
         {
             $event->participants()->detach(Auth::id());
+
+            // Treure del grup de xat de la quedada
+            $groupChat = Conversation::where('type', 'group')->where('event_id', $event->id)->first();
+            if ($groupChat) {
+                $groupChat->participants()->detach(Auth::id());
+            }
             return back();
         }
 

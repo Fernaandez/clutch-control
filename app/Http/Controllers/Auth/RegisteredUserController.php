@@ -25,18 +25,12 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            // AFEGIM UNIQUE AQUÍ. Buscarà a la taula 'users' la columna 'phone_number'
-            'phone' => 'nullable|string|max:20|unique:users,phone_number', 
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ], [
-            // Personalitzem l'error perquè s'entengui bé
-            'phone.unique' => 'Aquest número de telèfon ja està registrat a una altra compte.'
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'phone_number' => $request->phone,
             'password' => Hash::make($request->password),
         ]);
 

@@ -28,9 +28,14 @@
                     <p class="text-gray-400 text-xs uppercase tracking-widest mb-1">{{ $t('dashboard.current_km') }}</p>
                     <p class="text-4xl font-mono font-bold text-white">{{ moto.current_km }} <span class="text-lg text-brand-neon">km</span></p>
                 </div>
-                <button @click="openKmModal" class="z-10 bg-brand-dark hover:bg-brand-neon hover:text-brand-black text-brand-neon p-3 rounded-full transition border border-brand-neon/30 shadow-[0_0_15px_rgba(12,225,181,0.3)]">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                </button>
+                <div class="z-10 flex gap-2">
+                    <Link :href="route('routes.free-ride', moto.id)" class="bg-brand-dark hover:bg-brand-neon hover:text-brand-black text-brand-neon p-3 rounded-full transition border border-brand-neon/30 shadow-[0_0_15px_rgba(12,225,181,0.3)]">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                    </Link>
+                    <button @click="openKmModal" class="bg-brand-dark hover:bg-brand-neon hover:text-brand-black text-brand-neon p-3 rounded-full transition border border-brand-neon/30 shadow-[0_0_15px_rgba(12,225,181,0.3)]">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                    </button>
+                </div>
                 <div class="absolute right-0 top-0 w-32 h-32 bg-brand-neon blur-[60px] opacity-10 rounded-full pointer-events-none"></div>
             </div>
 

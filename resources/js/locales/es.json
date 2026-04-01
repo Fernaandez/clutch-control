@@ -25,7 +25,8 @@
     "forgot": "¿Olvidaste la contraseña?",
     "submit": "Iniciar Sesión",
     "no_account": "¿No tienes cuenta?",
-    "register_here": "Regístrate aquí"
+    "register_here": "Regístrate aquí",
+    "continue_with_google": "Continuar con Google"
   },
   "register": {
     "title": "Registrarse",
@@ -38,7 +39,8 @@
     "confirm_password": "Confirmar Contraseña",
     "submit": "Crear Cuenta",
     "already": "¿Ya tienes cuenta?",
-    "login_here": "Entrar"
+    "login_here": "Entrar",
+    "continue_with_google": "Registrarse con Google"
   },
   "forgot_password": {
     "title": "Recuperar Acceso",
@@ -149,7 +151,7 @@
     "history": "Historial",
     "new_task": "+ Tarea",
     "back_to_tasks": "← Volver a Tareas",
-    "back": "← Volver",
+    "back": "Volver",
     "no_tasks": "No tienes tareas programadas.",
     "no_tasks_hint": "¡Añade \"Cambio de Aceite\" o \"Ruedas\" para empezar!",
     "done_at": "Hecho a los:",
@@ -211,7 +213,7 @@
     "title": "Reparaciones",
     "history_link": "Historial",
     "new_repair": "+ Avería",
-    "back": "← Volver",
+    "back": "Volver",
     "no_repairs": "No tienes reparaciones pendientes.",
     "no_repairs_hint": "¡La moto está perfecta! 👌",
     "fixed": "Arreglado ✅",
@@ -233,7 +235,7 @@
     "title": "Mejoras y Mods 🚀",
     "history_link": "Historial",
     "new_upgrade": "+ Upgrade",
-    "back": "← Volver",
+    "back": "Volver",
     "no_upgrades": "No tienes mejoras planeadas.",
     "no_upgrades_hint": "¿Quieres poner un escape nuevo? ¿Unos puños? 😉",
     "installed": "Instalado ✅",
@@ -280,7 +282,7 @@
     "code_placeholder": "Introduce los 12 caracteres...",
     "join_event": "Unirme a la Quedada ✅",
     "searching": "Buscando...",
-    "back": "← Volver",
+    "back": "Volver",
     "back_to_public": "← Volver a Públicas",
     "my_agenda_title": "Mi Agenda",
     "my_agenda_subtitle": "Eventos que organizas o en los que participas.",
@@ -395,7 +397,7 @@
     "sort_date": "Fecha",
     "sort_year": "Año",
     "sort_km": "Kilómetros",
-    "back": "← Volver",
+    "back": "Volver",
     "no_phone": "El vendedor no ha proporcionado teléfono.",
     "sold_out": "VENDIDO",
     "available": "Disponible",
@@ -482,7 +484,7 @@
     "searching": "Buscando...",
     "distance": "Distancia",
     "duration": "Duración",
-    "back": "← Volver",
+    "back": "Volver",
     "my_routes_title": "Mis Rutas",
     "my_routes_subtitle": "Rutas que has creado o guardado.",
     "delete_confirm": "¿Seguro que quieres borrar esta ruta?",
@@ -540,20 +542,20 @@
   },
   "repairs_history": {
     "title": "Historial Averías",
-    "back": "← Volver",
+    "back": "Volver",
     "no_history": "No hay registros en el historial.",
     "no_history_hint": "¡Aún no se ha roto nada! 🎉",
     "at_km": "a los {n} km"
   },
   "upgrades_history": {
     "title": "Historial Mejoras",
-    "back": "← Volver",
+    "back": "Volver",
     "no_history": "No hay mejoras registradas.",
     "no_history_hint": "La moto está de serie.",
     "at_km": "a los {n} km"
   },
   "common": {
-    "back": "← Volver",
+    "back": "Volver",
     "save": "Guardar",
     "saving": "Guardando...",
     "cancel": "Cancelar",
@@ -595,11 +597,11 @@
     "privacy_h2_1": "1. Recopilación de Información",
     "privacy_h2_2": "2. Uso de la Información",
     "privacy_h2_3": "3. Protección de Datos",
-    "privacy_h2_4": "4. Eliminación de Cuenta",
+    "privacy_h2_4": "4. Eliminación de Datos y Cuenta",
     "terms_h2_1": "1. Responsabilidad al Conducir",
     "terms_h2_2": "2. Creación de Rutas y Eventos",
     "terms_h2_3": "3. Suspensiones y Moderación",
-    "privacy_p5": "Puedes solicitar la eliminación de tu cuenta y de todos los datos asociados en cualquier momento. Tienes dos opciones: 1) Desde la aplicación, yendo a Ajustes > Mi perfil > Borrar cuenta. 2) Enviando un correo electrónico a clutchcontrolapp@gmail.com con el asunto 'Solicitud de eliminación de cuenta'.",
+    "privacy_p5": "Puedes solicitar la eliminación de tu cuenta y de todos los datos asociados en cualquier momento. Tienes dos opciones: 1) Desde la aplicación, yendo a Ajustes > Mi perfil > Borrar cuenta. 2) Enviando un correo electrónico a clutchcontrolapp{'@'}gmail.com con el asunto 'Solicitud de eliminación de cuenta'.",
     "privacy_delete_btn": "Ir a borrar mi cuenta"
   }
 }

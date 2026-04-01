@@ -38,7 +38,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
+    Route::post('/profile/device-token', [ProfileController::class, 'updateDeviceToken'])->name('profile.device-token');
 });
+
+// Ruta pública d'eliminació de compte
+Route::post('/public-account-deletion', [ProfileController::class, 'publicDestroy'])->name('profile.public_destroy');
 
 require __DIR__.'/auth.php';
 
@@ -75,6 +80,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/routes', [RouteController::class, 'index'])->name('routes.index');
     Route::get('/my-routes', [RouteController::class, 'MyRoutes'])->name('routes.MyRoutes'); 
     Route::get('/routes/pending', [RouteController::class, 'pending'])->name('routes.pending');
+    Route::get('/motorcycles/{motorcycle}/free-ride', [RouteController::class, 'freeRide'])->name('routes.free-ride');
     Route::post('/routes/sync-offline', [RouteController::class, 'syncOffline'])->name('routes.sync-offline');
     Route::get('/routes/create', [RouteController::class, 'create'])->name('routes.create');
     Route::post('/routes', [RouteController::class, 'store'])->name('routes.store');
@@ -110,6 +116,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/sales/{sale}', [\App\Http\Controllers\SaleController::class, 'destroy'])->name('sales.destroy');
     Route::patch('/sales/{sale}/mark-sold', [\App\Http\Controllers\SaleController::class, 'markSold'])->name('sales.mark-sold');
     Route::delete('/sales/{sale}/images/{image}', [\App\Http\Controllers\SaleController::class, 'destroyImage'])->name('sales.images.destroy');
+
+    // --- XAT (WALLAPOP) ---
+    Route::get('/chats', [\App\Http\Controllers\ConversationController::class, 'index'])->name('chats.index');
+    Route::post('/chats/start', [\App\Http\Controllers\ConversationController::class, 'start'])->name('chats.start');
+    Route::get('/chats/{conversation}', [\App\Http\Controllers\ConversationController::class, 'show'])->name('chats.show');
+    Route::post('/chats/{conversation}/message', [\App\Http\Controllers\ConversationController::class, 'sendMessage'])->name('chats.message');
 
 });
 

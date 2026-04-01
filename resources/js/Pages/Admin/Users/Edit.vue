@@ -23,12 +23,7 @@
                     <input id="email" v-model="form.email" type="email" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
                     <p v-if="form.errors.email" class="mt-2 text-sm text-red-600">{{ form.errors.email }}</p>
                 </div>
-                
-                <div>
-                    <label for="phone_number" class="block text-sm font-medium text-gray-700">Phone Number</label>
-                    <input id="phone_number" v-model="form.phone_number" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                    <p v-if="form.errors.phone_number" class="mt-2 text-sm text-red-600">{{ form.errors.phone_number }}</p>
-                </div>
+
 
                 <div>
                     <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
@@ -64,7 +59,6 @@ const props = defineProps({
 const form = useForm({
     name: props.user.name,
     email: props.user.email,
-    phone_number: props.user.phone_number || '',
     role: props.user.role,
 });
 

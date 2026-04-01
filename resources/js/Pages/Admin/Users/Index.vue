@@ -20,12 +20,7 @@
                             placeholder="Search by email..." 
                             class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                         >
-                        <input 
-                            v-model="filters.search_phone" 
-                            type="text" 
-                            placeholder="Search by phone..." 
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        >
+
                         <select 
                             v-model="filters.role" 
                             class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -58,9 +53,7 @@
                             <th scope="col" class="px-6 py-3 cursor-pointer hover:bg-gray-100 select-none" @click="sortBy('email')">
                                 Email <span v-if="filters.sort_field === 'email'">{{ filters.sort_dir === 'asc' ? '↑' : '↓' }}</span>
                             </th>
-                            <th scope="col" class="px-6 py-3 cursor-pointer hover:bg-gray-100 select-none" @click="sortBy('phone_number')">
-                                Phone <span v-if="filters.sort_field === 'phone_number'">{{ filters.sort_dir === 'asc' ? '↑' : '↓' }}</span>
-                            </th>
+
                             <th scope="col" class="px-6 py-3 cursor-pointer hover:bg-gray-100 select-none" @click="sortBy('role')">
                                 Role <span v-if="filters.sort_field === 'role'">{{ filters.sort_dir === 'asc' ? '↑' : '↓' }}</span>
                             </th>
@@ -72,7 +65,7 @@
                             <td class="px-6 py-4">{{ user.id }}</td>
                             <td class="px-6 py-4 font-medium text-gray-900">{{ user.name }}</td>
                             <td class="px-6 py-4">{{ user.email }}</td>
-                            <td class="px-6 py-4">{{ user.phone_number || '-' }}</td>
+
                             <td class="px-6 py-4">
                                 <span :class="{'bg-purple-100 text-purple-800': user.role === 'admin', 'bg-gray-100 text-gray-800': user.role !== 'admin'}" class="px-2 py-1 rounded text-xs font-semibold uppercase tracking-wider">
                                     {{ user.role }}
@@ -84,7 +77,7 @@
                             </td>
                         </tr>
                         <tr v-if="users.data.length === 0">
-                            <td colspan="6" class="px-6 py-8 text-center text-gray-500">No users found.</td>
+                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">No users found.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -117,7 +110,7 @@ const props = defineProps({
 const filters = ref({
     search_name: props.filters?.search_name || '',
     search_email: props.filters?.search_email || '',
-    search_phone: props.filters?.search_phone || '',
+
     role: props.filters?.role || 'all',
     sort_field: props.filters?.sort_field || 'id',
     sort_dir: props.filters?.sort_dir || 'desc',

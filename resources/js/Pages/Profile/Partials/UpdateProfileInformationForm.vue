@@ -60,25 +60,6 @@
                 </div>
             </div>
 
-            <div>
-                <label class="block font-bold text-xs uppercase text-gray-400 mb-1 ml-1" for="phone_number">
-                    {{ $t('profile.phone') }} <span class="text-gray-600 font-normal">{{ $t('profile.phone_optional') }}</span>
-                </label>
-                <input 
-                    id="phone_number" 
-                    type="tel" 
-                    placeholder="Ex: 612 345 678"
-                    :class="form.errors.phone_number ? 'w-full rounded-lg bg-brand-black border-red-500 ring-1 ring-red-500 text-white focus:border-red-400 focus:ring-0 transition' : 'w-full rounded-lg bg-brand-black border-brand-dark text-white focus:border-brand-neon focus:ring-0 transition'"
-                    v-model="form.phone_number" 
-                    autocomplete="tel" 
-                    maxlength="20"
-                />
-                <p class="text-[10px] text-gray-500 mt-1 ml-1">
-                    Format: <span class="text-brand-neon font-mono">612 345 678</span> o <span class="text-brand-neon font-mono">+34 612 345 678</span> — {{ $t('profile.phone_hint') }}
-                </p>
-                <div v-if="form.errors.phone_number" class="text-red-400 text-xs mt-1 ml-1">⚠ {{ form.errors.phone_number }}</div>
-            </div>
-
             <div class="flex items-center gap-4 pt-4 border-t border-brand-dark">
                 <button 
                     :disabled="form.processing" 
@@ -118,6 +99,5 @@ const user = usePage().props.auth.user;
 const form = useForm({
     name: user.name,
     email: user.email,
-    phone_number: user.phone_number || '',
 });
 </script>

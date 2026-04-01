@@ -61,6 +61,7 @@ class RouteController extends Controller
             'waypoints' => 'required|array',
             'created_at' => 'required|date',
             'original_route_id' => 'nullable|exists:routes,id',
+            'motorcycle_id' => 'nullable|exists:motorcycles,id',
         ]);
 
         // Crear la ruta a base de dades
@@ -77,6 +78,7 @@ class RouteController extends Controller
             'starting_lat' => $validated['waypoints'][0]['lat'] ?? null,
             'starting_lng' => $validated['waypoints'][0]['lng'] ?? null,
             'geo_json' => json_encode(['type' => 'FeatureCollection', 'features' => []]), // Placeholder
+            'motorcycle_id' => $validated['motorcycle_id'] ?? null,
         ]);
 
         // Guardar tots els waypoints del GPS
@@ -89,6 +91,16 @@ class RouteController extends Controller
             ]);
         }
 
+        // Sumar KM a la moto
+        if (!empty($validated['motorcycle_id']) && !empty($validated['distance_km'])) {
+            $moto = \App\Models\Motorcycle::find($validated['motorcycle_id']);
+            if ($moto) {
+                // S'assegura que siguin números, parseFloat si cal (però el validat és numeric)
+                $moto->current_km += $validated['distance_km'];
+                $moto->save();
+            }
+        }
+
         return response()->json(['success' => true, 'route_id' => $route->id]);
     }
 
@@ -98,6 +110,16 @@ class RouteController extends Controller
         return Inertia::render('Routes/Create', [
             'motorcycles' => Auth::user()->motorcycles,
             'categories' => \App\Models\RouteCategory::all()
+        ]);
+    }
+
+    // NOVA FUNCIÓ: RUTA LLIURE
+    public function freeRide(Motorcycle $motorcycle)
+    {
+        if ($motorcycle->user_id !== Auth::id()) { abort(403); }
+        
+        return Inertia::render('Routes/FreeRide', [
+            'motorcycle' => $motorcycle
         ]);
     }
 

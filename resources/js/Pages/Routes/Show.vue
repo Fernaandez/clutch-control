@@ -459,6 +459,7 @@ const stopRecording = () => {
                 id: 'offline_' + Date.now(),
                 created_at: new Date().toISOString(),
                 original_route_id: props.mapRoute?.id || null, // If tracking a specific route
+                motorcycle_id: props.motorcycle?.id || null,
                 distance_km: parseFloat(distanceKm),
                 duration_seconds: recordingTime.value,
                 waypoints: recordedWaypoints.value
