@@ -100,6 +100,7 @@ class DemoDataSeeder extends Seeder
                 'distance_km' => 187,
                 'difficulty' => 'medium',
                 'duration_seconds' => 12600,
+                'geo_json' => [],
                 'is_public' => true,
             ],
             [
@@ -109,6 +110,7 @@ class DemoDataSeeder extends Seeder
                 'distance_km' => 92,
                 'difficulty' => 'easy',
                 'duration_seconds' => 6600,
+                'geo_json' => [],
                 'is_public' => true,
             ],
             [
@@ -118,6 +120,7 @@ class DemoDataSeeder extends Seeder
                 'distance_km' => 145,
                 'difficulty' => 'easy',
                 'duration_seconds' => 9900,
+                'geo_json' => [],
                 'is_public' => true,
             ],
             [
@@ -127,6 +130,7 @@ class DemoDataSeeder extends Seeder
                 'distance_km' => 78,
                 'difficulty' => 'hard',
                 'duration_seconds' => 7800,
+                'geo_json' => [],
                 'is_public' => true,
             ],
             [
@@ -136,6 +140,7 @@ class DemoDataSeeder extends Seeder
                 'distance_km' => 213,
                 'difficulty' => 'hard',
                 'duration_seconds' => 16200,
+                'geo_json' => [],
                 'is_public' => true,
             ],
             [
@@ -145,6 +150,7 @@ class DemoDataSeeder extends Seeder
                 'distance_km' => 310,
                 'difficulty' => 'easy',
                 'duration_seconds' => 19800,
+                'geo_json' => [],
                 'is_public' => true,
             ],
         ];
