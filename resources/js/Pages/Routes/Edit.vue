@@ -398,9 +398,10 @@ onMounted(() => {
 });
 
 const submit = () => {
-    // Utilitzem mapRoute.id en lloc de route.id
-    form._method = 'put';
-    form.post(route('routes.update', props.mapRoute.id), { forceFormData: true });
+    // form.put() no funciona amb fitxers (forceFormData). 
+    // La solució és posar _method al useForm i fer post().
+    form.transform(data => ({ ...data, _method: 'put' }))
+        .post(route('routes.update', props.mapRoute.id), { forceFormData: true });
 };
 </script>
 
