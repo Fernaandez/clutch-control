@@ -1,9 +1,9 @@
 <template>
     <AppLayout :title="pageTitle">
-        <div class="flex flex-col h-[100dvh]">
+        <div class="relative">
             
             <!-- CAPÇALERA DEL XAT -->
-            <div class="bg-brand-surface border-b border-brand-dark px-4 py-3 sticky top-0 z-50 flex items-center justify-between shadow-lg pt-safe-top">
+            <div class="fixed left-0 right-0 z-[40] bg-brand-surface border-b border-brand-dark px-4 py-3 flex items-center justify-between shadow-[0_4px_10px_rgba(0,0,0,0.3)] transition-all" style="top: calc(3.5rem + env(safe-area-inset-top));">
                 <div class="flex items-center gap-3 min-w-0">
                     <Link :href="route('chats.index')" class="text-white hover:text-brand-neon transition p-1 rounded-full bg-brand-dark/50 flex-shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
@@ -25,7 +25,7 @@
                     <div class="min-w-0">
                         <h2 class="text-white font-bold text-sm leading-none mb-0.5 truncate">{{ pageTitle }}</h2>
                         <p v-if="conversation.type === 'group'" class="text-[9px] text-purple-400 uppercase font-bold tracking-widest">
-                            {{ conversation.participants?.length || 0 }} membres
+                            {{ conversation.participants?.length || 0 }} {{ $t('chats.members') }}
                         </p>
                         <p v-if="conversation.motorcycle" class="text-[9px] text-brand-neon uppercase font-bold tracking-widest truncate">
                             🏍 {{ conversation.motorcycle.brand }} {{ conversation.motorcycle.model }}
@@ -37,8 +37,8 @@
                 </div>
             </div>
 
-            <!-- ÀREA DE MISSATGES -->
-            <div class="flex-1 overflow-y-auto px-4 py-6 space-y-1" ref="messagesContainer">
+            <!-- ÀREA DE MISSATGES (amb margin top/bottom per les capçaleres fixes) -->
+            <div class="pt-[80px] pb-[80px] px-4 space-y-1 min-h-[calc(100vh-8.25rem)] flex flex-col justify-end" ref="messagesContainer">
                 <template v-for="(msg, idx) in localMessages" :key="msg.id">
                     <!-- Separador de data si el dia canvia -->
                     <div v-if="showDateSeparator(msg, localMessages[idx - 1])" class="flex items-center gap-3 py-3">
@@ -84,9 +84,9 @@
             </div>
 
             <!-- CAIXA D'ENVIAMENT -->
-            <div class="bg-brand-surface border-t border-brand-dark p-3 pb-safe-bottom">
+            <div class="fixed left-0 right-0 z-[40] bg-brand-surface border-t border-brand-dark p-3 transition-all" style="bottom: calc(4.75rem + env(safe-area-inset-bottom));">
                 <form @submit.prevent="submit" class="flex gap-2">
-                    <input type="text" v-model="form.body" placeholder="Escriu un missatge..." 
+                    <input type="text" v-model="form.body" :placeholder="$t('chats.write_message')" 
                            class="flex-1 bg-brand-dark border-transparent focus:border-brand-neon focus:ring-brand-neon text-white rounded-xl px-4 text-sm transition placeholder-gray-500"
                            autocomplete="off" @keydown.enter.prevent="submit">
                     
@@ -104,6 +104,9 @@
 import { ref, onMounted, nextTick, onUnmounted, computed } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
+
+const { t, locale } = useI18n();
 
 const props = defineProps({
     conversation: Object,
@@ -120,9 +123,9 @@ const form = useForm({ body: '' });
 
 const pageTitle = computed(() => {
     if (props.conversation.type === 'group') {
-        return props.conversation.name || props.conversation.event?.title || 'Grup';
+        return props.conversation.name || props.conversation.event?.title || t('chats.group_chat');
     }
-    return props.otherUser?.name || 'Xat';
+    return props.otherUser?.name || t('chats.chat');
 });
 
 const isMine = (msg) => msg.sender_id === currentUser.id;
@@ -214,9 +217,9 @@ const formatDate = (dateStr) => {
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
-    if (d.toDateString() === today.toDateString()) return 'Avui';
-    if (d.toDateString() === yesterday.toDateString()) return 'Ahir';
-    return d.toLocaleDateString('ca-ES', { day: 'numeric', month: 'long' });
+    if (d.toDateString() === today.toDateString()) return t('chats.today');
+    if (d.toDateString() === yesterday.toDateString()) return t('chats.yesterday');
+    return d.toLocaleDateString(locale.value, { day: 'numeric', month: 'long' });
 };
 </script>
 

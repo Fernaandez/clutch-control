@@ -1,12 +1,12 @@
 <template>
-    <AppLayout title="Editar Anunci">
+    <AppLayout :title="$t('sales.edit_listing_btn')">
         <div class="px-4 py-6 pb-24 max-w-2xl mx-auto">
             
             <div class="mb-8">
                 <Link :href="route('sales.mine')" class="text-gray-400 text-sm hover:text-white flex items-center gap-1 transition mb-4">
-                    &larr; Els meus Anuncis
+                    &larr; {{ $t('sales.my_listings_back') }}
                 </Link>
-                <h1 class="text-3xl font-black text-white uppercase tracking-tighter">Editar <span class="text-brand-neon">Anunci</span></h1>
+                <h1 class="text-3xl font-black text-white uppercase tracking-tighter">{{ $t('sales.edit') }} <span class="text-brand-neon">{{ $t('sales.title') }}</span></h1>
                 <p class="text-gray-400 text-sm mt-1">{{ sale.motorcycle?.brand }} {{ sale.motorcycle?.model }}</p>
             </div>
 
@@ -14,7 +14,7 @@
 
                 <!-- Especificacions tècniques -->
                 <div class="bg-brand-surface border border-brand-dark rounded-xl p-5 shadow-xl space-y-4">
-                    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2">Especificacions de la Moto</h2>
+                    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2">{{ $t('sales.moto_specs') }}</h2>
                     
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div>
@@ -28,59 +28,63 @@
                         <div class="col-span-2">
                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Carnet</label>
                             <select v-model="form.license_type" class="w-full text-sm rounded bg-brand-black border-brand-dark text-white focus:border-brand-neon">
-                                <option value="">Sense definir</option>
+                                <option value="">{{ $t('common.undefined') }}</option>
                                 <option value="AM">AM</option><option value="A1">A1</option><option value="A2">A2</option><option value="A">A</option>
                             </select>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Estil</label>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">{{ $t('sales.style') }}</label>
                         <select v-model="form.type" class="w-full text-sm rounded bg-brand-black border-brand-dark text-white focus:border-brand-neon">
-                            <option value="">Sense definir</option>
-                            <option value="Naked">Naked</option><option value="Sport">Sport / R</option>
-                            <option value="Trail">Trail / Adventure</option><option value="Custom">Custom / Cruiser</option>
-                            <option value="Scooter">Scooter / Maxi</option><option value="Touring">Touring</option>
-                            <option value="Off-Road">Off-Road</option><option value="Classic">Clàssica</option>
+                            <option value="">{{ $t('common.undefined') }}</option>
+                            <option value="Naked">Naked</option>
+                            <option value="Sport">Sport / R</option>
+                            <option value="Trail">Trail / Adventure</option>
+                            <option value="Custom">Custom / Cruiser</option>
+                            <option value="Scooter">Scooter / Maxi</option>
+                            <option value="Touring">Touring</option>
+                            <option value="Off-Road">Off-Road</option>
+                            <option value="Classic">{{ $t('sales.classic') }}</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Extres instal·lats</label>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">{{ $t('sales.equipped_extras') }}</label>
                         <textarea v-model="form.extras" rows="2" class="w-full text-sm rounded bg-brand-black border-brand-dark text-white focus:border-brand-neon resize-none"></textarea>
                     </div>
                 </div>
 
                 <!-- Dades de l'anunci -->
                 <div class="bg-brand-surface border border-brand-dark rounded-xl p-5 shadow-xl space-y-5">
-                    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2">Dades de l'Anunci</h2>
+                    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2">{{ $t('sales.listing_data') }}</h2>
 
                     <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Títol</label>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('sales.title') }}</label>
                         <input v-model="form.title" type="text" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0">
                         <p v-if="form.errors.title" class="text-red-500 text-xs mt-1">{{ form.errors.title }}</p>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Preu (€)</label>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('sales.price_eur') }}</label>
                             <input v-model="form.price" type="number" step="0.01" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0 text-brand-neon font-bold text-lg">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Ubicació</label>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('sales.location') }}</label>
                             <input v-model="form.location" type="text" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Descripció</label>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('routes.description_label') }}</label>
                         <textarea v-model="form.description" rows="5" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0 resize-none"></textarea>
                     </div>
                 </div>
 
                 <!-- Fotos existents -->
                 <div v-if="sale.images && sale.images.length > 0" class="bg-brand-surface border border-brand-dark rounded-xl p-5 shadow-xl">
-                    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2 mb-4">Fotos Actuals</h2>
+                    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2 mb-4">{{ $t('sales.current_photos') }}</h2>
                     <div class="grid grid-cols-3 gap-2">
                         <div v-for="img in sale.images" :key="img.id" class="relative group">
                             <img :src="$page.props.storageUrl + '/' + img.image_path" class="w-full h-24 object-cover rounded-lg border border-brand-dark">
@@ -95,9 +99,9 @@
 
                 <!-- Afegir fotos noves -->
                 <div class="bg-brand-surface border border-brand-dark rounded-xl p-5 shadow-xl">
-                    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2 mb-4">Afegir Fotos Noves</h2>
+                    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2 mb-4">{{ $t('sales.add_new_photos') }}</h2>
                     <div class="border-2 border-dashed border-brand-dark hover:border-brand-neon rounded-xl p-5 text-center transition cursor-pointer bg-brand-black" @click="$refs.photoInput.click()">
-                        <p class="text-sm text-gray-500">Toca per seleccionar fotos (màx. {{ 8 - (sale.images?.length || 0) }} restants)</p>
+                        <p class="text-sm text-gray-500">{{ $t('sales.tap_photos', { n: 8 - (sale.images?.length || 0) }) }}</p>
                     </div>
                     <input ref="photoInput" type="file" multiple accept="image/*" class="hidden" @change="handleImages">
                     <div v-if="imagePreviews.length > 0" class="grid grid-cols-3 gap-2 mt-3">
@@ -110,22 +114,22 @@
 
                 <!-- Estat -->
                 <div class="bg-brand-surface border border-brand-dark rounded-xl p-5 shadow-xl">
-                    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2 mb-4">Estat de l'Anunci</h2>
+                    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2 mb-4">{{ $t('sales.sale_status') }}</h2>
                     <div class="flex flex-col gap-3">
                         <select v-model="form.state" class="w-full bg-brand-black border-brand-dark rounded-lg text-white font-bold focus:border-brand-neon focus:ring-brand-neon p-3">
-                            <option value="actiu">Visible al Mercat (Actiu)</option>
-                            <option value="actiu (reservat) (nou)">Actiu (Reservat)</option>
-                            <option value="venuda">Marcar com a VENUDA</option>
+                            <option value="actiu">{{ $t('sales.state_active') }}</option>
+                            <option value="actiu (reservat) (nou)">{{ $t('sales.state_reserved') }}</option>
+                            <option value="venuda">{{ $t('sales.state_sold') }}</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="flex flex-col gap-3">
                     <button type="submit" :disabled="form.processing" class="w-full bg-brand-neon text-brand-black font-black uppercase tracking-wider py-4 rounded-xl hover:bg-white transition disabled:opacity-50">
-                        Actualitzar Anunci
+                        {{ $t('sales.update_btn') }}
                     </button>
                     <button type="button" @click="destroy" class="w-full text-red-500 hover:text-red-400 hover:bg-brand-black py-3 rounded-xl transition text-sm border border-red-900/30">
-                        Eliminar Anunci Definitivament
+                        {{ $t('sales.delete_btn') }}
                     </button>
                 </div>
 
@@ -138,6 +142,9 @@
 import { ref } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({ sale: Object });
 
@@ -183,7 +190,7 @@ const submit = () => {
 };
 
 const destroy = () => {
-    if (confirm("Estàs segur? La moto no s'esborrarà del teu garatge.")) {
+    if (confirm(t('common.confirm_delete'))) {
         form.delete(route('sales.destroy', props.sale.id));
     }
 };
