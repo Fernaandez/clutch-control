@@ -1,5 +1,5 @@
 <template>
-    <AppLayout title="Volta Lliure">
+    <AppLayout :title="$t('free_ride.title')">
 
         <div class="fixed top-0 left-0 w-full h-[100dvh] bg-brand-surface overflow-hidden overscroll-none z-[5000]">
 
@@ -19,11 +19,11 @@
                     <span class="text-xs font-black text-red-500 uppercase tracking-widest">LIVE</span>
                 </div>
                 <div class="flex flex-col items-center">
-                    <span class="text-[10px] text-gray-500 uppercase font-bold leading-none mb-1">Crono</span>
+                    <span class="text-[10px] text-gray-500 uppercase font-bold leading-none mb-1">{{ $t('free_ride.chrono') }}</span>
                     <span class="text-lg font-mono font-bold text-white leading-none">{{ formattedRecordingTime }}</span>
                 </div>
                 <div class="flex flex-col items-center">
-                    <span class="text-[10px] text-gray-500 uppercase font-bold leading-none mb-1">Distància</span>
+                    <span class="text-[10px] text-gray-500 uppercase font-bold leading-none mb-1">{{ $t('free_ride.distance') }}</span>
                     <span class="text-lg font-mono font-bold text-brand-neon leading-none">{{ (recordedDistance / 1000).toFixed(2) }}<span class="text-xs text-gray-400 ml-1">km</span></span>
                 </div>
             </div>
@@ -33,7 +33,7 @@
                 <div class="bg-brand-black/95 backdrop-blur-xl border border-brand-dark rounded-2xl shadow-2xl overflow-hidden p-4">
                     
                     <div class="mb-4 text-center">
-                        <h1 class="text-2xl font-black text-white uppercase tracking-tighter">VOLTA LLIURE</h1>
+                        <h1 class="text-2xl font-black text-white uppercase tracking-tighter">{{ $t('free_ride.title').toUpperCase() }}</h1>
                         <p class="text-xs text-brand-neon font-bold flex items-center justify-center gap-1 mt-1">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path d="M8 16.25a.75.75 0 01.75-.75h2.5a.75.75 0 010 1.5h-2.5a.75.75 0 01-.75-.75z" /><path fill-rule="evenodd" d="M4 4a3 3 0 013-3h6a3 3 0 013 3v12a3 3 0 01-3 3H7a3 3 0 01-3-3V4zm4-1.5a.75.75 0 000 1.5h4a.75.75 0 000-1.5H8z" clip-rule="evenodd" /></svg>
                             {{ motorcycle.brand }} {{ motorcycle.model }}
@@ -43,11 +43,11 @@
                     <div class="flex gap-2">
                         <button v-if="!isRecording" @click="startRecording" class="flex-1 flex items-center justify-center gap-2 bg-red-600/10 text-red-500 border border-red-500/30 py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-red-600/20 transition shadow-[0_0_15px_rgba(239,68,68,0.2)]">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><circle cx="12" cy="12" r="8" fill="currentColor" /></svg>
-                            Iniciar Gravació
+                            {{ $t('free_ride.start_recording') }}
                         </button>
                         <button v-else @click="stopRecording" class="flex-1 flex items-center justify-center gap-2 bg-red-900 border border-red-500 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest animate-pulse shadow-lg">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z" fill="currentColor" /></svg>
-                            Finalitzar Roda
+                            {{ $t('free_ride.stop_round') }}
                         </button>
                     </div>
 
@@ -61,12 +61,15 @@
 import { onMounted, computed, ref, nextTick } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Link } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { registerPlugin } from '@capacitor/core';
 const BackgroundGeolocation = registerPlugin('BackgroundGeolocation');
 import { Geolocation } from '@capacitor/geolocation';
 import { LocalNotifications } from '@capacitor/local-notifications';
+
+const { t } = useI18n();
 
 const props = defineProps({
     motorcycle: Object
@@ -121,7 +124,7 @@ onMounted(async () => {
 
 const startRecording = async () => {
     try {
-        await LocalNotifications.requestPermissions();
+        LocalNotifications.requestPermissions().catch(e => console.warn(e));
         const permStatus = await Geolocation.checkPermissions();
         if (permStatus.location !== 'granted') {
             await Geolocation.requestPermissions();
@@ -159,8 +162,8 @@ const startRecording = async () => {
 
     BackgroundGeolocation.addWatcher(
         {
-            backgroundMessage: "Gravant la teva volta lliure...",
-            backgroundTitle: "Volta Lliure Activa",
+            backgroundMessage: t('free_ride.bg_message'),
+            backgroundTitle: t('free_ride.bg_title'),
             requestPermissions: true,
             stale: false,
             distanceFilter: 10
@@ -224,13 +227,13 @@ const stopRecording = () => {
             existingPending.push(newPendingRoute);
             localStorage.setItem('pending_routes', JSON.stringify(existingPending));
             
-            alert(`📍 Roda lliure aturada!\nHas recorregut ${distanceKm} km. Vés a "Les Meves Rutes" per sincronitzar-la.`);
+            alert(t('free_ride.stopped_title') + `\n` + t('free_ride.stopped_msg', { km: distanceKm }));
         } catch (e) {
             console.error('Error saving offline free ride:', e);
-            alert(`📍 Seguiment aturat!\nHas recorregut ${distanceKm} km, però hi ha hagut un error.`);
+            alert(t('free_ride.stopped_error', { km: distanceKm }));
         }
     } else {
-        alert("S'ha aturat el seguiment sense cap desplaçament enregistrat.");
+        alert(t('free_ride.no_movement'));
         if (trackingPolyline.value) map.value.removeLayer(trackingPolyline.value);
         if (currentLocationMarker.value) map.value.removeLayer(currentLocationMarker.value);
     }

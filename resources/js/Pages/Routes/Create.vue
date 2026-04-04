@@ -1,14 +1,14 @@
 <template>
-    <AppLayout title="Nova Ruta">
+    <AppLayout :title="$t('routes.new_route')">
         <div class="max-w-4xl mx-auto px-4 py-6 pb-24">
             
             <div v-show="!isMapOpen">
                 
                 <div class="flex items-center justify-between mb-8">
                     <Link :href="route('routes.index')" class="text-gray-500 hover:text-white flex items-center gap-1 text-sm">
-                        &larr; Cancel·lar
+                        &larr; {{ $t('common.cancel') }}
                     </Link>
-                    <h1 class="text-xl font-black text-white uppercase tracking-tighter">Nova <span class="text-brand-neon">Ruta</span></h1>
+                    <h1 class="text-xl font-black text-white uppercase tracking-tighter">{{ $t('routes.new_route') }}</h1>
                 </div>
 
                 <form @submit.prevent="submit" class="space-y-8">
@@ -16,81 +16,81 @@
                     <div class="bg-brand-surface p-6 rounded-xl border border-brand-dark shadow-lg space-y-6">
                         <div class="grid md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Nom de la Ruta</label>
+                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('routes.route_name') }}</label>
                                 <input v-model="form.title" type="text" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0">
                                 <div v-if="form.errors.title" class="text-red-500 text-xs mt-1">{{ form.errors.title }}</div>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Moto</label>
+                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('nav.moto') }}</label>
                                 <select v-model="form.motorcycle_id" class="w-full bg-brand-black border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon">
-                                    <option :value="null">-- Selecciona Moto --</option>
+                                    <option :value="null">{{ $t('routes.select_motorcycle') }}</option>
                                     <option v-for="moto in motorcycles" :key="moto.id" :value="moto.id">{{ moto.alias || moto.model }}</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Tipus de Ruta</label>
+                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('routes.route_type') }}</label>
                                 <select v-model="form.category_id" class="w-full bg-brand-black border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon">
-                                    <option :value="null">-- Selecciona Categoria --</option>
+                                    <option :value="null">{{ $t('routes.select_category') }}</option>
                                     <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
                                 </select>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Descripció</label>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('routes.description_label') }}</label>
                             <textarea v-model="form.description" rows="3" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0"></textarea>
                             <div v-if="form.errors.description" class="text-red-500 text-xs mt-1">{{ form.errors.description }}</div>
                         </div>
                         <div class="grid md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Dificultat</label>
+                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('routes.difficulty_label') }}</label>
                                 <div class="grid grid-cols-2 md:grid-cols-5 gap-2 h-auto">
-                                    <button type="button" @click="form.difficulty = 'easy'" :class="form.difficulty === 'easy' ? 'bg-green-500/20 border-green-500 text-green-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border py-2 px-1 text-[10px] sm:text-xs font-bold transition hover:border-gray-500">🟢 Fàcil</button>
-                                    <button type="button" @click="form.difficulty = 'medium'" :class="form.difficulty === 'medium' ? 'bg-yellow-500/20 border-yellow-500 text-yellow-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border py-2 px-1 text-[10px] sm:text-xs font-bold transition hover:border-gray-500">🟡 Mitjana</button>
-                                    <button type="button" @click="form.difficulty = 'hard'" :class="form.difficulty === 'hard' ? 'bg-red-500/20 border-red-500 text-red-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border py-2 px-1 text-[10px] sm:text-xs font-bold transition hover:border-gray-500">🔴 Difícil</button>
-                                    <button type="button" @click="form.difficulty = 'expert'" :class="form.difficulty === 'expert' ? 'bg-purple-500/20 border-purple-500 text-purple-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border py-2 px-1 text-[10px] sm:text-xs font-bold transition hover:border-gray-500">🟣 Experta</button>
-                                    <button type="button" @click="form.difficulty = 'extreme'" :class="form.difficulty === 'extreme' ? 'bg-gray-800 border-gray-500 text-white' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border py-2 px-1 text-[10px] sm:text-xs font-bold transition hover:border-gray-500">☠️ Extrema</button>
+                                    <button type="button" @click="form.difficulty = 'easy'" :class="form.difficulty === 'easy' ? 'bg-green-500/20 border-green-500 text-green-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border py-2 px-1 text-[10px] sm:text-xs font-bold transition hover:border-gray-500">{{ $t('routes.difficulty_easy') }}</button>
+                                    <button type="button" @click="form.difficulty = 'medium'" :class="form.difficulty === 'medium' ? 'bg-yellow-500/20 border-yellow-500 text-yellow-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border py-2 px-1 text-[10px] sm:text-xs font-bold transition hover:border-gray-500">{{ $t('routes.difficulty_medium') }}</button>
+                                    <button type="button" @click="form.difficulty = 'hard'" :class="form.difficulty === 'hard' ? 'bg-red-500/20 border-red-500 text-red-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border py-2 px-1 text-[10px] sm:text-xs font-bold transition hover:border-gray-500">{{ $t('routes.difficulty_hard') }}</button>
+                                    <button type="button" @click="form.difficulty = 'expert'" :class="form.difficulty === 'expert' ? 'bg-purple-500/20 border-purple-500 text-purple-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border py-2 px-1 text-[10px] sm:text-xs font-bold transition hover:border-gray-500">{{ $t('routes.difficulty_expert') }}</button>
+                                    <button type="button" @click="form.difficulty = 'extreme'" :class="form.difficulty === 'extreme' ? 'bg-gray-800 border-gray-500 text-white' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border py-2 px-1 text-[10px] sm:text-xs font-bold transition hover:border-gray-500">{{ $t('routes.difficulty_extreme') }}</button>
                                 </div>
                             </div>
 
                             <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Visibilitat</label>
+                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('routes.visibility_label') }}</label>
                                 <div class="flex items-center gap-3 bg-brand-black p-2 rounded-lg border border-brand-dark h-[42px]">
                                     <button type="button" @click="form.is_public = true" class="flex-1 py-1 rounded text-[10px] sm:text-xs font-bold uppercase transition" :class="form.is_public ? 'bg-brand-neon text-black' : 'text-gray-500 hover:text-white'">
-                                        🌍 Pública
+                                        {{ $t('routes.public_badge') }}
                                     </button>
                                     <button type="button" @click="form.is_public = false" class="flex-1 py-1 rounded text-[10px] sm:text-xs font-bold uppercase transition" :class="!form.is_public ? 'bg-gray-600 text-white' : 'text-gray-500 hover:text-white'">
-                                        🔒 Privada
+                                        {{ $t('routes.private_badge') }}
                                     </button>
                                 </div>
                             </div>
                         </div>
                         <div v-if="form.errors.motorcycle_id || form.errors.difficulty || form.errors.is_public" class="text-red-500 text-xs mt-1">
-                            Valors de selecció incorrectes.
+                            {{ $t('routes.invalid_selections') }}
                         </div>
                         <div v-if="form.errors.planned_distance_km || form.errors.duration_seconds || form.errors.geo_json || form.errors.waypoints" class="text-red-500 text-xs mt-1">
-                            Falta dibuixar la ruta correctament al mapa. (KMs o waypoints invàlids)
+                            {{ $t('routes.invalid_route_draw') }}
                         </div>
                     </div>
 
                     <div class="bg-brand-surface p-4 rounded-xl border border-brand-dark">
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Foto de la Ruta</label>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('routes.route_photo') }}</label>
                         <input @change="e => form.photo = e.target.files[0]" type="file" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-brand-base/20 file:text-brand-neon hover:file:bg-brand-base/30 transition cursor-pointer">
                         <div v-if="form.errors.photo" class="text-red-500 text-xs mt-1">{{ form.errors.photo }}</div>
                     </div>
 
                     <div class="bg-brand-surface p-6 rounded-xl border border-brand-dark shadow-lg">
                         <div class="flex items-center justify-between mb-4">
-                            <label class="text-xs font-bold text-gray-400 uppercase">Traçat de la Ruta</label>
-                            <span v-if="uiWaypoints.length > 0" class="text-xs text-brand-neon font-bold">✅ {{ uiWaypoints.length }} punts definits</span>
+                            <label class="text-xs font-bold text-gray-400 uppercase">{{ $t('routes.route_trace') }}</label>
+                            <span v-if="uiWaypoints.length > 0" class="text-xs text-brand-neon font-bold">{{ $t('routes.points_defined', { n: uiWaypoints.length }) }}</span>
                         </div>
                         <div v-if="form.planned_distance_km > 0" class="grid grid-cols-2 gap-4 mb-4">
                             <div class="bg-brand-black p-3 rounded-lg border border-brand-dark text-center">
                                 <span class="block text-2xl font-mono font-bold text-brand-neon">{{ form.planned_distance_km }}</span>
-                                <span class="text-[10px] text-gray-500 uppercase">Quilòmetres</span>
+                                <span class="text-[10px] text-gray-500 uppercase">{{ $t('routes.km_label') }}</span>
                             </div>
                             <div class="bg-brand-black p-3 rounded-lg border border-brand-dark text-center">
                                 <span class="block text-2xl font-mono font-bold text-white">{{ formattedDuration }}</span>
-                                <span class="text-[10px] text-gray-500 uppercase">Temps Estimat</span>
+                                <span class="text-[10px] text-gray-500 uppercase">{{ $t('routes.estimated_time') }}</span>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 gap-4">
@@ -100,14 +100,14 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
                                 </div>
                                 <span class="relative z-10 text-brand-neon font-bold uppercase tracking-widest text-sm group-hover:text-white transition-colors">
-                                    {{ uiWaypoints.length > 0 ? 'Editar Mapa' : 'Dibuixar' }}
+                                    {{ uiWaypoints.length > 0 ? $t('routes.edit_map') : $t('routes.edit_map') }}
                                 </span>
                             </button>
                         </div>
                     </div>
 
                     <button type="submit" :disabled="form.processing || uiWaypoints.length < 2" class="w-full bg-white text-black font-black py-4 rounded-xl uppercase tracking-widest hover:bg-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-xl">
-                        Guardar Ruta Completa
+                        {{ $t('routes.save_route') }}
                     </button>
                 </form>
             </div>
@@ -130,7 +130,7 @@
                                     <svg v-if="isSearching" class="animate-spin w-4 h-4 text-brand-neon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                     <svg v-else class="w-4 h-4 text-gray-500 group-focus-within:text-brand-neon transition" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/></svg>
                                 </div>
-                                <input v-model="searchQuery" @input="handleSearchInput" type="text" class="block w-full py-2.5 pl-10 pr-3 text-sm text-white bg-transparent border-none focus:ring-0 placeholder-gray-600" placeholder="Afegeix una parada..." autocomplete="off">
+                                <input v-model="searchQuery" @input="handleSearchInput" type="text" class="block w-full py-2.5 pl-10 pr-3 text-sm text-white bg-transparent border-none focus:ring-0 placeholder-gray-600" :placeholder="$t('routes.add_stop')" autocomplete="off">
                             </div>
                             
                         </div>
@@ -150,7 +150,7 @@
                         </div>
 
                         <div v-if="uiWaypoints.length > 0 && searchResults.length === 0" class="border-t border-brand-dark/50 pt-2 mt-1">
-                             <div class="text-[10px] text-gray-500 uppercase font-bold mb-2 pl-1">Ordre de la Ruta (Arrossega)</div>
+                             <div class="text-[10px] text-gray-500 uppercase font-bold mb-2 pl-1">{{ $t('routes.route_order') }}</div>
                              
                              <draggable 
                                 v-model="uiWaypoints" 
@@ -186,7 +186,7 @@
 
                 <div class="absolute bottom-3 left-0 w-full z-[5010] px-4 flex items-end justify-between pointer-events-none pb-safe-bottom">
                     <div class="pointer-events-auto bg-brand-black/90 backdrop-blur-md border border-brand-dark rounded-xl p-3 shadow-lg">
-                        <div class="text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-1">Total Ruta</div>
+                        <div class="text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-1">{{ $t('routes.total_route') }}</div>
                         <div class="flex items-baseline gap-1">
                             <span class="text-2xl font-mono font-bold text-brand-neon">{{ form.planned_distance_km }}</span>
                             <span class="text-xs text-gray-500">km</span>
@@ -209,6 +209,7 @@
 <script setup>
 import { ref, onMounted, computed, nextTick } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
+import { Geolocation } from '@capacitor/geolocation';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
@@ -324,23 +325,27 @@ const closeMap = () => {
     isMapOpen.value = false;
 };
 
-const locateUser = () => {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(
-        (pos) => {
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
-            map.value.flyTo([lat, lng], 15);
-            if (uiWaypoints.value.length === 0) {
-                 addPointToMap(L.latLng(lat, lng), "La meva ubicació");
-            }
-            if (userLocationMarker.value) map.value.removeLayer(userLocationMarker.value);
-            userLocationMarker.value = L.circleMarker([lat, lng], {
-                radius: 8, fillColor: '#3b82f6', color: '#ffffff', weight: 2, opacity: 1, fillOpacity: 1
-            }).addTo(map.value);
-        },
-        () => {}, { enableHighAccuracy: true }
-    );
+const locateUser = async () => {
+    try {
+        const permStatus = await Geolocation.checkPermissions();
+        if (permStatus.location !== 'granted') {
+            await Geolocation.requestPermissions();
+        }
+
+        const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        map.value.flyTo([lat, lng], 15);
+        if (uiWaypoints.value.length === 0) {
+             addPointToMap(L.latLng(lat, lng), "La meva ubicació");
+        }
+        if (userLocationMarker.value) map.value.removeLayer(userLocationMarker.value);
+        userLocationMarker.value = L.circleMarker([lat, lng], {
+            radius: 8, fillColor: '#3b82f6', color: '#ffffff', weight: 2, opacity: 1, fillOpacity: 1
+        }).addTo(map.value);
+    } catch (err) {
+        console.warn("No s'ha pogut localitzar:", err);
+    }
 };
 
 const undoPoint = () => {
