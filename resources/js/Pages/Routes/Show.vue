@@ -178,7 +178,10 @@
 
                         <!-- ELS TEUS RECORREGUTS SOBRE AQUESTA RUTA -->
                         <div v-if="$page.props.auth.user && myRouteTrips.length > 0" class="px-4 pb-4 pt-2 border-t border-gray-800">
-                            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest mb-3">📍 Els teus recorreguts sobre aquesta ruta</p>
+                            <div class="flex items-center justify-between mb-3">
+                                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">📍 Els teus recorreguts</p>
+                                <button @click="toggleAllTripsMap" class="text-[10px] text-brand-neon hover:text-white uppercase font-bold tracking-widest transition">{{ showingAllTrips ? 'Ocultar del mapa' : 'Veure al mapa' }}</button>
+                            </div>
                             <div class="space-y-2">
                                 <Link v-for="trip in myRouteTrips" :key="trip.id" :href="route('trips.show', trip.id)"
                                     class="flex items-center justify-between bg-brand-surface border border-brand-dark rounded-xl px-3 py-2.5 hover:border-red-500/50 transition group">
@@ -224,6 +227,45 @@ const copyLinkSuccess = ref(false);
 const isRecording = ref(false);
 const isExpanded = ref(false);
 const myRouteTrips = ref([]);
+const showingAllTrips = ref(false);
+const allTripsLayers = ref([]);
+
+const toggleAllTripsMap = () => {
+    showingAllTrips.value = !showingAllTrips.value;
+    if (showingAllTrips.value) {
+        myRouteTrips.value.forEach(trip => {
+            if (trip.waypoints && trip.waypoints.length > 1) {
+                const latlngs = trip.waypoints.map(p => [p.lat, p.lng]);
+                const poly = L.polyline(latlngs, {
+                    color: '#ef4444',
+                    weight: 3,
+                    opacity: 0.7,
+                    dashArray: '5 5'
+                }).addTo(map.value);
+                allTripsLayers.value.push(poly);
+            }
+        });
+        if (allTripsLayers.value.length > 0) {
+            const group = L.featureGroup(allTripsLayers.value);
+            map.value.fitBounds(group.getBounds(), { padding: [30, 30] });
+        }
+    } else {
+        allTripsLayers.value.forEach(layer => map.value.removeLayer(layer));
+        allTripsLayers.value = [];
+        
+        // Centrar de nou la ruta original
+        const points = getRoutePoints();
+        const validPoints = points.map(p => {
+            if (Array.isArray(p) && p.length >= 2) return [p[1], p[0]];
+            if (p && (p.lat !== undefined || p.latitude !== undefined)) return [p.lat ?? p.latitude, p.lng ?? p.longitude];
+            return null;
+        }).filter(p => p && p[0] !== null && p[1] !== null);
+        
+        if (validPoints.length > 0) {
+            map.value.fitBounds(L.polyline(validPoints).getBounds(), { padding: [50, 150] });
+        }
+    }
+};
 
 const reviewForm = useForm({
     rating: 0,
