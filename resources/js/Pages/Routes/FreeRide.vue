@@ -5,8 +5,8 @@
 
             <div id="map-freeride" class="absolute inset-0 z-0 bg-gray-900"></div>
 
-            <Link :href="route('dashboard', motorcycle.id)" class="absolute top-safe-top right-4 z-50 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full backdrop-blur-md border border-white/10 transition mt-2">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            <Link :href="route('dashboard', motorcycle.id)" class="absolute top-safe-top left-4 z-50 w-10 h-10 rounded-full bg-brand-neon hover:bg-white text-black flex items-center justify-center flex-shrink-0 transition shadow-[0_0_15px_rgba(12,225,181,0.3)] mt-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
             </Link>
 
             <!-- LIVE TRACKING OVERLAY -->
