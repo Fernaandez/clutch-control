@@ -281,6 +281,8 @@ const fromEventId = urlParams ? urlParams.get('from_event') : null;
 const goBack = () => {
     if (fromEventId) {
         router.visit(route('events.show', fromEventId));
+    } else if (window.history.length > 1) {
+        window.history.back();
     } else {
         router.visit(route('routes.index'));
     }

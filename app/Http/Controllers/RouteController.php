@@ -293,6 +293,7 @@ class RouteController extends Controller
         $newRoute->user_id = Auth::id();
         $newRoute->title = $route->title . ' (Còpia)';
         $newRoute->is_public = false; 
+        $newRoute->share_token = \Illuminate\Support\Str::random(10);
         $newRoute->save();
 
         // 2. LA CLAU: Copiem també tots els punts (waypoints) de la ruta original!
