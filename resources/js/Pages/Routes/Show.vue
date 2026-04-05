@@ -175,6 +175,23 @@
                                 {{ $t('routes.stop') }}
                             </button>
                         </div>
+
+                        <!-- ELS TEUS RECORREGUTS SOBRE AQUESTA RUTA -->
+                        <div v-if="$page.props.auth.user && myRouteTrips.length > 0" class="px-4 pb-4 pt-2 border-t border-gray-800">
+                            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest mb-3">📍 Els teus recorreguts sobre aquesta ruta</p>
+                            <div class="space-y-2">
+                                <Link v-for="trip in myRouteTrips" :key="trip.id" :href="route('trips.show', trip.id)"
+                                    class="flex items-center justify-between bg-brand-surface border border-brand-dark rounded-xl px-3 py-2.5 hover:border-red-500/50 transition group">
+                                    <div>
+                                        <span class="text-white font-bold text-xs block">{{ formatTripDate(trip.started_at) }}</span>
+                                        <span class="text-brand-neon font-mono text-xs">{{ trip.distance_km }} km</span>
+                                        <span class="text-gray-500 text-xs ml-2">{{ formatTripDuration(trip.duration_seconds) }}</span>
+                                    </div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-gray-600 group-hover:text-red-400 transition"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                                </Link>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -195,6 +212,7 @@ import { registerPlugin } from '@capacitor/core';
 const BackgroundGeolocation = registerPlugin('BackgroundGeolocation');
 import { Geolocation } from '@capacitor/geolocation';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import axios from 'axios';
 
 const props = defineProps({
     mapRoute: Object,
@@ -205,6 +223,7 @@ const map = ref(null);
 const copyLinkSuccess = ref(false);
 const isRecording = ref(false);
 const isExpanded = ref(false);
+const myRouteTrips = ref([]);
 
 const reviewForm = useForm({
     rating: 0,
@@ -359,6 +378,31 @@ onMounted(async () => {
     }
 });
 
+// Carregar els recorreguts de l'usuari sobre aquesta ruta
+onMounted(async () => {
+    if (props.mapRoute?.id) {
+        try {
+            const { data } = await axios.get(route('routes.trips', props.mapRoute.id));
+            myRouteTrips.value = data;
+        } catch (e) {
+            console.warn('No s\'han pogut carregar els recorreguts', e);
+        }
+    }
+});
+
+const formatTripDate = (isoStr) => {
+    if (!isoStr) return '';
+    return new Intl.DateTimeFormat('ca-ES', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(isoStr));
+};
+
+const formatTripDuration = (sec) => {
+    if (!sec) return '0m';
+    const hrs = Math.floor(sec / 3600);
+    const mins = Math.floor((sec % 3600) / 60);
+    if (hrs > 0) return `${hrs}h ${mins}m`;
+    return `${mins}m`;
+};
+
 const startRecording = async () => {
     try {
         await LocalNotifications.requestPermissions();
@@ -461,28 +505,27 @@ const stopRecording = () => {
 
     if (recordedWaypoints.value.length > 1) {
         const distanceKm = (recordedDistance.value / 1000).toFixed(2);
-        
-        // --- OFFLINE FIX: Save to localStorage ---
+
         try {
-            const existingPending = JSON.parse(localStorage.getItem('pending_routes') || '[]');
-            
-            const newPendingRoute = {
+            const existingPending = JSON.parse(localStorage.getItem('pending_trips') || '[]');
+
+            const newPendingTrip = {
                 id: 'offline_' + Date.now(),
-                created_at: new Date().toISOString(),
-                original_route_id: props.mapRoute?.id || null, // If tracking a specific route
+                started_at: new Date(recordingStartTime).toISOString(),
+                route_id: props.mapRoute?.id || null, // Vinculat a aquesta ruta!
                 motorcycle_id: props.motorcycle?.id || null,
                 distance_km: parseFloat(distanceKm),
                 duration_seconds: recordingTime.value,
                 waypoints: recordedWaypoints.value
             };
-            
-            existingPending.push(newPendingRoute);
-            localStorage.setItem('pending_routes', JSON.stringify(existingPending));
-            
-            alert(`📍 Seguiment aturat!\nHas recorregut ${distanceKm} km. La ruta s'ha guardat localment al teu telèfon. Vés a "Les Meves Rutes" per sincronitzar-la quan tinguis connexió.`);
+
+            existingPending.push(newPendingTrip);
+            localStorage.setItem('pending_trips', JSON.stringify(existingPending));
+
+            alert(`📍 Recorregut aturat!\nHas recorregut ${distanceKm} km. El trajecte s'ha guardat localment. Ves a "Les Meves Rutes" per sincronitzar-lo quan tinguis connexió.`);
         } catch (e) {
-            console.error('Error saving offline route:', e);
-            alert(`📍 Seguiment aturat!\nHas recorregut ${distanceKm} km, però hi ha hagut un error guardant-la localment.`);
+            console.error('Error saving offline trip:', e);
+            alert(`📍 Recorregut aturat!\nHas recorregut ${distanceKm} km, però hi ha hagut un error guardant-lo localment.`);
         }
     } else {
         alert("S'ha aturat el seguiment, però no t'has mogut com per registrar la distància.");

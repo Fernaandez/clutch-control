@@ -91,6 +91,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/routes/{route}/clone', [RouteController::class, 'clone'])->name('routes.clone');
     Route::post('/routes/{route}/reviews', [\App\Http\Controllers\RouteReviewController::class, 'store'])->name('routes.reviews.store');
 
+    // --- RECORREGUTS (TRIPS GPS) ---
+    Route::post('/trips', [\App\Http\Controllers\TripController::class, 'store'])->name('trips.store');
+    Route::get('/my-trips', [\App\Http\Controllers\TripController::class, 'myTrips'])->name('trips.mine');
+    Route::get('/trips/{trip}', [\App\Http\Controllers\TripController::class, 'show'])->name('trips.show');
+    Route::delete('/trips/{trip}', [\App\Http\Controllers\TripController::class, 'destroy'])->name('trips.destroy');
+    Route::get('/routes/{route}/trips', [\App\Http\Controllers\TripController::class, 'forRoute'])->name('routes.trips');
+
     // --- QUEDADES (EVENTS) ---
     Route::get('/events', [EventController::class, 'index'])->name('events.index');
     Route::get('/events/create', [EventController::class, 'create'])->name('events.create');

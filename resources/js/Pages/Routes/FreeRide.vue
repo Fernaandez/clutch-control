@@ -212,24 +212,24 @@ const stopRecording = () => {
         const distanceKm = (recordedDistance.value / 1000).toFixed(2);
         
         try {
-            const existingPending = JSON.parse(localStorage.getItem('pending_routes') || '[]');
+            const existingPending = JSON.parse(localStorage.getItem('pending_trips') || '[]');
             
-            const newPendingRoute = {
+            const newPendingTrip = {
                 id: 'offline_' + Date.now(),
-                created_at: new Date().toISOString(),
-                original_route_id: null,
+                started_at: new Date(recordingStartTime).toISOString(),
                 motorcycle_id: props.motorcycle?.id || null,
+                route_id: null, // Free Ride mai va vinculat a una ruta
                 distance_km: parseFloat(distanceKm),
                 duration_seconds: recordingTime.value,
                 waypoints: recordedWaypoints.value
             };
             
-            existingPending.push(newPendingRoute);
-            localStorage.setItem('pending_routes', JSON.stringify(existingPending));
+            existingPending.push(newPendingTrip);
+            localStorage.setItem('pending_trips', JSON.stringify(existingPending));
             
             alert(t('free_ride.stopped_title') + `\n` + t('free_ride.stopped_msg', { km: distanceKm }));
         } catch (e) {
-            console.error('Error saving offline free ride:', e);
+            console.error('Error saving offline trip:', e);
             alert(t('free_ride.stopped_error', { km: distanceKm }));
         }
     } else {

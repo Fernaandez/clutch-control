@@ -30,7 +30,7 @@
                     <p class="text-4xl font-mono font-bold text-white whitespace-nowrap">{{ moto.current_km }} <span class="text-lg text-brand-neon">km</span></p>
                 </div>
                 <div class="z-10 w-full md:w-auto">
-                    <Link :href="route('routes.free-ride', moto.id)" class="flex items-center justify-center gap-2 bg-brand-dark hover:bg-brand-neon hover:text-brand-black text-brand-neon w-full px-6 py-4 rounded-xl transition border border-brand-neon/50 shadow-[0_0_20px_rgba(12,225,181,0.4)] font-black uppercase tracking-widest text-xs whitespace-nowrap">
+                    <Link :href="route('routes.free-ride', moto.id)" class="flex items-center justify-center gap-2 bg-brand-dark hover:bg-brand-neon hover:text-brand-black text-brand-neon w-full px-6 py-4 rounded-xl transition border border-brand-neon font-black uppercase tracking-widest text-xs whitespace-nowrap">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
                         Volta lliure
                     </Link>
