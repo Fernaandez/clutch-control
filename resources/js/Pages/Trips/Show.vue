@@ -22,19 +22,18 @@
                 <div id="trip-map" class="absolute inset-0"></div>
 
                 <!-- Toggle comparativa (si hi ha ruta vinculada) -->
-                <div v-if="trip.route" class="absolute top-3 left-1/2 -translate-x-1/2 z-[500] bg-brand-black/90 backdrop-blur-sm border border-brand-dark rounded-full px-4 py-2 flex items-center gap-3">
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Comparativa</span>
+                <div v-if="trip.route" class="absolute top-16 right-3 z-[500] bg-brand-black/90 backdrop-blur-sm border border-brand-dark rounded-full px-3 py-1.5 flex items-center gap-2 shadow-lg">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Comparar</span>
                     <button @click="toggleComparativa" 
-                        class="relative w-10 h-5 rounded-full transition-colors duration-200 flex-shrink-0"
+                        class="relative w-8 h-4 rounded-full transition-colors duration-200 flex-shrink-0"
                         :class="showComparativa ? 'bg-blue-500' : 'bg-brand-dark border border-brand-dark'">
-                        <span class="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200"
-                            :class="showComparativa ? 'left-5' : 'left-0.5'"></span>
+                        <span class="absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-transform duration-200"
+                            :class="showComparativa ? 'left-4' : 'left-0.5'"></span>
                     </button>
-                    <span class="text-[10px] text-blue-400 font-bold">{{ trip.route.title }}</span>
                 </div>
 
                 <!-- Llegenda -->
-                <div class="absolute bottom-[160px] right-3 z-[500] bg-brand-black/90 backdrop-blur-sm border border-brand-dark rounded-xl p-3 space-y-2">
+                <div class="absolute top-24 right-3 z-[500] bg-brand-black/90 backdrop-blur-sm border border-brand-dark rounded-xl p-3 space-y-2 shadow-lg">
                     <div class="flex items-center gap-2">
                         <div class="w-6 h-1 rounded bg-red-500"></div>
                         <span class="text-[10px] text-white font-bold uppercase tracking-widest">El teu GPS</span>
@@ -100,7 +99,7 @@ const buildMap = async () => {
     const startLat = props.trip.starting_lat ?? (props.trip.waypoints?.[0]?.lat) ?? 41.3851;
     const startLng = props.trip.starting_lng ?? (props.trip.waypoints?.[0]?.lng) ?? 2.1734;
 
-    map.value = L.map('trip-map', { zoomControl: true, attributionControl: false }).setView([startLat, startLng], 13);
+    map.value = L.map('trip-map', { zoomControl: false, attributionControl: false }).setView([startLat, startLng], 13);
 
     L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
         maxZoom: 20,
@@ -128,15 +127,31 @@ const buildMap = async () => {
 const toggleComparativa = () => {
     showComparativa.value = !showComparativa.value;
     if (showComparativa.value && props.trip.route?.geo_json) {
-        // Dibuixar la ruta oficial en blau
         try {
-            const geoJson = typeof props.trip.route.geo_json === 'string'
-                ? JSON.parse(props.trip.route.geo_json)
-                : props.trip.route.geo_json;
+            let data = props.trip.route.geo_json;
+            if (typeof data === 'string') {
+                try {
+                    data = JSON.parse(data);
+                    if (typeof data === 'string') data = JSON.parse(data);
+                } catch (e) {}
+            }
+            
+            const points = Array.isArray(data) ? data : [];
+            
+            const validPoints = points.map(p => {
+                if (Array.isArray(p) && p.length >= 2) return [p[1], p[0]]; // [lng, lat] -> [lat, lng] usually or depends on format
+                if (p && (p.lat !== undefined || p.latitude !== undefined)) return [p.lat ?? p.latitude, p.lng ?? p.longitude];
+                if (Array.isArray(p) && p.length === 2 && p[0] <= 90 && p[0] >= -90) return [p[0], p[1]]; // direct lat,lng assumption
+                return null;
+            }).filter(Boolean);
+
             if (routePolyline) map.value.removeLayer(routePolyline);
-            routePolyline = L.geoJSON(geoJson, {
-                style: { color: '#60a5fa', weight: 3, dashArray: '6 4', opacity: 0.8 }
-            }).addTo(map.value);
+            
+            if (validPoints.length > 0) {
+                routePolyline = L.polyline(validPoints, {
+                    color: '#60a5fa', weight: 4, dashArray: '8 6', opacity: 0.9
+                }).addTo(map.value);
+            }
         } catch (e) {
             console.warn('Error carregant GeoJSON de la ruta', e);
         }

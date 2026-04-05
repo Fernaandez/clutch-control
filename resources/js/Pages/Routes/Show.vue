@@ -178,10 +178,13 @@
 
                         <!-- ELS TEUS RECORREGUTS SOBRE AQUESTA RUTA -->
                         <div v-if="$page.props.auth.user && myRouteTrips.length > 0" class="px-4 pb-4 pt-2 border-t border-gray-800">
-                            <div class="flex items-center justify-between mb-3">
-                                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">📍 Els teus recorreguts</p>
-                                <button @click="toggleAllTripsMap" class="text-[10px] text-brand-neon hover:text-white uppercase font-bold tracking-widest transition">{{ showingAllTrips ? 'Ocultar del mapa' : 'Veure al mapa' }}</button>
-                            </div>
+                            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest mb-3">📍 Els teus recorreguts</p>
+                            
+                            <button @click="toggleAllTripsMap" class="w-full mb-3 flex items-center justify-center gap-2 bg-brand-neon/10 hover:bg-brand-neon/20 border border-brand-neon/50 text-brand-neon py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0v11.25A2.25 2.25 0 0 1 19.5 16.5h-2.25m-9 0h9m-9 0a2.25 2.25 0 0 0-2.25 2.25v2.25m11.25-4.5a2.25 2.25 0 0 1 2.25 2.25v2.25" /></svg>
+                                {{ showingAllTrips ? 'Ocultar del mapa general' : 'Veure tots al mapa general' }}
+                            </button>
+
                             <div class="space-y-2">
                                 <Link v-for="trip in myRouteTrips" :key="trip.id" :href="route('trips.show', trip.id)"
                                     class="flex items-center justify-between bg-brand-surface border border-brand-dark rounded-xl px-3 py-2.5 hover:border-red-500/50 transition group">
@@ -555,7 +558,7 @@ const stopRecording = () => {
                 id: 'offline_' + Date.now(),
                 started_at: new Date(recordingStartTime).toISOString(),
                 route_id: props.mapRoute?.id || null, // Vinculat a aquesta ruta!
-                motorcycle_id: props.motorcycle?.id || null,
+                motorcycle_id: usePage().props.auth.user?.last_motorcycle_id || null, // De LA TEVA moto, no de l'autor de la ruta
                 distance_km: parseFloat(distanceKm),
                 duration_seconds: recordingTime.value,
                 waypoints: recordedWaypoints.value
