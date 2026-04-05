@@ -101,9 +101,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, onUnmounted, computed } from 'vue';
+import { ref, onMounted, nextTick, onUnmounted, computed, watch } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Link, useForm, usePage } from '@inertiajs/vue3';
+import { Link, useForm, usePage, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 
 const { t, locale } = useI18n();
@@ -171,7 +171,7 @@ onMounted(() => {
     }
 });
 
-import { watch } from 'vue';
+
 
 watch(() => props.conversation.messages, (newMessages) => {
     // Merge new messages or completely replace

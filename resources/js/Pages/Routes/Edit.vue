@@ -185,7 +185,7 @@
 
 <script setup>
 import { ref, onMounted, computed, nextTick } from 'vue';
-import { useForm, Link } from '@inertiajs/vue3';
+import { useForm, Link, router } from '@inertiajs/vue3';
 import { Geolocation } from '@capacitor/geolocation';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import 'leaflet/dist/leaflet.css';
