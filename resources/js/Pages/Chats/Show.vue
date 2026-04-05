@@ -5,7 +5,7 @@
             <!-- CAPÇALERA DEL XAT -->
             <div class="fixed left-0 right-0 z-[40] bg-brand-surface border-b border-brand-dark px-4 py-3 flex items-center justify-between shadow-[0_4px_10px_rgba(0,0,0,0.3)] transition-all" style="top: calc(3.5rem + env(safe-area-inset-top));">
                 <div class="flex items-center gap-3 min-w-0">
-                    <button @click="() => window.history.back()" class="w-10 h-10 rounded-full bg-brand-neon flex items-center justify-center text-black hover:bg-white transition flex-shrink-0 shadow-[0_0_15px_rgba(12,225,181,0.3)]">
+                    <button @click="() => window.history.length > 1 ? window.history.back() : router.visit(route('chats.index'))" class="w-10 h-10 rounded-full bg-brand-neon flex items-center justify-center text-black hover:bg-white transition flex-shrink-0 shadow-[0_0_15px_rgba(12,225,181,0.3)]">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
                     </button>
 
@@ -24,8 +24,8 @@
 
                     <div class="min-w-0">
                         <h2 class="text-white font-bold text-sm leading-none mb-0.5 truncate">{{ pageTitle }}</h2>
-                        <p v-if="conversation.type === 'group'" class="text-[9px] text-purple-400 uppercase font-bold tracking-widest">
-                            {{ conversation.participants?.length || 0 }} {{ $t('chats.members') }}
+                        <p v-if="conversation.type === 'group'" class="text-[10px] text-gray-400 font-bold truncate max-w-[200px] leading-tight">
+                            {{ conversation.participants?.map(p => p.name).join(', ') }}
                         </p>
                         <p v-if="conversation.motorcycle" class="text-[9px] text-brand-neon uppercase font-bold tracking-widest truncate">
                             🏍 {{ conversation.motorcycle.brand }} {{ conversation.motorcycle.model }}
@@ -84,7 +84,7 @@
             </div>
 
             <!-- CAIXA D'ENVIAMENT -->
-            <div class="fixed left-0 right-0 z-[40] bg-brand-surface border-t border-brand-dark p-3 transition-all" style="bottom: calc(4.75rem + env(safe-area-inset-bottom));">
+            <div class="fixed left-0 right-0 z-[40] bg-brand-surface border-t border-brand-dark px-3 pt-3 transition-all" style="bottom: 0; padding-bottom: calc(4.75rem + env(safe-area-inset-bottom) + 0.75rem);">
                 <form @submit.prevent="submit" class="flex gap-2">
                     <input type="text" v-model="form.body" :placeholder="$t('chats.write_message')" 
                            class="flex-1 bg-brand-dark border-transparent focus:border-brand-neon focus:ring-brand-neon text-white rounded-xl px-4 text-sm transition placeholder-gray-500"
@@ -170,6 +170,14 @@ onMounted(() => {
             });
     }
 });
+
+import { watch } from 'vue';
+
+watch(() => props.conversation.messages, (newMessages) => {
+    // Merge new messages or completely replace
+    localMessages.value = [...newMessages];
+    nextTick(() => scrollToBottom());
+}, { deep: true });
 
 onUnmounted(() => {
     if (window.Echo) window.Echo.leave(`chat.${props.conversation.id}`);
