@@ -2,12 +2,12 @@
     <AppLayout>
         <div class="px-4 py-6 pb-24">
             
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <Link :href="route('dashboard', motorcycle.id)" class="text-gray-400 text-sm hover:text-white flex items-center gap-1">
-                        {{ $t('maintenance.back') }}
-                    </Link>
-                    <h1 class="text-2xl font-bold text-white mt-1">{{ $t('maintenance.title') }}</h1>
+            <div class="flex items-center gap-4 mb-6">
+                <Link :href="route('dashboard', motorcycle.id)" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
+                </Link>
+                <div class="flex-1">
+                    <h1 class="text-2xl font-bold text-white">{{ $t('maintenance.title') }}</h1>
                     <p class="text-brand-muted text-sm">{{ motorcycle.brand }} {{ motorcycle.model }}</p>
                 </div>
                 
@@ -72,6 +72,9 @@
                     </div>
 
                     <div class="flex justify-end gap-3 relative z-10">
+                        <button @click="openShowModal(task)" class="text-gray-500 hover:text-brand-neon transition p-1" title="Inspeccionar">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+                        </button>
                         <button @click="deleteTask(task)" class="text-gray-600 hover:text-red-500 transition p-1" :title="$t('maintenance.delete_task_confirm')">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
                         </button>
@@ -164,6 +167,53 @@
             </div>
         </div>
 
+
+        <!-- MODAL SHOW (Read-only) -->
+        <div v-if="showShowModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div @click="showShowModal = false" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+            <div class="relative bg-brand-surface border border-brand-neon/30 rounded-xl p-6 w-full max-w-sm shadow-[0_0_20px_rgba(12,225,181,0.15)]">
+                <button @click="showShowModal = false" class="absolute top-4 right-4 inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
+                </button>
+                <h3 class="text-xl font-bold text-white mb-1 pr-10">{{ selectedShowTask?.title }}</h3>
+                <p class="text-xs text-brand-muted uppercase tracking-widest mb-4">{{ $t('maintenance.title') }}</p>
+
+                <div class="space-y-3">
+                    <!-- Barra de progrés -->
+                    <div class="bg-brand-black/60 rounded-lg p-3 border border-brand-dark">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs text-gray-400">{{ $t('maintenance.cycle') }} {{ selectedShowTask?.frequency_km }} km</span>
+                            <span :class="{
+                                'text-green-400': selectedShowTask?.status === 'green',
+                                'text-yellow-400': selectedShowTask?.status === 'yellow',
+                                'text-red-400': selectedShowTask?.status === 'red'
+                            }" class="text-xs font-bold">
+                                {{ selectedShowTask?.status === 'red' ? $t('maintenance.due_now') : selectedShowTask?.status === 'yellow' ? $t('maintenance.coming_soon') : $t('maintenance.ok') }}
+                            </span>
+                        </div>
+                        <div class="w-full bg-brand-black h-2.5 rounded-full overflow-hidden border border-brand-dark/50">
+                            <div class="h-full rounded-full transition-all" :class="{
+                                'bg-green-500': selectedShowTask?.status === 'green',
+                                'bg-yellow-400': selectedShowTask?.status === 'yellow',
+                                'bg-red-500': selectedShowTask?.status === 'red'
+                            }" :style="{ width: selectedShowTask?.percentage + '%' }"></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="bg-brand-black/60 rounded-lg p-3 border border-brand-dark">
+                            <p class="text-xs text-gray-500 mb-1">{{ $t('maintenance.done_at') }}</p>
+                            <p class="text-white font-bold font-mono text-sm">{{ selectedShowTask?.last_km_done }} km</p>
+                        </div>
+                        <div class="bg-brand-black/60 rounded-lg p-3 border border-brand-dark">
+                            <p class="text-xs text-gray-500 mb-1">{{ selectedShowTask?.km_remaining >= 0 ? 'Queden' : 'Passats' }}</p>
+                            <p :class="selectedShowTask?.km_remaining < 0 ? 'text-red-400' : 'text-brand-neon'" class="font-bold font-mono text-sm">{{ Math.abs(selectedShowTask?.km_remaining ?? 0).toFixed(0) }} km</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </AppLayout>
 </template>
 
@@ -179,6 +229,11 @@ const props = defineProps({
     motorcycle: Object,
     tasks: Array
 });
+
+// MODAL SHOW
+const showShowModal = ref(false);
+const selectedShowTask = ref(null);
+const openShowModal = (task) => { selectedShowTask.value = task; showShowModal.value = true; };
 
 // MODAL CREAR
 const showCreateModal = ref(false);

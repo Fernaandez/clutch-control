@@ -3,11 +3,12 @@
         <div class="px-4 py-6 pb-24 max-w-2xl mx-auto">
             
             <div class="mb-8">
-                <Link :href="route('sales.index')" class="text-gray-400 text-sm hover:text-white flex items-center gap-1 transition mb-4">
-                    &larr; {{ $t('sales.back_to_market') }}
-                </Link>
-                <h1 class="text-3xl font-black text-white uppercase tracking-tighter">{{ $t('sales.put_on') }} <span class="text-brand-neon">{{ $t('sales.sale') }}</span></h1>
-                <p class="text-gray-400 text-sm mt-1">{{ $t('sales.share_machine') }}</p>
+                <div class="flex items-center gap-3">
+                    <Link :href="route('sales.index')" class="w-10 h-10 rounded-full bg-brand-neon flex items-center justify-center text-black hover:bg-white transition flex-shrink-0 shadow-[0_0_15px_rgba(12,225,181,0.3)]">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                    </Link>
+                    <h1 class="text-2xl font-black uppercase tracking-tighter text-white leading-none">POSAR A LA VENDA</h1>
+                </div>
             </div>
 
             <div v-if="motorcycles.length === 0" class="bg-brand-surface border border-brand-dark rounded-xl p-6 text-center">
@@ -105,6 +106,14 @@
                         <textarea v-model="form.description" rows="4" :placeholder="$t('sales.desc_ph')" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon resize-none"></textarea>
                     </div>
 
+                    <div class="bg-brand-black p-3 rounded-lg border border-brand-dark flex items-start gap-3">
+                        <input v-model="form.show_history" type="checkbox" id="show_history" class="mt-1 bg-brand-surface border-brand-dark rounded text-brand-neon focus:ring-0 cursor-pointer">
+                        <div>
+                            <label for="show_history" class="text-sm font-bold text-white block cursor-pointer">Compartir historial de manteniment?</label>
+                            <p class="text-[10px] text-gray-400">Si actives això, els compradors podran veure el registre de revisions i factures que hagis desat.</p>
+                        </div>
+                    </div>
+
                     <!-- Fotos -->
                     <div>
                         <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('sales.item_photos') }}</label>
@@ -159,6 +168,7 @@ const form = useForm({
     license_type: '',
     type: '',
     extras: '',
+    show_history: false,
     images: [],
 });
 

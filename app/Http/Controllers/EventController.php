@@ -14,7 +14,7 @@ class EventController extends Controller
 // 1. INDEX: NOMÉS PÚBLIQUES (El taulell d'anuncis)
     public function index()
     {
-        $events = Event::with(['organizer', 'participants'])
+        $events = Event::with(['organizer', 'participants', 'routes'])
             ->where('is_public', true) // Només públiques
             ->where('start_time', '>=', now()->subDay()) // Futures
             ->orderBy('start_time', 'asc')
@@ -22,6 +22,8 @@ class EventController extends Controller
             ->map(function ($event) {
                 $event->is_attending = $event->participants->contains(Auth::id());
                 $event->participants_count = $event->participants->count();
+                $event->routes_count = $event->routes->count();
+                $event->total_km = $event->routes->sum('planned_distance_km');
                 return $event;
             });
 
@@ -36,7 +38,7 @@ class EventController extends Controller
         $userId = Auth::id();
 
         // Busquem events on: (Sóc l'organitzador) O (M'he apuntat)
-        $events = Event::with(['organizer', 'participants'])
+        $events = Event::with(['organizer', 'participants', 'routes'])
             ->where(function($query) use ($userId) {
                 $query->where('user_id', $userId)
                       ->orWhereHas('participants', function($q) use ($userId) {
@@ -48,6 +50,8 @@ class EventController extends Controller
             ->map(function ($event) {
                 $event->is_attending = $event->participants->contains(Auth::id());
                 $event->participants_count = $event->participants->count();
+                $event->routes_count = $event->routes->count();
+                $event->total_km = $event->routes->sum('planned_distance_km');
                 return $event;
             });
 
@@ -282,6 +286,9 @@ class EventController extends Controller
     {
         if ($event->user_id !== Auth::id()) abort(403);
 
+        $currentParticipants = $event->participants()->count();
+        $minParticipants = max(1, $currentParticipants);
+
         $validated = $request->validate([
             'title'          => 'required|string|max:255',
             'description'    => 'nullable|string',
@@ -290,9 +297,11 @@ class EventController extends Controller
             'latitude'       => 'nullable|numeric',
             'longitude'      => 'nullable|numeric',
             'is_public'      => 'boolean',
-            'max_participants' => 'nullable|integer|min:1',
-            'stages_json'    => 'nullable|string', // <-- Rep les etapes com a JSON string
+            'max_participants' => 'nullable|integer|min:' . $minParticipants,
+            'stages_json'    => 'nullable|string', 
             'photo'          => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ], [
+            'max_participants.min' => 'El límit d\'assistents no pot ser inferior als ja apuntats (' . $currentParticipants . ').'
         ]);
 
         // Deserialitzem les etapes

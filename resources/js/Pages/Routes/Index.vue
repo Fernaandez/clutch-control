@@ -4,8 +4,7 @@
             
             <div class="flex items-center justify-between mb-6">
                 <div>
-                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">{{ $t('routes.explore_title') }} <span class="text-brand-neon">Rutes</span></h1>
-                    <p class="text-gray-400 text-sm">{{ $t('routes.explore_subtitle') }}</p>
+                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">RUTES</h1>
                 </div>
                 <Link :href="route('routes.create')" class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.4)] hover:scale-110 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
@@ -140,16 +139,14 @@
                                 {{ $t('routes.view_detail') }}
                             </Link>
                             
-                            <Link 
+                            <button 
                                 v-if="$page.props.auth.user && ruta && ruta.id && ruta.user_id !== $page.props.auth.user.id"
-                                :href="route('routes.clone', ruta.id)" 
-                                method="post" 
-                                as="button"
+                                @click="router.post(route('routes.clone', ruta.id))"
                                 class="px-3 flex items-center justify-center bg-brand-black border border-brand-neon/50 hover:bg-brand-neon hover:text-black text-brand-neon rounded transition" 
                                 :title="$t('common.save')"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" /></svg>
-                            </Link>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -187,7 +184,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Link, useForm } from '@inertiajs/vue3';
+import { Link, useForm, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import RouteMiniMap from '@/Components/RouteMiniMap.vue';
 import { useRoutesStore } from '@/Stores/useRoutesStore';

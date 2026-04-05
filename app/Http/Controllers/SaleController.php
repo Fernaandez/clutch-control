@@ -71,6 +71,7 @@ class SaleController extends Controller
             'type'           => 'nullable|string|in:Naked,Sport,Trail,Custom,Scooter,Touring,Off-Road,Classic',
             'has_abs'        => 'boolean',
             'extras'         => 'nullable|string|max:1000',
+            'show_history'   => 'boolean',
             // Fotos
             'images'         => 'nullable|array|max:8',
             'images.*'       => 'image|mimes:jpeg,png,jpg,gif,webp|max:3072',
@@ -93,6 +94,7 @@ class SaleController extends Controller
             'price'         => $validated['price'],
             'location'      => $validated['location'],
             'state'         => 'actiu',
+            'show_history'  => $request->boolean('show_history', false),
         ]);
 
         // Actualitzar dades tècniques de la moto
@@ -138,6 +140,22 @@ class SaleController extends Controller
         return Inertia::render('Sales/Show', ['sale' => $sale]);
     }
 
+    // 5.5 VEURE HISTORIAL PÚBLIC DE LA MOTO
+    public function publicHistory(SaleListing $sale)
+    {
+        if (!$sale->show_history) abort(403);
+
+        $motorcycle = $sale->motorcycle;
+        $history = $motorcycle->maintenanceLogs()->latest('date')->get();
+        $totalCost = $history->sum('cost');
+
+        return Inertia::render('Sales/PublicHistory', [
+            'sale' => $sale->load(['motorcycle']),
+            'history' => $history,
+            'totalCost' => $totalCost
+        ]);
+    }
+
     // 6. EDITAR
     public function edit(SaleListing $sale)
     {
@@ -162,6 +180,7 @@ class SaleController extends Controller
             'license_type'   => 'nullable|string|in:AM,A1,A2,A',
             'type'           => 'nullable|string|in:Naked,Sport,Trail,Custom,Scooter,Touring,Off-Road,Classic',
             'extras'         => 'nullable|string|max:1000',
+            'show_history'   => 'boolean',
             // Fotos noves
             'images'         => 'nullable|array|max:8',
             'images.*'       => 'image|mimes:jpeg,png,jpg,gif,webp|max:3072',
@@ -174,6 +193,7 @@ class SaleController extends Controller
             'price'       => $validated['price'],
             'location'    => $validated['location'],
             'state'       => $validated['state'] ?? $sale->state,
+            'show_history' => $request->boolean('show_history', false),
         ]);
 
         // Actualitzar dades tècniques de la moto

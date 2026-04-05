@@ -5,9 +5,9 @@
 
             <div v-if="mapRoute" id="map-detail" class="absolute inset-0 z-0 bg-gray-900"></div>
 
-            <Link :href="route('routes.index')" class="absolute top-safe-top right-4 z-50 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full backdrop-blur-md border border-white/10 transition mt-2">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-            </Link>
+            <button @click="goBack" class="absolute top-safe-top left-4 z-[5010] w-10 h-10 rounded-full bg-brand-neon backdrop-blur-md flex items-center justify-center text-brand-black hover:scale-110 border border-brand-neon/50 transition shadow-[0_0_15px_rgba(12,225,181,0.6)] mt-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+            </button>
 
             <!-- LIVE TRACKING OVERLAY -->
             <div v-if="isRecording" class="absolute top-safe-top left-1/2 -translate-x-1/2 z-50 bg-brand-black/90 backdrop-blur-xl border border-brand-dark rounded-full px-6 py-3 shadow-[0_0_20px_rgba(239,68,68,0.3)] mt-2 flex items-center gap-6">
@@ -162,10 +162,10 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M8.161 2.58a1.875 1.875 0 0 1 1.678 0l4.993 2.498c.106.052.23.052.336 0l3.869-1.935A1.875 1.875 0 0 1 21.75 4.82v12.485c0 .71-.401 1.36-1.037 1.677l-4.875 2.437a1.875 1.875 0 0 1-1.678 0l-4.993-2.498a.75.75 0 0 0-.336 0l-3.868 1.935A1.875 1.875 0 0 1 2.25 19.18V6.695c0-.71.401-1.36 1.036-1.677l4.875-2.437ZM9 6a.75.75 0 0 1 .75.75V15a.75.75 0 0 1-1.5 0V6.75A.75.75 0 0 1 9 6Zm6.75 3a.75.75 0 0 0-1.5 0v8.25a.75.75 0 0 0 1.5 0V9Z" clip-rule="evenodd" /></svg>
                                 {{ $t('routes.navigate') }}
                             </a>
-                            <Link v-if="$page.props.auth.user && mapRoute.user_id !== $page.props.auth.user.id" :href="route('routes.clone', mapRoute.id)" method="post" as="button" class="flex-1 flex items-center justify-center gap-1.5 bg-gray-800 text-brand-neon border border-brand-neon/30 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-brand-neon/20 transition" title="Guardar i Editar">
+                            <button v-if="$page.props.auth.user && mapRoute.user_id !== $page.props.auth.user.id" @click="router.post(route('routes.clone', mapRoute.id))" class="flex-1 flex items-center justify-center gap-1.5 bg-gray-800 text-brand-neon border border-brand-neon/30 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-brand-neon/20 transition" title="Guardar i Editar">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" /></svg>
                                 {{ $t('routes.save_route') }}
-                            </Link>
+                            </button>
                             <button v-if="!isRecording" @click="startRecording" class="flex-1 flex items-center justify-center gap-1.5 bg-red-600/10 text-red-500 border border-red-500/30 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600/20 transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><circle cx="12" cy="12" r="8" fill="currentColor" /></svg>
                                 {{ $t('routes.follow') }}
@@ -210,6 +210,17 @@ const reviewForm = useForm({
     rating: 0,
     comment: ''
 });
+
+const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+const fromEventId = urlParams ? urlParams.get('from_event') : null;
+
+const goBack = () => {
+    if (fromEventId) {
+        router.visit(route('events.show', fromEventId));
+    } else {
+        router.visit(route('routes.index'));
+    }
+};
 
 const userHasReviewed = computed(() => {
     if (!props.mapRoute || !props.mapRoute.reviews || !usePage().props.auth.user) return false;

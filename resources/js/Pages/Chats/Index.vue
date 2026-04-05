@@ -1,18 +1,10 @@
 <template>
     <AppLayout title="Missatges">
         <div class="px-4 py-8 pb-24 max-w-2xl mx-auto">
-            <h1 class="text-3xl font-black uppercase tracking-tighter text-white leading-none mb-2">
-                Safata <span class="text-brand-neon mt-1 block">d'Entrada</span>
-            </h1>
-            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-8">
-                Converses de compravenda i grups de quedades
-            </p>
+            <h1 class="text-3xl font-black uppercase tracking-tighter text-white leading-none mb-8">XATS</h1>
 
-            <div v-if="conversations.length === 0" class="bg-brand-surface border border-brand-dark rounded-2xl p-12 text-center shadow-lg">
-                <div class="bg-brand-dark/50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border border-brand-neon/30">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-brand-neon"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.068.157 2.148.279 3.238.364.466.037.893.281 1.153.671L12 21l2.652-3.978c.26-.39.687-.634 1.153-.67 1.09-.086 2.17-.208 3.238-.365 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" /></svg>
-                </div>
-                <h3 class="text-xl font-bold text-white mb-2">Cap missatge encara</h3>
+            <div v-if="conversations.length === 0" class="bg-brand-surface border border-brand-dark rounded-2xl p-12 text-center shadow-lg border-dashed opacity-80">
+                <h3 class="text-xl font-bold text-white mb-2 uppercase tracking-widest text-center">Sense Missatges</h3>
                 <p class="text-sm text-gray-500 mb-6">Contacta amb el venedor d'alguna moto o apunta't a una quedada per iniciar converses.</p>
                 <Link :href="route('sales.index')" class="text-brand-neon border border-brand-neon px-6 py-3 rounded-xl font-bold text-sm hover:bg-brand-neon hover:text-black transition uppercase tracking-widest inline-block">
                     Anar al Mercat

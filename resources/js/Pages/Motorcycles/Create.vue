@@ -2,9 +2,11 @@
     <AppLayout>
         <div class="max-w-2xl mx-auto px-4 py-8 pb-24">
             
-            <div class="mb-6 flex items-center justify-between">
+            <div class="mb-6 flex items-center gap-4">
+                <Link :href="route('motorcycles.index')" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
+                </Link>
                 <h1 class="text-2xl font-bold text-white">{{ $t('motorcycles.add_title') }}</h1>
-                <Link :href="route('motorcycles.index')" class="text-gray-400 hover:text-white transition">{{ $t('motorcycles.cancel') }}</Link>
             </div>
 
             <div class="bg-brand-surface p-6 rounded-xl border border-brand-dark shadow-lg">
@@ -20,17 +22,16 @@
 
                     <!-- DADES -->
                     <div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">{{ $t('motorcycles.brand') }}</label>
-                                <input v-model="form.brand" type="text" :class="inputClass(form.errors.brand)">
-                                <p v-if="form.errors.brand" class="text-red-400 text-xs mt-1 flex items-center gap-1"><span>⚠</span> {{ form.errors.brand }}</p>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">{{ $t('motorcycles.model') }}</label>
-                                <input v-model="form.model" type="text" :class="inputClass(form.errors.model)">
-                                <p v-if="form.errors.model" class="text-red-400 text-xs mt-1 flex items-center gap-1"><span>⚠</span> {{ form.errors.model }}</p>
-                            </div>
+                        <!-- Selector Marca / Model amb autocomplete -->
+                        <div class="mb-4">
+                            <MotorcycleBrandModelSelector
+                                :brand-error="form.errors.brand"
+                                :model-error="form.errors.model"
+                                @update:brand="form.brand = $event"
+                                @update:model="form.model = $event"
+                                @update:cc="form.cc = $event"
+                                @update:cv="form.power_cv = $event"
+                            />
                         </div>
 
                         <div class="mb-4">
@@ -133,6 +134,7 @@
 import { ref, computed } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import MotorcycleBrandModelSelector from '@/Components/MotorcycleBrandModelSelector.vue';
 
 const currentYear = new Date().getFullYear();
 

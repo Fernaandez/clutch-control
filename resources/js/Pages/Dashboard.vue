@@ -10,8 +10,9 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
                 </svg>
             </div>
-            <Link :href="route('motorcycles.index')" class="absolute top-4 right-4 z-20 text-white/80 hover:text-brand-neon hover:scale-110 transition duration-300 p-2 bg-black/40 rounded-full backdrop-blur-sm border border-white/10 shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
+            <Link :href="route('motorcycles.index')" class="absolute top-4 right-4 z-20 flex items-center gap-2 bg-black/60 backdrop-blur-sm border border-white/20 text-white/90 hover:bg-brand-neon/20 hover:border-brand-neon hover:text-brand-neon px-3 py-1.5 rounded-full text-xs font-bold transition shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
+                Canviar moto
             </Link>
             <div class="absolute bottom-0 left-0 w-full p-4 photo-gradient-bottom">
                 <div class="inline-block bg-black/65 backdrop-blur-sm border border-white/15 rounded-xl px-4 py-3 shadow-lg">
@@ -28,13 +29,11 @@
                     <p class="text-gray-400 text-xs uppercase tracking-widest mb-1">{{ $t('dashboard.current_km') }}</p>
                     <p class="text-4xl font-mono font-bold text-white">{{ moto.current_km }} <span class="text-lg text-brand-neon">km</span></p>
                 </div>
-                <div class="z-10 flex gap-2">
-                    <Link :href="route('routes.free-ride', moto.id)" class="bg-brand-dark hover:bg-brand-neon hover:text-brand-black text-brand-neon p-3 rounded-full transition border border-brand-neon/30 shadow-[0_0_15px_rgba(12,225,181,0.3)]">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                <div class="z-10">
+                    <Link :href="route('routes.free-ride', moto.id)" class="flex items-center gap-2 bg-brand-dark hover:bg-brand-neon hover:text-brand-black text-brand-neon px-5 py-3 rounded-full transition border border-brand-neon/50 shadow-[0_0_20px_rgba(12,225,181,0.4)] font-bold text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                        Volta lliure
                     </Link>
-                    <button @click="openKmModal" class="bg-brand-dark hover:bg-brand-neon hover:text-brand-black text-brand-neon p-3 rounded-full transition border border-brand-neon/30 shadow-[0_0_15px_rgba(12,225,181,0.3)]">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                    </button>
                 </div>
                 <div class="absolute right-0 top-0 w-32 h-32 bg-brand-neon blur-[60px] opacity-10 rounded-full pointer-events-none"></div>
             </div>
@@ -94,47 +93,13 @@
 
         </div>
 
-        <div v-if="showKmModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
-            <div @click="closeKmModal" class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity"></div>
-            <div class="relative bg-brand-surface border border-brand-neon rounded-2xl shadow-[0_0_30px_rgba(12,225,181,0.3)] w-full max-w-sm overflow-hidden transform transition-all scale-100">
-                <div class="bg-brand-black p-4 flex justify-between items-center border-b border-brand-dark">
-                    <h3 class="text-white font-bold text-lg">{{ $t('dashboard.add_km_title') }}</h3>
-                    <button @click="closeKmModal" class="text-gray-400 hover:text-white">✕</button>
-                </div>
-                <div class="p-6">
-                    <div class="flex flex-col items-end font-mono text-xl sm:text-2xl text-gray-300 mb-6 bg-brand-black/50 p-4 rounded-lg border border-brand-dark">
-                        <div class="mb-1 text-gray-500 flex items-center gap-2">
-                             <span class="text-xs uppercase tracking-widest font-sans mr-2">{{ $t('dashboard.before') }}</span>{{ Math.round(moto.current_km) }}
-                        </div>
-                        <div class="flex items-center gap-2 text-brand-neon font-bold w-full justify-end">
-                            <span class="text-2xl">+</span>
-                            <input ref="kmInputRef" v-model="addKmForm.km_to_add" type="number" step="1" placeholder="0" class="w-32 bg-transparent border-b-2 border-brand-neon text-right focus:ring-0 focus:border-white text-white font-bold p-1 text-2xl placeholder-brand-dark" @keyup.enter="submitKm">
-                        </div>
-                        <div class="w-full h-0.5 bg-gray-500 my-2"></div>
-                        <div class="text-white font-black flex items-center gap-2">
-                             <span class="text-xs uppercase tracking-widest font-sans text-brand-muted mr-2">{{ $t('dashboard.total') }}</span>{{ Math.round(moto.current_km) + Math.round(addKmForm.km_to_add || 0) }}
-                        </div>
-                    </div>
-                    <button @click="submitKm" :disabled="addKmForm.processing" class="w-full bg-brand-neon text-brand-black font-bold py-3 rounded-lg shadow-neon hover:bg-white transition transform active:scale-95">
-                        {{ addKmForm.processing ? $t('dashboard.saving') : $t('dashboard.confirm_km') }}
-                    </button>
-                </div>
-            </div>
-        </div>
+
     </AppLayout>
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue';
-import { useForm, Link } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 
 const props = defineProps({ moto: Object });
-const showKmModal = ref(false);
-const kmInputRef = ref(null);
-const addKmForm = useForm({ km_to_add: '' });
-
-const openKmModal = () => { showKmModal.value = true; addKmForm.km_to_add = ''; nextTick(() => { if(kmInputRef.value) kmInputRef.value.focus(); }); };
-const closeKmModal = () => { showKmModal.value = false; addKmForm.reset(); };
-const submitKm = () => { if (!addKmForm.km_to_add || addKmForm.km_to_add <= 0) return; addKmForm.post(route('motorcycles.add-km', props.moto.id), { onSuccess: () => closeKmModal(), preserveScroll: true }); };
 </script>

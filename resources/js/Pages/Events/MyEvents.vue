@@ -3,15 +3,11 @@
         <div class="px-4 py-6 pb-24">
             
             <div class="flex items-center justify-between mb-6">
-                <Link :href="route('events.index')" class="text-gray-500 hover:text-white flex items-center gap-1 text-sm">
-                    {{ $t('events.back_to_public') }}
-                </Link>
-            </div>
-
-            <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">{{ $t('events.my_agenda_title') }} <span class="text-brand-neon">Agenda</span></h1>
-                    <p class="text-gray-400 text-sm">{{ $t('events.my_agenda_subtitle') }}</p>
+                <div class="flex items-center gap-3">
+                    <Link :href="route('events.index')" class="w-10 h-10 rounded-full bg-brand-neon flex items-center justify-center text-black hover:bg-white transition flex-shrink-0 shadow-[0_0_15px_rgba(12,225,181,0.3)]">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                    </Link>
+                    <h1 class="text-2xl font-black uppercase tracking-tighter text-white leading-none">LA MEVA AGENDA</h1>
                 </div>
             </div>
 
@@ -95,13 +91,18 @@
 
                     <div class="p-4 flex-1 flex flex-col justify-between">
                         <div>
-                            <div class="flex justify-between items-start">
-                                <h3 class="text-lg font-bold text-white mb-1 truncate uppercase">{{ event.title }}</h3>
-                                <span class="text-brand-neon text-xs font-bold">{{ new Date(event.start_time).toLocaleDateString(currentLocale, { day: '2-digit', month: 'short' }) }}</span>
-                            </div>
-                            
-                            <div class="flex items-center gap-2 text-xs text-gray-400 mt-2">
-                                <span>📍 {{ event.location || $t('events.no_location') }}</span>
+                            <div class="flex flex-col gap-1 text-[11px] text-gray-300 bg-brand-black/30 p-2 rounded-lg mt-2">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="text-lg font-bold text-white mb-1 truncate uppercase">{{ event.title }}</h3>
+                                    <span class="bg-brand-black text-brand-neon text-[10px] font-bold px-2 py-1 rounded shadow-[0_0_15px_rgba(0,0,0,0.9)] border border-brand-neon/30">{{ new Date(event.start_time).toLocaleDateString(currentLocale, { day: '2-digit', month: 'short' }) }}</span>
+                                </div>
+                                <div class="flex items-center justify-between border-t border-brand-dark/50 pt-1 mt-1">
+                                    <span class="truncate flex items-center gap-1">📍 {{ event.location || $t('events.no_location') }}</span>
+                                </div>
+                                <div class="flex items-center justify-between text-gray-400 border-t border-brand-dark/50 pt-1 mt-1">
+                                    <span class="flex items-center gap-1">🛣️ {{ event.routes_count || 0 }} Rutes</span>
+                                    <span class="font-mono font-bold bg-brand-dark px-1.5 py-0.5 rounded text-white shadow-inner">{{ parseFloat(event.total_km || 0).toFixed(1) }} KM</span>
+                                </div>
                             </div>
                         </div>
 

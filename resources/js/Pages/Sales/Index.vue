@@ -4,8 +4,7 @@
             
             <div class="flex items-center justify-between mb-6">
                 <div>
-                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">{{ $t('sales.marketplace_title') }} <span class="text-brand-neon">Riders</span></h1>
-                    <p class="text-gray-400 text-sm">{{ $t('sales.marketplace_subtitle') }} 🏍️</p>
+                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">MERCAT</h1>
                 </div>
                 <Link :href="route('sales.create')" class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.4)] hover:scale-110 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>

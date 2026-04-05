@@ -13,7 +13,8 @@ class SaleListing extends Model
         'price', 
         'location', 
         'state',
-        'views_count'
+        'views_count',
+        'show_history'
     ];
 
     public function motorcycle() {

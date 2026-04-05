@@ -3,9 +3,11 @@
         <div class="px-4 py-6 pb-24">
 
             <div class="flex items-center justify-between mb-6">
-                <Link :href="route('events.index')" class="text-gray-400 text-sm hover:text-white flex items-center gap-1 transition">
-                    {{ $t('events.back') }}
-                </Link>
+                <div class="flex items-center gap-3">
+                    <Link :href="route('events.index')" class="w-10 h-10 rounded-full bg-brand-neon flex items-center justify-center text-black hover:bg-white transition flex-shrink-0 shadow-[0_0_15px_rgba(12,225,181,0.3)]">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                    </Link>
+                </div>
 
                 <button v-if="$page.props.auth.user && event.user_id === $page.props.auth.user.id" @click="copyShareLink" class="bg-gray-800 hover:bg-brand-neon hover:text-black text-white px-3 py-1.5 rounded-lg transition border border-gray-700 flex items-center gap-2 text-xs font-bold">
                     <span v-if="copyLinkSuccess">{{ $t('events.link_copied') }}</span>
@@ -99,7 +101,7 @@
                     <Link
                         v-for="(ruta, index) in event.routes"
                         :key="ruta.id"
-                        :href="route('routes.show', ruta.id)"
+                        :href="route('routes.show', ruta.id) + '?from_event=' + event.id"
                         class="bg-brand-black border border-brand-dark rounded-xl p-3 flex items-center justify-between group hover:border-brand-neon transition shadow-lg relative overflow-hidden"
                     >
                         <div class="absolute left-0 top-0 bottom-0 w-1" :style="{ backgroundColor: mapColors[index % mapColors.length] }"></div>
@@ -127,8 +129,8 @@
         <div v-show="isMapOpen" class="fixed inset-0 z-[5000] bg-gray-900 flex flex-col">
             <div id="event-global-map" class="absolute inset-0 w-full h-full z-0 bg-gray-900"></div>
 
-            <button @click="closeMap" class="absolute top-4 right-4 z-[5010] bg-black/50 hover:bg-black/80 text-white p-2 rounded-full backdrop-blur-md border border-white/10 transition pt-safe-top">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            <button @click="closeMap" class="absolute top-safe-top left-4 z-[5010] w-10 h-10 rounded-full bg-brand-neon backdrop-blur-md flex items-center justify-center text-brand-black hover:scale-110 border border-brand-neon/50 transition shadow-[0_0_15px_rgba(12,225,181,0.6)] mt-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
             </button>
 
             <div class="absolute bottom-6 left-0 w-full p-4 z-[5010] pb-safe-bottom pointer-events-none">

@@ -111,6 +111,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/sales/create', [\App\Http\Controllers\SaleController::class, 'create'])->name('sales.create');
     Route::post('/sales', [\App\Http\Controllers\SaleController::class, 'store'])->name('sales.store');
     Route::get('/sales/{sale}', [\App\Http\Controllers\SaleController::class, 'show'])->name('sales.show');
+    Route::get('/sales/{sale}/history', [\App\Http\Controllers\SaleController::class, 'publicHistory'])->name('sales.history');
     Route::get('/sales/{sale}/edit', [\App\Http\Controllers\SaleController::class, 'edit'])->name('sales.edit');
     Route::put('/sales/{sale}', [\App\Http\Controllers\SaleController::class, 'update'])->name('sales.update');
     Route::delete('/sales/{sale}', [\App\Http\Controllers\SaleController::class, 'destroy'])->name('sales.destroy');

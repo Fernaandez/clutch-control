@@ -3,80 +3,26 @@
         <div class="px-4 py-6 pb-24">
             
             <div class="flex items-center justify-between mb-6">
-                <div>
-                    <Link :href="route('sales.index')" class="text-gray-400 text-sm hover:text-white flex items-center gap-1 transition">{{ $t('sales.back') }}</Link>
-                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter mt-1">{{ $t('sales.my_listings_title') }} <span class="text-brand-neon">↗</span></h1>
+                <div class="flex items-center gap-3">
+                    <Link :href="route('sales.index')" class="w-10 h-10 rounded-full bg-brand-neon flex items-center justify-center text-black hover:bg-white transition flex-shrink-0 shadow-[0_0_15px_rgba(12,225,181,0.3)]">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                    </Link>
+                    <h1 class="text-2xl font-black uppercase tracking-tighter text-white leading-none">ELS MEUS ANUNCIS</h1>
                 </div>
                 <Link :href="route('sales.create')" class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.4)] hover:scale-110 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                 </Link>
             </div>
 
-            <button 
-                v-if="sales.length > 0"
-                @click="showFilters = !showFilters"
-                class="w-full mb-6 flex items-center justify-between bg-brand-surface border border-brand-dark p-3 rounded-xl text-sm font-bold text-gray-300 hover:text-white hover:border-brand-neon transition"
-            >
-                <span class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
-                    {{ showFilters ? $t('sales.hide_filters') : $t('sales.show_filters') }}
-                </span>
-                <span v-if="activeFiltersCount > 0" class="bg-brand-neon text-brand-black text-xs rounded-full w-5 h-5 flex items-center justify-center font-black">
-                    {{ activeFiltersCount }}
-                </span>
-                <span v-else>▼</span>
-            </button>
 
-            <div v-if="showFilters && sales.length > 0" class="bg-brand-black border border-brand-dark rounded-xl p-4 mb-6 shadow-inner space-y-4 animate-fade-in">
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('sales.search') }}</label>
-                        <input v-model="filters.search" type="text" :placeholder="$t('sales.search_placeholder')" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">Estat</label>
-                        <select v-model="filters.state" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
-                            <option value="all">{{ $t('events.role_all') }}</option>
-                            <option value="actiu">{{ $t('sales.active') }}</option>
-                            <option value="actiu (reservat) (nou)">Reservats</option>
-                            <option value="venuda">{{ $t('sales.sold') }}</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="border-t border-brand-dark pt-3 mt-2">
-                    <label class="text-xs text-brand-neon uppercase font-bold mb-2 block">Ordenar per:</label>
-                    <div class="flex gap-2">
-                        <select v-model="filters.sortBy" class="flex-1 bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon">
-                            <option value="created_at">{{ $t('sales.sort_date') }}</option>
-                            <option value="price">{{ $t('sales.sort_price') }}</option>
-                            <option value="views_count">Més Vistos</option>
-                            <option value="favorited_by_count">Més Favorits</option>
-                        </select>
-                        <button @click="toggleSortDir" class="bg-brand-surface border border-brand-dark px-3 rounded-lg text-white hover:border-brand-neon transition">
-                            {{ filters.sortDir === 'desc' ? '⬇ Desc' : '⬆ Asc' }}
-                        </button>
-                    </div>
-                </div>
-                
-                <button @click="resetFilters" class="w-full text-xs text-gray-500 hover:text-white underline mt-2">
-                    {{ $t('sales.clear_all_filters') }}
-                </button>
-            </div>
 
             <div v-if="sales.length === 0" class="flex flex-col items-center justify-center py-12 text-center opacity-60 bg-brand-surface rounded-xl border border-brand-dark border-dashed">
                 <p class="text-gray-400 font-medium">{{ $t('sales.no_listings') }}</p>
                 <Link :href="route('sales.create')" class="text-brand-neon text-sm font-bold mt-2 hover:underline">{{ $t('sales.create_listing') }}</Link>
             </div>
 
-            <div v-else-if="filteredSales.length === 0" class="flex flex-col items-center justify-center py-12 text-center opacity-60 bg-brand-surface rounded-xl border border-brand-dark border-dashed">
-                <p class="text-gray-400 font-medium">{{ $t('sales.no_filter_listings') }}</p>
-                <button @click="resetFilters" class="text-brand-neon text-sm font-bold mt-2 hover:underline">{{ $t('sales.clear_filters') }}</button>
-            </div>
-
             <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <div v-for="sale in filteredSales" :key="sale.id" class="bg-brand-surface rounded-xl overflow-hidden border border-brand-dark shadow-lg group hover:border-brand-neon transition duration-300 flex flex-col animate-fade-in" :class="sale.state === 'venuda' ? 'opacity-70 grayscale-[30%]' : (sale.state === 'actiu (reservat) (nou)' ? 'ring-1 ring-yellow-500/50' : '')">
+                <div v-for="sale in sales" :key="sale.id" class="bg-brand-surface rounded-xl overflow-hidden border border-brand-dark shadow-lg group hover:border-brand-neon transition duration-300 flex flex-col animate-fade-in" :class="sale.state === 'venuda' ? 'opacity-70 grayscale-[30%]' : (sale.state === 'actiu (reservat) (nou)' ? 'ring-1 ring-yellow-500/50' : '')">
                     
                     <div class="h-40 bg-gray-900 relative w-full overflow-hidden flex items-center justify-center">
                         <img v-if="sale.images && sale.images.length > 0" :src="$page.props.storageUrl + '/' + sale.images[0].image_path" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Foto">

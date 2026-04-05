@@ -3,12 +3,12 @@
         <div class="px-4 py-6 pb-32 max-w-3xl mx-auto">
             
             <div class="flex items-center justify-between mb-4">
-                <Link :href="route('sales.index')" class="text-gray-400 text-sm hover:text-white flex items-center gap-1 transition">
-                    &larr; {{ $t('sales.back_to_market') }}
-                </Link>
+                <button @click="goBack" class="w-10 h-10 rounded-full bg-brand-neon flex items-center justify-center text-black hover:bg-white transition flex-shrink-0 shadow-[0_0_15px_rgba(12,225,181,0.3)]">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                </button>
                 <div class="flex items-center gap-2">
-                    <div v-if="sale.is_sold" class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-red-500/20 text-red-400 border border-red-500/30">{{ $t('sales.sold_badge') }}</div>
-                    <div v-else-if="!sale.is_active" class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-gray-700 text-gray-300">Oculta</div>
+                    <div v-if="sale.state === 'venuda'" class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-red-500/20 text-red-400 border border-red-500/30">Venuda</div>
+                    <div v-else-if="sale.state === 'actiu (reservat) (nou)'" class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-yellow-500/20 text-yellow-500 border border-yellow-500/30">Reservada</div>
                     <div v-else class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-brand-neon/10 text-brand-neon border border-brand-neon/20">{{ $t('sales.state_active') }}</div>
                 </div>
             </div>
@@ -74,7 +74,6 @@
 
             <!-- Fitxa tècnica -->
             <div class="bg-brand-surface border border-brand-dark rounded-xl p-5 shadow-lg mb-6 relative overflow-hidden">
-                <div class="absolute -top-4 -right-4 text-brand-neon/5 pointer-events-none select-none text-[8rem] font-black">🏍</div>
                 <h3 class="text-sm font-black text-brand-neon uppercase tracking-widest mb-4 border-b border-brand-dark pb-2">{{ $t('sales.technical_specs') }}</h3>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-y-5 gap-x-4">
                     <div><p class="text-[10px] text-gray-500 uppercase font-bold">Marca</p><p class="text-sm text-white font-medium">{{ sale.motorcycle?.brand }}</p></div>
@@ -101,6 +100,21 @@
                 <h3 class="text-sm font-black text-brand-neon uppercase tracking-widest mb-3">{{ $t('sales.equipped_extras') }}</h3>
                 <div class="bg-brand-surface border border-brand-dark rounded-xl p-4 text-gray-300 text-sm whitespace-pre-line shadow-lg">
                     ✨ {{ sale.motorcycle.extras }}
+                </div>
+            </div>
+
+            <!-- Historial de manteniment públic -->
+            <div v-if="sale.show_history" class="mb-6">
+                <h3 class="text-sm font-black text-brand-neon uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
+                    Historial de Manteniment
+                </h3>
+                <div class="bg-brand-surface border border-brand-dark rounded-xl p-5 shadow-lg relative overflow-hidden flex flex-col gap-4">
+                    <div class="absolute -right-6 -bottom-6 opacity-5 pointer-events-none text-9xl">📖</div>
+                    <p class="text-xs text-gray-400">Aquesta moto té l'historial de revisions/factures públic. El venedor aporta transparència documentada.</p>
+                    <Link :href="route('sales.history', sale.id)" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-6 py-3 bg-brand-black border border-brand-dark hover:border-brand-neon/50 text-white rounded-xl uppercase font-black text-xs tracking-widest transition">
+                        Obrir Informe Detallat
+                    </Link>
                 </div>
             </div>
 
@@ -141,14 +155,21 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link, usePage, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 
 const props = defineProps({ sale: Object });
 
 const page = usePage();
-const isOwner = computed(() => props.sale.motorcycle?.user_id === page.props.auth.user.id);
+const isOwner = computed(() => props.sale.motorcycle?.user_id === page.props.auth.user?.id);
 
 const selectedPhoto = ref(0);
 const currentPhoto = computed(() => props.sale.images?.[selectedPhoto.value]?.image_path || '');
+
+const goBack = () => {
+    let q = new URLSearchParams(window.location.search);
+    if (q.get('from') === 'mine') router.visit(route('sales.mine'));
+    else if (q.get('from') === 'fav') router.visit(route('sales.favorites'));
+    else router.visit(route('sales.index'));
+};
 </script>

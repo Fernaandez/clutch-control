@@ -4,8 +4,7 @@
             
             <div class="flex items-center justify-between mb-6">
                 <div>
-                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">{{ $t('events.community_title') }} <span class="text-brand-neon">Riders</span></h1>
-                    <p class="text-gray-400 text-sm">{{ $t('events.community_subtitle') }}</p>
+                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">QUEDADES</h1>
                 </div>
                 <Link :href="route('events.create')" class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.4)] hover:scale-110 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
@@ -96,7 +95,7 @@
                         <div v-else class="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-brand-surface via-transparent to-transparent"></div>
                         
-                        <div class="absolute top-2 right-2 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] bg-brand-black/80 text-brand-neon border border-brand-dark">
+                        <div class="absolute top-2 right-2 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] bg-brand-black text-brand-neon shadow-[0_0_15px_rgba(0,0,0,0.9)] border border-brand-neon/30">
                             {{ new Date(event.start_time).toLocaleDateString(currentLocale, { day: '2-digit', month: 'short' }) }}
                         </div>
                         <div v-if="event.is_attending" class="absolute top-2 left-2 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] bg-green-500/80 text-white">{{ $t('events.attending') }}</div>
@@ -106,24 +105,31 @@
                         <div>
                             <h3 class="text-lg font-bold text-white mb-1 truncate uppercase">{{ event.title }}</h3>
                             
-                            <div class="flex items-center justify-between text-xs text-gray-300 bg-brand-black/30 p-2 rounded-lg mt-2">
-                                <span class="truncate max-w-[50%] flex items-center gap-1">
-                                    📍 {{ event.location || $t('events.pending_location') }}
-                                </span>
-                                
-                                <span class="font-mono font-bold flex items-center gap-1" 
-                                      :class="{'text-red-400': event.max_participants && event.participants_count >= event.max_participants, 'text-brand-neon': !event.max_participants}">
-                                    
-                                    👤 
-                                    <span v-if="event.max_participants">
-                                        {{ event.participants_count }} / {{ event.max_participants }}
+                            <div class="flex flex-col gap-1 text-[11px] text-gray-300 bg-brand-black/30 p-2 rounded-lg mt-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="truncate flex items-center gap-1">
+                                        📍 {{ event.location || $t('events.pending_location') }}
                                     </span>
-                                    <span v-else>
-                                        {{ event.participants_count }} <span class="text-lg leading-none align-middle">∞</span>
+                                    <span class="font-mono font-bold flex items-center gap-1" 
+                                          :class="{'text-red-400': event.max_participants && event.participants_count >= event.max_participants, 'text-brand-neon': !event.max_participants}">
+                                        👤 
+                                        <span v-if="event.max_participants">
+                                            {{ event.participants_count }} / {{ event.max_participants }}
+                                        </span>
+                                        <span v-else>
+                                            {{ event.participants_count }} <span class="text-lg leading-none align-middle">∞</span>
+                                        </span>
+                                        <span v-if="event.max_participants && event.participants_count >= event.max_participants" class="ml-1 text-[9px] bg-red-500 text-black px-1 rounded uppercase">FULL</span>
                                     </span>
-                                    
-                                    <span v-if="event.max_participants && event.participants_count >= event.max_participants" class="ml-1 text-[9px] bg-red-500 text-black px-1 rounded uppercase">FULL</span>
-                                </span>
+                                </div>
+                                <div class="flex items-center justify-between text-gray-400 border-t border-brand-dark/50 pt-1 mt-1">
+                                    <span class="flex items-center gap-1">
+                                        🛣️ {{ event.routes_count || 0 }} Rutes
+                                    </span>
+                                    <span class="font-mono font-bold bg-brand-dark px-1.5 py-0.5 rounded text-white shadow-inner">
+                                        {{ parseFloat(event.total_km || 0).toFixed(1) }} KM
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
