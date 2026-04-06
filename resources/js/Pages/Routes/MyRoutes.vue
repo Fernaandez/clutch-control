@@ -4,9 +4,9 @@
             
             <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-3">
-                    <Link :href="route('routes.index')" class="w-10 h-10 rounded-full bg-brand-neon flex items-center justify-center text-black hover:bg-white transition flex-shrink-0 shadow-[0_0_15px_rgba(12,225,181,0.3)]">
+                    <button type="button" onclick="window.history.length > 1 ? window.history.back() : window.location.href='/dashboard'" class="w-10 h-10 rounded-full bg-brand-neon flex items-center justify-center text-black hover:bg-white transition flex-shrink-0 shadow-[0_0_15px_rgba(12,225,181,0.3)]">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
-                    </Link>
+                    </button>
                     <h1 class="text-2xl font-black uppercase tracking-tighter text-white leading-none overflow-hidden text-ellipsis whitespace-nowrap">RUTES</h1>
                 </div>
                 <button @click="scrollToTrips" class="bg-gray-800 hover:bg-brand-neon hover:text-black text-white px-3 py-2 rounded-lg transition border border-gray-700 flex items-center shrink-0 gap-2 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
