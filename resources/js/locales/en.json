@@ -712,5 +712,31 @@
     "terms_h2_3": "3. Suspensions & Moderation",
     "privacy_p5": "You can request the deletion of your account and all associated data at any time. You have two options: 1) From the application, by going to Settings > My profile > Delete account. 2) By sending an email to clutchcontrolapp{'@'}gmail.com with the subject 'Account deletion request'.",
     "privacy_delete_btn": "Go to delete my account"
+  },
+  "tutorial": {
+    "skip": "Skip tutorial",
+    "back": "Previous",
+    "next": "Next",
+    "start": "Let's go!",
+    "requesting": "Requesting...",
+    "permission_granted": "Permission granted!",
+    "step1_title": "Welcome to Clutch Control 🏍️",
+    "step1_desc": "Your ultimate motorcycle app. Track everything: maintenance, routes, meetups and even buy or sell your bike. Let's take a quick tour!",
+    "step2_title": "Your Garage 🔧",
+    "step2_desc": "From the control panel you have access to everything your bike needs: maintenance schedule, breakdown log, installed upgrades and full history.",
+    "step3_title": "Free Ride & Routes 📍",
+    "step3_desc": "Record your rides in real time with GPS, save them and share with the community. Explore routes from other riders and navigate them live.",
+    "step3_permission_text": "We need access to your location to record routes and show your real-time track on the map.",
+    "step3_permission_btn": "Allow Location",
+    "step4_title": "Meetups 📅",
+    "step4_desc": "Organise or join meetups with other riders in the community. Create events with routes, meeting points and a built-in group chat.",
+    "step5_title": "Chat & Messaging 💬",
+    "step5_desc": "Chat directly with sellers, meetup organisers and the community. Enable notifications so you never miss an important message!",
+    "step5_permission_text": "Enable notifications to receive messages in real time and stay up to date with meetups.",
+    "step5_permission_btn": "Enable Notifications",
+    "step6_title": "Bike Marketplace 🛒",
+    "step6_desc": "Buy and sell bikes directly within the community. Post your listing with photos, price and specs, and contact sellers via chat or WhatsApp.",
+    "step7_title": "You're all set! 🚀",
+    "step7_desc": "Head to your garage, add your first bike and start riding. Clutch Control has got your back. Safe rides! 🤘"
   }
 }

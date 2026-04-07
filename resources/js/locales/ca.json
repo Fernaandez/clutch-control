@@ -712,5 +712,31 @@
     "terms_h2_3": "3. Suspensions i Moderació",
     "privacy_p5": "Pots sol·licitar l'eliminació del teu compte i de totes les dades associades en qualsevol moment. Tens dues opcions: 1) Des de l'aplicació, anant a Ajustos > El meu perfil > Esborrar compte. 2) Enviant un correu electrònic a clutchcontrolapp{'@'}gmail.com amb l'assumpte 'Sol·licitud d'eliminació de compte'.",
     "privacy_delete_btn": "Anar a esborrar el meu compte"
+  },
+  "tutorial": {
+    "skip": "Saltar tutorial",
+    "back": "Anterior",
+    "next": "Següent",
+    "start": "Començar!",
+    "requesting": "Demanant...",
+    "permission_granted": "Permís concedit!",
+    "step1_title": "Benvingut a Clutch Control 🏍️",
+    "step1_desc": "La teva app de moto definitiva. Controla'l tot: manteniment, rutes, quedades i fins i tot compra o ven la teva moto. Anem a fer un tomb ràpid!",
+    "step2_title": "El teu Garatge 🔧",
+    "step2_desc": "Des del tauler de control tens accés a tot el que necessita la teva moto: pla de manteniment, registre d'avaries, millores instal·lades i l'historial complet.",
+    "step3_title": "Volta Lliure i Rutes 📍",
+    "step3_desc": "Grava les teves rutes en temps real amb el GPS, guarda-les i comparteix-les amb la comunitat. Explora rutes d'altres riders i navega-les en directe.",
+    "step3_permission_text": "Necessitem accedir a la teva ubicació per gravar rutes i per mostrar el teu recorregut en temps real.",
+    "step3_permission_btn": "Permetre Ubicació",
+    "step4_title": "Quedades 📅",
+    "step4_desc": "Organitza o uneix-te a quedades amb altres motards de la comunitat. Pots crear events amb rutes, punts de trobada i xat de grup integrat.",
+    "step5_title": "Xat i Missatgeria 💬",
+    "step5_desc": "Xateja directament amb venedors, organitzadors de quedades i la comunitat. Activa les notificacions per no perdre't cap missatge important!",
+    "step5_permission_text": "Activa les notificacions per rebre els missatges en temps real i estar sempre al dia de les quedades.",
+    "step5_permission_btn": "Activar Notificacions",
+    "step6_title": "Mercat de Motos 🛒",
+    "step6_desc": "Compra i ven motos directament a la comunitat. Publica el teu anunci amb fotos, preu i especificacions, i contacta amb els venedors per xat o per WhatsApp.",
+    "step7_title": "Ja estàs llest! 🚀",
+    "step7_desc": "Entra al garatge, afegeix la teva primera moto i comença a donar-li gas. Clutch Control et cobreix les esquenes. Bon viatge! 🤘"
   }
 }

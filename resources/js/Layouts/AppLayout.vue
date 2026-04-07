@@ -134,6 +134,10 @@
             </Link>
 
         </nav>
+
+        <!-- Onboarding Tutorial (first launch) -->
+        <OnboardingTutorial />
+
     </div>
 </template>
 
@@ -146,6 +150,7 @@ import { useI18n } from 'vue-i18n';
 import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
 import axios from 'axios';
+import OnboardingTutorial from '@/Components/OnboardingTutorial.vue';
 
 const isMenuOpen = ref(false);
 

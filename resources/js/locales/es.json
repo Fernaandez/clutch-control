@@ -712,5 +712,31 @@
     "terms_h2_3": "3. Suspensiones y Moderación",
     "privacy_p5": "Puedes solicitar la eliminación de tu cuenta y de todos los datos asociados en cualquier momento. Tienes dos opciones: 1) Desde la aplicación, yendo a Ajustes > Mi perfil > Borrar cuenta. 2) Enviando un correo electrónico a clutchcontrolapp{'@'}gmail.com con el asunto 'Solicitud de eliminación de cuenta'.",
     "privacy_delete_btn": "Ir a borrar mi cuenta"
+  },
+  "tutorial": {
+    "skip": "Saltar tutorial",
+    "back": "Anterior",
+    "next": "Siguiente",
+    "start": "¡Empezar!",
+    "requesting": "Solicitando...",
+    "permission_granted": "¡Permiso concedido!",
+    "step1_title": "Bienvenido a Clutch Control 🏍️",
+    "step1_desc": "Tu app de moto definitiva. Controla todo: mantenimiento, rutas, quedadas e incluso compra o vende tu moto. ¡Vamos a dar una vuelta rápida!",
+    "step2_title": "Tu Garaje 🔧",
+    "step2_desc": "Desde el panel de control tienes acceso a todo lo que necesita tu moto: plan de mantenimiento, registro de averías, mejoras instaladas e historial completo.",
+    "step3_title": "Vuelta Libre y Rutas 📍",
+    "step3_desc": "Graba tus rutas en tiempo real con el GPS, guárdalas y compártelas con la comunidad. Explora rutas de otros riders y navégalas en directo.",
+    "step3_permission_text": "Necesitamos acceder a tu ubicación para grabar rutas y mostrar tu recorrido en tiempo real.",
+    "step3_permission_btn": "Permitir Ubicación",
+    "step4_title": "Quedadas 📅",
+    "step4_desc": "Organiza o únete a quedadas con otros moteros de la comunidad. Puedes crear eventos con rutas, puntos de encuentro y chat de grupo integrado.",
+    "step5_title": "Chat y Mensajería 💬",
+    "step5_desc": "Chatea directamente con vendedores, organizadores de quedadas y la comunidad. ¡Activa las notificaciones para no perderte ningún mensaje importante!",
+    "step5_permission_text": "Activa las notificaciones para recibir mensajes en tiempo real y estar siempre al día de las quedadas.",
+    "step5_permission_btn": "Activar Notificaciones",
+    "step6_title": "Mercado de Motos 🛒",
+    "step6_desc": "Compra y vende motos directamente en la comunidad. Publica tu anuncio con fotos, precio y especificaciones, y contacta con los vendedores por chat o WhatsApp.",
+    "step7_title": "¡Ya estás listo! 🚀",
+    "step7_desc": "Entra al garaje, añade tu primera moto y empieza a darle gas. Clutch Control te cubre las espaldas. ¡Buen viaje! 🤘"
   }
 }
