@@ -186,11 +186,13 @@ onUnmounted(() => {
 const submit = () => {
     if (!form.body.trim()) return;
 
+    const bodyBackup = form.body;
+
     const tempMsg = {
         id: 'opt_' + Date.now(),
         sender_id: currentUser.id,
         sender: currentUser,
-        body: form.body,
+        body: bodyBackup,
         read_at: null,
         created_at: new Date().toISOString()
     };
@@ -198,11 +200,12 @@ const submit = () => {
     localMessages.value.push(tempMsg);
     nextTick(() => scrollToBottom(true));
 
-    const bodyBackup = form.body;
-    form.reset('body');
-
-    form.post(route('chats.message', props.conversation.id), {
+    form.transform((data) => ({
+        ...data,
+        body: bodyBackup
+    })).post(route('chats.message', props.conversation.id), {
         preserveScroll: true,
+        preserveState: true,
         onSuccess: () => {
             localMessages.value = [...props.conversation.messages];
             nextTick(() => scrollToBottom());
@@ -212,6 +215,8 @@ const submit = () => {
             form.body = bodyBackup;
         }
     });
+
+    form.reset('body');
 };
 
 const formatTime = (dateStr) => {
