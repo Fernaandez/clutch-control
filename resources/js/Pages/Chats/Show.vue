@@ -38,7 +38,7 @@
             </div>
 
             <!-- ÀREA DE MISSATGES (amb margin top/bottom per les capçaleres fixes) -->
-            <div class="pt-[80px] pb-[110px] px-4 space-y-1 h-[calc(100vh-3.5rem)] overflow-y-auto flex flex-col" ref="messagesContainer">
+            <div class="pt-[80px] pb-[12px] px-4 space-y-1 h-[calc(100vh-12.5rem)] overflow-y-auto flex flex-col" ref="messagesContainer">
                 <template v-for="(msg, idx) in localMessages" :key="msg.id">
                     <!-- Separador de data si el dia canvia -->
                     <div v-if="showDateSeparator(msg, localMessages[idx - 1])" class="flex items-center gap-3 py-3">
@@ -84,7 +84,7 @@
             </div>
 
             <!-- CAIXA D'ENVIAMENT -->
-            <div class="fixed left-0 right-0 z-[40] bg-brand-surface border-t border-brand-dark px-3 pt-3 transition-all" style="bottom: 0; padding-bottom: calc(4.75rem + env(safe-area-inset-bottom) + 0.75rem);">
+            <div class="fixed left-0 right-0 z-[40] bg-brand-surface border-t border-brand-dark px-3 pt-3 transition-all" style="bottom: calc(3.9rem + env(safe-area-inset-bottom)); padding-bottom: calc(env(safe-area-inset-bottom) + 0.75rem);">
                 <form @submit.prevent="submit" class="flex gap-2">
                     <input type="text" v-model="messageText" :placeholder="$t('chats.write_message')" 
                            class="flex-1 bg-brand-dark border-transparent focus:border-brand-neon focus:ring-brand-neon text-white rounded-xl px-4 text-sm transition placeholder-gray-500"
@@ -208,7 +208,10 @@ const stopPolling = () => {
 };
 
 onMounted(() => {
-    scrollToBottom();
+    // On first paint, wait a tick so fixed header/footer heights are applied
+    nextTick(() => scrollToBottom());
+    // Extra pass to guarantee final position on slower devices/webviews
+    setTimeout(() => scrollToBottom(), 120);
     startPolling();
 
     if (window.Echo) {
