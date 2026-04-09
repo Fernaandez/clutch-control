@@ -129,6 +129,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/chats', [\App\Http\Controllers\ConversationController::class, 'index'])->name('chats.index');
     Route::post('/chats/start', [\App\Http\Controllers\ConversationController::class, 'start'])->name('chats.start');
     Route::get('/chats/{conversation}', [\App\Http\Controllers\ConversationController::class, 'show'])->name('chats.show');
+    Route::get('/chats/{conversation}/messages', [\App\Http\Controllers\ConversationController::class, 'messages'])->name('chats.messages');
     Route::post('/chats/{conversation}/message', [\App\Http\Controllers\ConversationController::class, 'sendMessage'])->name('chats.message');
 
 });

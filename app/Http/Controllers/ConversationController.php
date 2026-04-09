@@ -82,6 +82,32 @@ class ConversationController extends Controller
     }
 
     /**
+     * Retorna missatges nous per polling (fallback si WebSocket falla)
+     */
+    public function messages(Request $request, Conversation $conversation)
+    {
+        $userId = Auth::id();
+
+        if (!$conversation->participants()->where('user_id', $userId)->exists()) {
+            abort(403);
+        }
+
+        $sinceId = (int) $request->query('since_id', 0);
+
+        $messages = $conversation->messages()
+            ->with('sender')
+            ->when($sinceId > 0, function ($query) use ($sinceId) {
+                $query->where('id', '>', $sinceId);
+            })
+            ->orderBy('id')
+            ->get();
+
+        return response()->json([
+            'messages' => $messages,
+        ]);
+    }
+
+    /**
      * INICIAR CONVERSA DIRECTA (des del Mercat de Motos)
      */
     public function start(Request $request)

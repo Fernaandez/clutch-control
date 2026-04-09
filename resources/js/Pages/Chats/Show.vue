@@ -123,6 +123,7 @@ const messagesContainer = ref(null);
 const messageText = ref('');
 const isSending = ref(false);
 const sendError = ref('');
+const pollingTimer = ref(null);
 
 const pageTitle = computed(() => {
     if (props.conversation.type === 'group') {
@@ -159,15 +160,62 @@ const scrollToBottom = (smooth = false) => {
     }
 };
 
+const mergeIncomingMessages = (incomingMessages = []) => {
+    if (!Array.isArray(incomingMessages) || incomingMessages.length === 0) return false;
+
+    const ids = new Set(localMessages.value.map(m => String(m.id)));
+    let hasNew = false;
+
+    incomingMessages.forEach((message) => {
+        if (!ids.has(String(message.id))) {
+            localMessages.value.push(message);
+            hasNew = true;
+        }
+    });
+
+    return hasNew;
+};
+
+const fetchNewMessages = async () => {
+    const numericIds = localMessages.value
+        .map(m => Number(m.id))
+        .filter(id => Number.isFinite(id));
+    const lastId = numericIds.length ? Math.max(...numericIds) : 0;
+
+    try {
+        const response = await window.axios.get(route('chats.messages', props.conversation.id), {
+            params: { since_id: lastId },
+            headers: { Accept: 'application/json' },
+        });
+
+        const hasNew = mergeIncomingMessages(response?.data?.messages ?? []);
+        if (hasNew) nextTick(() => scrollToBottom(true));
+    } catch (error) {
+        // Silenciem errors de polling per no molestar UX del xat
+    }
+};
+
+const startPolling = () => {
+    stopPolling();
+    pollingTimer.value = setInterval(fetchNewMessages, 3000);
+};
+
+const stopPolling = () => {
+    if (pollingTimer.value) {
+        clearInterval(pollingTimer.value);
+        pollingTimer.value = null;
+    }
+};
+
 onMounted(() => {
     scrollToBottom();
+    startPolling();
 
     if (window.Echo) {
         window.Echo.private(`chat.${props.conversation.id}`)
             .listen('MessageSent', (e) => {
-                const exists = localMessages.value.some(m => m.id === e.message.id);
-                if (!exists) {
-                    localMessages.value.push(e.message);
+                const hasNew = mergeIncomingMessages([e.message]);
+                if (hasNew) {
                     nextTick(() => scrollToBottom(true));
                 }
             });
@@ -183,6 +231,7 @@ watch(() => props.conversation.messages, (newMessages) => {
 }, { deep: true });
 
 onUnmounted(() => {
+    stopPolling();
     if (window.Echo) window.Echo.leave(`chat.${props.conversation.id}`);
 });
 
