@@ -3,7 +3,7 @@
         <div class="relative">
             
             <!-- CAPÇALERA DEL XAT -->
-            <div class="fixed left-0 right-0 z-[40] bg-brand-surface border-b border-brand-dark px-4 py-3 flex items-center justify-between shadow-[0_4px_10px_rgba(0,0,0,0.3)] transition-all" style="top: calc(3.5rem + env(safe-area-inset-top));">
+            <div class="fixed left-0 right-0 z-[40] bg-brand-surface border-b border-brand-dark px-4 py-3 flex items-center justify-between shadow-[0_4px_10px_rgba(0,0,0,0.3)] transition-all safe-horizontal" style="top: var(--app-header-total-height);">
                 <div class="flex items-center gap-3 min-w-0">
                     <button type="button" onclick="window.history.length > 1 ? window.history.back() : window.location.href='/chats'" class="w-10 h-10 rounded-full bg-brand-neon flex items-center justify-center text-black hover:bg-white transition flex-shrink-0 shadow-[0_0_15px_rgba(12,225,181,0.3)]">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
@@ -38,7 +38,7 @@
             </div>
 
             <!-- ÀREA DE MISSATGES (amb margin top/bottom per les capçaleres fixes) -->
-            <div class="pt-[80px] pb-[12px] px-4 space-y-1 h-[calc(100vh-12.5rem)] overflow-y-auto flex flex-col" ref="messagesContainer">
+            <div class="pt-[80px] pb-3 px-4 space-y-1 h-[calc(100vh-var(--app-header-total-height)-var(--app-bottom-nav-total-height)-5.25rem)] overflow-y-auto flex flex-col safe-horizontal" ref="messagesContainer">
                 <template v-for="(msg, idx) in localMessages" :key="msg.id">
                     <!-- Separador de data si el dia canvia -->
                     <div v-if="showDateSeparator(msg, localMessages[idx - 1])" class="flex items-center gap-3 py-3">
@@ -84,7 +84,7 @@
             </div>
 
             <!-- CAIXA D'ENVIAMENT -->
-            <div class="fixed left-0 right-0 z-[40] bg-brand-surface border-t border-brand-dark px-3 pt-3 transition-all" style="bottom: calc(3.9rem + env(safe-area-inset-bottom)); padding-bottom: calc(env(safe-area-inset-bottom) + 0.75rem);">
+            <div class="fixed left-0 right-0 z-[40] bg-brand-surface border-t border-brand-dark px-3 pt-3 transition-all safe-horizontal" style="bottom: var(--app-bottom-nav-total-height); padding-bottom: calc(var(--safe-bottom) + 0.75rem);">
                 <form @submit.prevent="submit" class="flex gap-2">
                     <input type="text" v-model="messageText" :placeholder="$t('chats.write_message')" 
                            class="flex-1 bg-brand-dark border-transparent focus:border-brand-neon focus:ring-brand-neon text-white rounded-xl px-4 text-sm transition placeholder-gray-500"

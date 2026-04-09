@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-brand-black relative overflow-hidden">
+    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-brand-black relative overflow-hidden safe-horizontal safe-top safe-bottom">
         
         <div class="absolute inset-0 z-0">
             <img src="https://images.unsplash.com/photo-1558981806-ec527fa84c3d?q=80&w=2670&auto=format&fit=crop" 
