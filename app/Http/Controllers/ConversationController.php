@@ -173,6 +173,12 @@ class ConversationController extends Controller
             \Illuminate\Support\Facades\Log::error('Firebase/Pusher error: ' . $e->getMessage());
         }
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => $message,
+            ]);
+        }
+
         return back();
     }
 }

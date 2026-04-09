@@ -38,7 +38,7 @@
             </div>
 
             <!-- ÀREA DE MISSATGES (amb margin top/bottom per les capçaleres fixes) -->
-            <div class="pt-[80px] pb-[80px] px-4 space-y-1 min-h-[calc(100vh-8.25rem)] flex flex-col justify-end" ref="messagesContainer">
+            <div class="pt-[80px] pb-[110px] px-4 space-y-1 h-[calc(100vh-3.5rem)] overflow-y-auto flex flex-col" ref="messagesContainer">
                 <template v-for="(msg, idx) in localMessages" :key="msg.id">
                     <!-- Separador de data si el dia canvia -->
                     <div v-if="showDateSeparator(msg, localMessages[idx - 1])" class="flex items-center gap-3 py-3">
@@ -86,15 +86,16 @@
             <!-- CAIXA D'ENVIAMENT -->
             <div class="fixed left-0 right-0 z-[40] bg-brand-surface border-t border-brand-dark px-3 pt-3 transition-all" style="bottom: 0; padding-bottom: calc(4.75rem + env(safe-area-inset-bottom) + 0.75rem);">
                 <form @submit.prevent="submit" class="flex gap-2">
-                    <input type="text" v-model="form.body" :placeholder="$t('chats.write_message')" 
+                    <input type="text" v-model="messageText" :placeholder="$t('chats.write_message')" 
                            class="flex-1 bg-brand-dark border-transparent focus:border-brand-neon focus:ring-brand-neon text-white rounded-xl px-4 text-sm transition placeholder-gray-500"
                            autocomplete="off" @keydown.enter.prevent="submit">
                     
-                    <button type="submit" :disabled="form.processing || !form.body.trim()" 
+                    <button type="submit" :disabled="isSending || !messageText.trim()" 
                             class="bg-brand-neon text-black p-3 rounded-xl hover:bg-white transition disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
                     </button>
                 </form>
+                <p v-if="sendError" class="text-red-400 text-xs mt-2 px-1">{{ sendError }}</p>
             </div>
         </div>
     </AppLayout>
@@ -103,7 +104,7 @@
 <script setup>
 import { ref, onMounted, nextTick, onUnmounted, computed, watch } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Link, useForm, usePage, router } from '@inertiajs/vue3';
+import { usePage } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 
 const { t, locale } = useI18n();
@@ -119,7 +120,9 @@ const storageUrl = page.props.storageUrl;
 
 const localMessages = ref([...props.conversation.messages]);
 const messagesContainer = ref(null);
-const form = useForm({ body: '' });
+const messageText = ref('');
+const isSending = ref(false);
+const sendError = ref('');
 
 const pageTitle = computed(() => {
     if (props.conversation.type === 'group') {
@@ -152,7 +155,7 @@ const showDateSeparator = (msg, prevMsg) => {
 
 const scrollToBottom = (smooth = false) => {
     if (messagesContainer.value) {
-        messagesContainer.value.scrollTo({ top: messagesContainer.value.scrollHeight, behavior: smooth ? 'smooth' : 'instant' });
+        messagesContainer.value.scrollTo({ top: messagesContainer.value.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
     }
 };
 
@@ -163,7 +166,7 @@ onMounted(() => {
         window.Echo.private(`chat.${props.conversation.id}`)
             .listen('MessageSent', (e) => {
                 const exists = localMessages.value.some(m => m.id === e.message.id);
-                if (!exists && e.message.sender_id !== currentUser.id) {
+                if (!exists) {
                     localMessages.value.push(e.message);
                     nextTick(() => scrollToBottom(true));
                 }
@@ -184,9 +187,13 @@ onUnmounted(() => {
 });
 
 const submit = () => {
-    if (!form.body.trim()) return;
+    const trimmedBody = messageText.value.trim();
+    if (!trimmedBody || isSending.value) return;
 
-    const bodyBackup = form.body;
+    sendError.value = '';
+    isSending.value = true;
+
+    const bodyBackup = trimmedBody;
 
     const tempMsg = {
         id: 'opt_' + Date.now(),
@@ -200,23 +207,28 @@ const submit = () => {
     localMessages.value.push(tempMsg);
     nextTick(() => scrollToBottom(true));
 
-    form.transform((data) => ({
-        ...data,
-        body: bodyBackup
-    })).post(route('chats.message', props.conversation.id), {
-        preserveScroll: true,
-        preserveState: true,
-        onSuccess: () => {
-            localMessages.value = [...props.conversation.messages];
-            nextTick(() => scrollToBottom());
-        },
-        onError: () => {
-            localMessages.value = localMessages.value.filter(m => m.id !== tempMsg.id);
-            form.body = bodyBackup;
-        }
-    });
+    messageText.value = '';
 
-    form.reset('body');
+    window.axios.post(route('chats.message', props.conversation.id), {
+        body: bodyBackup
+    }, {
+        headers: {
+            'Accept': 'application/json',
+        }
+    }).then((response) => {
+        const serverMessage = response?.data?.message;
+        localMessages.value = localMessages.value.filter(m => m.id !== tempMsg.id);
+        if (serverMessage) {
+            localMessages.value.push(serverMessage);
+        }
+        nextTick(() => scrollToBottom(true));
+    }).catch(() => {
+            localMessages.value = localMessages.value.filter(m => m.id !== tempMsg.id);
+            messageText.value = bodyBackup;
+            sendError.value = 'No s\'ha pogut enviar el missatge. Torna-ho a provar.';
+    }).finally(() => {
+        isSending.value = false;
+    });
 };
 
 const formatTime = (dateStr) => {
