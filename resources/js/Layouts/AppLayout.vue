@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen bg-brand-black text-gray-200 font-sans relative safe-horizontal" style="padding-bottom: calc(var(--app-bottom-nav-total-height) + 1rem);"> 
+    <div class="min-h-screen bg-brand-black text-gray-200 font-sans relative safe-horizontal" :style="hideBottomNav ? 'padding-bottom: calc(var(--safe-bottom) + 0.75rem);' : 'padding-bottom: calc(var(--app-bottom-nav-total-height) + 1rem);'"> 
         
         <nav class="bg-brand-surface border-b border-brand-dark sticky top-0 z-[3000] px-4 flex items-center justify-between shadow-lg relative safe-top" style="height: var(--app-header-total-height);">
             
@@ -72,7 +72,7 @@
             </Transition>
         </main>
 
-        <nav class="fixed bottom-[-2px] left-0 right-0 w-full bg-brand-surface border-t border-b-2 border-brand-surface border-t-brand-dark flex justify-around items-center z-[3000] shadow-[0_-4px_10px_rgba(0,0,0,0.5)] safe-horizontal" style="padding-bottom: calc(0.75rem + var(--safe-bottom)); height: var(--app-bottom-nav-total-height);">
+        <nav v-if="!hideBottomNav" class="fixed bottom-[-2px] left-0 right-0 w-full bg-brand-surface border-t border-b-2 border-brand-surface border-t-brand-dark flex justify-around items-center z-[3000] shadow-[0_-4px_10px_rgba(0,0,0,0.5)] safe-horizontal" style="padding-bottom: calc(0.75rem + var(--safe-bottom)); height: var(--app-bottom-nav-total-height);">
             
             <Link 
                 :href="currentMotoId ? route('dashboard', currentMotoId) : route('dashboard')" 
@@ -187,7 +187,11 @@ onMounted(() => {
 });
 
 defineProps({
-    currentMotoId: Number
+    currentMotoId: Number,
+    hideBottomNav: {
+        type: Boolean,
+        default: false,
+    },
 });
 </script>
 
