@@ -84,8 +84,8 @@
             </div>
 
             <!-- CAIXA D'ENVIAMENT -->
-            <div class="fixed left-0 right-0 z-[40] bg-brand-surface border-t border-brand-dark px-5 pt-3 transition-all safe-horizontal" style="bottom: 0; padding-bottom: calc(var(--safe-bottom) + 0.5rem);">
-                <form @submit.prevent="submit" class="flex gap-2 max-w-[720px] mx-auto w-full">
+            <div class="fixed left-0 right-0 z-[40] bg-brand-surface border-t border-brand-dark px-6 pt-3 transition-all safe-horizontal" style="bottom: 0; padding-bottom: calc(var(--safe-bottom) + 0.5rem);">
+                <form @submit.prevent="submit" class="flex gap-2 max-w-[720px] mx-auto w-full px-1">
                     <input type="text" v-model="messageText" :placeholder="$t('chats.write_message')" 
                            class="flex-1 bg-brand-dark border-transparent focus:border-brand-neon focus:ring-brand-neon text-white rounded-xl px-4 text-sm transition placeholder-gray-500"
                            autocomplete="off" @keydown.enter.prevent="submit">
