@@ -84,14 +84,14 @@
             </div>
 
             <!-- CAIXA D'ENVIAMENT -->
-            <div class="fixed left-0 right-0 z-[40] bg-brand-surface border-t border-brand-dark px-6 pt-3 transition-all safe-horizontal" style="bottom: 0; padding-bottom: calc(var(--safe-bottom) + 0.5rem);">
-                <form @submit.prevent="submit" class="flex gap-2 max-w-[720px] mx-auto w-full px-1">
+            <div class="fixed left-0 right-0 z-[40] bg-brand-surface border-t border-brand-dark px-8 pt-3 transition-all safe-horizontal" style="bottom: 0; padding-bottom: calc(var(--safe-bottom) + 0.5rem);">
+                <form @submit.prevent="submit" class="flex gap-3 max-w-[720px] mx-auto w-full px-2">
                     <input type="text" v-model="messageText" :placeholder="$t('chats.write_message')" 
-                           class="flex-1 bg-brand-dark border-transparent focus:border-brand-neon focus:ring-brand-neon text-white rounded-xl px-4 text-sm transition placeholder-gray-500"
+                           class="flex-1 bg-brand-dark border-transparent focus:border-brand-neon focus:ring-brand-neon text-white rounded-2xl px-5 text-sm transition placeholder-gray-500"
                            autocomplete="off" @keydown.enter.prevent="submit">
                     
                     <button type="submit" :disabled="isSending || !messageText.trim()" 
-                            class="bg-brand-neon text-black p-3 rounded-xl hover:bg-white transition disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0">
+                            class="bg-brand-neon text-black p-3.5 rounded-full hover:bg-white transition disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
                     </button>
                 </form>
