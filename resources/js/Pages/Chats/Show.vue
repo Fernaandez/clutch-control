@@ -47,8 +47,8 @@
                         <div class="flex-1 h-px bg-brand-dark"></div>
                     </div>
 
-                    <div class="flex flex-col max-w-[80%] mb-4"
-                         :class="isMine(msg) ? 'self-end items-end ml-auto mr-1' : 'self-start items-start ml-1'">
+                    <div class="flex flex-col max-w-[78%] mb-4"
+                         :class="isMine(msg) ? 'self-end items-end ml-auto mr-4' : 'self-start items-start ml-4'">
                         
                         <!-- Nom del participant en grups (si no sóc jo) -->
                         <div v-if="conversation.type === 'group' && !isMine(msg) && showSenderName(msg, localMessages[idx - 1])"
