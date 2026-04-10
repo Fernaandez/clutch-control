@@ -3,9 +3,9 @@
         <div class="relative">
             
             <!-- CAPÇALERA DEL XAT -->
-            <div class="fixed left-0 right-0 z-[40] bg-brand-surface border-t border-b border-brand-dark px-5 py-3 flex items-center justify-between transition-all safe-horizontal" style="top: var(--app-header-total-height);">
+            <div class="fixed left-0 right-0 z-[40] bg-brand-surface border-b border-brand-dark px-5 py-3 flex items-center justify-between transition-all safe-horizontal" style="top: var(--app-header-total-height);">
                 <div class="flex items-center gap-3 min-w-0">
-                    <button type="button" onclick="window.history.length > 1 ? window.history.back() : window.location.href='/chats'" class="w-10 h-10 rounded-full bg-brand-neon flex items-center justify-center text-black hover:bg-white transition flex-shrink-0 shadow-[0_0_15px_rgba(12,225,181,0.3)]">
+                    <button type="button" onclick="window.history.length > 1 ? window.history.back() : window.location.href='/chats'" class="w-10 h-10 rounded-full bg-brand-neon flex items-center justify-center text-black hover:bg-white transition flex-shrink-0 shadow-[0_0_15px_rgba(12,225,181,0.3)] ml-4">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
                     </button>
 
