@@ -212,6 +212,7 @@
 import { onMounted, computed, ref, nextTick } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Link, router, useForm, usePage } from '@inertiajs/vue3';
+import { smartBack } from '@/Composables/navigationStack.js';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { registerPlugin } from '@capacitor/core';
@@ -281,11 +282,9 @@ const fromEventId = urlParams ? urlParams.get('from_event') : null;
 const goBack = () => {
     if (fromEventId) {
         router.visit(route('events.show', fromEventId));
-    } else if (window.history.length > 1) {
-        window.history.back();
-    } else {
-        router.visit(route('routes.index'));
+        return;
     }
+    smartBack(route('routes.index'));
 };
 
 const userHasReviewed = computed(() => {

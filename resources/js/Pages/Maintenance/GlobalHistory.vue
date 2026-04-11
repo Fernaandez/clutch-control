@@ -1,18 +1,22 @@
 <template>
     <AppLayout :current-moto-id="motorcycle.id">
-        <div class="px-4 py-6 pb-24">
+        <div class="w-full max-w-full min-w-0 overflow-x-hidden box-border px-4 py-6 pb-24">
             
-            <div class="flex items-center gap-4 mb-6">
-                <Link :href="route('dashboard', motorcycle.id)" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
-                </Link>
-                <div class="flex-1">
-                    <h1 class="text-2xl font-bold text-white">{{ $t('maintenance.full_history_title') }}</h1>
-                    <p class="text-brand-muted text-sm">{{ motorcycle.brand }} {{ motorcycle.model }}</p>
+            <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between w-full min-w-0">
+                <div class="flex items-start gap-3 min-w-0 flex-1">
+                    <button type="button" @click="goBack" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]" aria-label="Enrere">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
+                    </button>
+                    <div class="min-w-0 flex-1 pt-0.5">
+                        <h1 class="text-2xl font-bold text-white break-words">{{ $t('maintenance.full_history_title') }}</h1>
+                        <p class="text-brand-muted text-sm truncate">{{ motorcycle.brand }} {{ motorcycle.model }}</p>
+                    </div>
                 </div>
-                <div class="text-right bg-brand-surface border border-brand-dark px-3 py-2 rounded-lg shadow-lg">
-                    <p class="text-[10px] text-gray-400 uppercase tracking-widest">{{ $t('maintenance.total_filtered') }}</p>
-                    <p class="text-xl font-mono font-bold text-brand-neon">{{ totalFilteredCost.toFixed(2) }} €</p>
+                <div class="w-full sm:w-auto sm:flex-shrink-0">
+                    <div class="text-right bg-brand-surface border border-brand-dark px-3 py-2 rounded-lg shadow-lg">
+                        <p class="text-[10px] text-gray-400 uppercase tracking-widest">{{ $t('maintenance.total_filtered') }}</p>
+                        <p class="text-xl font-mono font-bold text-brand-neon">{{ totalFilteredCost.toFixed(2) }} €</p>
+                    </div>
                 </div>
             </div>
 
@@ -132,16 +136,18 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import { smartBack } from '@/Composables/navigationStack.js';
 
 const { locale } = useI18n();
 
 const props = defineProps({
     motorcycle: Object,
-    history: Array, 
+    history: Array,
 });
+
+const goBack = () => smartBack(route('dashboard', props.motorcycle.id));
 
 const showFilters = ref(false);
 

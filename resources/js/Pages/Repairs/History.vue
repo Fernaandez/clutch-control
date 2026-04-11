@@ -1,14 +1,12 @@
 <template>
     <AppLayout :current-moto-id="motorcycle.id">
-        <div class="px-4 py-6 pb-24">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <Link :href="route('motorcycles.repairs.index', motorcycle.id)" class="text-gray-400 text-sm hover:text-white flex items-center gap-1">
-                        {{ $t('repairs_history.back') }}
-                    </Link>
-                    <h1 class="text-2xl font-bold text-red-500 mt-1">{{ $t('repairs_history.title') }}</h1>
-                    <p class="text-brand-muted text-sm">{{ motorcycle.brand }} {{ motorcycle.model }}</p>
-                </div>
+        <div class="w-full max-w-full min-w-0 overflow-x-hidden box-border px-4 py-6 pb-24">
+            <div class="mb-6 w-full min-w-0">
+                <button type="button" @click="goBack" class="text-gray-400 text-sm hover:text-white flex items-center gap-1 w-fit">
+                    {{ $t('repairs_history.back') }}
+                </button>
+                <h1 class="text-2xl font-bold text-red-500 mt-1 break-words">{{ $t('repairs_history.title') }}</h1>
+                <p class="text-brand-muted text-sm truncate">{{ motorcycle.brand }} {{ motorcycle.model }}</p>
             </div>
 
             <div v-if="history.length === 0" class="text-center py-10 text-gray-500 bg-brand-surface rounded-xl border border-brand-dark border-dashed">
@@ -42,13 +40,15 @@
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import { smartBack } from '@/Composables/navigationStack.js';
 
 const { locale } = useI18n();
 
 const props = defineProps({ motorcycle: Object, history: Array });
+
+const goBack = () => smartBack(route('motorcycles.repairs.index', props.motorcycle.id));
 
 const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };

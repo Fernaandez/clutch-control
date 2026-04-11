@@ -1,17 +1,19 @@
 <template>
     <AppLayout :current-moto-id="motorcycle.id">
-        <div class="px-4 py-6 pb-24">
-            <div class="flex items-center gap-4 mb-6">
-                <Link :href="route('dashboard', motorcycle.id)" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
-                </Link>
-                <div class="flex-1">
-                    <h1 class="text-2xl font-bold text-red-500">{{ $t('repairs.title') }}</h1>
-                    <p class="text-brand-muted text-sm">{{ motorcycle.brand }} {{ motorcycle.model }}</p>
+        <div class="w-full max-w-full min-w-0 overflow-x-hidden box-border px-4 py-6 pb-24">
+            <div class="mb-6 space-y-3 w-full min-w-0">
+                <div class="flex items-start gap-3 min-w-0">
+                    <button type="button" @click="goBack" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]" aria-label="Enrere">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
+                    </button>
+                    <div class="min-w-0 flex-1 pt-0.5">
+                        <h1 class="text-2xl font-bold text-red-500 break-words">{{ $t('repairs.title') }}</h1>
+                        <p class="text-brand-muted text-sm truncate">{{ motorcycle.brand }} {{ motorcycle.model }}</p>
+                    </div>
                 </div>
-                <div class="flex gap-2">
-                    <Link :href="route('motorcycles.repairs.history', motorcycle.id)" class="bg-brand-black border border-brand-dark text-gray-300 px-4 py-2 rounded-lg font-bold text-sm hover:border-red-500 hover:text-red-500 transition flex items-center gap-2">{{ $t('repairs.history_link') }}</Link>
-                    <button @click="showCreateModal = true" class="bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg hover:bg-red-500 transition">{{ $t('repairs.new_repair') }}</button>
+                <div class="flex flex-wrap gap-2 w-full">
+                    <Link :href="route('motorcycles.repairs.history', motorcycle.id)" class="flex-1 min-w-[calc(50%-0.25rem)] sm:flex-initial sm:min-w-0 inline-flex justify-center items-center bg-brand-black border border-brand-dark text-gray-300 px-4 py-2.5 rounded-lg font-bold text-sm hover:border-red-500 hover:text-red-500 transition">{{ $t('repairs.history_link') }}</Link>
+                    <button type="button" @click="showCreateModal = true" class="flex-1 min-w-[calc(50%-0.25rem)] sm:flex-initial sm:min-w-0 bg-red-600 text-white px-4 py-2.5 rounded-lg font-bold text-sm shadow-lg hover:bg-red-500 transition">{{ $t('repairs.new_repair') }}</button>
                 </div>
             </div>
 
@@ -41,7 +43,7 @@
 
         <div v-if="showCreateModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div @click="showCreateModal = false" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-            <div class="relative bg-brand-surface border border-red-900 rounded-xl p-6 w-full max-w-sm shadow-lg">
+            <div class="relative bg-brand-surface border border-red-900 rounded-xl p-6 w-full max-w-sm max-h-[min(90vh,32rem)] overflow-y-auto overscroll-contain shadow-lg">
                 <h3 class="text-xl font-bold text-white mb-4">{{ $t('repairs.new_repair_title') }}</h3>
                 <form @submit.prevent="submitCreate">
                     <div class="space-y-4">
@@ -63,7 +65,7 @@
 
         <div v-if="showCompleteModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div @click="showCompleteModal = false" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-            <div class="relative bg-brand-surface border border-red-500 rounded-xl p-6 w-full max-w-sm shadow-lg">
+            <div class="relative bg-brand-surface border border-red-500 rounded-xl p-6 w-full max-w-sm max-h-[min(90vh,36rem)] overflow-y-auto overscroll-contain shadow-lg">
                 <h3 class="text-xl font-bold text-white mb-1">{{ $t('repairs.repair_done_title') }}</h3>
                 <p class="text-sm text-brand-muted mb-4">{{ $t('repairs.task_label') }} <span class="text-red-400">{{ selectedTask?.title }}</span></p>
                 <form @submit.prevent="submitComplete">
@@ -87,7 +89,7 @@
         <!-- MODAL SHOW (Read-only) -->
         <div v-if="showShowModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div @click="showShowModal = false" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-            <div class="relative bg-brand-surface border border-red-500/30 rounded-xl p-6 w-full max-w-sm shadow-[0_0_20px_rgba(239,68,68,0.1)]">
+            <div class="relative bg-brand-surface border border-red-500/30 rounded-xl p-6 w-full max-w-sm max-h-[min(90vh,32rem)] overflow-y-auto overscroll-contain shadow-[0_0_20px_rgba(239,68,68,0.1)]">
                 <button @click="showShowModal = false" class="absolute top-4 right-4 inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
                 </button>
@@ -110,9 +112,12 @@ import { ref } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import { smartBack } from '@/Composables/navigationStack.js';
 
 const { t } = useI18n();
 const props = defineProps({ motorcycle: Object, tasks: Array });
+
+const goBack = () => smartBack(route('dashboard', props.motorcycle.id));
 const showCreateModal = ref(false);
 const showCompleteModal = ref(false);
 const selectedTask = ref(null);

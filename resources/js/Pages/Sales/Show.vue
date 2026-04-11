@@ -3,7 +3,7 @@
         <div class="px-4 py-6 pb-32 max-w-3xl mx-auto">
             
             <div class="flex items-center justify-between mb-4">
-                <button @click="() => window.history.back()" class="w-10 h-10 rounded-full bg-brand-neon flex items-center justify-center text-black hover:bg-white transition flex-shrink-0 shadow-[0_0_15px_rgba(12,225,181,0.3)]">
+                <button type="button" @click="goBack" class="w-10 h-10 rounded-full bg-brand-neon flex items-center justify-center text-black hover:bg-white transition flex-shrink-0 shadow-[0_0_15px_rgba(12,225,181,0.3)]">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
                 </button>
                 <div class="flex items-center gap-2">
@@ -157,6 +157,7 @@
 import { ref, computed } from 'vue';
 import { Link, usePage, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import { smartBack } from '@/Composables/navigationStack.js';
 
 const props = defineProps({ sale: Object });
 
@@ -167,9 +168,15 @@ const selectedPhoto = ref(0);
 const currentPhoto = computed(() => props.sale.images?.[selectedPhoto.value]?.image_path || '');
 
 const goBack = () => {
-    let q = new URLSearchParams(window.location.search);
-    if (q.get('from') === 'mine') router.visit(route('sales.mine'));
-    else if (q.get('from') === 'fav') router.visit(route('sales.favorites'));
-    else router.visit(route('sales.index'));
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('from') === 'mine') {
+        router.visit(route('sales.mine'));
+        return;
+    }
+    if (q.get('from') === 'fav') {
+        router.visit(route('sales.favorites'));
+        return;
+    }
+    smartBack(route('sales.index'));
 };
 </script>

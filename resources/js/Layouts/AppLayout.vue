@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen bg-brand-black text-gray-200 font-sans relative safe-horizontal" :style="hideBottomNav ? 'padding-bottom: calc(var(--safe-bottom) + 0.75rem);' : 'padding-bottom: calc(var(--app-bottom-nav-total-height) + 1rem);'"> 
+    <div class="min-h-screen bg-brand-black text-gray-200 font-sans relative safe-horizontal overflow-x-hidden max-w-[100vw]" :style="hideBottomNav ? 'padding-bottom: calc(var(--safe-bottom) + 0.75rem);' : 'padding-bottom: calc(var(--app-bottom-nav-total-height) + 1rem);'"> 
         
         <nav class="bg-brand-surface border-b border-brand-dark sticky top-0 z-[3000] px-4 flex items-center justify-between shadow-lg relative safe-top" style="height: var(--app-header-total-height);">
             
@@ -64,7 +64,7 @@
 
         </nav>
 
-        <main class="relative flex-1">
+        <main class="relative flex-1 min-w-0 max-w-full">
             <Transition name="page" mode="out-in">
                 <div :key="$page.url" class="w-full h-full">
                     <slot />
@@ -142,8 +142,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import { recordNavigationVisit } from '@/Composables/navigationStack.js';
 import appLogo from '@/../images/logo.svg';
 import { useTheme } from '@/Composables/useTheme.js';
 import { useI18n } from 'vue-i18n';
@@ -157,6 +158,14 @@ const isMenuOpen = ref(false);
 const { initTheme } = useTheme();
 const { locale } = useI18n();
 const page = usePage();
+
+watch(
+    () => page.url,
+    () => {
+        recordNavigationVisit();
+    },
+    { immediate: true },
+);
 
 const registerPushNotifications = async () => {
     if (!Capacitor.isNativePlatform()) return;

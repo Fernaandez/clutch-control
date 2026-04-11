@@ -3,7 +3,7 @@
         <div class="max-w-4xl mx-auto px-4 py-6 pb-24">
             
             <div class="flex items-center justify-between mb-6">
-                <button type="button" @click="() => window.history.back()" class="text-gray-500 hover:text-white flex items-center gap-1 text-sm">
+                <button type="button" @click="goBack" class="text-gray-500 hover:text-white flex items-center gap-1 text-sm">
                     {{ $t('events.cancel') }}
                 </button>
                 <h1 class="text-xl font-black text-white uppercase tracking-tighter">{{ $t('events.create_title') }} <span class="text-brand-neon"></span></h1>
@@ -190,10 +190,13 @@ import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { smartBack } from '@/Composables/navigationStack.js';
 
 const { t } = useI18n();
 
 const props = defineProps({ myRoutes: Array });
+
+const goBack = () => smartBack(route('events.index'));
 
 const form = useForm({
     title: '',
