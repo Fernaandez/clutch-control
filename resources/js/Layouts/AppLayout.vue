@@ -163,7 +163,7 @@ const page = usePage();
 const bottomNavStyle = computed(() => ({
     paddingBottom: isIos ? 'var(--safe-bottom)' : 'calc(0.75rem + var(--safe-bottom))',
     height: 'var(--app-bottom-nav-total-height)',
-    bottom: isIos ? '-10px' : '-2px',
+    bottom: isIos ? '-14px' : '-2px',
 }));
 
 watch(
