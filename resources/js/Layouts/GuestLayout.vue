@@ -23,6 +23,18 @@
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import { watch } from 'vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import { recordNavigationVisit } from '@/Composables/navigationStack.js';
 import appLogo from '@/../images/logo.svg';
+
+const page = usePage();
+
+watch(
+    () => page.url,
+    () => {
+        recordNavigationVisit();
+    },
+    { immediate: true },
+);
 </script>

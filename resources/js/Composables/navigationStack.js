@@ -22,6 +22,16 @@ function saveStack(stack) {
     sessionStorage.setItem(KEY, JSON.stringify(stack.slice(-MAX)));
 }
 
+function hasInternalReferrer() {
+    if (typeof document === 'undefined' || !document.referrer) return false;
+    try {
+        const ref = new URL(document.referrer);
+        return ref.origin === window.location.origin;
+    } catch {
+        return false;
+    }
+}
+
 /** Crida quan canvia la URL visible d’Inertia (p. ex. des d’AppLayout). */
 export function recordNavigationVisit() {
     if (typeof window === 'undefined') return;
@@ -47,13 +57,18 @@ export function smartBack(fallbackUrl) {
     if (stack.length && stack[stack.length - 1] === cur) {
         stack.pop();
     }
+    const prev = stack.pop();
     saveStack(stack);
-    const prev = stack[stack.length - 1];
+
     if (prev) {
-        stack.pop();
-        saveStack(stack);
         router.visit(prev);
-    } else if (fallbackUrl) {
-        router.visit(fallbackUrl);
+        return;
     }
+
+    if (window.history.length > 1 && hasInternalReferrer()) {
+        window.history.back();
+        return;
+    }
+
+    if (fallbackUrl) router.visit(fallbackUrl);
 }

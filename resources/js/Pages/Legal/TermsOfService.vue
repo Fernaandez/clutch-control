@@ -75,14 +75,26 @@
             </div>
             
             <div class="mt-8 text-center">
-                <Link :href="route('profile.edit')" class="inline-block px-8 py-3 bg-brand-neon text-black font-black uppercase tracking-widest rounded-xl hover:bg-white hover:scale-105 transition-all shadow-[0_0_20px_rgba(12,225,181,0.3)]">
+                <button
+                    type="button"
+                    @click="goBack"
+                    class="inline-flex items-center px-8 py-3 border border-brand-neon/40 text-brand-neon font-black uppercase tracking-widest rounded-xl hover:bg-brand-neon hover:text-brand-black transition-all"
+                >
                     {{ $t('common.back') }}
-                </Link>
+                </button>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { smartBack } from '@/Composables/navigationStack.js';
+
+const page = usePage();
+
+const goBack = () => {
+    const fallback = page.props.auth.user ? route('profile.edit') : route('welcome');
+    smartBack(fallback);
+};
 </script>
