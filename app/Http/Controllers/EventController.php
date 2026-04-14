@@ -61,17 +61,32 @@ class EventController extends Controller
     }
 
     // NOVA FUNCIÓ: PREVISUALITZAR EVENT VIA ENLLAÇ (Guest/Public)
-    public function preview($token)
+    public function preview(Request $request, $token)
     {
         $event = Event::where('share_token', $token)->firstOrFail();
         $event->load(['organizer', 'routes.waypoints', 'participants']);
-        
+
         if (Auth::check()) {
             $event->is_attending = $event->participants->contains(Auth::id());
         } else {
             $event->is_attending = false;
         }
         $event->participants_count = $event->participants->count();
+
+        if (!$request->boolean('web') && !Auth::check()) {
+            $webUrl = route('events.preview', ['token' => $token, 'web' => 1]);
+
+            return Inertia::render('Shared/OpenInApp', [
+                'title' => 'Obre la quedada amb Clutch Control',
+                'subtitle' => 'Aquesta quedada s\'ha compartit per enllac. Instal·la l\'app o obre-la al navegador.',
+                'webUrl' => $webUrl,
+                'deepLinkUrl' => config('services.app_links.deep_link_base') . '/e/' . $token,
+                'androidStoreUrl' => config('services.app_links.android_store_url'),
+                'iosStoreUrl' => config('services.app_links.ios_store_url'),
+                'openAppLabel' => 'Obrir app',
+                'openWebLabel' => 'Continuar en web',
+            ]);
+        }
 
         return Inertia::render('Events/Show', [
             'event' => $event

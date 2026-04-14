@@ -40,13 +40,28 @@ class RouteController extends Controller
     }
 
     // NOVA FUNCIÓ: PREVISUALITZAR RUTA VIA ENLLAÇ (Guest/Public)
-    public function preview($token)
+    public function preview(Request $request, $token)
     {
         $route = Route::where('share_token', $token)->firstOrFail();
-        
-        return Inertia::render('Routes/Show', [
-            'mapRoute' => $route->load(['waypoints', 'reviews.user']),
-            'motorcycle' => $route->motorcycle
+
+        if ($request->boolean('web') || Auth::check()) {
+            return Inertia::render('Routes/Show', [
+                'mapRoute' => $route->load(['waypoints', 'reviews.user']),
+                'motorcycle' => $route->motorcycle
+            ]);
+        }
+
+        $webUrl = route('routes.preview', ['token' => $token, 'web' => 1]);
+
+        return Inertia::render('Shared/OpenInApp', [
+            'title' => 'Obre la ruta amb Clutch Control',
+            'subtitle' => 'Aquesta ruta s\'ha compartit per enllac. Instal·la l\'app o obre-la al navegador.',
+            'webUrl' => $webUrl,
+            'deepLinkUrl' => config('services.app_links.deep_link_base') . '/r/' . $token,
+            'androidStoreUrl' => config('services.app_links.android_store_url'),
+            'iosStoreUrl' => config('services.app_links.ios_store_url'),
+            'openAppLabel' => 'Obrir app',
+            'openWebLabel' => 'Continuar en web',
         ]);
     }
 

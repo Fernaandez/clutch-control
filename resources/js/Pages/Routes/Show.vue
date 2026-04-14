@@ -319,8 +319,8 @@ const formattedRecordingTime = computed(() => {
 
 const copyShareLink = () => {
     if(!props.mapRoute || !props.mapRoute.share_token) return;
-    let tokenToCopy = props.mapRoute.share_token;
-    navigator.clipboard.writeText(tokenToCopy).then(() => {
+    const shareUrl = `${window.location.origin}/r/${props.mapRoute.share_token}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
         copyLinkSuccess.value = true;
         setTimeout(() => {
             copyLinkSuccess.value = false;

@@ -197,36 +197,11 @@
             </div>
         </div>
 
-        <!-- Botó Flotant Cerca Codi -->
-        <button @click="showTokenModal = true" class="fixed bottom-24 right-4 z-40 bg-brand-surface text-white p-3 rounded-full border border-brand-dark shadow-lg flex items-center justify-center hover:scale-110 hover:border-brand-neon hover:text-brand-neon transition">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
-        </button>
-
         <div
             v-if="showQuickActions"
             class="fixed inset-0 z-40 bg-black/35 backdrop-blur-[2px]"
             @click="showQuickActions = false"
         ></div>
-
-        <!-- Modal Cerca Codi -->
-        <div v-if="showTokenModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
-            <div @click="closeTokenModal" class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity"></div>
-            <div class="relative bg-brand-surface border border-brand-neon rounded-2xl shadow-[0_0_30px_rgba(12,225,181,0.3)] w-full max-w-sm overflow-hidden transform transition-all scale-100">
-                <div class="bg-brand-black p-4 flex justify-between items-center border-b border-brand-dark">
-                    <h3 class="text-white font-bold text-lg">{{ $t('routes.route_code') }}</h3>
-                    <button @click="closeTokenModal" class="text-gray-400 hover:text-white">✕</button>
-                </div>
-                <div class="p-6">
-                    <form @submit.prevent="submitSearchForm" class="flex flex-col gap-4">
-                        <input ref="tokenInputRef" v-model="searchForm.token" type="text" :placeholder="$t('routes.code_placeholder')" class="w-full bg-brand-black border border-brand-dark rounded-lg text-white font-mono uppercase focus:ring-brand-neon focus:border-brand-neon placeholder-gray-600 px-4 py-3 text-center tracking-widest">
-                        <div v-if="searchForm.errors.token" class="text-red-500 text-sm font-bold text-center">{{ searchForm.errors.token }}</div>
-                        <button type="submit" class="w-full bg-brand-neon text-brand-black font-black px-6 py-3 rounded-lg uppercase tracking-wider hover:bg-white transition whitespace-nowrap shadow-neon flex justify-center items-center gap-2" :disabled="searchForm.processing || !searchForm.token">
-                            {{ searchForm.processing ? $t('routes.searching') : $t('routes.open_route') }}
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
 
     </AppLayout>
 </template>
@@ -234,7 +209,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Link, useForm, router } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import RouteMiniMap from '@/Components/RouteMiniMap.vue';
 import { useRoutesStore } from '@/Stores/useRoutesStore';
@@ -258,10 +233,7 @@ onMounted(() => {
 });
 
 const showFilters = ref(false);
-const showTokenModal = ref(false);
 const showQuickActions = ref(false);
-const tokenInputRef = ref(null);
-const searchForm = useForm({ token: '' });
 
 const goToFreeRide = () => {
     if (!props.defaultMotorcycleId) return;
@@ -270,17 +242,6 @@ const goToFreeRide = () => {
 };
 
 const newRouteActionLabel = computed(() => t('routes.new_route').replace(/^\+\s*/, ''));
-
-const closeTokenModal = () => {
-    showTokenModal.value = false;
-    searchForm.reset();
-    searchForm.clearErrors();
-};
-
-const submitSearchForm = () => {
-    if (!searchForm.token) return;
-    searchForm.post(route('search.token'), { preserveScroll: true });
-};
 
 const filters = ref({
     search: '',

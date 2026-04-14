@@ -187,7 +187,8 @@ const formatTime = (dateStr) => {
 
 const copyShareLink = () => {
     if (!props.event || !props.event.share_token) return;
-    navigator.clipboard.writeText(props.event.share_token).then(() => {
+    const shareUrl = `${window.location.origin}/e/${props.event.share_token}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
         copyLinkSuccess.value = true;
         setTimeout(() => { copyLinkSuccess.value = false; }, 3000);
     });
