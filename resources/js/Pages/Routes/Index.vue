@@ -6,7 +6,7 @@
                 <div>
                     <h1 class="text-3xl font-black text-white uppercase tracking-tighter">RUTES</h1>
                 </div>
-                <div class="relative">
+                <div class="relative z-[60]">
                     <button
                         type="button"
                         @click="showQuickActions = !showQuickActions"
@@ -27,7 +27,7 @@
                     >
                         <div
                             v-if="showQuickActions"
-                            class="absolute right-0 mt-2 w-52 bg-brand-surface border border-brand-dark rounded-xl shadow-2xl overflow-hidden z-40"
+                            class="absolute right-0 mt-2 w-52 bg-brand-surface border border-brand-dark rounded-xl shadow-2xl overflow-hidden z-[70]"
                             role="menu"
                         >
                             <Link
@@ -37,7 +37,7 @@
                                 @click="showQuickActions = false"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5 text-brand-neon"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                                {{ $t('routes.new_route') }}
+                                {{ newRouteActionLabel }}
                             </Link>
 
                             <button
@@ -47,7 +47,7 @@
                                 :disabled="!defaultMotorcycleId"
                                 @click="goToFreeRide"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5 text-brand-neon"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-1.5-1.5v-3.75h10.5v3.75a1.5 1.5 0 0 1-1.5 1.5h-7.5Zm0 0H6.375a2.625 2.625 0 0 1-2.625-2.625V9.75a2.625 2.625 0 0 1 2.625-2.625h11.25A2.625 2.625 0 0 1 20.25 9.75v6.375a2.625 2.625 0 0 1-2.625 2.625H15.75M8.25 7.125V5.25A2.25 2.25 0 0 1 10.5 3h3A2.25 2.25 0 0 1 15.75 5.25v1.875" /></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5 text-brand-neon"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10.5a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 5.5-7.5 11.25-7.5 11.25S4.5 16 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
                                 {{ $t('free_ride.title') }}
                             </button>
                         </div>
@@ -204,7 +204,7 @@
 
         <div
             v-if="showQuickActions"
-            class="fixed inset-0 z-30"
+            class="fixed inset-0 z-40 bg-black/35 backdrop-blur-[2px]"
             @click="showQuickActions = false"
         ></div>
 
@@ -268,6 +268,8 @@ const goToFreeRide = () => {
     showQuickActions.value = false;
     router.visit(route('routes.free-ride', props.defaultMotorcycleId));
 };
+
+const newRouteActionLabel = computed(() => t('routes.new_route').replace(/^\+\s*/, ''));
 
 const closeTokenModal = () => {
     showTokenModal.value = false;
