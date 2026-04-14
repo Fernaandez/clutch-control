@@ -72,7 +72,7 @@
             </Transition>
         </main>
 
-        <nav v-if="!hideBottomNav" class="fixed bottom-[-2px] left-0 right-0 w-full bg-brand-surface border-t border-b-2 border-brand-surface border-t-brand-dark flex justify-around items-center z-[3000] shadow-[0_-4px_10px_rgba(0,0,0,0.5)] safe-horizontal" style="padding-bottom: calc(0.75rem + var(--safe-bottom)); height: var(--app-bottom-nav-total-height);">
+        <nav v-if="!hideBottomNav" class="fixed bottom-[-2px] left-0 right-0 w-full bg-brand-surface border-t border-b-2 border-brand-surface border-t-brand-dark flex justify-around items-center z-[3000] shadow-[0_-4px_10px_rgba(0,0,0,0.5)] safe-horizontal" :style="bottomNavStyle">
             
             <Link 
                 :href="currentMotoId ? route('dashboard', currentMotoId) : route('dashboard')" 
@@ -142,7 +142,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { recordNavigationVisit } from '@/Composables/navigationStack.js';
 import appLogo from '@/../images/logo.svg';
@@ -154,10 +154,16 @@ import axios from 'axios';
 import OnboardingTutorial from '@/Components/OnboardingTutorial.vue';
 
 const isMenuOpen = ref(false);
+const isIos = Capacitor.getPlatform() === 'ios';
 
 const { initTheme } = useTheme();
 const { locale } = useI18n();
 const page = usePage();
+
+const bottomNavStyle = computed(() => ({
+    paddingBottom: isIos ? 'calc(0.3rem + var(--safe-bottom))' : 'calc(0.75rem + var(--safe-bottom))',
+    height: 'var(--app-bottom-nav-total-height)',
+}));
 
 watch(
     () => page.url,

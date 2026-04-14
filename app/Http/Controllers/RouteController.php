@@ -19,8 +19,14 @@ class RouteController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        $motorcycles = Auth::user()
+            ? Auth::user()->motorcycles()->select('id', 'brand', 'model')->get()
+            : collect();
 
-        return Inertia::render('Routes/Index', ['routes' => $routes]);
+        return Inertia::render('Routes/Index', [
+            'routes' => $routes,
+            'defaultMotorcycleId' => optional($motorcycles->first())->id,
+        ]);
     }
 
     // 2. NOVA FUNCIÓ: LES MEVES RUTES (Privades i públiques meves)

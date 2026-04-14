@@ -6,9 +6,53 @@
                 <div>
                     <h1 class="text-3xl font-black text-white uppercase tracking-tighter">RUTES</h1>
                 </div>
-                <Link :href="route('routes.create')" class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.4)] hover:scale-110 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                </Link>
+                <div class="relative">
+                    <button
+                        type="button"
+                        @click="showQuickActions = !showQuickActions"
+                        class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.4)] hover:scale-110 transition"
+                        :aria-expanded="showQuickActions"
+                        aria-haspopup="menu"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                    </button>
+
+                    <Transition
+                        enter-active-class="transition ease-out duration-150"
+                        enter-from-class="opacity-0 scale-95 -translate-y-1"
+                        enter-to-class="opacity-100 scale-100 translate-y-0"
+                        leave-active-class="transition ease-in duration-100"
+                        leave-from-class="opacity-100 scale-100 translate-y-0"
+                        leave-to-class="opacity-0 scale-95 -translate-y-1"
+                    >
+                        <div
+                            v-if="showQuickActions"
+                            class="absolute right-0 mt-2 w-52 bg-brand-surface border border-brand-dark rounded-xl shadow-2xl overflow-hidden z-40"
+                            role="menu"
+                        >
+                            <Link
+                                :href="route('routes.create')"
+                                class="w-full flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-brand-dark transition"
+                                role="menuitem"
+                                @click="showQuickActions = false"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5 text-brand-neon"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                                {{ $t('routes.new_route') }}
+                            </Link>
+
+                            <button
+                                type="button"
+                                class="w-full flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-brand-dark transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                role="menuitem"
+                                :disabled="!defaultMotorcycleId"
+                                @click="goToFreeRide"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5 text-brand-neon"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-1.5-1.5v-3.75h10.5v3.75a1.5 1.5 0 0 1-1.5 1.5h-7.5Zm0 0H6.375a2.625 2.625 0 0 1-2.625-2.625V9.75a2.625 2.625 0 0 1 2.625-2.625h11.25A2.625 2.625 0 0 1 20.25 9.75v6.375a2.625 2.625 0 0 1-2.625 2.625H15.75M8.25 7.125V5.25A2.25 2.25 0 0 1 10.5 3h3A2.25 2.25 0 0 1 15.75 5.25v1.875" /></svg>
+                                {{ $t('free_ride.title') }}
+                            </button>
+                        </div>
+                    </Transition>
+                </div>
             </div>
 
             <Link :href="route('routes.MyRoutes')" class="w-full mb-4 bg-brand-surface border border-brand-neon/30 text-white py-3 rounded-xl flex items-center justify-between px-4 hover:bg-brand-neon/10 transition group shadow-lg">
@@ -158,6 +202,12 @@
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
         </button>
 
+        <div
+            v-if="showQuickActions"
+            class="fixed inset-0 z-30"
+            @click="showQuickActions = false"
+        ></div>
+
         <!-- Modal Cerca Codi -->
         <div v-if="showTokenModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
             <div @click="closeTokenModal" class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity"></div>
@@ -191,7 +241,13 @@ import { useRoutesStore } from '@/Stores/useRoutesStore';
 
 const { t } = useI18n();
 
-const props = defineProps({ routes: Array });
+const props = defineProps({
+    routes: Array,
+    defaultMotorcycleId: {
+        type: Number,
+        default: null,
+    },
+});
 
 const routesStore = useRoutesStore();
 
@@ -203,8 +259,15 @@ onMounted(() => {
 
 const showFilters = ref(false);
 const showTokenModal = ref(false);
+const showQuickActions = ref(false);
 const tokenInputRef = ref(null);
 const searchForm = useForm({ token: '' });
+
+const goToFreeRide = () => {
+    if (!props.defaultMotorcycleId) return;
+    showQuickActions.value = false;
+    router.visit(route('routes.free-ride', props.defaultMotorcycleId));
+};
 
 const closeTokenModal = () => {
     showTokenModal.value = false;
