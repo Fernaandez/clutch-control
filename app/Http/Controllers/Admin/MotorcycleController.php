@@ -55,7 +55,7 @@ class MotorcycleController extends Controller
             'model' => 'required|string|max:255',
             'year' => 'required|integer|min:1900|max:' . (date('Y') + 1),
             'plate' => 'nullable|string|max:30',
-            'current_km' => 'required|integer|min:0',
+            'current_km' => 'required|numeric|min:0',
             'cc' => 'nullable|integer|min:0',
             'power_cv' => 'nullable|integer|min:0',
             'license_type' => 'nullable|string|max:50',

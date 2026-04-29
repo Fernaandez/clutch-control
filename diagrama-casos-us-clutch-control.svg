@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="950" viewBox="0 0 1600 950">
+  <defs>
+    <style>
+      .title { font: 700 34px Arial, sans-serif; fill: #111827; }
+      .label { font: 600 18px Arial, sans-serif; fill: #111827; }
+      .small { font: 500 15px Arial, sans-serif; fill: #111827; }
+      .actor { stroke: #111827; stroke-width: 3; fill: none; }
+      .system { stroke: #1f2937; stroke-width: 3; fill: #f8fafc; rx: 18; }
+      .usecase { stroke: #2563eb; stroke-width: 2.5; fill: #eff6ff; }
+      .admincase { stroke: #7c3aed; stroke-width: 2.5; fill: #f5f3ff; }
+      .publiccase { stroke: #0891b2; stroke-width: 2.5; fill: #ecfeff; }
+      .line { stroke: #374151; stroke-width: 2; fill: none; }
+      .section { font: 700 17px Arial, sans-serif; fill: #374151; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="950" fill="#ffffff"/>
+  <text x="800" y="55" text-anchor="middle" class="title">Diagrama de casos d'�s - Clutch Control</text>
+
+  <!-- System boundary -->
+  <rect x="270" y="95" width="1040" height="790" class="system"/>
+  <text x="790" y="130" text-anchor="middle" class="label">Sistema Clutch Control</text>
+
+  <!-- Actors -->
+  <g transform="translate(115,190)">
+    <circle cx="55" cy="25" r="22" class="actor"/>
+    <line x1="55" y1="47" x2="55" y2="115" class="actor"/>
+    <line x1="15" y1="75" x2="95" y2="75" class="actor"/>
+    <line x1="55" y1="115" x2="20" y2="170" class="actor"/>
+    <line x1="55" y1="115" x2="90" y2="170" class="actor"/>
+    <text x="55" y="205" text-anchor="middle" class="label">Usuari no</text>
+    <text x="55" y="228" text-anchor="middle" class="label">autenticat</text>
+  </g>
+
+  <g transform="translate(115,535)">
+    <circle cx="55" cy="25" r="22" class="actor"/>
+    <line x1="55" y1="47" x2="55" y2="115" class="actor"/>
+    <line x1="15" y1="75" x2="95" y2="75" class="actor"/>
+    <line x1="55" y1="115" x2="20" y2="170" class="actor"/>
+    <line x1="55" y1="115" x2="90" y2="170" class="actor"/>
+    <text x="55" y="205" text-anchor="middle" class="label">Usuari</text>
+    <text x="55" y="228" text-anchor="middle" class="label">autenticat</text>
+  </g>
+
+  <g transform="translate(1385,440)">
+    <circle cx="55" cy="25" r="22" class="actor"/>
+    <line x1="55" y1="47" x2="55" y2="115" class="actor"/>
+    <line x1="15" y1="75" x2="95" y2="75" class="actor"/>
+    <line x1="55" y1="115" x2="20" y2="170" class="actor"/>
+    <line x1="55" y1="115" x2="90" y2="170" class="actor"/>
+    <text x="55" y="205" text-anchor="middle" class="label">Administrador</text>
+  </g>
+
+  <!-- Section labels -->
+  <text x="455" y="175" text-anchor="middle" class="section">Acc�s p�blic</text>
+  <text x="790" y="175" text-anchor="middle" class="section">Funcionalitats d'usuari</text>
+  <text x="1135" y="175" text-anchor="middle" class="section">Administraci�</text>
+
+  <!-- Public use cases -->
+  <ellipse cx="455" cy="225" rx="125" ry="34" class="publiccase"/>
+  <text x="455" y="231" text-anchor="middle" class="small">Registrar-se</text>
+
+  <ellipse cx="455" cy="305" rx="125" ry="34" class="publiccase"/>
+  <text x="455" y="311" text-anchor="middle" class="small">Iniciar sessi�</text>
+
+  <ellipse cx="455" cy="385" rx="145" ry="34" class="publiccase"/>
+  <text x="455" y="391" text-anchor="middle" class="small">Recuperar contrasenya</text>
+
+  <ellipse cx="455" cy="465" rx="145" ry="34" class="publiccase"/>
+  <text x="455" y="471" text-anchor="middle" class="small">Veure enlla�os p�blics</text>
+
+  <!-- User use cases -->
+  <ellipse cx="790" cy="225" rx="130" ry="34" class="usecase"/>
+  <text x="790" y="231" text-anchor="middle" class="small">Gestionar perfil</text>
+
+  <ellipse cx="790" cy="305" rx="130" ry="34" class="usecase"/>
+  <text x="790" y="311" text-anchor="middle" class="small">Gestionar motos</text>
+
+  <ellipse cx="790" cy="385" rx="150" ry="34" class="usecase"/>
+  <text x="790" y="391" text-anchor="middle" class="small">Gestionar manteniment</text>
+
+  <ellipse cx="790" cy="465" rx="165" ry="34" class="usecase"/>
+  <text x="790" y="471" text-anchor="middle" class="small">Crear i consultar rutes</text>
+
+  <ellipse cx="790" cy="545" rx="150" ry="34" class="usecase"/>
+  <text x="790" y="551" text-anchor="middle" class="small">Gravar recorreguts</text>
+
+  <ellipse cx="790" cy="625" rx="170" ry="34" class="usecase"/>
+  <text x="790" y="631" text-anchor="middle" class="small">Sincronitzar rutes offline</text>
+
+  <ellipse cx="790" cy="705" rx="185" ry="34" class="usecase"/>
+  <text x="790" y="711" text-anchor="middle" class="small">Crear i participar en quedades</text>
+
+  <ellipse cx="790" cy="785" rx="170" ry="34" class="usecase"/>
+  <text x="790" y="791" text-anchor="middle" class="small">Publicar motos en venda</text>
+
+  <ellipse cx="1080" cy="265" rx="135" ry="34" class="usecase"/>
+  <text x="1080" y="271" text-anchor="middle" class="small">Gestionar favorits</text>
+
+  <ellipse cx="1080" cy="345" rx="165" ry="34" class="usecase"/>
+  <text x="1080" y="351" text-anchor="middle" class="small">Enviar missatges pel xat</text>
+
+  <ellipse cx="1080" cy="425" rx="145" ry="34" class="usecase"/>
+  <text x="1080" y="431" text-anchor="middle" class="small">Rebre notificacions</text>
+
+  <!-- Admin use cases -->
+  <ellipse cx="1135" cy="545" rx="135" ry="34" class="admincase"/>
+  <text x="1135" y="551" text-anchor="middle" class="small">Administrar usuaris</text>
+
+  <ellipse cx="1135" cy="625" rx="130" ry="34" class="admincase"/>
+  <text x="1135" y="631" text-anchor="middle" class="small">Administrar rutes</text>
+
+  <ellipse cx="1135" cy="705" rx="145" ry="34" class="admincase"/>
+  <text x="1135" y="711" text-anchor="middle" class="small">Administrar quedades</text>
+
+  <ellipse cx="1135" cy="785" rx="135" ry="34" class="admincase"/>
+  <text x="1135" y="791" text-anchor="middle" class="small">Administrar vendes</text>
+
+  <ellipse cx="1135" cy="850" rx="165" ry="28" class="admincase"/>
+  <text x="1135" y="856" text-anchor="middle" class="small">Administrar motos i manteniment</text>
+
+  <!-- Lines from public actor -->
+  <line x1="215" y1="265" x2="330" y2="225" class="line"/>
+  <line x1="215" y1="285" x2="330" y2="305" class="line"/>
+  <line x1="215" y1="305" x2="310" y2="385" class="line"/>
+  <line x1="215" y1="325" x2="310" y2="465" class="line"/>
+
+  <!-- Lines from authenticated actor -->
+  <line x1="215" y1="620" x2="660" y2="225" class="line"/>
+  <line x1="215" y1="625" x2="660" y2="305" class="line"/>
+  <line x1="215" y1="635" x2="640" y2="385" class="line"/>
+  <line x1="215" y1="645" x2="625" y2="465" class="line"/>
+  <line x1="215" y1="655" x2="640" y2="545" class="line"/>
+  <line x1="215" y1="665" x2="620" y2="625" class="line"/>
+  <line x1="215" y1="675" x2="605" y2="705" class="line"/>
+  <line x1="215" y1="685" x2="620" y2="785" class="line"/>
+  <line x1="215" y1="695" x2="945" y2="265" class="line"/>
+  <line x1="215" y1="705" x2="915" y2="345" class="line"/>
+  <line x1="215" y1="715" x2="935" y2="425" class="line"/>
+
+  <!-- Lines from admin actor -->
+  <line x1="1385" y1="535" x2="1270" y2="545" class="line"/>
+  <line x1="1385" y1="555" x2="1265" y2="625" class="line"/>
+  <line x1="1385" y1="575" x2="1280" y2="705" class="line"/>
+  <line x1="1385" y1="595" x2="1270" y2="785" class="line"/>
+  <line x1="1385" y1="615" x2="1300" y2="850" class="line"/>
+
+  <!-- Legend -->
+  <rect x="310" y="905" width="24" height="14" fill="#ecfeff" stroke="#0891b2" stroke-width="2"/>
+  <text x="342" y="918" class="small">Acc�s p�blic</text>
+  <rect x="470" y="905" width="24" height="14" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="502" y="918" class="small">Usuari autenticat</text>
+  <rect x="675" y="905" width="24" height="14" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="707" y="918" class="small">Administrador</text>
+</svg>

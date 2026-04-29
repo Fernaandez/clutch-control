@@ -73,7 +73,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-400 uppercase mb-1">{{ $t('motorcycles.km') }}</label>
-                                <input v-model="form.current_km" type="number" step="1" min="0" :class="inputClass(form.errors.current_km)">
+                                <input v-model="form.current_km" type="number" step="0.01" min="0" :class="inputClass(form.errors.current_km)">
                                 <p v-if="form.errors.current_km" class="text-red-400 text-xs mt-1">⚠ {{ form.errors.current_km }}</p>
                             </div>
                         </div>

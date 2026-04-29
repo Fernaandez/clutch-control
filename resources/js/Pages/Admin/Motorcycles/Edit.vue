@@ -44,7 +44,7 @@
                 <div class="grid grid-cols-3 gap-4">
                     <div>
                         <label for="current_km" class="block text-sm font-medium text-gray-700">Current KMs</label>
-                        <input id="current_km" v-model="form.current_km" type="number" min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                        <input id="current_km" v-model="form.current_km" type="number" step="0.01" min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
                         <p v-if="form.errors.current_km" class="mt-2 text-sm text-red-600">{{ form.errors.current_km }}</p>
                     </div>
                     <div>
