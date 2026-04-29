@@ -227,7 +227,7 @@ const props = defineProps({
 const routesStore = useRoutesStore();
 
 onMounted(() => {
-    if (props.routes && props.routes.length > 0) {
+    if (Array.isArray(props.routes)) {
         routesStore.setRoutes(props.routes);
     }
 });
@@ -275,7 +275,7 @@ const difficultyLabel = (d) => {
 
 const filteredRoutes = computed(() => {
     // FASE 3: Fallback Offline amb Pinia
-    let sourceRoutes = props.routes?.length ? props.routes : routesStore.routes;
+    let sourceRoutes = Array.isArray(props.routes) ? props.routes : routesStore.routes;
     let result = [...sourceRoutes];
     
     if (filters.value.search) {
