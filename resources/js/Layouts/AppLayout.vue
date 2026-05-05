@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen bg-brand-black text-gray-200 font-sans relative safe-horizontal overflow-x-hidden max-w-[100vw]" :style="hideBottomNav ? 'padding-bottom: calc(var(--safe-bottom) + 0.75rem);' : 'padding-bottom: calc(var(--app-bottom-nav-total-height) + 1rem);'"> 
         
-        <nav class="bg-brand-surface border-b border-brand-dark sticky top-0 z-[3000] px-4 flex items-center justify-between shadow-lg relative safe-top" style="height: var(--app-header-total-height);">
+        <nav class="fixed top-0 left-0 right-0 w-full bg-brand-surface border-b border-brand-dark z-[3000] px-4 flex items-center justify-between shadow-lg safe-top safe-horizontal" style="height: var(--app-header-total-height);">
             
             <div class="min-w-[1.75rem]">
                 <Link v-if="$page.props.auth.user && $page.props.auth.user.role === 'admin'" :href="route('admin.dashboard')" class="text-brand-neon text-[10px] font-bold border border-brand-neon px-2 py-1 rounded shadow-[0_0_5px_rgba(12,225,181,0.3)]">
@@ -64,7 +64,7 @@
 
         </nav>
 
-        <main class="relative flex-1 min-w-0 max-w-full">
+        <main class="relative flex-1 min-w-0 max-w-full" style="padding-top: var(--app-header-total-height);">
             <Transition name="page" mode="out-in">
                 <div :key="$page.url" class="w-full h-full">
                     <slot />

@@ -53,6 +53,12 @@
                         <span>Maintenance</span>
                     </div>
                 </Link>
+                <Link :href="route('admin.reports.index')" class="block px-4 py-3 rounded transition-colors hover:bg-gray-800" :class="{'bg-gray-800 border-l-4 border-blue-500': route().current('admin.reports.*')}">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" /></svg>
+                        <span>Reports</span>
+                    </div>
+                </Link>
             </nav>
             <div class="p-4 border-t border-gray-800 bg-gray-900">
                 <Link :href="route('welcome')" class="flex items-center justify-center space-x-2 w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded transition-colors shadow-lg">

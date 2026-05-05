@@ -35,6 +35,14 @@
                         </p>
                     </div>
                 </div>
+                <ReportButton
+                    v-if="conversation.type === 'direct' && otherUser"
+                    reportable-type="user"
+                    :reportable-id="otherUser.id"
+                    label="Denunciar"
+                    :context-label="`Denunciar usuari: ${otherUser.name}`"
+                    button-class="text-[10px] font-black uppercase tracking-widest text-red-400 border border-red-500/40 rounded-lg px-2 py-1 hover:bg-red-500 hover:text-white transition"
+                />
             </div>
 
             <!-- ÀREA DE MISSATGES (amb margin top/bottom per les capçaleres fixes) -->
@@ -69,6 +77,14 @@
                         
                         <div class="flex items-center gap-1 mt-0.5 px-1">
                             <span class="text-[10px] text-gray-600">{{ formatTime(msg.created_at) }}</span>
+                            <ReportButton
+                                v-if="!isMine(msg)"
+                                reportable-type="message"
+                                :reportable-id="msg.id"
+                                label="Denunciar"
+                                :context-label="`Denunciar missatge de ${msg.sender?.name || 'usuari'}`"
+                                button-class="text-[10px] text-red-500/80 hover:text-red-400 underline"
+                            />
                             <!-- Check de lectura per directs -->
                             <template v-if="isMine(msg) && conversation.type === 'direct'">
                                 <svg v-if="msg.read_at" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3 h-3 text-brand-neon">
@@ -104,6 +120,7 @@
 <script setup>
 import { ref, onMounted, nextTick, onUnmounted, computed, watch } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import ReportButton from '@/Components/ReportButton.vue';
 import { usePage } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import { smartBack } from '@/Composables/navigationStack.js';

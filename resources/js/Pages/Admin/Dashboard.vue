@@ -64,6 +64,16 @@
                     <p class="text-2xl font-bold text-gray-800">{{ stats.maintenance }}</p>
                 </div>
             </div>
+
+            <Link :href="route('admin.reports.index')" class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center space-x-4 hover:border-red-200 hover:shadow-md transition">
+                <div class="p-3 bg-red-100 text-red-600 rounded-full">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" /></svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Denuncies pendents</p>
+                    <p class="text-2xl font-bold text-gray-800">{{ stats.reports_pending }}</p>
+                </div>
+            </Link>
         </div>
         
         <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-start space-x-4">
@@ -81,6 +91,7 @@
 </template>
 
 <script setup>
+import { Link } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 defineProps({ stats: Object });

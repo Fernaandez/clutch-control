@@ -72,4 +72,8 @@ class Route extends Model
     public function events() {
         return $this->belongsToMany(Event::class, 'event_routes');
     }
+
+    public function reports() {
+        return $this->morphMany(Report::class, 'reportable');
+    }
 }

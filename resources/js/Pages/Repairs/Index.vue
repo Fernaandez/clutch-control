@@ -41,7 +41,7 @@
             </div>
         </div>
 
-        <div v-if="showCreateModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div v-if="showCreateModal" class="fixed inset-0 z-[4000] flex items-center justify-center p-4">
             <div @click="showCreateModal = false" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
             <div class="relative bg-brand-surface border border-red-900 rounded-xl p-6 w-full max-w-sm max-h-[min(90vh,32rem)] overflow-y-auto overscroll-contain shadow-lg">
                 <h3 class="text-xl font-bold text-white mb-4">{{ $t('repairs.new_repair_title') }}</h3>
@@ -63,7 +63,7 @@
             </div>
         </div>
 
-        <div v-if="showCompleteModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div v-if="showCompleteModal" class="fixed inset-0 z-[4000] flex items-center justify-center p-4">
             <div @click="showCompleteModal = false" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
             <div class="relative bg-brand-surface border border-red-500 rounded-xl p-6 w-full max-w-sm max-h-[min(90vh,36rem)] overflow-y-auto overscroll-contain shadow-lg">
                 <h3 class="text-xl font-bold text-white mb-1">{{ $t('repairs.repair_done_title') }}</h3>
@@ -87,7 +87,7 @@
         </div>
 
         <!-- MODAL SHOW (Read-only) -->
-        <div v-if="showShowModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div v-if="showShowModal" class="fixed inset-0 z-[4000] flex items-center justify-center p-4">
             <div @click="showShowModal = false" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
             <div class="relative bg-brand-surface border border-red-500/30 rounded-xl p-6 w-full max-w-sm max-h-[min(90vh,32rem)] overflow-y-auto overscroll-contain shadow-[0_0_20px_rgba(239,68,68,0.1)]">
                 <button @click="showShowModal = false" class="absolute top-4 right-4 inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition">

@@ -9,10 +9,20 @@
                     </button>
                 </div>
 
-                <button v-if="$page.props.auth.user && event.user_id === $page.props.auth.user.id" @click="copyShareLink" class="bg-gray-800 hover:bg-brand-neon hover:text-black text-white px-3 py-1.5 rounded-lg transition border border-gray-700 flex items-center gap-2 text-xs font-bold">
-                    <span v-if="copyLinkSuccess">{{ $t('events.link_copied') }}</span>
-                    <span v-else>{{ $t('events.copy_link') }}</span>
-                </button>
+                <div class="flex items-center gap-2">
+                    <ReportButton
+                        v-if="!$page.props.auth.user || event.user_id !== $page.props.auth.user.id"
+                        reportable-type="event"
+                        :reportable-id="event.id"
+                        label="Denunciar"
+                        :context-label="`Denunciar quedada: ${event.title}`"
+                        button-class="bg-red-600/10 hover:bg-red-600/20 text-red-400 px-3 py-1.5 rounded-lg transition border border-red-500/40 flex items-center gap-2 text-xs font-bold"
+                    />
+                    <button v-if="$page.props.auth.user && event.user_id === $page.props.auth.user.id" @click="copyShareLink" class="bg-gray-800 hover:bg-brand-neon hover:text-black text-white px-3 py-1.5 rounded-lg transition border border-gray-700 flex items-center gap-2 text-xs font-bold">
+                        <span v-if="copyLinkSuccess">{{ $t('events.link_copied') }}</span>
+                        <span v-else>{{ $t('events.copy_link') }}</span>
+                    </button>
+                </div>
             </div>
 
             <div v-if="event.photo" class="relative h-56 w-full overflow-hidden mb-6 rounded-xl border border-brand-dark shadow-lg">
@@ -25,6 +35,17 @@
                 <p class="text-gray-400 text-sm mt-1 flex items-center gap-2">
                     📍 {{ event.location || $t('events.no_location_info') }}
                 </p>
+                <div v-if="event.organizer" class="mt-3 flex items-center justify-between gap-3 rounded-xl border border-brand-dark bg-brand-surface px-4 py-3">
+                    <p class="text-xs text-gray-400">Organitza <span class="font-bold text-white">{{ event.organizer.name }}</span></p>
+                    <ReportButton
+                        v-if="!$page.props.auth.user || event.organizer.id !== $page.props.auth.user.id"
+                        reportable-type="user"
+                        :reportable-id="event.organizer.id"
+                        label="Denunciar usuari"
+                        :context-label="`Denunciar usuari: ${event.organizer.name}`"
+                        button-class="text-[10px] font-bold uppercase tracking-widest text-red-400 hover:text-red-300 underline"
+                    />
+                </div>
             </div>
 
             <div class="bg-brand-surface rounded-xl p-5 border border-brand-dark shadow-lg mb-8">
@@ -158,6 +179,7 @@ import { ref, computed, nextTick } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import ReportButton from '@/Components/ReportButton.vue';
 import { smartBack } from '@/Composables/navigationStack.js';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';

@@ -11,6 +11,7 @@ use App\Models\Event;
 use App\Models\SaleListing;
 use App\Models\Motorcycle;
 use App\Models\MaintenanceTask;
+use App\Models\Report;
 
 class DashboardController extends Controller
 {
@@ -23,6 +24,7 @@ class DashboardController extends Controller
             'sales' => SaleListing::count(),
             'motorcycles' => Motorcycle::count(),
             'maintenance' => MaintenanceTask::count(),
+            'reports_pending' => Report::where('status', 'pending')->count(),
         ];
 
         return Inertia::render('Admin/Dashboard', [

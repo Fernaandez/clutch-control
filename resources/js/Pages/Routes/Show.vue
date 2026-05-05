@@ -102,6 +102,18 @@
                             </Link>
                         </div>
 
+                        <div v-if="mapRoute.user" class="px-4 pt-4 flex items-center justify-between gap-3">
+                            <p class="text-xs text-gray-500">Publicada per <span class="font-bold text-gray-300">{{ mapRoute.user.name }}</span></p>
+                            <ReportButton
+                                v-if="!$page.props.auth.user || mapRoute.user_id !== $page.props.auth.user.id"
+                                reportable-type="user"
+                                :reportable-id="mapRoute.user.id"
+                                label="Denunciar usuari"
+                                :context-label="`Denunciar usuari: ${mapRoute.user.name}`"
+                                button-class="text-[10px] font-bold uppercase tracking-widest text-red-400 hover:text-red-300 underline"
+                            />
+                        </div>
+
                         <!-- Descripció -->
                         <div class="px-4 pt-4 pb-2">
                             <p class="text-sm text-gray-400">{{ mapRoute.description || $t('routes.no_description') }}</p>
@@ -175,6 +187,15 @@
                                 {{ $t('routes.stop') }}
                             </button>
                         </div>
+                        <div v-if="!$page.props.auth.user || mapRoute.user_id !== $page.props.auth.user.id" class="px-4 pb-4">
+                            <ReportButton
+                                reportable-type="route"
+                                :reportable-id="mapRoute.id"
+                                label="Denunciar ruta"
+                                :context-label="`Denunciar ruta: ${mapRoute.title}`"
+                                button-class="w-full flex items-center justify-center gap-1.5 bg-red-600/10 text-red-400 border border-red-500/30 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600/20 transition"
+                            />
+                        </div>
 
                         <!-- ELS TEUS RECORREGUTS SOBRE AQUESTA RUTA -->
                         <div v-if="$page.props.auth.user && myRouteTrips.length > 0" class="px-4 pb-4 pt-2 border-t border-gray-800">
@@ -211,6 +232,7 @@
 <script setup>
 import { onMounted, computed, ref, nextTick } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import ReportButton from '@/Components/ReportButton.vue';
 import { Link, router, useForm, usePage } from '@inertiajs/vue3';
 import { smartBack } from '@/Composables/navigationStack.js';
 import L from 'leaflet';

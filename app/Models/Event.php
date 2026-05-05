@@ -57,4 +57,8 @@ class Event extends Model
                     ->withPivot('status')
                     ->withTimestamps();
     }
+
+    public function reports() {
+        return $this->morphMany(Report::class, 'reportable');
+    }
 }

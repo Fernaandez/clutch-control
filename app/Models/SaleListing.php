@@ -33,5 +33,9 @@ class SaleListing extends Model
         if (!$user) return false;
         return $this->favoritedBy()->where('user_id', $user->id)->exists();
     }
+
+    public function reports() {
+        return $this->morphMany(Report::class, 'reportable');
+    }
 }
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -32,6 +33,10 @@ Route::get('/privacy-policy', function () {
 Route::get('/terms-of-service', function () {
     return Inertia::render('Legal/TermsOfService');
 })->name('terms.service');
+
+Route::post('/reports', [ReportController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('reports.store');
 
 // El perfil NO demana 'verified' perquè l'usuari pugui entrar a canviar el seu correu si s'ha equivocat
 Route::middleware('auth')->group(function () {
@@ -143,4 +148,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::resource('sales', \App\Http\Controllers\Admin\SaleController::class);
     Route::resource('motorcycles', \App\Http\Controllers\Admin\MotorcycleController::class);
     Route::resource('maintenance', \App\Http\Controllers\Admin\MaintenanceController::class);
+    Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/{report}', [\App\Http\Controllers\Admin\ReportController::class, 'show'])->name('reports.show');
+    Route::patch('/reports/{report}', [\App\Http\Controllers\Admin\ReportController::class, 'update'])->name('reports.update');
 });

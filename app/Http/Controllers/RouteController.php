@@ -46,7 +46,7 @@ class RouteController extends Controller
 
         if ($request->boolean('web') || Auth::check()) {
             return Inertia::render('Routes/Show', [
-                'mapRoute' => $route->load(['waypoints', 'reviews.user']),
+                'mapRoute' => $route->load(['user', 'waypoints', 'reviews.user']),
                 'motorcycle' => $route->motorcycle
             ]);
         }
@@ -213,7 +213,7 @@ class RouteController extends Controller
     public function show(Route $route)
     {
         return Inertia::render('Routes/Show', [
-            'mapRoute' => $route->load(['waypoints', 'reviews.user']),
+            'mapRoute' => $route->load(['user', 'waypoints', 'reviews.user']),
             'motorcycle' => $route->motorcycle
         ]);
     }

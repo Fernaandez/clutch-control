@@ -7,6 +7,14 @@
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
                 </button>
                 <div class="flex items-center gap-2">
+                    <ReportButton
+                        v-if="!isOwner"
+                        reportable-type="sale"
+                        :reportable-id="sale.id"
+                        label="Denunciar"
+                        :context-label="`Denunciar venda: ${sale.title}`"
+                        button-class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500 hover:text-white transition"
+                    />
                     <div v-if="sale.state === 'venuda'" class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-red-500/20 text-red-400 border border-red-500/30">Venuda</div>
                     <div v-else-if="sale.state === 'actiu (reservat) (nou)'" class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-yellow-500/20 text-yellow-500 border border-yellow-500/30">Reservada</div>
                     <div v-else class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-brand-neon/10 text-brand-neon border border-brand-neon/20">{{ $t('sales.state_active') }}</div>
@@ -70,6 +78,15 @@
                     <span>• 👁️ {{ sale.views_count || 0 }} {{ $t('sales.views') }}</span>
                     <span v-if="sale.favorited_by_count > 0">• ❤️ {{ sale.favorited_by_count }} {{ $t('sales.saved_count') }}</span>
                 </p>
+                <div v-if="!isOwner && sale.motorcycle?.user" class="mt-3">
+                    <ReportButton
+                        reportable-type="user"
+                        :reportable-id="sale.motorcycle.user.id"
+                        label="Denunciar venedor"
+                        :context-label="`Denunciar venedor: ${sale.motorcycle.user.name}`"
+                        button-class="text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-300 underline"
+                    />
+                </div>
             </div>
 
             <!-- Fitxa tècnica -->
@@ -157,6 +174,7 @@
 import { ref, computed } from 'vue';
 import { Link, usePage, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import ReportButton from '@/Components/ReportButton.vue';
 import { smartBack } from '@/Composables/navigationStack.js';
 
 const props = defineProps({ sale: Object });

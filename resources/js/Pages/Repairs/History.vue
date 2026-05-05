@@ -42,7 +42,7 @@
             </div>
         </div>
 
-        <div v-if="selectedLog" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div v-if="selectedLog" class="fixed inset-0 z-[4000] flex items-center justify-center p-4">
             <div @click="selectedLog = null" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
             <div class="relative bg-brand-surface border border-red-500/30 rounded-xl p-6 w-full max-w-sm max-h-[min(90vh,36rem)] overflow-y-auto overscroll-contain shadow-[0_0_20px_rgba(239,68,68,0.1)]">
                 <button @click="selectedLog = null" class="absolute top-4 right-4 inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-dark border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white transition" aria-label="Tancar">
@@ -76,7 +76,7 @@
             </div>
         </div>
 
-        <div v-if="selectedPhoto" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/95">
+        <div v-if="selectedPhoto" class="fixed inset-0 z-[4010] flex items-center justify-center p-4 bg-black/95">
             <button @click="selectedPhoto = null" class="absolute top-4 right-4 inline-flex items-center justify-center w-10 h-10 rounded-full bg-brand-dark border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white transition" aria-label="Tancar">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
             </button>
