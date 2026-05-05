@@ -190,8 +190,8 @@
     "register_for": "Per a la tasca:",
     "date": "Data",
     "km_current": "KM Actuals de la Moto",
-    "workshop": "Taller / Lloc",
-    "workshop_placeholder": "Marca, taller...",
+    "workshop": "Notes",
+    "workshop_placeholder": "Notes...",
     "price": "Preu (€)",
     "invoice_photo": "Foto de la factura / recanvi",
     "confirm_register": "Confirmar Registre",
@@ -243,7 +243,7 @@
     "date": "Data",
     "km_current": "KM Actuals",
     "price": "Preu (€)",
-    "workshop": "Taller/Notes",
+    "workshop": "Notes",
     "invoice_photo": "Foto / Factura",
     "confirm": "Confirmar"
   },
@@ -265,7 +265,7 @@
     "date": "Data",
     "km_current": "KM Actuals",
     "price": "Preu (€)",
-    "workshop": "Taller/Notes",
+    "workshop": "Notes",
     "invoice_photo": "Foto / Factura",
     "confirm": "Confirmar"
   },

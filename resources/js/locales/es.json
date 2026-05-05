@@ -190,8 +190,8 @@
     "register_for": "Para la tarea:",
     "date": "Fecha",
     "km_current": "KM Actuales de la Moto",
-    "workshop": "Taller / Lugar",
-    "workshop_placeholder": "Marca, taller...",
+    "workshop": "Notas",
+    "workshop_placeholder": "Notas...",
     "price": "Precio (€)",
     "invoice_photo": "Foto de la factura / recambio",
     "confirm_register": "Confirmar Registro",
@@ -243,7 +243,7 @@
     "date": "Fecha",
     "km_current": "KM Actuales",
     "price": "Precio (€)",
-    "workshop": "Taller/Notas",
+    "workshop": "Notas",
     "invoice_photo": "Foto / Factura",
     "confirm": "Confirmar"
   },
@@ -265,7 +265,7 @@
     "date": "Fecha",
     "km_current": "KM Actuales",
     "price": "Precio (€)",
-    "workshop": "Taller/Notas",
+    "workshop": "Notas",
     "invoice_photo": "Foto / Factura",
     "confirm": "Confirmar"
   },

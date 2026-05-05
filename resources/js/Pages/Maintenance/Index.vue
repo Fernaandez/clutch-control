@@ -142,14 +142,14 @@
 
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="text-gray-400 text-sm">{{ $t('maintenance.workshop') }}</label>
-                                <input v-model="completeForm.description" type="text" :placeholder="$t('maintenance.workshop_placeholder')" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
-                                <p v-if="completeForm.errors.description" class="text-red-500 text-xs mt-1">{{ completeForm.errors.description }}</p>
-                            </div>
-                            <div>
                                 <label class="text-gray-400 text-sm">{{ $t('maintenance.price') }}</label>
                                 <input v-model="completeForm.cost" type="number" step="0.01" placeholder="0.00" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
                                 <p v-if="completeForm.errors.cost" class="text-red-500 text-xs mt-1">{{ completeForm.errors.cost }}</p>
+                            </div>
+                            <div>
+                                <label class="text-gray-400 text-sm">{{ $t('maintenance.workshop') }}</label>
+                                <input v-model="completeForm.description" type="text" :placeholder="$t('maintenance.workshop_placeholder')" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
+                                <p v-if="completeForm.errors.description" class="text-red-500 text-xs mt-1">{{ completeForm.errors.description }}</p>
                             </div>
                         </div>
 

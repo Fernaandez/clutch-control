@@ -190,8 +190,8 @@
     "register_for": "For task:",
     "date": "Date",
     "km_current": "Current Bike KM",
-    "workshop": "Workshop / Location",
-    "workshop_placeholder": "Brand, workshop...",
+    "workshop": "Notes",
+    "workshop_placeholder": "Notes...",
     "price": "Price (€)",
     "invoice_photo": "Invoice / Receipt photo",
     "confirm_register": "Confirm Log",
@@ -243,7 +243,7 @@
     "date": "Date",
     "km_current": "Current KM",
     "price": "Price (€)",
-    "workshop": "Workshop/Notes",
+    "workshop": "Notes",
     "invoice_photo": "Photo / Invoice",
     "confirm": "Confirm"
   },
@@ -265,7 +265,7 @@
     "date": "Date",
     "km_current": "Current KM",
     "price": "Price (€)",
-    "workshop": "Workshop/Notes",
+    "workshop": "Notes",
     "invoice_photo": "Photo / Invoice",
     "confirm": "Confirm"
   },
