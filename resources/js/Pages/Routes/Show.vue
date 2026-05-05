@@ -339,9 +339,26 @@ const formattedRecordingTime = computed(() => {
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 });
 
-const copyShareLink = () => {
-    if(!props.mapRoute || !props.mapRoute.share_token) return;
-    const shareUrl = `${window.location.origin}/r/${props.mapRoute.share_token}`;
+const copyShareLink = async () => {
+    if (!props.mapRoute?.id) return;
+
+    // Share protected URL (requires auth).
+    const shareUrl = `${window.location.origin}/routes/${props.mapRoute.id}`;
+    const shareTitle = props.mapRoute.title || 'Ruta compartida';
+
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: shareTitle,
+                text: `Mira aquesta ruta: ${shareTitle}`,
+                url: shareUrl,
+            });
+            return;
+        } catch (error) {
+            if (error?.name === 'AbortError') return;
+        }
+    }
+
     navigator.clipboard.writeText(shareUrl).then(() => {
         copyLinkSuccess.value = true;
         setTimeout(() => {

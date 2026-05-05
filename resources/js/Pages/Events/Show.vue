@@ -207,9 +207,26 @@ const formatTime = (dateStr) => {
     try { return new Date(dateStr).toLocaleTimeString(locale.value, { hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; }
 };
 
-const copyShareLink = () => {
-    if (!props.event || !props.event.share_token) return;
-    const shareUrl = `${window.location.origin}/e/${props.event.share_token}`;
+const copyShareLink = async () => {
+    if (!props.event?.id) return;
+
+    // Share protected URL (requires auth).
+    const shareUrl = `${window.location.origin}/events/${props.event.id}`;
+    const shareTitle = props.event.title || 'Quedada compartida';
+
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: shareTitle,
+                text: `Mira aquesta quedada: ${shareTitle}`,
+                url: shareUrl,
+            });
+            return;
+        } catch (error) {
+            if (error?.name === 'AbortError') return;
+        }
+    }
+
     navigator.clipboard.writeText(shareUrl).then(() => {
         copyLinkSuccess.value = true;
         setTimeout(() => { copyLinkSuccess.value = false; }, 3000);
