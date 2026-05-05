@@ -344,13 +344,17 @@ const copyShareLink = async () => {
 
     // Share protected URL (requires auth).
     const shareUrl = `${window.location.origin}/routes/${props.mapRoute.id}`;
+    const shareCode = props.mapRoute.share_token || '';
     const shareTitle = props.mapRoute.title || 'Ruta compartida';
+    const shareText = shareCode
+        ? `Mira aquesta ruta: ${shareTitle}\nCodi: ${shareCode}`
+        : `Mira aquesta ruta: ${shareTitle}`;
 
     if (navigator.share) {
         try {
             await navigator.share({
                 title: shareTitle,
-                text: `Mira aquesta ruta: ${shareTitle}`,
+                text: shareText,
                 url: shareUrl,
             });
             return;
@@ -359,7 +363,9 @@ const copyShareLink = async () => {
         }
     }
 
-    navigator.clipboard.writeText(shareUrl).then(() => {
+    const fallbackText = shareCode ? `${shareUrl}\nCodi: ${shareCode}` : shareUrl;
+
+    navigator.clipboard.writeText(fallbackText).then(() => {
         copyLinkSuccess.value = true;
         setTimeout(() => {
             copyLinkSuccess.value = false;

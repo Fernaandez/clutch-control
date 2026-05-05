@@ -212,13 +212,17 @@ const copyShareLink = async () => {
 
     // Share protected URL (requires auth).
     const shareUrl = `${window.location.origin}/events/${props.event.id}`;
+    const shareCode = props.event.share_token || '';
     const shareTitle = props.event.title || 'Quedada compartida';
+    const shareText = shareCode
+        ? `Mira aquesta quedada: ${shareTitle}\nCodi: ${shareCode}`
+        : `Mira aquesta quedada: ${shareTitle}`;
 
     if (navigator.share) {
         try {
             await navigator.share({
                 title: shareTitle,
-                text: `Mira aquesta quedada: ${shareTitle}`,
+                text: shareText,
                 url: shareUrl,
             });
             return;
@@ -227,7 +231,9 @@ const copyShareLink = async () => {
         }
     }
 
-    navigator.clipboard.writeText(shareUrl).then(() => {
+    const fallbackText = shareCode ? `${shareUrl}\nCodi: ${shareCode}` : shareUrl;
+
+    navigator.clipboard.writeText(fallbackText).then(() => {
         copyLinkSuccess.value = true;
         setTimeout(() => { copyLinkSuccess.value = false; }, 3000);
     });
