@@ -51,8 +51,14 @@
                                         {{ mapRoute.difficulty === 'easy' ? $t('routes.diff_label_easy') : (mapRoute.difficulty === 'medium' ? $t('routes.diff_label_medium') : (mapRoute.difficulty === 'hard' ? $t('routes.diff_label_hard') : (mapRoute.difficulty === 'expert' ? $t('routes.diff_label_expert') : $t('routes.diff_label_extreme')))) }}
                                     </span>
 
-                                    <span v-if="mapRoute.is_public" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border border-brand-neon/30 text-brand-neon bg-brand-neon/10">{{ $t('routes.public_badge') }}</span>
-                                    <span v-else class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border border-gray-500 text-gray-400 bg-gray-800">{{ $t('routes.private_badge') }}</span>
+                                    <span v-if="mapRoute.is_public" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border border-brand-neon/30 text-brand-neon bg-brand-neon/10 inline-flex items-center gap-1">
+                                        <AppIcon name="globe" size="xs" />
+                                        {{ $t('routes.public_badge') }}
+                                    </span>
+                                    <span v-else class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border border-gray-500 text-gray-400 bg-gray-800 inline-flex items-center gap-1">
+                                        <AppIcon name="lock" size="xs" />
+                                        {{ $t('routes.private_badge') }}
+                                    </span>
 
                                     <span v-if="motorcycle" class="text-xs text-gray-400 flex items-center gap-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3"><path d="M8 16.25a.75.75 0 01.75-.75h2.5a.75.75 0 010 1.5h-2.5a.75.75 0 01-.75-.75z" /><path fill-rule="evenodd" d="M4 4a3 3 0 013-3h6a3 3 0 013 3v12a3 3 0 01-3 3H7a3 3 0 01-3-3V4zm4-1.5a.75.75 0 000 1.5h4a.75.75 0 000-1.5H8z" clip-rule="evenodd" /></svg>

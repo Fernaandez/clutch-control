@@ -73,10 +73,12 @@
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('events.visibility') }}</label>
                             <div class="flex items-center gap-3 bg-brand-black p-2 rounded-lg border border-brand-dark h-[42px]">
-                                <button type="button" @click="form.is_public = true" class="flex-1 py-1 rounded text-xs font-bold uppercase transition" :class="form.is_public ? 'bg-brand-neon text-black' : 'text-gray-500 hover:text-white'">
+                                <button type="button" @click="form.is_public = true" class="flex-1 py-1 rounded text-xs font-bold uppercase transition flex items-center justify-center gap-1.5" :class="form.is_public ? 'bg-brand-neon text-black' : 'text-gray-500 hover:text-white'">
+                                    <AppIcon name="globe" size="xs" />
                                     {{ $t('events.public') }}
                                 </button>
-                                <button type="button" @click="form.is_public = false" class="flex-1 py-1 rounded text-xs font-bold uppercase transition" :class="!form.is_public ? 'bg-gray-600 text-white' : 'text-gray-500 hover:text-white'">
+                                <button type="button" @click="form.is_public = false" class="flex-1 py-1 rounded text-xs font-bold uppercase transition flex items-center justify-center gap-1.5" :class="!form.is_public ? 'bg-gray-600 text-white' : 'text-gray-500 hover:text-white'">
+                                    <AppIcon name="lock" size="xs" />
                                     {{ $t('events.private_label') }}
                                 </button>
                             </div>
@@ -188,6 +190,7 @@ import { ref, nextTick } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import AppIcon from '@/Components/AppIcon.vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { smartBack } from '@/Composables/navigationStack.js';

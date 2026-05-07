@@ -4,38 +4,42 @@
             
             <!-- CAPÇALERA DEL XAT -->
             <div class="fixed left-0 right-0 z-[40] bg-brand-surface border-b border-brand-dark px-5 py-3 flex items-center justify-between transition-all safe-horizontal" style="top: var(--app-header-total-height);">
-                <div class="flex items-center gap-3 min-w-0">
+                <div class="flex items-center gap-3 min-w-0 flex-1">
                     <button type="button" @click="goBack" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]" aria-label="Enrere">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
                     </button>
 
-                    <!-- Avatar: directe o grup -->
-                    <template v-if="conversation.type === 'direct' && otherUser">
-                        <img v-if="resolvedAvatar(otherUser)" :src="resolvedAvatar(otherUser)" class="w-9 h-9 rounded-full object-cover border-2 border-brand-dark flex-shrink-0">
-                        <div v-else class="w-9 h-9 rounded-full bg-brand-dark flex items-center justify-center text-brand-neon font-black text-base border-2 border-brand-dark flex-shrink-0">
-                            {{ otherUser.name.charAt(0).toUpperCase() }}
-                        </div>
-                    </template>
-                    <template v-else>
-                        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-brand-neon/30 to-brand-dark flex items-center justify-center text-white border-2 border-brand-neon/30 flex-shrink-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
-                        </div>
-                    </template>
+                    <button type="button" @click="showInfoModal = true" class="flex items-center gap-3 min-w-0 flex-1 -ml-1 pl-1 py-1 rounded-lg hover:bg-brand-dark/40 active:bg-brand-dark/60 transition text-left" aria-label="Veure informació del xat">
+                        <!-- Avatar: directe o grup -->
+                        <template v-if="conversation.type === 'direct' && otherUser">
+                            <img v-if="resolvedAvatar(otherUser)" :src="resolvedAvatar(otherUser)" class="w-9 h-9 rounded-full object-cover border-2 border-brand-dark flex-shrink-0">
+                            <div v-else class="w-9 h-9 rounded-full bg-brand-dark flex items-center justify-center text-brand-neon font-black text-base border-2 border-brand-dark flex-shrink-0">
+                                {{ otherUser.name.charAt(0).toUpperCase() }}
+                            </div>
+                        </template>
+                        <template v-else>
+                            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-brand-neon/30 to-brand-dark flex items-center justify-center text-white border-2 border-brand-neon/30 flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
+                            </div>
+                        </template>
 
-                    <div class="min-w-0">
-                        <h2 class="text-white font-bold text-sm leading-none mb-0.5 truncate">{{ pageTitle }}</h2>
-                        <p v-if="conversation.type === 'group'" class="text-[10px] text-gray-400 font-bold truncate max-w-[200px] leading-tight">
-                            {{ conversation.participants?.map(p => p.name).join(', ') }}
-                        </p>
-                        <p v-if="conversation.motorcycle" class="text-[9px] text-brand-neon uppercase font-bold tracking-widest truncate flex items-center gap-1.5">
-                            <AppIcon name="moto" size="xs" />
-                            {{ conversation.motorcycle.brand }} {{ conversation.motorcycle.model }}
-                        </p>
-                        <p v-if="conversation.event" class="text-[9px] text-brand-neon uppercase font-bold tracking-widest truncate flex items-center gap-1.5">
-                            <AppIcon name="calendar" size="xs" />
-                            {{ conversation.event.title }}
-                        </p>
-                    </div>
+                        <div class="min-w-0 flex-1">
+                            <h2 class="text-white font-bold text-sm leading-none mb-0.5 truncate">{{ pageTitle }}</h2>
+                            <p v-if="conversation.type === 'group'" class="text-[10px] text-gray-400 font-bold truncate max-w-[200px] leading-tight">
+                                {{ participantsLabel }}
+                            </p>
+                            <p v-if="conversation.motorcycle" class="text-[9px] text-brand-neon uppercase font-bold tracking-widest truncate flex items-center gap-1.5">
+                                <AppIcon name="moto" size="xs" />
+                                {{ conversation.motorcycle.brand }} {{ conversation.motorcycle.model }}
+                            </p>
+                            <p v-if="conversation.event" class="text-[9px] text-brand-neon uppercase font-bold tracking-widest truncate flex items-center gap-1.5">
+                                <AppIcon name="calendar" size="xs" />
+                                {{ conversation.event.title }}
+                            </p>
+                        </div>
+
+                        <AppIcon name="chevronRight" size="sm" class="text-gray-500 flex-shrink-0" />
+                    </button>
                 </div>
                 <ReportButton
                     v-if="conversation.type === 'direct' && otherUser"
@@ -43,9 +47,138 @@
                     :reportable-id="otherUser.id"
                     label="Denunciar"
                     :context-label="`Denunciar usuari: ${otherUser.name}`"
-                    button-class="text-[10px] font-black uppercase tracking-widest text-red-400 border border-red-500/40 rounded-lg px-2 py-1 hover:bg-red-500 hover:text-white transition"
+                    button-class="text-[10px] font-black uppercase tracking-widest text-red-400 border border-red-500/40 rounded-lg px-2 py-1 hover:bg-red-500 hover:text-white transition flex-shrink-0 ml-2"
                 />
             </div>
+
+            <!-- MODAL: INFORMACIÓ DEL XAT -->
+            <Teleport to="body">
+                <Transition
+                    enter-active-class="transition duration-200 ease-out"
+                    enter-from-class="opacity-0"
+                    enter-to-class="opacity-100"
+                    leave-active-class="transition duration-150 ease-in"
+                    leave-from-class="opacity-100"
+                    leave-to-class="opacity-0"
+                >
+                    <div v-if="showInfoModal" class="fixed inset-0 z-[4000] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" @click.self="showInfoModal = false">
+                        <Transition
+                            enter-active-class="transition duration-300 ease-out"
+                            enter-from-class="translate-y-full sm:translate-y-0 sm:opacity-0 sm:scale-95"
+                            enter-to-class="translate-y-0 sm:opacity-100 sm:scale-100"
+                            leave-active-class="transition duration-200 ease-in"
+                            leave-from-class="translate-y-0 sm:opacity-100 sm:scale-100"
+                            leave-to-class="translate-y-full sm:translate-y-0 sm:opacity-0 sm:scale-95"
+                            appear
+                        >
+                            <div v-if="showInfoModal" class="w-full sm:max-w-md bg-brand-surface border border-brand-dark rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+                                
+                                <!-- Capçalera del modal -->
+                                <div class="flex items-center justify-between gap-3 p-5 border-b border-brand-dark bg-brand-black/30">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest">{{ conversation.type === 'group' ? 'Grup' : 'Conversa' }}</p>
+                                        <h3 class="text-white font-bold text-lg truncate">{{ pageTitle }}</h3>
+                                    </div>
+                                    <button type="button" @click="showInfoModal = false" class="w-9 h-9 flex-shrink-0 rounded-full bg-brand-dark/50 hover:bg-brand-dark text-gray-400 hover:text-white transition flex items-center justify-center" aria-label="Tancar">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+                                    </button>
+                                </div>
+
+                                <!-- Contingut scrollable -->
+                                <div class="flex-1 overflow-y-auto p-5 space-y-5">
+
+                                    <!-- Avatar gran centrat -->
+                                    <div class="flex flex-col items-center gap-2">
+                                        <template v-if="conversation.type === 'direct' && otherUser">
+                                            <img v-if="resolvedAvatar(otherUser)" :src="resolvedAvatar(otherUser)" class="w-24 h-24 rounded-full object-cover border-2 border-brand-neon/40 shadow-[0_0_20px_rgba(12,225,181,0.2)]">
+                                            <div v-else class="w-24 h-24 rounded-full bg-brand-dark flex items-center justify-center text-brand-neon font-black text-4xl border-2 border-brand-neon/40 shadow-[0_0_20px_rgba(12,225,181,0.2)]">
+                                                {{ otherUser.name.charAt(0).toUpperCase() }}
+                                            </div>
+                                        </template>
+                                        <template v-else>
+                                            <div class="w-24 h-24 rounded-full bg-gradient-to-br from-brand-neon/30 to-brand-dark flex items-center justify-center text-white border-2 border-brand-neon/40 shadow-[0_0_20px_rgba(12,225,181,0.2)]">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" /></svg>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                    <!-- Info contextual: quedada o moto vinculada -->
+                                    <div v-if="conversation.event || conversation.motorcycle" class="space-y-2">
+                                        <Link 
+                                            v-if="conversation.event" 
+                                            :href="route('events.show', conversation.event.id)" 
+                                            @click="showInfoModal = false"
+                                            class="flex items-center justify-between gap-3 p-3 rounded-xl bg-brand-black/40 border border-brand-neon/20 hover:border-brand-neon hover:bg-brand-neon/10 transition group"
+                                        >
+                                            <div class="flex items-center gap-3 min-w-0">
+                                                <div class="w-10 h-10 rounded-lg bg-brand-neon/10 border border-brand-neon/30 flex items-center justify-center text-brand-neon flex-shrink-0">
+                                                    <AppIcon name="calendar" size="md" />
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <p class="text-[9px] text-gray-500 uppercase font-bold tracking-widest">Quedada</p>
+                                                    <p class="text-white font-bold text-sm truncate">{{ conversation.event.title }}</p>
+                                                </div>
+                                            </div>
+                                            <span class="text-brand-neon group-hover:translate-x-1 transition">&rarr;</span>
+                                        </Link>
+
+                                        <div v-if="conversation.motorcycle" class="flex items-center gap-3 p-3 rounded-xl bg-brand-black/40 border border-brand-dark">
+                                            <div class="w-10 h-10 rounded-lg bg-brand-neon/10 border border-brand-neon/30 flex items-center justify-center text-brand-neon flex-shrink-0">
+                                                <AppIcon name="moto" size="md" />
+                                            </div>
+                                            <div class="min-w-0">
+                                                <p class="text-[9px] text-gray-500 uppercase font-bold tracking-widest">Moto</p>
+                                                <p class="text-white font-bold text-sm truncate">{{ conversation.motorcycle.brand }} {{ conversation.motorcycle.model }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Llista de participants (només grups) -->
+                                    <div v-if="conversation.type === 'group'">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <h4 class="text-[11px] uppercase font-black tracking-widest text-brand-neon flex items-center gap-2">
+                                                <AppIcon name="users" size="sm" />
+                                                Membres
+                                            </h4>
+                                            <span class="text-[10px] text-gray-500 font-bold">{{ conversation.participants?.length || 0 }}</span>
+                                        </div>
+                                        <ul class="space-y-1.5">
+                                            <li v-for="participant in conversation.participants" :key="participant.id" class="flex items-center gap-3 p-2 rounded-lg hover:bg-brand-dark/40 transition">
+                                                <img v-if="resolvedAvatar(participant)" :src="resolvedAvatar(participant)" class="w-10 h-10 rounded-full object-cover border border-brand-dark flex-shrink-0">
+                                                <div v-else class="w-10 h-10 rounded-full bg-brand-dark flex items-center justify-center text-brand-neon font-black text-base flex-shrink-0">
+                                                    {{ participant.name.charAt(0).toUpperCase() }}
+                                                </div>
+                                                <div class="min-w-0 flex-1">
+                                                    <p class="text-white font-bold text-sm truncate flex items-center gap-1.5">
+                                                        {{ participant.name }}
+                                                        <span v-if="participant.id === currentUser.id" class="text-[9px] text-brand-neon uppercase font-bold tracking-widest">(tu)</span>
+                                                        <AppIcon v-if="conversation.event && conversation.event.user_id === participant.id" name="crown" size="xs" class="text-yellow-400" />
+                                                    </p>
+                                                </div>
+                                                <ReportButton
+                                                    v-if="participant.id !== currentUser.id"
+                                                    reportable-type="user"
+                                                    :reportable-id="participant.id"
+                                                    label="Denunciar"
+                                                    :context-label="`Denunciar usuari: ${participant.name}`"
+                                                    button-class="text-[10px] font-bold uppercase tracking-widest text-red-400/70 hover:text-red-300 underline"
+                                                />
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Direct chat: info bàsica de l'altre usuari -->
+                                    <div v-else-if="otherUser" class="rounded-xl bg-brand-black/40 border border-brand-dark p-4 text-center">
+                                        <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest mb-1">Conversa privada amb</p>
+                                        <p class="text-white font-bold text-lg">{{ otherUser.name }}</p>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </Transition>
+                    </div>
+                </Transition>
+            </Teleport>
 
             <!-- ÀREA DE MISSATGES (amb margin top/bottom per les capçaleres fixes) -->
             <div class="pt-[90px] pb-3 px-6 space-y-1 h-[calc(100vh-var(--app-header-total-height)-var(--safe-bottom)-5.5rem)] overflow-y-auto flex flex-col safe-horizontal" ref="messagesContainer">
@@ -124,7 +257,7 @@ import { ref, onMounted, nextTick, onUnmounted, computed, watch } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import AppIcon from '@/Components/AppIcon.vue';
 import ReportButton from '@/Components/ReportButton.vue';
-import { usePage } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import { smartBack } from '@/Composables/navigationStack.js';
 
@@ -147,6 +280,12 @@ const messageText = ref('');
 const isSending = ref(false);
 const sendError = ref('');
 const pollingTimer = ref(null);
+const showInfoModal = ref(false);
+
+const participantsLabel = computed(() => {
+    const list = props.conversation.participants || [];
+    return list.map(p => p.id === currentUser.id ? 'Tu' : p.name).join(', ');
+});
 
 const pageTitle = computed(() => {
     if (props.conversation.type === 'group') {

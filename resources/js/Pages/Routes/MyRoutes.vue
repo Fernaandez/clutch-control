@@ -123,11 +123,11 @@
                         
                         <div v-if="ruta.is_public" class="absolute top-2 left-2 bg-brand-neon/90 text-black px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md flex items-center gap-1">
                             <AppIcon name="globe" size="xs" />
-                            {{ $t('events.public').replace('🌍 ', '') }}
+                            {{ $t('events.public') }}
                         </div>
                         <div v-else class="absolute top-2 left-2 bg-gray-700/90 text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md border border-gray-600 flex items-center gap-1">
                             <AppIcon name="lock" size="xs" />
-                            {{ $t('events.private').replace('🔒 ', '') }}
+                            {{ $t('events.private') }}
                         </div>
 
                         <div class="absolute top-2 right-2 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400]"

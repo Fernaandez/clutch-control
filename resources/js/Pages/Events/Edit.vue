@@ -39,11 +39,13 @@
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Visibilitat</label>
                             <div class="flex items-center gap-3 bg-brand-black p-2 rounded-lg border border-brand-dark h-[42px]">
-                                <button type="button" @click="form.is_public = true" class="flex-1 py-1 rounded text-xs font-bold uppercase transition" :class="form.is_public ? 'bg-brand-neon text-black' : 'text-gray-500 hover:text-white'">
-                                    🌍 Pública
+                                <button type="button" @click="form.is_public = true" class="flex-1 py-1 rounded text-xs font-bold uppercase transition flex items-center justify-center gap-1.5" :class="form.is_public ? 'bg-brand-neon text-black' : 'text-gray-500 hover:text-white'">
+                                    <AppIcon name="globe" size="sm" />
+                                    {{ $t('events.public') }}
                                 </button>
-                                <button type="button" @click="form.is_public = false" class="flex-1 py-1 rounded text-xs font-bold uppercase transition" :class="!form.is_public ? 'bg-gray-700 text-white' : 'text-gray-500 hover:text-white'">
-                                    🔒 Privada
+                                <button type="button" @click="form.is_public = false" class="flex-1 py-1 rounded text-xs font-bold uppercase transition flex items-center justify-center gap-1.5" :class="!form.is_public ? 'bg-gray-700 text-white' : 'text-gray-500 hover:text-white'">
+                                    <AppIcon name="lock" size="sm" />
+                                    {{ $t('events.private') }}
                                 </button>
                             </div>
                         </div>
@@ -157,6 +159,7 @@
 import { ref, computed } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import AppIcon from '@/Components/AppIcon.vue';
 import draggable from 'vuedraggable';
 import { smartBack } from '@/Composables/navigationStack.js';
 

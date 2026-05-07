@@ -14,7 +14,8 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 <Link :href="route('sales.mine')" class="w-full bg-brand-surface border border-brand-neon/30 text-white py-3 rounded-xl flex items-center justify-between px-4 hover:bg-brand-neon/10 transition group shadow-lg">
                     <span class="font-bold uppercase flex items-center gap-2 text-sm">
-                        🏷️ {{ $t('sales.manage_mine') }}
+                        <AppIcon name="tag" size="md" class="text-brand-neon" />
+                        {{ $t('sales.manage_mine') }}
                     </span>
                     <span class="text-brand-neon group-hover:translate-x-1 transition">&rarr;</span>
                 </Link>

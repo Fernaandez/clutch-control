@@ -85,10 +85,19 @@
                         <div v-else class="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-brand-surface via-brand-surface/30 to-transparent z-[5]"></div>
                         
-                        <div v-if="event.user_id === $page.props.auth.user.id" class="absolute top-2 left-2 bg-brand-neon text-black px-2 py-1 rounded text-[10px] font-bold uppercase z-10 shadow-[0_0_15px_rgba(0,0,0,0.9)]">{{ $t('events.you_organize') }}</div>
-                        <div v-else class="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-[10px] font-bold uppercase z-10 shadow-[0_0_15px_rgba(0,0,0,0.9)]">{{ $t('events.you_attend') }}</div>
+                        <div v-if="event.user_id === $page.props.auth.user.id" class="absolute top-2 left-2 bg-brand-neon text-black px-2 py-1 rounded text-[10px] font-bold uppercase z-10 shadow-[0_0_15px_rgba(0,0,0,0.9)] flex items-center gap-1.5">
+                            <AppIcon name="crown" size="xs" />
+                            {{ $t('events.you_organize') }}
+                        </div>
+                        <div v-else class="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-[10px] font-bold uppercase z-10 shadow-[0_0_15px_rgba(0,0,0,0.9)] flex items-center gap-1.5">
+                            <AppIcon name="check" size="xs" />
+                            {{ $t('events.you_attend') }}
+                        </div>
 
-                        <div v-if="!event.is_public" class="absolute bottom-2 right-2 bg-red-500/90 text-white border border-red-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase z-10 shadow-[0_0_15px_rgba(0,0,0,0.9)]">{{ $t('events.private') }}</div>
+                        <div v-if="!event.is_public" class="absolute bottom-2 right-2 bg-red-500/90 text-white border border-red-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase z-10 shadow-[0_0_15px_rgba(0,0,0,0.9)] flex items-center gap-1.5">
+                            <AppIcon name="lock" size="xs" />
+                            {{ $t('events.private') }}
+                        </div>
                     </div>
 
                     <div class="p-4 flex-1 flex flex-col justify-between">

@@ -57,10 +57,12 @@
                             <div>
                                 <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('routes.visibility_label') }}</label>
                                 <div class="flex items-center gap-3 bg-brand-black p-2 rounded-lg border border-brand-dark h-[42px]">
-                                    <button type="button" @click="form.is_public = true" class="flex-1 py-1 rounded text-[10px] sm:text-xs font-bold uppercase transition" :class="form.is_public ? 'bg-brand-neon text-black' : 'text-gray-500 hover:text-white'">
+                                    <button type="button" @click="form.is_public = true" class="flex-1 py-1 rounded text-[10px] sm:text-xs font-bold uppercase transition flex items-center justify-center gap-1.5" :class="form.is_public ? 'bg-brand-neon text-black' : 'text-gray-500 hover:text-white'">
+                                        <AppIcon name="globe" size="xs" />
                                         {{ $t('routes.public_badge') }}
                                     </button>
-                                    <button type="button" @click="form.is_public = false" class="flex-1 py-1 rounded text-[10px] sm:text-xs font-bold uppercase transition" :class="!form.is_public ? 'bg-gray-600 text-white' : 'text-gray-500 hover:text-white'">
+                                    <button type="button" @click="form.is_public = false" class="flex-1 py-1 rounded text-[10px] sm:text-xs font-bold uppercase transition flex items-center justify-center gap-1.5" :class="!form.is_public ? 'bg-gray-600 text-white' : 'text-gray-500 hover:text-white'">
+                                        <AppIcon name="lock" size="xs" />
                                         {{ $t('routes.private_badge') }}
                                     </button>
                                 </div>
@@ -188,6 +190,7 @@ import { ref, onMounted, computed, nextTick } from 'vue';
 import { useForm, Link, router } from '@inertiajs/vue3';
 import { Geolocation } from '@capacitor/geolocation';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import AppIcon from '@/Components/AppIcon.vue';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import L from 'leaflet';

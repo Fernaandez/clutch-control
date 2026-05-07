@@ -103,7 +103,8 @@
                 </div>
 
                 <div v-else class="border-t border-brand-dark pt-5 flex flex-col items-center gap-3">
-                    <div class="text-brand-neon font-bold text-sm bg-brand-neon/10 rounded-lg p-3 w-full text-center">
+                    <div class="text-brand-neon font-bold text-sm bg-brand-neon/10 rounded-lg p-3 w-full text-center flex items-center justify-center gap-2">
+                        <AppIcon name="crown" size="md" />
                         {{ $t('events.organizer') }}
                     </div>
                     <Link v-if="event.group_chat_id" :href="route('chats.show', event.group_chat_id)" class="bg-purple-500/10 text-purple-400 border border-purple-500/50 hover:bg-purple-500 hover:text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest transition flex items-center justify-center gap-2 shadow-lg">
