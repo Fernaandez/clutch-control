@@ -199,7 +199,10 @@
 
                         <!-- ELS TEUS RECORREGUTS SOBRE AQUESTA RUTA -->
                         <div v-if="$page.props.auth.user && myRouteTrips.length > 0" class="px-4 pb-4 pt-2 border-t border-gray-800">
-                            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest mb-3">📍 Els teus recorreguts</p>
+                            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest mb-3 flex items-center gap-1.5">
+                                <AppIcon name="pin" size="xs" class="text-brand-neon" />
+                                Els teus recorreguts
+                            </p>
                             
                             <button @click="toggleAllTripsMap" class="w-full mb-3 flex items-center justify-center gap-2 bg-brand-neon/10 hover:bg-brand-neon/20 border border-brand-neon/50 text-brand-neon py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0v11.25A2.25 2.25 0 0 1 19.5 16.5h-2.25m-9 0h9m-9 0a2.25 2.25 0 0 0-2.25 2.25v2.25m11.25-4.5a2.25 2.25 0 0 1 2.25 2.25v2.25" /></svg>
@@ -232,6 +235,7 @@
 <script setup>
 import { onMounted, computed, ref, nextTick } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import AppIcon from '@/Components/AppIcon.vue';
 import ReportButton from '@/Components/ReportButton.vue';
 import { Link, router, useForm, usePage } from '@inertiajs/vue3';
 import { smartBack, visitWithoutStack } from '@/Composables/navigationStack.js';

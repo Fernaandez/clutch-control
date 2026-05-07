@@ -10,7 +10,8 @@
                     <h1 class="text-2xl font-black uppercase tracking-tighter text-white leading-none overflow-hidden text-ellipsis whitespace-nowrap">RUTES</h1>
                 </div>
                 <button @click="scrollToTrips" class="bg-gray-800 hover:bg-brand-neon hover:text-black text-white px-3 py-2 rounded-lg transition border border-gray-700 flex items-center shrink-0 gap-2 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
-                    📍 Historial
+                    <AppIcon name="history" size="sm" />
+                    Historial
                 </button>
             </div>
 
@@ -120,8 +121,14 @@
                     <div class="h-40 bg-gray-900 relative w-full">
                         <RouteMiniMap :route-id="ruta.id" :geo-json="ruta.geo_json" />
                         
-                        <div v-if="ruta.is_public" class="absolute top-2 left-2 bg-brand-neon/90 text-black px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md">🌍 {{ $t('events.public').replace('🌍 ', '') }}</div>
-                        <div v-else class="absolute top-2 left-2 bg-gray-700/90 text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md border border-gray-600">🔒 {{ $t('events.private').replace('🔒 ', '') }}</div>
+                        <div v-if="ruta.is_public" class="absolute top-2 left-2 bg-brand-neon/90 text-black px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md flex items-center gap-1">
+                            <AppIcon name="globe" size="xs" />
+                            {{ $t('events.public').replace('🌍 ', '') }}
+                        </div>
+                        <div v-else class="absolute top-2 left-2 bg-gray-700/90 text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md border border-gray-600 flex items-center gap-1">
+                            <AppIcon name="lock" size="xs" />
+                            {{ $t('events.private').replace('🔒 ', '') }}
+                        </div>
 
                         <div class="absolute top-2 right-2 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400]"
                             :class="{
@@ -141,8 +148,9 @@
                             <p class="text-xs text-gray-500 line-clamp-2 mb-3">{{ ruta.description || $t('routes.no_description') }}</p>
                             
                             <div class="flex items-center gap-4 text-xs text-gray-300 font-mono bg-brand-black/30 p-2 rounded-lg">
-                                <span class="flex items-center gap-1">
-                                    🏁 {{ ruta.planned_distance_km }} km
+                                <span class="flex items-center gap-1.5">
+                                    <AppIcon name="finish" size="sm" class="text-brand-neon" />
+                                    {{ ruta.planned_distance_km }} km
                                 </span>
                             </div>
                         </div>
@@ -153,16 +161,16 @@
                             </Link>
                             
                             <Link v-if="ruta && ruta.id" :href="route('routes.edit', ruta.id)" class="px-3 flex items-center justify-center bg-brand-dark border border-gray-600 hover:border-brand-neon hover:text-brand-neon text-gray-400 rounded transition" :title="$t('common.edit')">
-                                ✏️
+                                <AppIcon name="pencil" size="md" />
                             </Link>
 
                             <button 
                                 v-if="ruta && ruta.id"
                                 @click="deleteRoute(ruta.id)"
-                                class="px-3 flex items-center justify-center bg-brand-dark border border-red-900/50 text-red-700 hover:bg-red-500 hover:text-white hover:border-red-500 rounded transition" 
+                                class="px-3 flex items-center justify-center bg-brand-dark border border-red-900/50 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 rounded transition" 
                                 :title="$t('common.delete')"
                             >
-                                🗑️
+                                <AppIcon name="trash" size="md" />
                             </button>
                         </div>
                     </div>
@@ -175,7 +183,10 @@
             <div id="historial-recorreguts" class="mt-10 border-t border-brand-dark pt-8">
                 <div class="flex items-center justify-between mb-4">
                     <div>
-                        <h2 class="text-xl font-black uppercase tracking-tighter text-white leading-none">📍 Recorreguts</h2>
+                        <h2 class="text-xl font-black uppercase tracking-tighter text-white leading-none flex items-center gap-2">
+                            <AppIcon name="pin" size="md" class="text-brand-neon" />
+                            Recorreguts
+                        </h2>
                         <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">El teu historial de trajectes GPS reals</p>
                     </div>
                 </div>
@@ -223,6 +234,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import AppIcon from '@/Components/AppIcon.vue';
 import { Link, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import RouteMiniMap from '@/Components/RouteMiniMap.vue';

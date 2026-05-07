@@ -9,8 +9,9 @@
                     </button>
                     <div class="min-w-0 flex-1 pt-0.5">
                         <h1 class="text-2xl font-bold text-white uppercase tracking-tight break-words">{{ event.title || $t('events.no_title') }}</h1>
-                        <p class="text-gray-400 text-sm mt-1 flex items-center gap-1 truncate">
-                            📍 {{ event.location || $t('events.no_location_info') }}
+                        <p class="text-gray-400 text-sm mt-1 flex items-center gap-1.5 truncate">
+                            <AppIcon name="pin" size="sm" class="text-brand-neon flex-shrink-0" />
+                            <span class="truncate">{{ event.location || $t('events.no_location_info') }}</span>
                         </p>
                     </div>
                 </div>
@@ -50,11 +51,17 @@
 
             <div class="bg-brand-surface rounded-xl p-5 border border-brand-dark shadow-lg mb-8">
                 <div class="flex flex-wrap items-center gap-4 text-sm font-bold text-white mb-4">
-                    <span v-if="event.start_time" class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark">📅 {{ formatDate(event.start_time) }}</span>
-                    <span v-if="event.start_time" class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark">⏰ {{ formatTime(event.start_time) }}</span>
+                    <span v-if="event.start_time" class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark flex items-center gap-1.5">
+                        <AppIcon name="calendar" size="sm" class="text-brand-neon" />
+                        {{ formatDate(event.start_time) }}
+                    </span>
+                    <span v-if="event.start_time" class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark flex items-center gap-1.5">
+                        <AppIcon name="clock" size="sm" class="text-brand-neon" />
+                        {{ formatTime(event.start_time) }}
+                    </span>
 
                     <span class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark flex items-center gap-2" :class="{'text-red-400': event.max_participants && (event.participants_count || 0) >= event.max_participants, 'text-brand-neon': !event.max_participants}">
-                        👤
+                        <AppIcon name="users" size="sm" />
                         <span v-if="event.max_participants">
                             {{ event.participants_count || 0 }} / {{ event.max_participants }}
                         </span>
@@ -179,6 +186,7 @@ import { ref, computed, nextTick } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import AppIcon from '@/Components/AppIcon.vue';
 import ReportButton from '@/Components/ReportButton.vue';
 import { smartBack } from '@/Composables/navigationStack.js';
 import L from 'leaflet';

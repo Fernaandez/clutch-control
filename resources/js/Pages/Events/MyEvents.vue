@@ -80,29 +80,35 @@
             <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 <div v-for="event in filteredEvents" :key="event.id" class="bg-brand-surface rounded-xl overflow-hidden border border-brand-dark shadow-lg flex flex-col animate-fade-in">
                     
-                    <div class="h-32 bg-gray-900 relative w-full overflow-hidden">
+                    <div class="h-40 bg-gray-900 relative w-full overflow-hidden">
                         <img v-if="event.photo" :src="eventPhotoUrl(event.photo)" :alt="event.title" class="absolute inset-0 w-full h-full object-cover" @error="onPhotoError">
                         <div v-else class="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-brand-surface/80 via-transparent to-transparent"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-brand-surface via-brand-surface/30 to-transparent z-[5]"></div>
                         
-                        <div v-if="event.user_id === $page.props.auth.user.id" class="absolute top-2 left-2 bg-brand-neon text-black px-2 py-1 rounded text-[10px] font-bold uppercase z-10">{{ $t('events.you_organize') }}</div>
-                        <div v-else class="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-[10px] font-bold uppercase z-10">{{ $t('events.you_attend') }}</div>
+                        <div v-if="event.user_id === $page.props.auth.user.id" class="absolute top-2 left-2 bg-brand-neon text-black px-2 py-1 rounded text-[10px] font-bold uppercase z-10 shadow-[0_0_15px_rgba(0,0,0,0.9)]">{{ $t('events.you_organize') }}</div>
+                        <div v-else class="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-[10px] font-bold uppercase z-10 shadow-[0_0_15px_rgba(0,0,0,0.9)]">{{ $t('events.you_attend') }}</div>
 
-                        <div v-if="!event.is_public" class="absolute bottom-2 right-2 bg-red-500/20 text-red-400 border border-red-500/50 px-2 py-0.5 rounded text-[10px] font-bold uppercase z-10">{{ $t('events.private') }}</div>
+                        <div v-if="!event.is_public" class="absolute bottom-2 right-2 bg-red-500/90 text-white border border-red-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase z-10 shadow-[0_0_15px_rgba(0,0,0,0.9)]">{{ $t('events.private') }}</div>
                     </div>
 
                     <div class="p-4 flex-1 flex flex-col justify-between">
                         <div>
                             <div class="flex flex-col gap-1 text-[11px] text-gray-300 bg-brand-black/30 p-2 rounded-lg mt-2">
-                                <div class="flex justify-between items-start">
+                                <div class="flex justify-between items-start gap-2">
                                     <h3 class="text-lg font-bold text-white mb-1 truncate uppercase">{{ event.title }}</h3>
-                                    <span class="bg-brand-black text-brand-neon text-[10px] font-bold px-2 py-1 rounded shadow-[0_0_15px_rgba(0,0,0,0.9)] border border-brand-neon/30">{{ new Date(event.start_time).toLocaleDateString(currentLocale, { day: '2-digit', month: 'short' }) }}</span>
+                                    <span class="bg-brand-black text-brand-neon text-[10px] font-bold px-2 py-1 rounded shadow-[0_0_15px_rgba(0,0,0,0.9)] border border-brand-neon/30 flex-shrink-0">{{ new Date(event.start_time).toLocaleDateString(currentLocale, { day: '2-digit', month: 'short' }) }}</span>
                                 </div>
                                 <div class="flex items-center justify-between border-t border-brand-dark/50 pt-1 mt-1">
-                                    <span class="truncate flex items-center gap-1">📍 {{ event.location || $t('events.no_location') }}</span>
+                                    <span class="truncate flex items-center gap-1.5 min-w-0">
+                                        <AppIcon name="pin" size="sm" class="text-brand-neon flex-shrink-0" />
+                                        <span class="truncate">{{ event.location || $t('events.no_location') }}</span>
+                                    </span>
                                 </div>
                                 <div class="flex items-center justify-between text-gray-400 border-t border-brand-dark/50 pt-1 mt-1">
-                                    <span class="flex items-center gap-1">🛣️ {{ event.routes_count || 0 }} Rutes</span>
+                                    <span class="flex items-center gap-1.5">
+                                        <AppIcon name="map" size="sm" class="text-brand-neon" />
+                                        {{ event.routes_count || 0 }} Rutes
+                                    </span>
                                     <span class="font-mono font-bold bg-brand-dark px-1.5 py-0.5 rounded text-white shadow-inner">{{ parseFloat(event.total_km || 0).toFixed(1) }} KM</span>
                                 </div>
                             </div>
@@ -115,11 +121,11 @@
                             </Link>
 
                             <template v-if="event.user_id === $page.props.auth.user.id">
-                                <Link :href="route('events.edit', event.id)" class="px-3 flex items-center justify-center bg-brand-dark border border-gray-600 hover:border-brand-neon hover:text-brand-neon text-gray-400 rounded transition">
-                                    ✏️
+                                <Link :href="route('events.edit', event.id)" class="px-3 flex items-center justify-center bg-brand-dark border border-gray-600 hover:border-brand-neon hover:text-brand-neon text-gray-400 rounded transition" :aria-label="$t('events.edit')">
+                                    <AppIcon name="pencil" size="md" />
                                 </Link>
-                                <button @click="deleteEvent(event.id)" class="px-3 flex items-center justify-center bg-brand-dark border border-red-900/50 text-red-700 hover:bg-red-500 hover:text-white hover:border-red-500 rounded transition">
-                                    🗑️
+                                <button @click="deleteEvent(event.id)" class="px-3 flex items-center justify-center bg-brand-dark border border-red-900/50 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 rounded transition" :aria-label="$t('events.delete')">
+                                    <AppIcon name="trash" size="md" />
                                 </button>
                             </template>
                         </div>
@@ -135,6 +141,7 @@ import { ref, computed } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import AppIcon from '@/Components/AppIcon.vue';
 import { smartBack } from '@/Composables/navigationStack.js';
 
 const { locale, t } = useI18n();

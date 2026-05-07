@@ -27,11 +27,13 @@
                         <p v-if="conversation.type === 'group'" class="text-[10px] text-gray-400 font-bold truncate max-w-[200px] leading-tight">
                             {{ conversation.participants?.map(p => p.name).join(', ') }}
                         </p>
-                        <p v-if="conversation.motorcycle" class="text-[9px] text-brand-neon uppercase font-bold tracking-widest truncate">
-                            🏍 {{ conversation.motorcycle.brand }} {{ conversation.motorcycle.model }}
+                        <p v-if="conversation.motorcycle" class="text-[9px] text-brand-neon uppercase font-bold tracking-widest truncate flex items-center gap-1.5">
+                            <AppIcon name="moto" size="xs" />
+                            {{ conversation.motorcycle.brand }} {{ conversation.motorcycle.model }}
                         </p>
-                        <p v-if="conversation.event" class="text-[9px] text-brand-neon uppercase font-bold tracking-widest truncate">
-                            📅 {{ conversation.event.title }}
+                        <p v-if="conversation.event" class="text-[9px] text-brand-neon uppercase font-bold tracking-widest truncate flex items-center gap-1.5">
+                            <AppIcon name="calendar" size="xs" />
+                            {{ conversation.event.title }}
                         </p>
                     </div>
                 </div>
@@ -120,6 +122,7 @@
 <script setup>
 import { ref, onMounted, nextTick, onUnmounted, computed, watch } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import AppIcon from '@/Components/AppIcon.vue';
 import ReportButton from '@/Components/ReportButton.vue';
 import { usePage } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';

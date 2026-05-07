@@ -54,7 +54,10 @@
                     <p class="text-3xl font-mono font-bold text-brand-neon">{{ parseFloat(sale.price).toLocaleString('ca-ES') }} €</p>
                     
                     <div class="flex gap-4 items-center">
-                        <p class="text-sm text-gray-400 font-bold uppercase flex items-center gap-1">📍 {{ sale.location }}</p>
+                        <p class="text-sm text-gray-400 font-bold uppercase flex items-center gap-1.5">
+                            <AppIcon name="pin" size="sm" class="text-brand-neon" />
+                            {{ sale.location }}
+                        </p>
                         <!-- Favorits a la dreta del preu -->
                         <Link 
                             v-if="!isOwner"
@@ -174,6 +177,7 @@
 import { ref, computed } from 'vue';
 import { Link, usePage, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import AppIcon from '@/Components/AppIcon.vue';
 import ReportButton from '@/Components/ReportButton.vue';
 import { smartBack } from '@/Composables/navigationStack.js';
 

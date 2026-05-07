@@ -61,17 +61,17 @@
                             </Link>
 
                             <Link :href="route('sales.edit', sale.id)" class="px-3 flex items-center justify-center bg-brand-dark border border-gray-600 hover:border-brand-neon hover:text-brand-neon text-gray-400 rounded transition" :title="$t('common.edit')">
-                                ✏️
+                                <AppIcon name="pencil" size="md" />
                             </Link>
 
                             <Link 
                                 v-if="sale.state !== 'venuda'"
                                 :href="route('sales.mark-sold', sale.id)"
                                 method="patch" as="button"
-                                class="px-3 flex items-center justify-center bg-brand-dark border border-red-900/50 text-red-700 hover:bg-red-500 hover:text-white hover:border-red-500 rounded transition" 
+                                class="px-3 flex items-center justify-center bg-brand-dark border border-red-900/50 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 rounded transition" 
                                 :title="$t('sales.mark_sold')"
                             >
-                                ✓
+                                <AppIcon name="check" size="md" />
                             </Link>
                         </div>
                     </div>
@@ -87,6 +87,7 @@ import { ref, computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import AppIcon from '@/Components/AppIcon.vue';
 import { smartBack } from '@/Composables/navigationStack.js';
 
 const { t } = useI18n();

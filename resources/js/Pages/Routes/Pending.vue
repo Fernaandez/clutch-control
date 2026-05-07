@@ -34,7 +34,10 @@
                     <!-- Header: data + esborrar -->
                     <div class="flex justify-between items-start mb-4">
                         <div>
-                            <p class="text-white font-bold text-base">📍 Recorregut</p>
+                            <p class="text-white font-bold text-base flex items-center gap-1.5">
+                                <AppIcon name="pin" size="sm" class="text-brand-neon" />
+                                Recorregut
+                            </p>
                             <p class="text-xs text-gray-500 mt-0.5">{{ formatDate(trip.started_at) }}</p>
                         </div>
                         <button @click="removeTrip(index)" class="text-red-500 hover:text-white hover:bg-red-500/20 p-2 rounded-xl border border-transparent hover:border-red-500/50 transition">
@@ -61,8 +64,9 @@
                     </button>
                 </div>
 
-                <button v-if="pendingTrips.length > 1" @click="syncAll" class="w-full bg-brand-dark text-brand-neon font-black uppercase text-xs tracking-widest border border-brand-neon/30 py-4 rounded-xl shadow-lg hover:bg-brand-neon hover:text-black transition">
-                    ⚡ Sincronitzar tots ({{ pendingTrips.length }})
+                <button v-if="pendingTrips.length > 1" @click="syncAll" class="w-full bg-brand-dark text-brand-neon font-black uppercase text-xs tracking-widest border border-brand-neon/30 py-4 rounded-xl shadow-lg hover:bg-brand-neon hover:text-black transition flex items-center justify-center gap-2">
+                    <AppIcon name="bolt" size="sm" />
+                    Sincronitzar tots ({{ pendingTrips.length }})
                 </button>
             </div>
 
@@ -73,6 +77,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import AppIcon from '@/Components/AppIcon.vue';
 import { Link, router } from '@inertiajs/vue3';
 import axios from 'axios';
 import { smartBack } from '@/Composables/navigationStack.js';

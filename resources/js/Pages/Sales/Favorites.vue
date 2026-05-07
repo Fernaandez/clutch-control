@@ -69,13 +69,22 @@
                     <div class="p-4 flex-1 flex flex-col justify-between relative z-20">
                         <div>
                             <h3 class="text-lg font-bold text-white mb-1 truncate">{{ sale.title }}</h3>
-                            <p class="text-[10px] text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-1">📍 {{ sale.location }}</p>
+                            <p class="text-[10px] text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                                <AppIcon name="pin" size="sm" class="text-brand-neon" />
+                                {{ sale.location }}
+                            </p>
                             
                             <div class="flex flex-wrap gap-2 text-[10px] text-brand-neon uppercase font-bold tracking-widest mb-3">
                                 <span v-if="sale.motorcycle?.type" class="bg-brand-neon/10 border border-brand-neon/30 px-2 py-0.5 rounded">{{ sale.motorcycle.type }}</span>
                                 <span v-if="sale.motorcycle?.license_type" class="bg-brand-neon/10 border border-brand-neon/30 px-2 py-0.5 rounded">Carnet {{ sale.motorcycle.license_type }}</span>
-                                <span class="bg-gray-800 text-gray-300 border border-gray-700 px-2 py-0.5 rounded flex items-center gap-1">👁️ {{ sale.views_count || 0 }}</span>
-                                <span v-if="sale.favorited_by_count > 0" class="bg-red-900/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded flex items-center gap-1">❤️ {{ sale.favorited_by_count }}</span>
+                                <span class="bg-gray-800 text-gray-300 border border-gray-700 px-2 py-0.5 rounded flex items-center gap-1">
+                                    <AppIcon name="eye" size="xs" />
+                                    {{ sale.views_count || 0 }}
+                                </span>
+                                <span v-if="sale.favorited_by_count > 0" class="bg-red-900/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded flex items-center gap-1">
+                                    <AppIcon name="heart" size="xs" />
+                                    {{ sale.favorited_by_count }}
+                                </span>
                             </div>
 
                             <div class="grid grid-cols-4 gap-1 text-xs text-gray-300 font-mono bg-brand-black/50 p-2 rounded-lg mb-3">
@@ -114,6 +123,7 @@
 import { ref, computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import AppIcon from '@/Components/AppIcon.vue';
 import { smartBack } from '@/Composables/navigationStack.js';
 
 const props = defineProps({ sales: Array });
