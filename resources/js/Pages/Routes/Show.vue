@@ -5,8 +5,8 @@
 
             <div v-if="mapRoute" id="map-detail" class="absolute inset-0 z-0 bg-gray-900"></div>
 
-            <button type="button" @click="goBack" class="absolute top-safe-top left-4 z-[5010] w-10 h-10 rounded-full bg-brand-neon backdrop-blur-md flex items-center justify-center text-brand-black hover:scale-110 border border-brand-neon/50 transition shadow-[0_0_15px_rgba(12,225,181,0.6)] mt-2">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+            <button type="button" @click="goBack" class="absolute top-safe-top left-4 z-[5010] mt-2 inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]" aria-label="Enrere">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
             </button>
 
             <!-- LIVE TRACKING OVERLAY -->

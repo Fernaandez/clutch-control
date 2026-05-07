@@ -2,14 +2,20 @@
     <AppLayout v-if="event" :title="event.title || $t('events.loading_event')">
         <div class="px-4 py-6 pb-24">
 
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-3">
-                    <button type="button" @click="goBack" class="w-10 h-10 rounded-full bg-brand-neon flex items-center justify-center text-black hover:bg-white transition flex-shrink-0 shadow-[0_0_15px_rgba(12,225,181,0.3)]">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+            <div class="mb-6 space-y-3">
+                <div class="flex items-start gap-3">
+                    <button type="button" @click="goBack" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]" aria-label="Enrere">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
                     </button>
+                    <div class="min-w-0 flex-1 pt-0.5">
+                        <h1 class="text-2xl font-bold text-white uppercase tracking-tight break-words">{{ event.title || $t('events.no_title') }}</h1>
+                        <p class="text-gray-400 text-sm mt-1 flex items-center gap-1 truncate">
+                            📍 {{ event.location || $t('events.no_location_info') }}
+                        </p>
+                    </div>
                 </div>
 
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2">
                     <ReportButton
                         v-if="!$page.props.auth.user || event.user_id !== $page.props.auth.user.id"
                         reportable-type="event"
@@ -30,22 +36,16 @@
                 <div class="absolute inset-0 photo-gradient-overlay"></div>
             </div>
 
-            <div class="mb-6">
-                <h1 class="text-3xl font-black text-white uppercase tracking-tighter">{{ event.title || $t('events.no_title') }}</h1>
-                <p class="text-gray-400 text-sm mt-1 flex items-center gap-2">
-                    📍 {{ event.location || $t('events.no_location_info') }}
-                </p>
-                <div v-if="event.organizer" class="mt-3 flex items-center justify-between gap-3 rounded-xl border border-brand-dark bg-brand-surface px-4 py-3">
-                    <p class="text-xs text-gray-400">Organitza <span class="font-bold text-white">{{ event.organizer.name }}</span></p>
-                    <ReportButton
-                        v-if="!$page.props.auth.user || event.organizer.id !== $page.props.auth.user.id"
-                        reportable-type="user"
-                        :reportable-id="event.organizer.id"
-                        label="Denunciar usuari"
-                        :context-label="`Denunciar usuari: ${event.organizer.name}`"
-                        button-class="text-[10px] font-bold uppercase tracking-widest text-red-400 hover:text-red-300 underline"
-                    />
-                </div>
+            <div v-if="event.organizer" class="mb-6 flex items-center justify-between gap-3 rounded-xl border border-brand-dark bg-brand-surface px-4 py-3">
+                <p class="text-xs text-gray-400">Organitza <span class="font-bold text-white">{{ event.organizer.name }}</span></p>
+                <ReportButton
+                    v-if="!$page.props.auth.user || event.organizer.id !== $page.props.auth.user.id"
+                    reportable-type="user"
+                    :reportable-id="event.organizer.id"
+                    label="Denunciar usuari"
+                    :context-label="`Denunciar usuari: ${event.organizer.name}`"
+                    button-class="text-[10px] font-bold uppercase tracking-widest text-red-400 hover:text-red-300 underline"
+                />
             </div>
 
             <div class="bg-brand-surface rounded-xl p-5 border border-brand-dark shadow-lg mb-8">
