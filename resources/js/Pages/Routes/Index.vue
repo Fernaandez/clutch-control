@@ -179,7 +179,7 @@
                         </div>
 
                         <div class="flex gap-2 mt-4 pt-4 border-t border-brand-dark/50">
-                            <Link v-if="ruta && ruta.id" :href="route('routes.show', ruta.id)" class="flex-1 text-center bg-brand-dark hover:bg-white hover:text-black text-white text-xs font-bold uppercase py-2 rounded transition">
+                            <Link v-if="ruta && ruta.id" :href="route('routes.show', ruta.id)" prefetch="hover" class="flex-1 text-center bg-brand-dark hover:bg-white hover:text-black text-white text-xs font-bold uppercase py-2 rounded transition">
                                 {{ $t('routes.view_detail') }}
                             </Link>
                             

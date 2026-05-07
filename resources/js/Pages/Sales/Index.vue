@@ -245,7 +245,7 @@
                         </div>
 
                         <div class="mt-2 pt-4 border-t border-brand-dark/50">
-                            <Link :href="route('sales.show', sale.id)" class="block w-full text-center bg-brand-dark hover:bg-white hover:text-black text-white text-xs font-bold uppercase py-2.5 rounded transition">
+                            <Link :href="route('sales.show', sale.id)" prefetch="hover" class="block w-full text-center bg-brand-dark hover:bg-white hover:text-black text-white text-xs font-bold uppercase py-2.5 rounded transition">
                                 {{ $t('sales.view_detail') }}
                             </Link>
                         </div>

@@ -12,7 +12,7 @@
             </div>
 
             <div v-else class="space-y-3">
-                <Link v-for="chat in conversations" :key="chat.id" :href="route('chats.show', chat.id)" 
+                <Link v-for="chat in conversations" :key="chat.id" :href="route('chats.show', chat.id)" prefetch="hover"
                       class="block bg-brand-surface border border-brand-dark rounded-2xl p-4 hover:border-brand-neon/50 transition relative shadow-lg">
                     
                     <div class="flex items-center gap-4">

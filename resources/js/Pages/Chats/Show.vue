@@ -347,34 +347,58 @@ const mergeIncomingMessages = (incomingMessages = []) => {
     return hasNew;
 };
 
+let pollAbort = null;
+let pollInFlight = false;
+
 const fetchNewMessages = async () => {
+    if (pollInFlight) return;
+    if (typeof document !== 'undefined' && document.hidden) return;
+
     const numericIds = localMessages.value
         .map(m => Number(m.id))
         .filter(id => Number.isFinite(id));
     const lastId = numericIds.length ? Math.max(...numericIds) : 0;
 
+    pollAbort?.abort?.();
+    pollAbort = new AbortController();
+    pollInFlight = true;
+
     try {
         const response = await window.axios.get(route('chats.messages', props.conversation.id), {
             params: { since_id: lastId },
             headers: { Accept: 'application/json' },
+            signal: pollAbort.signal,
         });
 
         const hasNew = mergeIncomingMessages(response?.data?.messages ?? []);
         if (hasNew) nextTick(() => scrollToBottom(true));
     } catch (error) {
         // Silenciem errors de polling per no molestar UX del xat
+    } finally {
+        pollInFlight = false;
     }
 };
 
 const startPolling = () => {
     stopPolling();
-    pollingTimer.value = setInterval(fetchNewMessages, 3000);
+    pollingTimer.value = setInterval(fetchNewMessages, 5000);
 };
 
 const stopPolling = () => {
     if (pollingTimer.value) {
         clearInterval(pollingTimer.value);
         pollingTimer.value = null;
+    }
+    pollAbort?.abort?.();
+    pollAbort = null;
+};
+
+const handleVisibilityChange = () => {
+    if (document.hidden) {
+        stopPolling();
+    } else {
+        fetchNewMessages();
+        startPolling();
     }
 };
 
@@ -384,6 +408,10 @@ onMounted(() => {
     // Extra pass to guarantee final position on slower devices/webviews
     setTimeout(() => scrollToBottom(), 120);
     startPolling();
+
+    if (typeof document !== 'undefined') {
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+    }
 
     if (window.Echo) {
         window.Echo.private(`chat.${props.conversation.id}`)
@@ -406,6 +434,9 @@ watch(() => props.conversation.messages, (newMessages) => {
 
 onUnmounted(() => {
     stopPolling();
+    if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }
     if (window.Echo) window.Echo.leave(`chat.${props.conversation.id}`);
 });
 

@@ -65,17 +65,16 @@
         </nav>
 
         <main class="relative flex-1 min-w-0 max-w-full" style="padding-top: var(--app-header-total-height);">
-            <Transition name="page" mode="out-in">
-                <div :key="$page.url" class="w-full h-full">
-                    <slot />
-                </div>
-            </Transition>
+            <div class="w-full h-full">
+                <slot />
+            </div>
         </main>
 
         <nav v-if="!hideBottomNav" class="fixed bottom-[-2px] left-0 right-0 w-full bg-brand-surface border-t border-b-2 border-brand-surface border-t-brand-dark flex justify-around items-center z-[3000] shadow-[0_-4px_10px_rgba(0,0,0,0.5)] safe-horizontal" :style="bottomNavStyle">
             
             <Link 
                 :href="currentMotoId ? route('dashboard', currentMotoId) : route('dashboard')" 
+                prefetch
                 :class="{'text-brand-neon drop-shadow-[0_0_5px_rgba(12,225,181,0.6)]': route().current('dashboard')}" 
                 class="flex flex-col items-center justify-center gap-0.5 text-gray-500 hover:text-gray-300 transition w-16 h-full cursor-pointer relative"
             >
@@ -90,6 +89,7 @@
 
             <Link 
                 :href="route('routes.index')" 
+                prefetch
                 :class="{'text-brand-neon drop-shadow-[0_0_5px_rgba(12,225,181,0.6)]': route().current('routes.*')}"
                 class="flex flex-col items-center justify-center gap-0.5 text-gray-500 hover:text-gray-300 transition w-16 h-full cursor-pointer"
             >
@@ -101,6 +101,7 @@
 
             <Link 
                 :href="route('events.index')" 
+                prefetch
                 :class="{'text-brand-neon drop-shadow-[0_0_5px_rgba(12,225,181,0.6)]': route().current('events.*')}"
                 class="flex flex-col items-center justify-center gap-0.5 text-gray-500 hover:text-gray-300 transition w-16 h-full cursor-pointer"
             >
@@ -112,6 +113,7 @@
             
             <Link 
                 :href="route('sales.index')" 
+                prefetch
                 :class="{'text-brand-neon drop-shadow-[0_0_5px_rgba(12,225,181,0.6)]': route().current('sales.*')}"
                 class="flex flex-col items-center justify-center gap-0.5 text-gray-500 hover:text-gray-300 transition w-16 h-full cursor-pointer"
             >
@@ -123,6 +125,7 @@
 
             <Link 
                 :href="route('chats.index')" 
+                prefetch
                 :class="{'text-brand-neon drop-shadow-[0_0_5px_rgba(12,225,181,0.6)]': route().current('chats.*')}"
                 class="flex flex-col items-center justify-center gap-0.5 text-gray-500 hover:text-gray-300 transition w-16 h-full cursor-pointer relative"
             >
@@ -211,19 +214,3 @@ defineProps({
 });
 </script>
 
-<style>
-.page-enter-active,
-.page-leave-active {
-  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
-}
-
-.page-enter-from {
-  opacity: 0;
-  transform: translateY(10px) scale(0.99);
-}
-
-.page-leave-to {
-  opacity: 0;
-  transform: translateY(-10px) scale(0.99);
-}
-</style>

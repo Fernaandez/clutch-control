@@ -138,7 +138,7 @@
                         </div>
 
                         <div class="flex gap-2 mt-4 pt-4 border-t border-brand-dark/50">
-                            <Link :href="route('events.show', event.id)" class="flex-1 text-center bg-brand-dark hover:bg-white hover:text-black text-white text-xs font-bold uppercase py-2 rounded transition">
+                            <Link :href="route('events.show', event.id)" prefetch="hover" class="flex-1 text-center bg-brand-dark hover:bg-white hover:text-black text-white text-xs font-bold uppercase py-2 rounded transition">
                                 {{ $t('events.view_detail') }}
                             </Link>
                         </div>
