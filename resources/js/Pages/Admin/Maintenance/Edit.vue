@@ -12,7 +12,7 @@
             <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-2">Maintenance Details (ID: {{ maintenanceRecord.id }})</h2>
             
             <div v-if="maintenanceRecord.motorcycle" class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
-                <p class="text-sm text-gray-500">Motorcycle: <span class="font-bold text-gray-800">{{ maintenanceRecord.motorcycle.brand }} {{ maintenanceRecord.motorcycle.model }}</span> ({{ maintenanceRecord.motorcycle.plate }})</p>
+                <p class="text-sm text-gray-500">Motorcycle: <span class="font-bold text-gray-800">{{ maintenanceRecord.motorcycle.brand }} {{ maintenanceRecord.motorcycle.model }}</span> ({{ maintenanceRecord.motorcycle.year }})</p>
                 <p class="text-sm text-gray-500">Owner: {{ maintenanceRecord.motorcycle.user?.name }} ({{ maintenanceRecord.motorcycle.user?.email }})</p>
             </div>
             

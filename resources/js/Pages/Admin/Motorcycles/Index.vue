@@ -10,7 +10,7 @@
                     <input 
                         v-model="filters.search" 
                         type="text" 
-                        placeholder="Search by brand, model, plate, or owner..." 
+                        placeholder="Search by brand, model, or owner..." 
                         class="w-full max-w-sm rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     >
                     <input 
@@ -37,7 +37,7 @@
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Motorcycle</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year / Plate</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">KMs</th>
                             <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
@@ -53,7 +53,7 @@
                                 {{ motorcycle.brand }} {{ motorcycle.model }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ motorcycle.year }} <span v-if="motorcycle.plate" class="bg-gray-100 border border-gray-300 rounded px-1">{{ motorcycle.plate }}</span>
+                                {{ motorcycle.year }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {{ motorcycle.current_km }} km

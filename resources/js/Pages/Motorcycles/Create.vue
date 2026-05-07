@@ -35,23 +35,6 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">{{ $t('motorcycles.plate') }}</label>
-                            <div class="flex gap-2 mb-2">
-                                <button type="button"
-                                    @click="plateType = 'moto'"
-                                    :class="plateType === 'moto' ? 'flex-1 py-1.5 text-xs font-bold uppercase rounded border border-brand-neon bg-brand-neon/10 text-brand-neon' : 'flex-1 py-1.5 text-xs font-bold uppercase rounded border border-brand-dark text-gray-500 hover:border-gray-500 hover:text-gray-300 transition'"
-                                >{{ $t('motorcycles.plate_moto') }}</button>
-                                <button type="button"
-                                    @click="plateType = 'ciclomotor'"
-                                    :class="plateType === 'ciclomotor' ? 'flex-1 py-1.5 text-xs font-bold uppercase rounded border border-brand-neon bg-brand-neon/10 text-brand-neon' : 'flex-1 py-1.5 text-xs font-bold uppercase rounded border border-brand-dark text-gray-500 hover:border-gray-500 hover:text-gray-300 transition'"
-                                >{{ $t('motorcycles.plate_ciclomotor') }}</button>
-                            </div>
-                            <input v-model="form.plate" type="text" :class="inputClass(form.errors.plate)"
-                                class="uppercase" maxlength="15" @input="form.plate = form.plate.toUpperCase()">
-                            <p v-if="form.errors.plate" class="text-red-400 text-xs mt-1 flex items-center gap-1"><span>⚠</span> {{ form.errors.plate }}</p>
-                        </div>
-
-                        <div class="mb-4">
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1">{{ $t('motorcycles.photo') }}</label>
                             <input @change="e => form.photo = e.target.files[0]" type="file" accept="image/*"
                                 class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-brand-base/20 file:text-brand-neon hover:file:bg-brand-base/30 transition cursor-pointer">
@@ -131,32 +114,15 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import MotorcycleBrandModelSelector from '@/Components/MotorcycleBrandModelSelector.vue';
 
 const currentYear = new Date().getFullYear();
 
-const plateType = ref('moto');
-
-const plateHint = computed(() => {
-    if (plateType.value === 'ciclomotor') return {
-        placeholder: 'Ex: MA-1234-A',
-        format: 'CC-1234-X o L-1234-A',
-        desc: 'Format provincial (varia segons l\'ajuntament)'
-    };
-    return {
-        placeholder: 'Ex: 1234 ABC',
-        format: '1234 ABC o B-1234-CD',
-        desc: 'Format nacional estàndard'
-    };
-});
-
 const form = useForm({
     brand: '',
     model: '',
-    plate: '',
     year: '',
     current_km: '',
     cc: '',

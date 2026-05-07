@@ -27,18 +27,10 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label for="year" class="block text-sm font-medium text-gray-700">Year</label>
-                        <input id="year" v-model="form.year" type="number" min="1900" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-                        <p v-if="form.errors.year" class="mt-2 text-sm text-red-600">{{ form.errors.year }}</p>
-                    </div>
-
-                    <div>
-                        <label for="plate" class="block text-sm font-medium text-gray-700">Plate (License)</label>
-                        <input id="plate" v-model="form.plate" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm uppercase">
-                        <p v-if="form.errors.plate" class="mt-2 text-sm text-red-600">{{ form.errors.plate }}</p>
-                    </div>
+                <div>
+                    <label for="year" class="block text-sm font-medium text-gray-700">Year</label>
+                    <input id="year" v-model="form.year" type="number" min="1900" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                    <p v-if="form.errors.year" class="mt-2 text-sm text-red-600">{{ form.errors.year }}</p>
                 </div>
                 
                 <div class="grid grid-cols-3 gap-4">
@@ -104,7 +96,6 @@ const form = useForm({
     brand: props.motorcycleRecord.brand,
     model: props.motorcycleRecord.model,
     year: props.motorcycleRecord.year,
-    plate: props.motorcycleRecord.plate,
     current_km: props.motorcycleRecord.current_km,
     cc: props.motorcycleRecord.cc,
     power_cv: props.motorcycleRecord.power_cv,

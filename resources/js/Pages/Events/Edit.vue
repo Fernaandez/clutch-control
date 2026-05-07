@@ -64,7 +64,32 @@
                         </div>
                         <input @change="e => form.photo = e.target.files[0]" type="file" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-brand-base/20 file:text-brand-neon hover:file:bg-brand-base/30 transition cursor-pointer">
                         <div v-if="form.errors.photo" class="text-red-500 text-xs mt-1">{{ form.errors.photo }}</div>
-                        <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">📐 Recomanat: <span class="text-brand-neon font-bold">1200×800 px</span> — Deixa-ho en blanc per mantenir la foto actual.</p>
+                        <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">Recomanat: <span class="text-brand-neon font-bold">1200×800 px</span> — Deixa-ho en blanc per mantenir la foto actual.</p>
+                    </div>
+
+                    <!-- FOTO DEL XAT DE GRUP -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2 flex items-center gap-2">
+                            <AppIcon name="chat" size="sm" class="text-brand-neon" />
+                            {{ $t('events.chat_photo') }}
+                        </label>
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-brand-dark bg-brand-black flex items-center justify-center flex-shrink-0">
+                                <img v-if="chatPhotoPreview" :src="chatPhotoPreview" alt="" class="w-full h-full object-cover">
+                                <img v-else-if="event.chat_photo" :src="$page.props.storageUrl + '/' + event.chat_photo" alt="" class="w-full h-full object-cover">
+                                <AppIcon v-else name="users" size="md" class="text-gray-600" />
+                            </div>
+                            <input @change="onChatPhotoChange" type="file" accept="image/*" class="flex-1 text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-brand-base/20 file:text-brand-neon hover:file:bg-brand-base/30 transition cursor-pointer">
+                        </div>
+                        <button v-if="event.chat_photo && !form.chat_photo && !form.remove_chat_photo" type="button" @click="form.remove_chat_photo = true" class="text-xs text-red-400 hover:text-red-300 underline">
+                            {{ $t('events.remove_chat_photo') }}
+                        </button>
+                        <p v-else-if="form.remove_chat_photo" class="text-xs text-yellow-500 flex items-center gap-2">
+                            {{ $t('events.chat_photo_will_be_removed') }}
+                            <button type="button" @click="form.remove_chat_photo = false" class="text-brand-neon underline">{{ $t('events.undo') }}</button>
+                        </p>
+                        <div v-if="form.errors.chat_photo" class="text-red-500 text-xs mt-1">{{ form.errors.chat_photo }}</div>
+                        <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">{{ $t('events.chat_photo_hint') }}</p>
                     </div>
                 </div>
 
@@ -193,8 +218,25 @@ const form = useForm({
     is_public: Boolean(props.event.is_public),
     max_participants: props.event.max_participants || null,
     photo: null,
+    chat_photo: null,
+    remove_chat_photo: false,
     stages_json: '',
 });
+
+const chatPhotoPreview = ref(null);
+
+const onChatPhotoChange = (e) => {
+    const file = e.target.files[0];
+    form.chat_photo = file || null;
+    form.remove_chat_photo = false;
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => { chatPhotoPreview.value = ev.target.result; };
+        reader.readAsDataURL(file);
+    } else {
+        chatPhotoPreview.value = null;
+    }
+};
 
 const addStage = () => {
     stages.value.push({

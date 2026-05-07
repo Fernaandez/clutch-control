@@ -113,7 +113,6 @@
                             <div class="flex justify-between items-start">
                                 <div>
                                     <h2 class="text-xl font-bold text-white group-hover:text-brand-neon transition">{{ moto.brand }} {{ moto.model }}</h2>
-                                    <p class="text-brand-muted mt-2">{{ moto.plate }}</p>
                                 </div>
                                 <span class="text-xs font-mono text-gray-500 bg-brand-black px-2 py-1 rounded border border-brand-dark">{{ moto.year }}</span>
                             </div>
@@ -190,8 +189,7 @@ const filteredMotos = computed(() => {
         const q = filters.value.search.toLowerCase();
         result = result.filter(m => 
             m.brand.toLowerCase().includes(q) || 
-            m.model.toLowerCase().includes(q) ||
-            m.plate?.toLowerCase().includes(q)
+            m.model.toLowerCase().includes(q)
         );
     }
     

@@ -13,7 +13,6 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); 
             $table->string('brand');
             $table->string('model');
-            $table->string('plate')->unique();
             $table->integer('year');
             $table->decimal('current_km', 10, 2)->default(0);
             $table->string('photo')->nullable();

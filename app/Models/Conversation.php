@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Conversation extends Model
 {
-    protected $fillable = ['type', 'name', 'motorcycle_id', 'event_id'];
+    protected $fillable = ['type', 'name', 'photo', 'motorcycle_id', 'event_id'];
 
     // Participants (tant per direct com per group)
     public function participants() {

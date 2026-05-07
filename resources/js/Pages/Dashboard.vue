@@ -18,7 +18,7 @@
                 <div class="inline-block bg-black/65 backdrop-blur-sm border border-white/15 rounded-xl px-4 py-3 shadow-lg">
                     <h1 class="text-2xl sm:text-3xl font-black italic tracking-tighter uppercase line-clamp-1" style="color: white;">{{ moto.brand }}</h1>
                     <h2 class="text-lg sm:text-xl text-brand-neon font-bold line-clamp-1">{{ moto.model }}</h2>
-                    <p class="text-gray-300 text-xs sm:text-sm mt-0.5">{{ moto.plate }} <span v-if="moto.plate">|</span> {{ moto.year }}</p>
+                    <p class="text-gray-300 text-xs sm:text-sm mt-0.5">{{ moto.year }}</p>
                 </div>
             </div>
         </div>

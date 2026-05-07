@@ -46,7 +46,7 @@
                         <select id="motorcycle_id" v-model="form.motorcycle_id" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                             <option value="">None</option>
                             <option v-for="moto in userMotorcycles" :key="moto.id" :value="moto.id">
-                                {{ moto.brand }} {{ moto.model }} ({{ moto.plate }})
+                                {{ moto.brand }} {{ moto.model }} ({{ moto.year }})
                             </option>
                         </select>
                         <p v-if="form.errors.motorcycle_id" class="mt-2 text-sm text-red-600">{{ form.errors.motorcycle_id }}</p>

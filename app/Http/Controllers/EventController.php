@@ -123,6 +123,7 @@ class EventController extends Controller
             'stages.*.latitude' => 'nullable|numeric',
             'stages.*.longitude' => 'nullable|numeric',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'chat_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         // 2. CREEM L'EVENT FENT SERVIR LES DADES VALIDADES
@@ -162,9 +163,16 @@ class EventController extends Controller
         $event->participants()->attach(Auth::id(), ['status' => 'confirmed']);
 
         // 3b. CREAR GRUP DE XAT PER A LA QUEDADA
+        $chatPhotoPath = null;
+        if ($request->hasFile('chat_photo')) {
+            $ext = $request->file('chat_photo')->getClientOriginalExtension();
+            $chatPhotoPath = $request->file('chat_photo')->storeAs('chats', \Illuminate\Support\Str::random(40) . '.' . $ext, 'public');
+        }
+
         $groupChat = Conversation::create([
             'type' => 'group',
-            'name' => '📅 ' . $event->title,
+            'name' => $event->title,
+            'photo' => $chatPhotoPath,
             'event_id' => $event->id,
         ]);
         $groupChat->participants()->attach(Auth::id());
@@ -289,6 +297,9 @@ class EventController extends Controller
             ];
         }
         
+        $groupChat = Conversation::where('type', 'group')->where('event_id', $event->id)->first();
+        $event->chat_photo = $groupChat?->photo;
+
         return Inertia::render('Events/Edit', [
             'event'         => $event,
             'myRoutes'      => $myRoutes,
@@ -315,6 +326,8 @@ class EventController extends Controller
             'max_participants' => 'nullable|integer|min:' . $minParticipants,
             'stages_json'    => 'nullable|string', 
             'photo'          => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'chat_photo'     => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'remove_chat_photo' => 'nullable|boolean',
         ], [
             'max_participants.min' => 'El límit d\'assistents no pot ser inferior als ja apuntats (' . $currentParticipants . ').'
         ]);
@@ -351,6 +364,25 @@ class EventController extends Controller
         }
 
         $event->update($updateData);
+
+        // A.bis. Actualitzem el grup de xat (nom i foto)
+        $groupChat = Conversation::where('type', 'group')->where('event_id', $event->id)->first();
+        if ($groupChat) {
+            $chatUpdate = ['name' => $event->title];
+
+            if ($request->hasFile('chat_photo')) {
+                if ($groupChat->photo) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($groupChat->photo);
+                }
+                $ext = $request->file('chat_photo')->getClientOriginalExtension();
+                $chatUpdate['photo'] = $request->file('chat_photo')->storeAs('chats', \Illuminate\Support\Str::random(40) . '.' . $ext, 'public');
+            } elseif ($request->boolean('remove_chat_photo') && $groupChat->photo) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($groupChat->photo);
+                $chatUpdate['photo'] = null;
+            }
+
+            $groupChat->update($chatUpdate);
+        }
 
         // B. Actualitzem les Rutes / Etapes
         $event->routes()->detach();

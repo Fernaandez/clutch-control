@@ -91,6 +91,22 @@
                         <div v-if="form.errors.photo" class="text-red-500 text-xs mt-1">{{ form.errors.photo }}</div>
                         <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">{{ $t('events.photo_hint') }}</p>
                     </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2 flex items-center gap-2">
+                            <AppIcon name="chat" size="sm" class="text-brand-neon" />
+                            {{ $t('events.chat_photo') }}
+                        </label>
+                        <div class="flex items-center gap-3">
+                            <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-brand-dark bg-brand-black flex items-center justify-center flex-shrink-0">
+                                <img v-if="chatPhotoPreview" :src="chatPhotoPreview" alt="" class="w-full h-full object-cover">
+                                <AppIcon v-else name="users" size="md" class="text-gray-600" />
+                            </div>
+                            <input @change="onChatPhotoChange" type="file" accept="image/*" class="flex-1 text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-brand-base/20 file:text-brand-neon hover:file:bg-brand-base/30 transition cursor-pointer">
+                        </div>
+                        <div v-if="form.errors.chat_photo" class="text-red-500 text-xs mt-1">{{ form.errors.chat_photo }}</div>
+                        <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">{{ $t('events.chat_photo_hint') }}</p>
+                    </div>
                 </div>
 
                 <div class="bg-brand-surface p-6 rounded-xl border border-brand-dark shadow-lg">
@@ -208,12 +224,26 @@ const form = useForm({
     is_public: true,
     max_participants: null,
     photo: null,
+    chat_photo: null,
     stages: [{ type: 'location', route_id: null, location_name: '', latitude: null, longitude: null }]
 });
 
 const isPickerOpen = ref(false);
 const activeStageIndex = ref(null);
 const map = ref(null);
+const chatPhotoPreview = ref(null);
+
+const onChatPhotoChange = (e) => {
+    const file = e.target.files[0];
+    form.chat_photo = file || null;
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => { chatPhotoPreview.value = ev.target.result; };
+        reader.readAsDataURL(file);
+    } else {
+        chatPhotoPreview.value = null;
+    }
+};
 
 const addStage = () => form.stages.push({ type: 'route', route_id: null, location_name: '', latitude: null, longitude: null });
 const removeStage = (index) => form.stages.length > 1 ? form.stages.splice(index, 1) : alert(t('events.min_one_stage'));
