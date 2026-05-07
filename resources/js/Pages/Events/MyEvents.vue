@@ -81,12 +81,14 @@
                 <div v-for="event in filteredEvents" :key="event.id" class="bg-brand-surface rounded-xl overflow-hidden border border-brand-dark shadow-lg flex flex-col animate-fade-in">
                     
                     <div class="h-32 bg-gray-900 relative w-full overflow-hidden">
-                        <div class="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                        <img v-if="event.photo" :src="eventPhotoUrl(event.photo)" :alt="event.title" class="absolute inset-0 w-full h-full object-cover" @error="onPhotoError">
+                        <div v-else class="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-brand-surface/80 via-transparent to-transparent"></div>
                         
-                        <div v-if="event.user_id === $page.props.auth.user.id" class="absolute top-2 left-2 bg-brand-neon text-black px-2 py-1 rounded text-[10px] font-bold uppercase">{{ $t('events.you_organize') }}</div>
-                        <div v-else class="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-[10px] font-bold uppercase">{{ $t('events.you_attend') }}</div>
+                        <div v-if="event.user_id === $page.props.auth.user.id" class="absolute top-2 left-2 bg-brand-neon text-black px-2 py-1 rounded text-[10px] font-bold uppercase z-10">{{ $t('events.you_organize') }}</div>
+                        <div v-else class="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-[10px] font-bold uppercase z-10">{{ $t('events.you_attend') }}</div>
 
-                        <div v-if="!event.is_public" class="absolute bottom-2 right-2 bg-red-500/20 text-red-400 border border-red-500/50 px-2 py-0.5 rounded text-[10px] font-bold uppercase">{{ $t('events.private') }}</div>
+                        <div v-if="!event.is_public" class="absolute bottom-2 right-2 bg-red-500/20 text-red-400 border border-red-500/50 px-2 py-0.5 rounded text-[10px] font-bold uppercase z-10">{{ $t('events.private') }}</div>
                     </div>
 
                     <div class="p-4 flex-1 flex flex-col justify-between">
@@ -144,6 +146,19 @@ const props = defineProps({ events: Array });
 
 const page = usePage();
 const authUserId = page.props.auth.user.id;
+
+const eventPhotoUrl = (photo) => {
+    if (!photo) return '';
+    if (photo.startsWith('http')) return photo;
+    const base = (page.props.storageUrl || '/storage').replace(/\/$/, '');
+    return `${base}/${photo}`;
+};
+
+const onPhotoError = (event) => {
+    if (event?.target) {
+        event.target.style.display = 'none';
+    }
+};
 
 const showFilters = ref(false);
 
