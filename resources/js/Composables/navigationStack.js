@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/vue3';
 
 const KEY = 'cc_nav_stack';
+const SKIP_NEXT_KEY = 'cc_nav_skip_next';
 const MAX = 50;
 
 export function getPathWithSearch() {
@@ -36,11 +37,26 @@ function hasInternalReferrer() {
 export function recordNavigationVisit() {
     if (typeof window === 'undefined') return;
     const path = getPathWithSearch();
+    if (sessionStorage.getItem(SKIP_NEXT_KEY) === path) {
+        sessionStorage.removeItem(SKIP_NEXT_KEY);
+        return;
+    }
     const stack = loadStack();
     if (stack[stack.length - 1] !== path) {
         stack.push(path);
         saveStack(stack);
     }
+}
+
+export function visitWithoutStack(url) {
+    if (typeof window === 'undefined') return;
+    const target = new URL(url, window.location.origin);
+    const targetPath = target.pathname + target.search;
+    const cur = getPathWithSearch();
+    const stack = loadStack().filter((entry) => entry !== cur && entry !== targetPath);
+    saveStack(stack);
+    sessionStorage.setItem(SKIP_NEXT_KEY, targetPath);
+    router.visit(url, { replace: true });
 }
 
 /**

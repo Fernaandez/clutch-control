@@ -91,7 +91,7 @@
                 <div v-for="event in filteredEvents" :key="event.id" class="bg-brand-surface rounded-xl overflow-hidden border border-brand-dark shadow-lg hover:border-brand-neon transition duration-300 flex flex-col animate-fade-in">
                     
                     <div class="h-40 bg-gray-900 relative w-full overflow-hidden">
-                        <img v-if="event.photo" :src="$page.props.storageUrl + '/' + event.photo" alt="Foto Quedada" class="absolute inset-0 w-full h-full object-cover">
+                        <img v-if="event.photo" :src="eventPhotoUrl(event.photo)" alt="Foto Quedada" class="absolute inset-0 w-full h-full object-cover">
                         <div v-else class="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-brand-surface via-transparent to-transparent"></div>
                         
@@ -157,6 +157,12 @@ const currentLocale = computed(() => locale.value + '-ES');
 
 const props = defineProps({ events: Array });
 const showFilters = ref(false);
+
+const eventPhotoUrl = (photo) => {
+    if (!photo) return '';
+    if (photo.startsWith('http')) return photo;
+    return `${window.location.origin}/storage/${photo}`;
+};
 
 const filters = ref({
     search: '',

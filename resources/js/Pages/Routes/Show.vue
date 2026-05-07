@@ -234,7 +234,7 @@ import { onMounted, computed, ref, nextTick } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import ReportButton from '@/Components/ReportButton.vue';
 import { Link, router, useForm, usePage } from '@inertiajs/vue3';
-import { smartBack } from '@/Composables/navigationStack.js';
+import { smartBack, visitWithoutStack } from '@/Composables/navigationStack.js';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { registerPlugin } from '@capacitor/core';
@@ -303,7 +303,7 @@ const fromEventId = urlParams ? urlParams.get('from_event') : null;
 
 const goBack = () => {
     if (fromEventId) {
-        router.visit(route('events.show', fromEventId));
+        visitWithoutStack(route('events.show', fromEventId));
         return;
     }
     smartBack(route('routes.index'));
