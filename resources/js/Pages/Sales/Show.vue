@@ -75,11 +75,19 @@
                         </Link>
                     </div>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 flex items-center gap-3">
+                <p class="text-xs text-gray-500 mt-2 flex items-center gap-3 flex-wrap">
                     <span>Venedor: <span class="text-white">{{ sale.motorcycle?.user?.name || 'Rider' }}</span></span>
                     <span>• Publicat el {{ new Date(sale.created_at).toLocaleDateString('ca-ES') }}</span>
-                    <span>• 👁️ {{ sale.views_count || 0 }} {{ $t('sales.views') }}</span>
-                    <span v-if="sale.favorited_by_count > 0">• ❤️ {{ sale.favorited_by_count }} {{ $t('sales.saved_count') }}</span>
+                    <span class="inline-flex items-center gap-1">
+                        •
+                        <AppIcon name="eye" size="xs" />
+                        {{ sale.views_count || 0 }} {{ $t('sales.views') }}
+                    </span>
+                    <span v-if="sale.favorited_by_count > 0" class="inline-flex items-center gap-1">
+                        •
+                        <AppIcon name="heart" size="xs" class="text-red-400" />
+                        {{ sale.favorited_by_count }} {{ $t('sales.saved_count') }}
+                    </span>
                 </p>
                 <div v-if="!isOwner && sale.motorcycle?.user" class="mt-3">
                     <ReportButton
