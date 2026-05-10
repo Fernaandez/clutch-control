@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Schema;
 
 class Event extends Model
 {
@@ -13,7 +14,7 @@ class Event extends Model
     {
         parent::boot();
         static::creating(function ($model) {
-            if (empty($model->share_token)) {
+            if (Schema::hasColumn('events', 'share_token') && empty($model->share_token)) {
                 $model->share_token = \Illuminate\Support\Str::random(12);
             }
         });

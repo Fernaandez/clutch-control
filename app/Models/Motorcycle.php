@@ -24,6 +24,7 @@ class Motorcycle extends Model
         'extras'
     ];
 
+    
     protected $appends = ['has_pending_maintenance'];
 
     public function getPendingMaintenanceTasksAttribute()

@@ -17,6 +17,7 @@ class MotorcycleController extends Controller
         return Inertia::render('Motorcycles/Index', ['motos' => $motos]);
     }
 
+    
     public function create()
     {
         return Inertia::render('Motorcycles/Create');

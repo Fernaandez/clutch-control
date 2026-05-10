@@ -8,6 +8,7 @@ use App\Models\Conversation;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class EventController extends Controller
 {
@@ -107,6 +108,11 @@ class EventController extends Controller
     // 3. GUARDAR A LA BASE DE DADES (STORE)
     public function store(Request $request)
         {
+        $request->merge([
+            'description' => (($v = $request->input('description')) === '' || $v === null) ? null : $v,
+            'max_participants' => (($v = $request->input('max_participants')) === '' || $v === null) ? null : $v,
+        ]);
+
         // 1. AFEGIM 'is_public' A LA VALIDACIÓ
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -126,60 +132,79 @@ class EventController extends Controller
             'chat_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
-        // 2. CREEM L'EVENT FENT SERVIR LES DADES VALIDADES
-        // Com que 'is_public' està al $fillable del teu model Event.php, 
-        // això ja agafarà el valor (true o false) que enviïs des del formulari.
-        $event = new Event($validated);
-        
-        $event->user_id = Auth::id();
-        
-        // Si no s'ha enviat res (per seguretat), posem true per defecte, 
-        // però normalment el formulari ja envia true o false.
-        if (!isset($validated['is_public'])) {
-            $event->is_public = true;
-        }
+        $eventColumns = array_flip(Schema::getColumnListing('events'));
+        $eventData = collect([
+            'user_id' => Auth::id(),
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'start_time' => $validated['start_time'],
+            'is_public' => $validated['is_public'] ?? true,
+            'max_participants' => $validated['max_participants'] ?? null,
+        ])->filter(fn ($value, $key) => isset($eventColumns[$key]))->all();
 
         if ($request->hasFile('photo')) {
             $ext = $request->file('photo')->getClientOriginalExtension();
-            $event->photo = $request->file('photo')->storeAs('events', \Illuminate\Support\Str::random(40) . '.' . $ext, 'public');
+            if (isset($eventColumns['photo'])) {
+                $eventData['photo'] = $request->file('photo')->storeAs('events', \Illuminate\Support\Str::random(40) . '.' . $ext, 'public');
+            }
         }
 
         // ... (Codi per calcular la ubicació inicial igual que abans) ...
-        if (!empty($request->stages)) {
-            $first = $request->stages[0];
+        $stages = $validated['stages'] ?? [];
+        if (!empty($stages)) {
+            $first = $stages[0];
             if ($first['type'] === 'route' && $first['route_id']) {
                 $r = Route::find($first['route_id']);
-                $event->location = $r->title; 
+                if ($r && isset($eventColumns['location'])) {
+                    $eventData['location'] = $r->title;
+                }
             } else {
-                $event->location = $first['location_name'];
-                $event->latitude = $first['latitude'];
-                $event->longitude = $first['longitude'];
+                if (isset($eventColumns['location'])) {
+                    $eventData['location'] = $first['location_name'] ?? null;
+                }
+                if (isset($eventColumns['latitude'])) {
+                    $eventData['latitude'] = $first['latitude'] ?? null;
+                }
+                if (isset($eventColumns['longitude'])) {
+                    $eventData['longitude'] = $first['longitude'] ?? null;
+                }
             }
         }
-        
-        $event->save();
+
+        $event = Event::create($eventData);
 
         // 3. ESTAT: CONFIRMED (Arreglem també el 'going' aquí)
-        $event->participants()->attach(Auth::id(), ['status' => 'confirmed']);
-
-        // 3b. CREAR GRUP DE XAT PER A LA QUEDADA
-        $chatPhotoPath = null;
-        if ($request->hasFile('chat_photo')) {
-            $ext = $request->file('chat_photo')->getClientOriginalExtension();
-            $chatPhotoPath = $request->file('chat_photo')->storeAs('chats', \Illuminate\Support\Str::random(40) . '.' . $ext, 'public');
+        if (Schema::hasTable('event_participants')) {
+            $event->participants()->attach(Auth::id(), ['status' => 'confirmed']);
         }
 
-        $groupChat = Conversation::create([
-            'type' => 'group',
-            'name' => $event->title,
-            'photo' => $chatPhotoPath,
-            'event_id' => $event->id,
-        ]);
-        $groupChat->participants()->attach(Auth::id());
+        // 3b. CREAR GRUP DE XAT PER A LA QUEDADA
+        if (Schema::hasTable('conversations') && Schema::hasTable('conversation_user')) {
+            $conversationColumns = array_flip(Schema::getColumnListing('conversations'));
+
+            if (isset($conversationColumns['type'], $conversationColumns['name'])) {
+                $chatData = [
+                    'type' => 'group',
+                    'name' => $event->title,
+                ];
+
+                if (isset($conversationColumns['event_id'])) {
+                    $chatData['event_id'] = $event->id;
+                }
+
+                if ($request->hasFile('chat_photo') && isset($conversationColumns['photo'])) {
+                    $ext = $request->file('chat_photo')->getClientOriginalExtension();
+                    $chatData['photo'] = $request->file('chat_photo')->storeAs('chats', \Illuminate\Support\Str::random(40) . '.' . $ext, 'public');
+                }
+
+                $groupChat = Conversation::create($chatData);
+                $groupChat->participants()->attach(Auth::id());
+            }
+        }
 
         // 4. GUARDEM RUTES
-        if ($request->stages) {
-            foreach ($request->stages as $index => $stage) {
+        if (Schema::hasTable('event_routes') && !empty($stages)) {
+            foreach ($stages as $index => $stage) {
                 if ($stage['type'] === 'route' && $stage['route_id']) {
                     $event->routes()->attach($stage['route_id'], ['day_order' => $index + 1]);
                 }
