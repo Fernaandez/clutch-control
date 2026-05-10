@@ -7,6 +7,7 @@ use App\Models\Motorcycle;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class RouteController extends Controller
 {
@@ -212,6 +213,25 @@ class RouteController extends Controller
     // VEURE
     public function show(Route $route)
     {
+        // SEGURETAT: Aquesta ruta es accessible per ID. Comprovem que
+        // l'usuari hi te dret a accedir. Les rutes privades nomes les pot
+        // veure el propietari o un admin; la resta de gent ha d'accedir
+        // amb el share_token (via /r/{token}).
+        $user = Auth::user();
+        $isOwner = $user && (int) $route->user_id === (int) $user->id;
+        $isAdmin = $user && ($user->role ?? null) === 'admin';
+
+        if (!$route->is_public && !$isOwner && !$isAdmin) {
+            abort(403, 'Aquesta ruta es privada.');
+        }
+
+        // Si la ruta encara no te share_token (creada abans de la migracio),
+        // li n'assignem un ara perque el boto de compartir funcioni.
+        if (empty($route->share_token) && Schema::hasColumn('routes', 'share_token')) {
+            $route->share_token = \Illuminate\Support\Str::random(12);
+            $route->save();
+        }
+
         return Inertia::render('Routes/Show', [
             'mapRoute' => $route->load(['user', 'waypoints', 'reviews.user']),
             'motorcycle' => $route->motorcycle

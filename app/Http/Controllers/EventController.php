@@ -113,24 +113,55 @@ class EventController extends Controller
             'max_participants' => (($v = $request->input('max_participants')) === '' || $v === null) ? null : $v,
         ]);
 
-        // 1. AFEGIM 'is_public' A LA VALIDACIÓ
-        $validated = $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'start_time' => 'required|date',
-            'is_public' => 'boolean', // <--- IMPORTANT: Validem que sigui true/false
-            'max_participants' => 'nullable|integer|min:1',
-            
-            // Validació d'etapes (la deixem igual)
-            'stages' => 'array',
+            'description' => 'nullable|string|max:2000',
+            'start_time' => 'required|date|after_or_equal:today',
+            'is_public' => 'boolean',
+            'max_participants' => 'nullable|integer|min:2|max:999',
+
+            'stages' => 'required|array|min:1',
             'stages.*.type' => 'required|in:route,location',
-            'stages.*.route_id' => 'nullable|exists:routes,id',
-            'stages.*.location_name' => 'nullable|string',
-            'stages.*.latitude' => 'nullable|numeric',
-            'stages.*.longitude' => 'nullable|numeric',
+            'stages.*.route_id' => 'nullable|integer|exists:routes,id',
+            'stages.*.location_name' => 'nullable|string|max:255',
+            'stages.*.latitude' => 'nullable|numeric|between:-90,90',
+            'stages.*.longitude' => 'nullable|numeric|between:-180,180',
+
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'chat_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ], [
+            'title.required' => 'El títol de la quedada és obligatori.',
+            'start_time.required' => 'Cal indicar la data i hora de la quedada.',
+            'start_time.after_or_equal' => 'La data de la quedada no pot ser anterior a avui.',
+            'max_participants.min' => 'El límit de motoristes ha de ser com a mínim 2.',
+            'stages.required' => 'Has d\'afegir com a mínim una etapa (lloc de trobada o ruta).',
+            'stages.min' => 'Has d\'afegir com a mínim una etapa (lloc de trobada o ruta).',
+            'photo.image' => 'La foto de la quedada no és una imatge vàlida.',
+            'chat_photo.image' => 'La foto del xat no és una imatge vàlida.',
         ]);
+
+        $validator->after(function ($v) use ($request) {
+            foreach ((array) $request->input('stages', []) as $i => $stage) {
+                $type = $stage['type'] ?? null;
+                $human = $i + 1;
+
+                if ($type === 'route' && empty($stage['route_id'])) {
+                    $v->errors()->add(
+                        "stages.$i.route_id",
+                        "Etapa $human: cal seleccionar una ruta del teu garatge."
+                    );
+                }
+
+                if ($type === 'location' && trim((string) ($stage['location_name'] ?? '')) === '') {
+                    $v->errors()->add(
+                        "stages.$i.location_name",
+                        "Etapa $human: cal indicar el nom del lloc de trobada."
+                    );
+                }
+            }
+        });
+
+        $validated = $validator->validate();
 
         $eventColumns = array_flip(Schema::getColumnListing('events'));
         $eventData = collect([
@@ -217,6 +248,26 @@ class EventController extends Controller
     // 4. VEURE DETALL (SHOW)
     public function show(Event $event)
         {
+            // SEGURETAT: aquest endpoint accepta l'ID numeric. Si la quedada
+            // no es publica nomes hi pot accedir el creador, un participant
+            // o un admin. La resta han d'usar el share_token (/e/{token}).
+            $user = Auth::user();
+            $isOwner = $user && (int) $event->user_id === (int) $user->id;
+            $isAdmin = $user && ($user->role ?? null) === 'admin';
+            $isParticipant = $user
+                ? $event->participants()->where('users.id', $user->id)->exists()
+                : false;
+
+            if (!$event->is_public && !$isOwner && !$isAdmin && !$isParticipant) {
+                abort(403, 'Aquesta quedada es privada.');
+            }
+
+            // Backfill del token compartible si no existia (events antics).
+            if (Schema::hasColumn('events', 'share_token') && empty($event->share_token)) {
+                $event->share_token = \Illuminate\Support\Str::random(12);
+                $event->save();
+            }
+
             // Carreguem tota la info necessària
             $event->load(['organizer', 'routes', 'participants']);
             

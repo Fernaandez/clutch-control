@@ -349,16 +349,40 @@ const formattedRecordingTime = computed(() => {
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 });
 
+const writeToClipboard = async (text) => {
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+            return true;
+        }
+    } catch (e) { /* fallthrough */ }
+    try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+    } catch (e) {
+        return false;
+    }
+};
+
 const copyShareLink = async () => {
     if (!props.mapRoute?.id) return;
 
-    // Share protected URL (requires auth).
-    const shareUrl = `${window.location.origin}/routes/${props.mapRoute.id}`;
-    const shareCode = props.mapRoute.share_token || '';
+    // URL publica amb share_token (no requereix login i no es endevinable).
+    // Fallback a la URL protegida nomes si no hi ha token (no hauria de passar).
+    const shareToken = props.mapRoute.share_token;
+    const shareUrl = shareToken
+        ? `${window.location.origin}/r/${shareToken}`
+        : `${window.location.origin}/routes/${props.mapRoute.id}`;
     const shareTitle = props.mapRoute.title || 'Ruta compartida';
-    const shareText = shareCode
-        ? `Mira aquesta ruta: ${shareTitle}\nCodi: ${shareCode}`
-        : `Mira aquesta ruta: ${shareTitle}`;
+    const shareText = `Mira aquesta ruta: ${shareTitle}`;
 
     if (navigator.share) {
         try {
@@ -373,14 +397,13 @@ const copyShareLink = async () => {
         }
     }
 
-    const fallbackText = shareCode ? `${shareUrl}\nCodi: ${shareCode}` : shareUrl;
-
-    navigator.clipboard.writeText(fallbackText).then(() => {
+    const ok = await writeToClipboard(shareUrl);
+    if (ok) {
         copyLinkSuccess.value = true;
         setTimeout(() => {
             copyLinkSuccess.value = false;
         }, 3000);
-    });
+    }
 };
 
 const formattedDuration = computed(() => {

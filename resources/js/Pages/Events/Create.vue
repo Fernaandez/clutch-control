@@ -111,9 +111,12 @@
 
                 <div class="bg-brand-surface p-6 rounded-xl border border-brand-dark shadow-lg">
                     <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-2">
-                        <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ $t('events.itinerary_section') }}</h2>
+                        <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                            {{ $t('events.itinerary_section') }} <span class="text-red-400">*</span>
+                        </h2>
                         <span class="text-xs text-brand-neon bg-brand-neon/10 px-2 py-1 rounded border border-brand-neon/20 font-bold">{{ $t('events.stages', { n: form.stages.length }) }}</span>
                     </div>
+                    <p v-if="form.errors.stages" class="text-red-400 text-xs mb-3">⚠ {{ form.errors.stages }}</p>
 
                     <div class="space-y-4">
                         <div v-for="(stage, index) in form.stages" :key="index" class="relative group bg-brand-black border border-brand-dark rounded-xl p-4 transition hover:border-gray-500">
@@ -137,19 +140,27 @@
 
                                 <div class="md:col-span-8">
                                     <div v-if="stage.type === 'route'">
-                                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">{{ $t('events.select_route') }}</label>
-                                        <select v-model="stage.route_id" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon py-2.5">
+                                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">
+                                            {{ $t('events.select_route') }} <span class="text-red-400">*</span>
+                                        </label>
+                                        <select v-model="stage.route_id"
+                                            :class="form.errors[`stages.${index}.route_id`] ? 'w-full bg-brand-surface border-red-500 ring-1 ring-red-500 rounded-lg text-white text-sm focus:border-red-400 focus:ring-0 py-2.5' : 'w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon py-2.5'">
                                             <option :value="null">{{ $t('events.route_placeholder') }}</option>
                                             <option v-for="r in myRoutes" :key="r.id" :value="r.id">
                                                 {{ r.title }} ({{ r.planned_distance_km }} km)
                                             </option>
                                         </select>
-                                        <p v-if="myRoutes.length === 0" class="text-[10px] text-red-400 mt-1">{{ $t('events.no_routes') }}</p>
+                                        <p v-if="form.errors[`stages.${index}.route_id`]" class="text-red-400 text-xs mt-1">⚠ {{ form.errors[`stages.${index}.route_id`] }}</p>
+                                        <p v-else-if="myRoutes.length === 0" class="text-[10px] text-red-400 mt-1">{{ $t('events.no_routes') }}</p>
                                     </div>
                                     <div v-else class="space-y-3">
                                         <div>
-                                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">{{ $t('events.place_name') }}</label>
-                                            <input v-model="stage.location_name" type="text" :placeholder="$t('events.place_placeholder')" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon">
+                                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">
+                                                {{ $t('events.place_name') }} <span class="text-red-400">*</span>
+                                            </label>
+                                            <input v-model="stage.location_name" type="text" :placeholder="$t('events.place_placeholder')"
+                                                :class="form.errors[`stages.${index}.location_name`] ? 'w-full bg-brand-surface border-red-500 ring-1 ring-red-500 rounded-lg text-white text-sm focus:border-red-400 focus:ring-0' : 'w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon'">
+                                            <p v-if="form.errors[`stages.${index}.location_name`]" class="text-red-400 text-xs mt-1">⚠ {{ form.errors[`stages.${index}.location_name`] }}</p>
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <div class="flex-1 bg-gray-800/50 rounded px-3 py-2 text-xs text-gray-400 border border-brand-dark truncate">

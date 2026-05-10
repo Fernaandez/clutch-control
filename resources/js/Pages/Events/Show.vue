@@ -216,16 +216,39 @@ const formatTime = (dateStr) => {
     try { return new Date(dateStr).toLocaleTimeString(locale.value, { hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; }
 };
 
+const writeToClipboard = async (text) => {
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+            return true;
+        }
+    } catch (e) { /* fallthrough */ }
+    try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+    } catch (e) {
+        return false;
+    }
+};
+
 const copyShareLink = async () => {
     if (!props.event?.id) return;
 
-    // Share protected URL (requires auth).
-    const shareUrl = `${window.location.origin}/events/${props.event.id}`;
-    const shareCode = props.event.share_token || '';
+    // URL publica amb share_token (no requereix login i no es endevinable).
+    const shareToken = props.event.share_token;
+    const shareUrl = shareToken
+        ? `${window.location.origin}/e/${shareToken}`
+        : `${window.location.origin}/events/${props.event.id}`;
     const shareTitle = props.event.title || 'Quedada compartida';
-    const shareText = shareCode
-        ? `Mira aquesta quedada: ${shareTitle}\nCodi: ${shareCode}`
-        : `Mira aquesta quedada: ${shareTitle}`;
+    const shareText = `Mira aquesta quedada: ${shareTitle}`;
 
     if (navigator.share) {
         try {
@@ -240,12 +263,11 @@ const copyShareLink = async () => {
         }
     }
 
-    const fallbackText = shareCode ? `${shareUrl}\nCodi: ${shareCode}` : shareUrl;
-
-    navigator.clipboard.writeText(fallbackText).then(() => {
+    const ok = await writeToClipboard(shareUrl);
+    if (ok) {
         copyLinkSuccess.value = true;
         setTimeout(() => { copyLinkSuccess.value = false; }, 3000);
-    });
+    }
 };
 
 const totalDistance = computed(() => {
