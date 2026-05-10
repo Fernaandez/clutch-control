@@ -119,7 +119,7 @@
                         </div>
                         
                         <h3 class="text-lg font-bold text-white">{{ log.task_title }}</h3>
-                        <p class="text-sm text-gray-400 mt-0.5">{{ log.description }}</p>
+                        <p class="text-sm text-gray-400 mt-0.5">{{ log.location || '—' }}</p>
                     </div>
 
                     <div class="text-right min-w-[80px] flex-shrink-0">
@@ -161,7 +161,7 @@
                     </div>
                     <div class="bg-brand-black/60 rounded-lg p-3 border border-brand-dark">
                         <p class="text-xs text-gray-500 mb-1">{{ $t('maintenance.workshop') }}</p>
-                        <p class="text-gray-200 text-sm">{{ selectedLog.description || '-' }}</p>
+                        <p class="text-gray-200 text-sm">{{ selectedLog.location || '—' }}</p>
                     </div>
                     <button v-if="selectedLog.invoice_photo" type="button" @click="openPhoto(selectedLog.invoice_photo)" class="block w-full">
                         <img :src="$page.props.storageUrl + '/' + selectedLog.invoice_photo" alt="Foto factura" class="max-h-56 w-full object-contain rounded-lg border border-brand-dark bg-brand-black">
@@ -218,7 +218,7 @@ const filteredHistory = computed(() => {
         const q = filters.value.search.toLowerCase();
         result = result.filter(log => 
             log.task_title.toLowerCase().includes(q) || 
-            (log.description && log.description.toLowerCase().includes(q))
+            (log.location && String(log.location).toLowerCase().includes(q))
         );
     }
 

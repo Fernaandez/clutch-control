@@ -22,7 +22,7 @@
                         <div>
                             <p class="text-xs text-purple-400 font-bold uppercase tracking-wider mb-1">{{ formatDate(log.date) }}</p>
                             <h3 class="text-lg font-bold text-white">{{ log.task_title }}</h3>
-                            <p class="text-sm text-gray-400 mt-1">{{ log.description }}</p>
+                            <p class="text-sm text-gray-400 mt-1">{{ log.location || '—' }}</p>
                         </div>
                         <div class="text-right flex-shrink-0">
                             <p class="text-xl font-bold text-white">{{ log.cost }} €</p>
@@ -49,7 +49,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
                 </button>
                 <h3 class="text-xl font-bold text-white mb-1 pr-10">{{ selectedLog.task_title }}</h3>
-                <p class="text-xs text-purple-400/70 uppercase tracking-widest mb-4">{{ $t('upgrades_history.title') }}</p>
+                <p class="text-xs text-purple-400/70 uppercase tracking-widest mb-4">{{ $t('upgrades_history.modal_subtitle') }}</p>
                 <div class="space-y-3">
                     <div class="grid grid-cols-2 gap-2">
                         <div class="bg-brand-black/60 rounded-lg p-3 border border-brand-dark">
@@ -62,12 +62,12 @@
                         </div>
                     </div>
                     <div class="bg-brand-black/60 rounded-lg p-3 border border-brand-dark">
-                        <p class="text-xs text-gray-500 mb-1">{{ $t('upgrades_history.at_km', { n: selectedLog.km_at_moment }) }}</p>
+                        <p class="text-xs text-gray-500 mb-1">{{ $t('maintenance.done_at') }}</p>
                         <p class="text-white font-mono text-sm">{{ selectedLog.km_at_moment }} km</p>
                     </div>
                     <div class="bg-brand-black/60 rounded-lg p-3 border border-brand-dark">
                         <p class="text-xs text-gray-500 mb-1">{{ $t('upgrades.workshop') }}</p>
-                        <p class="text-gray-200 text-sm">{{ selectedLog.description || '-' }}</p>
+                        <p class="text-gray-200 text-sm">{{ selectedLog.location || '—' }}</p>
                     </div>
                     <button v-if="selectedLog.invoice_photo" type="button" @click="openPhoto(selectedLog.invoice_photo)" class="block w-full">
                         <img :src="$page.props.storageUrl + '/' + selectedLog.invoice_photo" alt="Foto mod" class="max-h-56 w-full object-contain rounded-lg border border-purple-900/30 bg-brand-black">

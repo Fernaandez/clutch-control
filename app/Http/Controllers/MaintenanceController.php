@@ -149,12 +149,12 @@ class MaintenanceController extends Controller
 
         $logData = [
             'maintenance_task_id' => $task->id,
-            'type' => $task->type, 
+            'type' => $task->type,
             'task_title' => $task->title,
             'date' => $validated['date'],
             'km_at_moment' => $validated['km_at_moment'],
             'cost' => $validated['cost'],
-            'description' => $validated['description'],
+            'location' => $validated['description'],
         ];
 
         if ($request->hasFile('invoice_photo')) {

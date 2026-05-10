@@ -42,7 +42,7 @@
                     </div>
 
                     <div class="bg-brand-black/50 p-3 rounded-lg border border-brand-dark/50 text-sm flex justify-between items-center">
-                        <span class="text-gray-300 italic">"{{ log.description }}"</span>
+                        <span class="text-gray-300 italic">"{{ log.location || '—' }}"</span>
                         <span class="text-gray-500 font-mono text-xs">{{ $t('maintenance.done_at') }} {{ log.km_at_moment }} km</span>
                     </div>
 
@@ -85,7 +85,7 @@
                     </div>
                     <div class="bg-brand-black/60 rounded-lg p-3 border border-brand-dark">
                         <p class="text-xs text-gray-500 mb-1">{{ $t('maintenance.workshop') }}</p>
-                        <p class="text-gray-200 text-sm">{{ selectedLog.description || '-' }}</p>
+                        <p class="text-gray-200 text-sm">{{ selectedLog.location || '—' }}</p>
                     </div>
                     <button v-if="selectedLog.invoice_photo" type="button" @click="openPhoto(selectedLog.invoice_photo)" class="block w-full">
                         <img :src="$page.props.storageUrl + '/' + selectedLog.invoice_photo" alt="Foto factura" class="max-h-56 w-full object-contain rounded-lg border border-brand-dark bg-brand-black">

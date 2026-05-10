@@ -113,7 +113,7 @@
                         </div>
                         
                         <h3 class="text-lg font-bold text-white">{{ log.task_title }}</h3>
-                        <p class="text-sm text-gray-400 mt-1 whitespace-pre-line">{{ log.description }}</p>
+                        <p class="text-sm text-gray-400 mt-1 whitespace-pre-line">{{ log.location || '—' }}</p>
                     </div>
 
                     <div class="sm:text-right min-w-[100px] flex sm:flex-col items-center justify-between sm:justify-center border-t sm:border-t-0 sm:border-l border-brand-dark pt-3 sm:pt-0 sm:pl-4 mt-2 sm:mt-0">
@@ -183,7 +183,7 @@ const filteredHistory = computed(() => {
     let result = [...props.history];
     if (filters.value.search) {
         const q = filters.value.search.toLowerCase();
-        result = result.filter(log => log.task_title.toLowerCase().includes(q) || (log.description && log.description.toLowerCase().includes(q)));
+        result = result.filter(log => log.task_title.toLowerCase().includes(q) || (log.location && String(log.location).toLowerCase().includes(q)));
     }
     if (filters.value.type !== 'all') { result = result.filter(log => log.type === filters.value.type); }
     if (filters.value.dateStart) { result = result.filter(log => log.date >= filters.value.dateStart); }

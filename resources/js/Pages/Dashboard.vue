@@ -12,7 +12,7 @@
             </div>
             <Link :href="route('motorcycles.index')" class="absolute top-4 right-4 z-20 flex items-center gap-2 bg-black/60 backdrop-blur-sm border border-white/20 text-white/90 hover:bg-brand-neon/20 hover:border-brand-neon hover:text-brand-neon px-3 py-1.5 rounded-full text-xs font-bold transition shadow-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
-                Canviar moto
+                {{ $t('dashboard.change_moto') }}
             </Link>
             <div class="absolute bottom-0 left-0 w-full p-4 photo-gradient-bottom">
                 <div class="inline-block bg-black/65 backdrop-blur-sm border border-white/15 rounded-xl px-4 py-3 shadow-lg">
@@ -32,7 +32,7 @@
                 <div class="z-10 w-full md:w-auto">
                     <Link :href="route('routes.free-ride', moto.id)" class="flex items-center justify-center gap-2 bg-brand-dark hover:bg-brand-neon hover:text-brand-black text-brand-neon w-full px-6 py-4 rounded-xl transition border border-brand-neon font-black uppercase tracking-widest text-xs whitespace-nowrap">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
-                        Volta lliure
+                        {{ $t('dashboard.free_ride') }}
                     </Link>
                 </div>
                 <div class="absolute right-0 top-0 w-48 h-48 bg-brand-neon blur-[80px] opacity-10 rounded-full pointer-events-none"></div>

@@ -86,6 +86,8 @@
     "bg_title": "Free Ride Active"
   },
   "dashboard": {
+    "change_moto": "Change bike",
+    "free_ride": "Free ride",
     "current_km": "Current Mileage",
     "control_panel": "Control Panel",
     "maintenance": "Maintenance",
@@ -638,6 +640,7 @@
   },
   "repairs_history": {
     "title": "Breakdown History",
+    "modal_subtitle": "Record details",
     "back": "Back",
     "no_history": "No records in history.",
     "no_history_hint": "Nothing's broken yet! 🎉",
@@ -645,6 +648,7 @@
   },
   "upgrades_history": {
     "title": "Upgrades History",
+    "modal_subtitle": "Record details",
     "back": "Back",
     "no_history": "No upgrades recorded.",
     "no_history_hint": "The bike is stock.",

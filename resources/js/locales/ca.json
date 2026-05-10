@@ -86,6 +86,8 @@
     "bg_title": "Volta Lliure Activa"
   },
   "dashboard": {
+    "change_moto": "Canviar moto",
+    "free_ride": "Volta lliure",
     "current_km": "Quilometratge Actual",
     "control_panel": "Tauler de Control",
     "maintenance": "Manteniment",
@@ -610,7 +612,7 @@
     "current_password": "Contrasenya Actual",
     "new_password": "Nova Contrasenya",
     "confirm_password": "Confirmar Contrasenya",
-    "change_password": "Canviar Password",
+    "change_password": "Canviar contrasenya",
     "appearance": "Aparença",
     "appearance_hint": "Canvia entre el mode fosc i el mode clar.",
     "dark_mode": "Mode Fosc",
@@ -638,6 +640,7 @@
   },
   "repairs_history": {
     "title": "Historial Avaries",
+    "modal_subtitle": "Detall del registre",
     "back": "← Tornar",
     "no_history": "No hi ha registres a l'historial.",
     "no_history_hint": "Encara no s'ha trencat res! 🎉",
@@ -645,6 +648,7 @@
   },
   "upgrades_history": {
     "title": "Historial Millores",
+    "modal_subtitle": "Detall del registre",
     "back": "Tornar",
     "no_history": "No hi ha millores registrades.",
     "no_history_hint": "La moto està de sèrie.",

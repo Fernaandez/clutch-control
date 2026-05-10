@@ -86,6 +86,8 @@
     "bg_title": "Vuelta Libre Activa"
   },
   "dashboard": {
+    "change_moto": "Cambiar moto",
+    "free_ride": "Vuelta libre",
     "current_km": "Kilometraje Actual",
     "control_panel": "Panel de Control",
     "maintenance": "Mantenimiento",
@@ -638,6 +640,7 @@
   },
   "repairs_history": {
     "title": "Historial Averías",
+    "modal_subtitle": "Detalle del registro",
     "back": "Volver",
     "no_history": "No hay registros en el historial.",
     "no_history_hint": "¡Aún no se ha roto nada! 🎉",
@@ -645,6 +648,7 @@
   },
   "upgrades_history": {
     "title": "Historial Mejoras",
+    "modal_subtitle": "Detalle del registro",
     "back": "Volver",
     "no_history": "No hay mejoras registradas.",
     "no_history_hint": "La moto está de serie.",
