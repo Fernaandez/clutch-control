@@ -148,9 +148,6 @@
 
             <!-- Botons propietari (si és el teu anunci) -->
             <div v-if="isOwner" class="mb-6 flex gap-3">
-                <Link :href="route('sales.edit', sale.id)" class="flex-1 bg-brand-dark hover:bg-gray-700 border border-gray-600 text-white font-bold uppercase tracking-wider text-xs py-3 rounded-xl text-center transition">
-                    {{ $t('sales.edit_listing_btn') }}
-                </Link>
                 <Link 
                     v-if="!sale.is_sold"
                     :href="route('sales.mark-sold', sale.id)"
