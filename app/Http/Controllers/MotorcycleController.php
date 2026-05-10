@@ -24,28 +24,39 @@ class MotorcycleController extends Controller
     // 3. STORE: Guarda la moto
     public function store(Request $request)
     {
+        // Multipart / navegadors: camps numèrics buits com a "" (evita errors SQL si arriben a create)
+        $request->merge([
+            'cc' => $request->filled('cc') ? $request->input('cc') : null,
+            'power_cv' => $request->filled('power_cv') ? $request->input('power_cv') : null,
+            'license_type' => $request->filled('license_type') ? $request->input('license_type') : null,
+            'type' => $request->filled('type') ? $request->input('type') : null,
+            'extras' => $request->has('extras') && $request->input('extras') !== '' ? $request->input('extras') : null,
+        ]);
+
         // Validem exactament els mateixos camps que envia el Vue
         $validated = $request->validate([
             'brand' => 'required|string|max:50',
             'model' => 'required|string|max:50',
-            'year'  => 'required|integer',
+            'year'  => 'required|integer|min:1900|max:2100',
             'current_km' => 'required|numeric|min:0',
             
             // Camps opcionals de la moto (TOTS nullable)
             'cc' => 'nullable|integer|min:0',
             'power_cv' => 'nullable|integer|min:0',
-            'license_type' => 'nullable|string',
-            'type' => 'nullable|string',
+            'license_type' => 'nullable|string|in:AM,A1,A2,A',
+            'type' => 'nullable|string|in:Naked,Sport,Trail,Custom,Scooter,Touring,Off-Road,Classic',
             'extras' => 'nullable|string|max:1000',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         // Guardem la moto a la base de dades (Format Anti-Errors VS Code)
-        $data = $validated;
-        $data['user_id'] = Auth::id(); // Assignem el propietari
+        $data = collect($validated)
+            ->only(['brand', 'model', 'year', 'current_km', 'cc', 'power_cv', 'license_type', 'type', 'extras'])
+            ->all();
+        $data['user_id'] = Auth::id();
 
         if ($request->hasFile('photo')) {
-            $ext = $request->file('photo')->getClientOriginalExtension();
+            $ext = $request->file('photo')->getClientOriginalExtension() ?: $request->file('photo')->guessExtension() ?: 'jpg';
             $data['photo'] = $request->file('photo')->storeAs('motorcycles', \Illuminate\Support\Str::random(40) . '.' . $ext, 'public');
         }
 

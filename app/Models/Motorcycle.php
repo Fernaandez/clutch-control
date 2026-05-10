@@ -25,6 +25,15 @@ class Motorcycle extends Model
 
     protected $appends = ['has_pending_maintenance'];
 
+    protected function casts(): array
+    {
+        return [
+            'year' => 'integer',
+            'cc' => 'integer',
+            'power_cv' => 'integer',
+        ];
+    }
+
     public function getPendingMaintenanceTasksAttribute()
     {
         return $this->maintenanceTasks->filter(function ($task) {

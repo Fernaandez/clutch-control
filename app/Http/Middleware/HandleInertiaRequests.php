@@ -37,8 +37,10 @@ class HandleInertiaRequests extends Middleware
                 'user' => $user,
             ],
             'storageUrl' => asset('storage'),
-            'has_pending_maintenance' => $user 
-                ? $user->motorcycles()->with('maintenanceTasks')->get()->contains('has_pending_maintenance', true) 
+            'has_pending_maintenance' => $user
+                ? $user->motorcycles()->with('maintenanceTasks')->get()->contains(
+                    fn (\App\Models\Motorcycle $m) => (bool) $m->has_pending_maintenance
+                )
                 : false,
             'unread_chats_count' => $user
                 ? \App\Models\Message::whereIn('conversation_id', 
