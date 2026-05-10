@@ -13,7 +13,6 @@
 
             <div v-if="history.length === 0" class="text-center py-10 text-gray-500 bg-brand-surface rounded-xl border border-brand-dark border-dashed">
                 <p>{{ $t('upgrades_history.no_history') }}</p>
-                <p class="text-sm">{{ $t('upgrades_history.no_history_hint') }}</p>
             </div>
 
             <div v-else class="space-y-4">

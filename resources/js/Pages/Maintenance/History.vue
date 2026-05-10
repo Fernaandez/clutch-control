@@ -20,7 +20,6 @@
 
             <div v-if="history.length === 0" class="text-center py-12 text-gray-500 bg-brand-surface rounded-xl border border-brand-dark border-dashed">
                 <p class="text-lg">{{ $t('maintenance.no_history') }}</p>
-                <p class="text-sm mt-2">{{ $t('maintenance.no_history_hint') }}</p>
             </div>
 
             <div v-else class="space-y-4">

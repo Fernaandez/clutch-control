@@ -25,39 +25,26 @@
                         />
                     </div>
 
-                    <!-- Step content with transition -->
                     <Transition :name="transitionName" mode="out-in">
                         <div :key="currentStep" class="tutorial-step-content">
-                            <!-- Icon -->
-                            <div class="tutorial-icon-wrap" :style="{ background: steps[currentStep].iconBg }">
-                                <span class="tutorial-icon-emoji">{{ steps[currentStep].icon }}</span>
-                            </div>
-
-                            <!-- Title -->
                             <h2 class="tutorial-title">{{ $t(steps[currentStep].titleKey) }}</h2>
 
-                            <!-- Description -->
                             <p class="tutorial-description">{{ $t(steps[currentStep].descKey) }}</p>
 
-                            <!-- Permission request block -->
                             <div v-if="steps[currentStep].permission && !permissionGranted" class="tutorial-permission-block">
-                                <div class="tutorial-permission-icon">
-                                    {{ steps[currentStep].permissionIcon }}
-                                </div>
                                 <p class="tutorial-permission-text">{{ $t(steps[currentStep].permissionTextKey) }}</p>
                                 <button
                                     class="tutorial-permission-btn"
                                     @click="requestPermission(steps[currentStep].permission)"
                                     :disabled="isRequestingPermission"
                                 >
-                                    <span v-if="isRequestingPermission">⏳ {{ $t('tutorial.requesting') }}</span>
+                                    <span v-if="isRequestingPermission">{{ $t('tutorial.requesting') }}</span>
                                     <span v-else>{{ $t(steps[currentStep].permissionBtnKey) }}</span>
                                 </button>
                             </div>
 
-                            <!-- Permission already granted indicator -->
                             <div v-if="steps[currentStep].permission && permissionGranted" class="tutorial-permission-ok">
-                                ✅ {{ $t('tutorial.permission_granted') }}
+                                {{ $t('tutorial.permission_granted') }}
                             </div>
                         </div>
                     </Transition>
@@ -85,7 +72,7 @@
                             class="tutorial-btn-finish"
                             @click="finishTutorial"
                         >
-                            🚀 {{ $t('tutorial.start') }}
+                            {{ $t('tutorial.start') }}
                         </button>
                     </div>
 
@@ -120,56 +107,40 @@ const permissionGranted = ref(false);
 
 const steps = [
     {
-        icon: '👋',
-        iconBg: 'linear-gradient(135deg, rgba(12,225,181,0.15), rgba(12,225,181,0.05))',
         titleKey: 'tutorial.step1_title',
         descKey: 'tutorial.step1_desc',
         permission: null,
     },
     {
-        icon: '🏍️',
-        iconBg: 'linear-gradient(135deg, rgba(96,165,250,0.15), rgba(96,165,250,0.05))',
         titleKey: 'tutorial.step2_title',
         descKey: 'tutorial.step2_desc',
         permission: null,
     },
     {
-        icon: '📍',
-        iconBg: 'linear-gradient(135deg, rgba(34,197,94,0.15), rgba(34,197,94,0.05))',
         titleKey: 'tutorial.step3_title',
         descKey: 'tutorial.step3_desc',
         permission: 'location',
-        permissionIcon: '🗺️',
         permissionTextKey: 'tutorial.step3_permission_text',
         permissionBtnKey: 'tutorial.step3_permission_btn',
     },
     {
-        icon: '📅',
-        iconBg: 'linear-gradient(135deg, rgba(251,146,60,0.15), rgba(251,146,60,0.05))',
         titleKey: 'tutorial.step4_title',
         descKey: 'tutorial.step4_desc',
         permission: null,
     },
     {
-        icon: '💬',
-        iconBg: 'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(168,85,247,0.05))',
         titleKey: 'tutorial.step5_title',
         descKey: 'tutorial.step5_desc',
         permission: 'notifications',
-        permissionIcon: '🔔',
         permissionTextKey: 'tutorial.step5_permission_text',
         permissionBtnKey: 'tutorial.step5_permission_btn',
     },
     {
-        icon: '🛒',
-        iconBg: 'linear-gradient(135deg, rgba(234,179,8,0.15), rgba(234,179,8,0.05))',
         titleKey: 'tutorial.step6_title',
         descKey: 'tutorial.step6_desc',
         permission: null,
     },
     {
-        icon: '🚀',
-        iconBg: 'linear-gradient(135deg, rgba(12,225,181,0.2), rgba(12,225,181,0.05))',
         titleKey: 'tutorial.step7_title',
         descKey: 'tutorial.step7_desc',
         permission: null,
@@ -363,24 +334,6 @@ async function requestPermission(type) {
     gap: 0.75rem;
 }
 
-.tutorial-icon-wrap {
-    width: 5rem;
-    height: 5rem;
-    border-radius: 1.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    margin-bottom: 0.5rem;
-    flex-shrink: 0;
-}
-
-.tutorial-icon-emoji {
-    font-size: 2.25rem;
-    line-height: 1;
-    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
-}
-
 .tutorial-title {
     font-size: 1.35rem;
     font-weight: 900;
@@ -410,10 +363,6 @@ async function requestPermission(type) {
     align-items: center;
     gap: 0.5rem;
     margin-top: 0.25rem;
-}
-
-.tutorial-permission-icon {
-    font-size: 1.5rem;
 }
 
 .tutorial-permission-text {

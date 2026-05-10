@@ -24,7 +24,6 @@
 
             <div v-if="tasks.length === 0" class="text-center py-10 text-gray-500 bg-brand-surface rounded-xl border border-brand-dark border-dashed">
                 <p>{{ $t('maintenance.no_tasks') }}</p>
-                <p class="text-sm">{{ $t('maintenance.no_tasks_hint') }}</p>
             </div>
 
             <div v-else class="space-y-4">
