@@ -6,6 +6,7 @@ use App\Models\Motorcycle;
 use App\Models\SaleListing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 
 class MotorcycleController extends Controller
@@ -49,15 +50,24 @@ class MotorcycleController extends Controller
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
-        // Guardem la moto a la base de dades (Format Anti-Errors VS Code)
+        // Guardem només columnes que existeixen realment a la BD local.
+        // Això evita 500 si alguna migració antiga encara no s'ha executat.
+        $motorcycleColumns = array_flip(Schema::getColumnListing('motorcycles'));
         $data = collect($validated)
             ->only(['brand', 'model', 'year', 'current_km', 'cc', 'power_cv', 'license_type', 'type', 'extras'])
+            ->filter(fn ($value, $key) => isset($motorcycleColumns[$key]))
             ->all();
         $data['user_id'] = Auth::id();
 
+        if (isset($motorcycleColumns['plate'])) {
+            $data['plate'] = 'SENSE-' . Auth::id() . '-' . \Illuminate\Support\Str::upper(\Illuminate\Support\Str::random(8));
+        }
+
         if ($request->hasFile('photo')) {
             $ext = $request->file('photo')->getClientOriginalExtension() ?: $request->file('photo')->guessExtension() ?: 'jpg';
-            $data['photo'] = $request->file('photo')->storeAs('motorcycles', \Illuminate\Support\Str::random(40) . '.' . $ext, 'public');
+            if (isset($motorcycleColumns['photo'])) {
+                $data['photo'] = $request->file('photo')->storeAs('motorcycles', \Illuminate\Support\Str::random(40) . '.' . $ext, 'public');
+            }
         }
 
         Motorcycle::create($data);

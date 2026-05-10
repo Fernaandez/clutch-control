@@ -16,6 +16,7 @@ class Motorcycle extends Model
         'year', 
         'current_km', 
         'photo',
+        'plate',
         'cc',
         'power_cv',
         'license_type',
