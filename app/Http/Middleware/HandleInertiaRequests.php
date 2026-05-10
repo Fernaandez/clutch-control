@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\MaintenanceTask;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -37,10 +38,17 @@ class HandleInertiaRequests extends Middleware
                 'user' => $user,
             ],
             'storageUrl' => asset('storage'),
+            // Consulta SQL (no accessors): evita 500 si hi ha dades rares a maintenance_tasks
             'has_pending_maintenance' => $user
-                ? $user->motorcycles()->with('maintenanceTasks')->get()->contains(
-                    fn (\App\Models\Motorcycle $m) => (bool) $m->has_pending_maintenance
-                )
+                ? MaintenanceTask::query()
+                    ->join('motorcycles', 'motorcycles.id', '=', 'maintenance_tasks.motorcycle_id')
+                    ->where('motorcycles.user_id', $user->id)
+                    ->whereNotNull('maintenance_tasks.frequency_km')
+                    ->where('maintenance_tasks.frequency_km', '>', 0)
+                    ->whereRaw(
+                        'motorcycles.current_km >= COALESCE(maintenance_tasks.last_km_done, 0) + maintenance_tasks.frequency_km'
+                    )
+                    ->exists()
                 : false,
             'unread_chats_count' => $user
                 ? \App\Models\Message::whereIn('conversation_id', 

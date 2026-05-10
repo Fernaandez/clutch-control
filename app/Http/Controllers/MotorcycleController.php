@@ -24,13 +24,13 @@ class MotorcycleController extends Controller
     // 3. STORE: Guarda la moto
     public function store(Request $request)
     {
-        // Multipart / navegadors: camps numèrics buits com a "" (evita errors SQL si arriben a create)
+        // Multipart: "" -> null; conservar 0 vàlid per cc / power_cv
         $request->merge([
-            'cc' => $request->filled('cc') ? $request->input('cc') : null,
-            'power_cv' => $request->filled('power_cv') ? $request->input('power_cv') : null,
-            'license_type' => $request->filled('license_type') ? $request->input('license_type') : null,
-            'type' => $request->filled('type') ? $request->input('type') : null,
-            'extras' => $request->has('extras') && $request->input('extras') !== '' ? $request->input('extras') : null,
+            'cc' => (($v = $request->input('cc')) === '' || $v === null) ? null : $v,
+            'power_cv' => (($v = $request->input('power_cv')) === '' || $v === null) ? null : $v,
+            'license_type' => (($v = $request->input('license_type')) === '' || $v === null) ? null : $v,
+            'type' => (($v = $request->input('type')) === '' || $v === null) ? null : $v,
+            'extras' => (($v = $request->input('extras')) === '' || $v === null) ? null : $v,
         ]);
 
         // Validem exactament els mateixos camps que envia el Vue

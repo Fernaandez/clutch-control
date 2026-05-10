@@ -25,20 +25,17 @@ class Motorcycle extends Model
 
     protected $appends = ['has_pending_maintenance'];
 
-    protected function casts(): array
-    {
-        return [
-            'year' => 'integer',
-            'cc' => 'integer',
-            'power_cv' => 'integer',
-        ];
-    }
-
     public function getPendingMaintenanceTasksAttribute()
     {
         return $this->maintenanceTasks->filter(function ($task) {
-            if (!$task->frequency_km) return false;
-            return ($this->current_km - $task->last_km_done) >= $task->frequency_km;
+            $freq = $task->frequency_km;
+            if ($freq === null || (int) $freq <= 0) {
+                return false;
+            }
+            $last = (int) ($task->last_km_done ?? 0);
+            $km = (float) ($this->current_km ?? 0);
+
+            return ($km - $last) >= (float) $freq;
         })->values();
     }
 
