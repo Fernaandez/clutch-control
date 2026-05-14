@@ -37,7 +37,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $user,
             ],
-            'storageUrl' => asset('storage'),
+            'storageUrl' => rtrim(\Illuminate\Support\Facades\Storage::disk('public')->url(''), '/'),
             // Consulta SQL (no accessors): evita 500 si hi ha dades rares a maintenance_tasks
             'has_pending_maintenance' => $user
                 ? MaintenanceTask::query()
