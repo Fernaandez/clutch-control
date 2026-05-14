@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="45%" r="70%">
+      <stop offset="0%" stop-color="#10183a"/>
+      <stop offset="55%" stop-color="#080d22"/>
+      <stop offset="100%" stop-color="#050816"/>
+    </radialGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+    <style>
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 44px; font-weight: 800; fill: #ffffff; }
+      .subtitle { font-family: Arial, Helvetica, sans-serif; font-size: 25px; font-weight: 500; fill: #b8c2e8; }
+      .nodeText { font-family: Arial, Helvetica, sans-serif; font-size: 33px; font-weight: 800; fill: #ffffff; text-anchor: middle; dominant-baseline: middle; }
+      .smallText { font-family: Arial, Helvetica, sans-serif; font-size: 24px; font-weight: 750; fill: #ffffff; text-anchor: middle; dominant-baseline: middle; }
+      .noteText { font-family: Arial, Helvetica, sans-serif; font-size: 21px; font-weight: 600; fill: #91a0d6; text-anchor: middle; dominant-baseline: middle; }
+      .line { stroke: #45e1b3; stroke-width: 5; stroke-linecap: round; opacity: 0.85; filter: url(#glow); }
+      .subLine { stroke: #2d8cff; stroke-width: 4; stroke-linecap: round; opacity: 0.75; }
+      .node { fill: #0c1430; stroke: #45e1b3; stroke-width: 6; filter: url(#softShadow); }
+      .mainNode { fill: #101a3d; stroke: #45e1b3; stroke-width: 8; filter: url(#softShadow); }
+      .subNode { fill: #0b122c; stroke: #2d8cff; stroke-width: 4; filter: url(#softShadow); }
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" rx="34" fill="url(#bg)"/>
+  <rect x="18" y="18" width="1564" height="864" rx="28" fill="none" stroke="#196dff" stroke-width="4"/>
+
+  <text x="800" y="76" class="title" text-anchor="middle">Model de relacions Clutch Control</text>
+
+  <!-- Main relationships -->
+  <line x1="800" y1="430" x2="455" y2="250" class="line"/>
+  <line x1="800" y1="430" x2="1145" y2="250" class="line"/>
+  <line x1="800" y1="430" x2="1160" y2="575" class="line"/>
+  <line x1="800" y1="430" x2="440" y2="585" class="line"/>
+  <line x1="800" y1="430" x2="800" y2="700" class="line"/>
+
+  <!-- Secondary relationships -->
+  <line x1="455" y1="250" x2="180" y2="250" class="subLine"/>
+  <line x1="455" y1="250" x2="440" y2="585" class="subLine"/>
+  <line x1="455" y1="250" x2="1145" y2="250" class="subLine" opacity="0.45"/>
+  <line x1="1145" y1="250" x2="1420" y2="250" class="subLine"/>
+  <line x1="1145" y1="250" x2="1160" y2="575" class="subLine"/>
+  <line x1="1160" y1="575" x2="1420" y2="575" class="subLine"/>
+  <line x1="1160" y1="575" x2="800" y2="700" class="subLine"/>
+  <line x1="440" y1="585" x2="180" y2="585" class="subLine"/>
+  <line x1="440" y1="585" x2="800" y2="700" class="subLine"/>
+
+  <!-- Central node -->
+  <circle cx="800" cy="430" r="128" class="mainNode"/>
+  <text x="800" y="430" class="nodeText" font-size="42">Usuaris</text>
+
+  <!-- Main module nodes -->
+  <circle cx="455" cy="250" r="92" class="node"/>
+  <text x="455" y="250" class="nodeText">Motos</text>
+
+  <circle cx="1145" cy="250" r="92" class="node"/>
+  <text x="1145" y="250" class="nodeText">Rutes</text>
+
+  <circle cx="1160" cy="575" r="98" class="node"/>
+  <text x="1160" y="575" class="nodeText">Quedades</text>
+
+  <circle cx="440" cy="585" r="92" class="node"/>
+  <text x="440" y="585" class="nodeText">Vendes</text>
+
+  <circle cx="800" cy="700" r="86" class="node"/>
+  <text x="800" y="700" class="nodeText">Xats</text>
+
+  <!-- Submodule nodes -->
+  <rect x="40" y="198" width="280" height="104" rx="28" class="subNode"/>
+  <text x="180" y="250" class="smallText">Manteniment</text>
+
+  <rect x="1280" y="198" width="280" height="104" rx="28" class="subNode"/>
+  <text x="1420" y="250" class="smallText">Trips GPS</text>
+
+  <rect x="1280" y="523" width="280" height="104" rx="28" class="subNode"/>
+  <text x="1420" y="575" class="smallText">Participants</text>
+
+  <rect x="40" y="533" width="280" height="104" rx="28" class="subNode"/>
+  <text x="180" y="585" class="smallText">Imatges</text>
+
+  <!-- Bottom technical summary -->
+</svg>

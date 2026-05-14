@@ -4,7 +4,7 @@
             
             <div class="flex items-center justify-between mb-6">
                 <div>
-                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">RUTES</h1>
+                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">{{ $t('routes.title') }}</h1>
                 </div>
                 <div class="relative z-[60]">
                     <button

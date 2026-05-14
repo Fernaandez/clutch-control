@@ -7,7 +7,7 @@
                     <button type="button" @click="goBack" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]" aria-label="Enrere">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
                     </button>
-                    <h1 class="text-2xl font-black uppercase tracking-tighter text-white leading-none">LA MEVA AGENDA</h1>
+                    <h1 class="text-2xl font-black uppercase tracking-tighter text-white leading-none">{{ $t('events.my_agenda_title') }}</h1>
                 </div>
             </div>
 

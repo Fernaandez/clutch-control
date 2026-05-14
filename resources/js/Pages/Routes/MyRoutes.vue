@@ -7,11 +7,11 @@
                     <button type="button" @click="goBack" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]" aria-label="Enrere">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
                     </button>
-                    <h1 class="text-2xl font-black uppercase tracking-tighter text-white leading-none overflow-hidden text-ellipsis whitespace-nowrap">RUTES</h1>
+                    <h1 class="text-2xl font-black uppercase tracking-tighter text-white leading-none overflow-hidden text-ellipsis whitespace-nowrap">{{ $t('routes.my_routes_title') }}</h1>
                 </div>
                 <button @click="scrollToTrips" class="bg-gray-800 hover:bg-brand-neon hover:text-black text-white px-3 py-2 rounded-lg transition border border-gray-700 flex items-center shrink-0 gap-2 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
                     <AppIcon name="history" size="sm" />
-                    Historial
+                    {{ $t('common.history') }}
                 </button>
             </div>
 
