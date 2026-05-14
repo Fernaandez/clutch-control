@@ -20,6 +20,33 @@ Route::get('/', function () {
     ]);
 })->name('welcome');
 
+// TEMPORAL: debug R2 - ELIMINAR despres de verificar
+Route::get('/__debug-r2', function () {
+    try {
+        $result = \Illuminate\Support\Facades\Storage::disk('public')
+            ->put('debug-test.txt', 'hello R2 ' . now());
+        $url = \Illuminate\Support\Facades\Storage::disk('public')->url('debug-test.txt');
+        return response()->json([
+            'put_result' => $result,
+            'url' => $url,
+            'disk_driver' => config('filesystems.disks.public.driver'),
+            'aws_bucket' => config('filesystems.disks.public.bucket'),
+            'aws_endpoint' => config('filesystems.disks.public.endpoint'),
+            'aws_url' => config('filesystems.disks.public.url'),
+            'aws_region' => config('filesystems.disks.public.region'),
+            'has_access_key' => !empty(config('filesystems.disks.public.key')),
+            'has_secret_key' => !empty(config('filesystems.disks.public.secret')),
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'class' => get_class($e),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ], 500);
+    }
+});
+
 // --- ENLLAÇOS PÚBLICS COMPARTITS ---
 Route::get('/r/{token}', [RouteController::class, 'preview'])->name('routes.preview');
 Route::get('/e/{token}', [EventController::class, 'preview'])->name('events.preview');
