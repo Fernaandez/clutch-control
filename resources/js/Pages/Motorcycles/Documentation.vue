@@ -23,12 +23,7 @@
 
             <div class="space-y-4">
                 <div class="bg-brand-surface rounded-xl p-5 border border-brand-dark shadow-lg">
-                    <div class="flex items-center justify-between gap-2 mb-4">
-                        <div>
-                            <h2 class="text-sm font-bold text-white uppercase tracking-widest">{{ $t('motorcycles.insurance_badge') }}</h2>
-                            <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">{{ $t('motorcycles.insurance_auto') }}</p>
-                        </div>
-                    </div>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-widest mb-4">{{ $t('motorcycles.insurance_badge') }}</h2>
                     <dl class="space-y-3 text-sm">
                         <div v-if="moto.insurance_company">
                             <dt class="text-xs font-bold text-gray-500 uppercase">{{ $t('motorcycles.insurance_company') }}</dt>
@@ -38,7 +33,11 @@
                             <dt class="text-xs font-bold text-gray-500 uppercase">{{ $t('motorcycles.insurance_policy') }}</dt>
                             <dd class="text-white font-mono mt-0.5">{{ moto.insurance_policy_number }}</dd>
                         </div>
-                        <p v-if="!moto.insurance_company && !moto.insurance_policy_number" class="text-gray-500 text-sm">{{ $t('dashboard.no_date_set') }}</p>
+                        <div v-if="moto.insurance_expires_at">
+                            <dt class="text-xs font-bold text-gray-500 uppercase">{{ $t('motorcycles.insurance_expires') }}</dt>
+                            <dd class="text-brand-neon font-mono mt-0.5">{{ formatDate(moto.insurance_expires_at) }}</dd>
+                        </div>
+                        <p v-if="!moto.insurance_company && !moto.insurance_policy_number && !moto.insurance_expires_at" class="text-gray-500 text-sm">{{ $t('dashboard.no_date_set') }}</p>
                     </dl>
                 </div>
 
@@ -123,6 +122,7 @@ const renewItvToday = () => {
 const hasAnyData = computed(() =>
     props.moto.insurance_company ||
     props.moto.insurance_policy_number ||
+    props.moto.insurance_expires_at ||
     props.moto.itv_expires_at ||
     props.moto.itv_last_passed_at
 );

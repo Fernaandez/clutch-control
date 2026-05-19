@@ -35,6 +35,7 @@ class MotorcycleController extends Controller
             'extras' => (($v = $request->input('extras')) === '' || $v === null) ? null : $v,
             'insurance_company' => (($v = $request->input('insurance_company')) === '' || $v === null) ? null : $v,
             'insurance_policy_number' => (($v = $request->input('insurance_policy_number')) === '' || $v === null) ? null : $v,
+            'insurance_expires_at' => (($v = $request->input('insurance_expires_at')) === '' || $v === null) ? null : $v,
             'itv_expires_at' => (($v = $request->input('itv_expires_at')) === '' || $v === null) ? null : $v,
             'itv_last_passed_at' => (($v = $request->input('itv_last_passed_at')) === '' || $v === null) ? null : $v,
         ]);
@@ -54,6 +55,7 @@ class MotorcycleController extends Controller
             'extras' => 'nullable|string|max:1000',
             'insurance_company' => 'nullable|string|max:100',
             'insurance_policy_number' => 'nullable|string|max:100',
+            'insurance_expires_at' => 'nullable|date',
             'itv_expires_at' => 'nullable|date|after:today',
             'itv_last_passed_at' => 'nullable|date|before_or_equal:today',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
@@ -63,7 +65,7 @@ class MotorcycleController extends Controller
         // Això evita 500 si alguna migració antiga encara no s'ha executat.
         $motorcycleColumns = array_flip(Schema::getColumnListing('motorcycles'));
         $data = collect($validated)
-            ->only(['brand', 'model', 'year', 'current_km', 'cc', 'power_cv', 'license_type', 'type', 'extras', 'insurance_company', 'insurance_policy_number', 'itv_expires_at', 'itv_last_passed_at'])
+            ->only(['brand', 'model', 'year', 'current_km', 'cc', 'power_cv', 'license_type', 'type', 'extras', 'insurance_company', 'insurance_policy_number', 'insurance_expires_at', 'itv_expires_at', 'itv_last_passed_at'])
             ->filter(fn ($value, $key) => isset($motorcycleColumns[$key]))
             ->all();
         $data['user_id'] = Auth::id();
@@ -199,6 +201,7 @@ class MotorcycleController extends Controller
         $request->merge([
             'insurance_company' => (($v = $request->input('insurance_company')) === '' || $v === null) ? null : $v,
             'insurance_policy_number' => (($v = $request->input('insurance_policy_number')) === '' || $v === null) ? null : $v,
+            'insurance_expires_at' => (($v = $request->input('insurance_expires_at')) === '' || $v === null) ? null : $v,
             'itv_expires_at' => (($v = $request->input('itv_expires_at')) === '' || $v === null) ? null : $v,
             'itv_last_passed_at' => (($v = $request->input('itv_last_passed_at')) === '' || $v === null) ? null : $v,
         ]);
@@ -214,6 +217,7 @@ class MotorcycleController extends Controller
         return [
             'insurance_company' => 'nullable|string|max:100',
             'insurance_policy_number' => 'nullable|string|max:100',
+            'insurance_expires_at' => 'nullable|date',
             'itv_expires_at' => 'nullable|date|after:today',
             'itv_last_passed_at' => 'nullable|date|before_or_equal:today',
         ];
