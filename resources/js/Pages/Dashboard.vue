@@ -99,7 +99,6 @@
                         </div>
                         <div>
                             <span class="block font-bold text-gray-200 text-sm uppercase tracking-widest">{{ $t('dashboard.documentation') }}</span>
-                            <span class="block text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">{{ $t('dashboard.documentation_subtitle') }}</span>
                         </div>
                     </Link>
 
