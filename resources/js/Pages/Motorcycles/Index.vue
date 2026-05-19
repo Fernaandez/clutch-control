@@ -121,11 +121,6 @@
                                 <span class="text-brand-neon font-mono font-bold">{{ moto.current_km }} km</span>
                             </div>
 
-                            <div v-if="moto.insurance_status && moto.insurance_status !== 'ok'" class="mt-3 flex flex-wrap gap-2">
-                                <span :class="statusBadgeClass(moto.insurance_status)" class="text-[10px] font-black uppercase px-2 py-1 rounded border">
-                                    {{ $t('motorcycles.insurance_badge') }} · {{ $t(`motorcycles.status_${moto.insurance_status}`) }}
-                                </span>
-                            </div>
                             <div v-if="moto.itv_status && moto.itv_status !== 'ok'" class="mt-2 flex flex-wrap gap-2">
                                 <span :class="statusBadgeClass(moto.itv_status)" class="text-[10px] font-black uppercase px-2 py-1 rounded border">
                                     {{ $t('motorcycles.itv_badge') }} · {{ $t(`motorcycles.status_${moto.itv_status}`) }}

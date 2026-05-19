@@ -183,7 +183,9 @@
     "status_expiring_soon": "Próximo a caducar",
     "status_expired": "Caducado",
     "documentation_edit": "Editar documentación",
-    "documentation_empty": "Aún no has registrado seguro ni ITV."
+    "documentation_empty": "Aún no has registrado seguro ni ITV.",
+    "insurance_auto": "Renovación automática",
+    "itv_renewed_today": "Renovada hoy"
   },
   "maintenance": {
     "title": "Mantenimiento",

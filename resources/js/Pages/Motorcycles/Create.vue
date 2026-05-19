@@ -114,11 +114,6 @@
                                 <input v-model="form.insurance_policy_number" type="text" :class="inputClass(form.errors.insurance_policy_number)">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">{{ $t('motorcycles.insurance_expires') }}</label>
-                                <input v-model="form.insurance_expires_at" type="date" :class="inputClass(form.errors.insurance_expires_at)">
-                                <p v-if="form.errors.insurance_expires_at" class="text-red-400 text-xs mt-1">⚠ {{ form.errors.insurance_expires_at }}</p>
-                            </div>
-                            <div>
                                 <label class="block text-xs font-bold text-gray-400 uppercase mb-1">{{ $t('motorcycles.itv_expires') }}</label>
                                 <input v-model="form.itv_expires_at" type="date" :class="inputClass(form.errors.itv_expires_at)">
                                 <p v-if="form.errors.itv_expires_at" class="text-red-400 text-xs mt-1">⚠ {{ form.errors.itv_expires_at }}</p>
@@ -161,7 +156,6 @@ const form = useForm({
     extras: '',
     insurance_company: '',
     insurance_policy_number: '',
-    insurance_expires_at: '',
     itv_expires_at: '',
     itv_last_passed_at: '',
     photo: null

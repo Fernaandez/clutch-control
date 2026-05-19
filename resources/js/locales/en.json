@@ -183,7 +183,9 @@
     "status_expiring_soon": "Expiring soon",
     "status_expired": "Expired",
     "documentation_edit": "Edit documentation",
-    "documentation_empty": "You haven't registered insurance or MOT yet."
+    "documentation_empty": "You haven't registered insurance or MOT yet.",
+    "insurance_auto": "Auto-renewal",
+    "itv_renewed_today": "Renewed today"
   },
   "maintenance": {
     "title": "Maintenance",

@@ -67,6 +67,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('motorcycles.documentation.edit');
     Route::put('/motorcycles/{motorcycle}/documentation', [MotorcycleController::class, 'documentationUpdate'])
         ->name('motorcycles.documentation.update');
+    Route::post('/motorcycles/{motorcycle}/documentation/itv-renewed', [MotorcycleController::class, 'itvRenewedToday'])
+        ->name('motorcycles.documentation.itv-renew');
 
     // --- MANTENIMENT ---
     Route::get('/motorcycles/{motorcycle}/maintenance', [MaintenanceController::class, 'index'])->name('motorcycles.maintenance.index');

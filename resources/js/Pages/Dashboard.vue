@@ -119,7 +119,6 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 const props = defineProps({ moto: Object });
 
 const hasDocAlert = computed(() =>
-    ['expired', 'expiring_soon'].includes(props.moto.insurance_status) ||
     ['expired', 'expiring_soon'].includes(props.moto.itv_status)
 );
 </script>

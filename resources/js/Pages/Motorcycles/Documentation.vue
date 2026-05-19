@@ -22,15 +22,12 @@
             </div>
 
             <div class="space-y-4">
-                <div class="bg-brand-surface rounded-xl p-5 border border-brand-dark shadow-lg" :class="docCardClass(moto.insurance_status)">
+                <div class="bg-brand-surface rounded-xl p-5 border border-brand-dark shadow-lg">
                     <div class="flex items-center justify-between gap-2 mb-4">
-                        <h2 class="text-sm font-bold text-white uppercase tracking-widest">{{ $t('motorcycles.insurance_badge') }}</h2>
-                        <span v-if="moto.insurance_status" :class="statusBadgeClass(moto.insurance_status)" class="text-[10px] font-black uppercase px-2 py-1 rounded border">
-                            {{ $t(`motorcycles.status_${moto.insurance_status}`) }}
-                        </span>
-                        <span v-else class="text-[10px] font-black uppercase px-2 py-1 rounded border bg-gray-500/10 text-gray-500 border-gray-500/30">
-                            {{ $t('dashboard.no_date_set') }}
-                        </span>
+                        <div>
+                            <h2 class="text-sm font-bold text-white uppercase tracking-widest">{{ $t('motorcycles.insurance_badge') }}</h2>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">{{ $t('motorcycles.insurance_auto') }}</p>
+                        </div>
                     </div>
                     <dl class="space-y-3 text-sm">
                         <div v-if="moto.insurance_company">
@@ -41,11 +38,7 @@
                             <dt class="text-xs font-bold text-gray-500 uppercase">{{ $t('motorcycles.insurance_policy') }}</dt>
                             <dd class="text-white font-mono mt-0.5">{{ moto.insurance_policy_number }}</dd>
                         </div>
-                        <div v-if="moto.insurance_expires_at">
-                            <dt class="text-xs font-bold text-gray-500 uppercase">{{ $t('motorcycles.insurance_expires') }}</dt>
-                            <dd class="text-brand-neon font-mono mt-0.5">{{ formatDate(moto.insurance_expires_at) }}</dd>
-                            <dd class="text-xs mt-1" :class="daysLeftClass(moto.insurance_status)">{{ daysLeftLabel(moto.insurance_expires_at, moto.insurance_status) }}</dd>
-                        </div>
+                        <p v-if="!moto.insurance_company && !moto.insurance_policy_number" class="text-gray-500 text-sm">{{ $t('dashboard.no_date_set') }}</p>
                     </dl>
                 </div>
 
@@ -70,6 +63,14 @@
                             <dd class="text-white font-mono mt-0.5">{{ formatDate(moto.itv_last_passed_at) }}</dd>
                         </div>
                     </dl>
+                    <button
+                        type="button"
+                        @click="renewItvToday"
+                        :disabled="renewing"
+                        class="mt-4 w-full bg-brand-neon hover:bg-white text-brand-black font-black uppercase tracking-wider py-3 rounded-xl transition text-xs disabled:opacity-50"
+                    >
+                        {{ renewing ? $t('motorcycles.saving') : $t('motorcycles.itv_renewed_today') }}
+                    </button>
                 </div>
             </div>
 
@@ -91,8 +92,8 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
+import { Link, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { smartBack } from '@/Composables/navigationStack.js';
@@ -104,12 +105,20 @@ const props = defineProps({
     otherExpirations: { type: Array, default: () => [] },
 });
 
+const renewing = ref(false);
+
 const goBack = () => smartBack(route('dashboard', props.moto.id));
+
+const renewItvToday = () => {
+    renewing.value = true;
+    router.post(route('motorcycles.documentation.itv-renew', props.moto.id), {}, {
+        onFinish: () => { renewing.value = false; },
+    });
+};
 
 const hasAnyData = computed(() =>
     props.moto.insurance_company ||
     props.moto.insurance_policy_number ||
-    props.moto.insurance_expires_at ||
     props.moto.itv_expires_at ||
     props.moto.itv_last_passed_at
 );

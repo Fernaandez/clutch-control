@@ -10,7 +10,7 @@ class CheckMotorcycleExpirationsCommand extends Command
 {
     protected $signature = 'motorcycles:check-expirations';
 
-    protected $description = 'Envia recordatoris de caducitat d\'assegurança i ITV (30, 7 i 0 dies)';
+    protected $description = 'Envia recordatoris de caducitat d\'ITV (30, 7 i 0 dies)';
 
     private const REMINDER_DAYS = [30, 7, 0];
 
@@ -22,10 +22,7 @@ class CheckMotorcycleExpirationsCommand extends Command
             $targetDate = now()->addDays($days)->toDateString();
 
             $motorcycles = Motorcycle::with('user')
-                ->where(function ($q) use ($targetDate) {
-                    $q->whereDate('insurance_expires_at', $targetDate)
-                        ->orWhereDate('itv_expires_at', $targetDate);
-                })
+                ->whereDate('itv_expires_at', $targetDate)
                 ->get();
 
             foreach ($motorcycles as $motorcycle) {
@@ -33,15 +30,8 @@ class CheckMotorcycleExpirationsCommand extends Command
                     continue;
                 }
 
-                if ($motorcycle->insurance_expires_at?->toDateString() === $targetDate) {
-                    SendExpiryReminderJob::dispatch($motorcycle->user, $motorcycle, 'insurance', $days);
-                    $sent++;
-                }
-
-                if ($motorcycle->itv_expires_at?->toDateString() === $targetDate) {
-                    SendExpiryReminderJob::dispatch($motorcycle->user, $motorcycle, 'itv', $days);
-                    $sent++;
-                }
+                SendExpiryReminderJob::dispatch($motorcycle->user, $motorcycle, 'itv', $days);
+                $sent++;
             }
         }
 

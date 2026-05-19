@@ -35,7 +35,7 @@ class Motorcycle extends Model
         'itv_last_passed_at' => 'date',
     ];
 
-    protected $appends = ['has_pending_maintenance', 'insurance_status', 'itv_status'];
+    protected $appends = ['has_pending_maintenance', 'itv_status'];
 
     public function getPendingMaintenanceTasksAttribute()
     {
@@ -54,11 +54,6 @@ class Motorcycle extends Model
     public function getHasPendingMaintenanceAttribute()
     {
         return $this->pending_maintenance_tasks->count() > 0;
-    }
-
-    public function getInsuranceStatusAttribute(): ?string
-    {
-        return $this->expiryStatus($this->insurance_expires_at);
     }
 
     public function getItvStatusAttribute(): ?string
