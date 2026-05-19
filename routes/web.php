@@ -61,6 +61,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/motorcycles/{motorcycle}/add-km', [MotorcycleController::class, 'addKm'])
         ->name('motorcycles.add-km');
 
+    Route::get('/motorcycles/{motorcycle}/documentation', [MotorcycleController::class, 'documentation'])
+        ->name('motorcycles.documentation.show');
+    Route::get('/motorcycles/{motorcycle}/documentation/edit', [MotorcycleController::class, 'documentationEdit'])
+        ->name('motorcycles.documentation.edit');
+    Route::put('/motorcycles/{motorcycle}/documentation', [MotorcycleController::class, 'documentationUpdate'])
+        ->name('motorcycles.documentation.update');
+
     // --- MANTENIMENT ---
     Route::get('/motorcycles/{motorcycle}/maintenance', [MaintenanceController::class, 'index'])->name('motorcycles.maintenance.index');
     Route::post('/motorcycles/{motorcycle}/maintenance', [MaintenanceController::class, 'store'])->name('motorcycles.maintenance.store');

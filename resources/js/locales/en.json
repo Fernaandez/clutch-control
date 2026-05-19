@@ -181,7 +181,9 @@
     "itv_badge": "MOT",
     "status_ok": "OK",
     "status_expiring_soon": "Expiring soon",
-    "status_expired": "Expired"
+    "status_expired": "Expired",
+    "documentation_edit": "Edit documentation",
+    "documentation_empty": "You haven't registered insurance or MOT yet."
   },
   "maintenance": {
     "title": "Maintenance",

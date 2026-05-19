@@ -181,7 +181,9 @@
     "itv_badge": "ITV",
     "status_ok": "OK",
     "status_expiring_soon": "Próximo a caducar",
-    "status_expired": "Caducado"
+    "status_expired": "Caducado",
+    "documentation_edit": "Editar documentación",
+    "documentation_empty": "Aún no has registrado seguro ni ITV."
   },
   "maintenance": {
     "title": "Mantenimiento",

@@ -41,83 +41,6 @@
             <div class="pt-2">
                 <h3 class="text-brand-muted font-bold text-sm uppercase mb-3 px-1">{{ $t('dashboard.control_panel') }}</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-
-                    <!-- DOCUMENTACIÓ: Seguro + ITV -->
-                    <Link
-                        :href="route('motorcycles.edit', moto.id)"
-                        class="sm:col-span-2 bg-brand-surface border border-brand-dark rounded-xl p-4 hover:border-brand-neon hover:bg-brand-dark/50 transition group text-left relative overflow-hidden"
-                        :class="docAlertClass"
-                    >
-                        <div v-if="hasDocAlert" class="absolute top-2 right-2 sm:top-3 sm:right-3 flex items-center gap-1 text-red-500 text-[9px] sm:text-[10px] font-black uppercase bg-red-500/10 px-2 py-1 rounded border border-red-500/30 animate-pulse">
-                            ⚠️ {{ $t('dashboard.documentation_attention') }}
-                        </div>
-
-                        <div class="flex items-start gap-3 mb-4">
-                            <div :class="hasDocAlert ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'" class="p-2 sm:p-3 rounded-lg flex-shrink-0 transition-colors group-hover:scale-105">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <span class="block font-bold text-gray-200 text-sm uppercase tracking-widest">{{ $t('dashboard.documentation') }}</span>
-                                <span class="block text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">{{ $t('dashboard.documentation_subtitle') }}</span>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div class="bg-brand-black/50 rounded-lg p-3 border border-brand-dark">
-                                <div class="flex items-center justify-between gap-2 mb-2">
-                                    <span class="text-xs font-bold text-gray-400 uppercase">{{ $t('motorcycles.insurance_badge') }}</span>
-                                    <span v-if="moto.insurance_status" :class="expiryBadgeClass(moto.insurance_status)" class="text-[9px] font-black uppercase px-2 py-0.5 rounded border">
-                                        {{ $t(`motorcycles.status_${moto.insurance_status}`) }}
-                                    </span>
-                                    <span v-else class="text-[9px] font-black uppercase px-2 py-0.5 rounded border bg-gray-500/10 text-gray-500 border-gray-500/30">
-                                        {{ $t('dashboard.no_date_set') }}
-                                    </span>
-                                </div>
-                                <p v-if="moto.insurance_company" class="text-white text-sm font-medium truncate">{{ moto.insurance_company }}</p>
-                                <p v-if="moto.insurance_expires_at" class="text-brand-neon font-mono text-sm mt-1">{{ formatDate(moto.insurance_expires_at) }}</p>
-                                <p v-if="daysUntil(moto.insurance_expires_at) !== null" class="text-xs mt-1" :class="daysLeftClass(moto.insurance_status)">
-                                    {{ daysLeftLabel(moto.insurance_expires_at, moto.insurance_status) }}
-                                </p>
-                            </div>
-
-                            <div class="bg-brand-black/50 rounded-lg p-3 border border-brand-dark">
-                                <div class="flex items-center justify-between gap-2 mb-2">
-                                    <span class="text-xs font-bold text-gray-400 uppercase">{{ $t('motorcycles.itv_badge') }}</span>
-                                    <span v-if="moto.itv_status" :class="expiryBadgeClass(moto.itv_status)" class="text-[9px] font-black uppercase px-2 py-0.5 rounded border">
-                                        {{ $t(`motorcycles.status_${moto.itv_status}`) }}
-                                    </span>
-                                    <span v-else class="text-[9px] font-black uppercase px-2 py-0.5 rounded border bg-gray-500/10 text-gray-500 border-gray-500/30">
-                                        {{ $t('dashboard.no_date_set') }}
-                                    </span>
-                                </div>
-                                <p v-if="moto.itv_expires_at" class="text-brand-neon font-mono text-sm">{{ formatDate(moto.itv_expires_at) }}</p>
-                                <p v-if="daysUntil(moto.itv_expires_at) !== null" class="text-xs mt-1" :class="daysLeftClass(moto.itv_status)">
-                                    {{ daysLeftLabel(moto.itv_expires_at, moto.itv_status) }}
-                                </p>
-                                <p v-if="moto.itv_last_passed_at" class="text-gray-500 text-xs mt-2">
-                                    {{ $t('dashboard.itv_last') }}: {{ formatDate(moto.itv_last_passed_at) }}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div v-if="otherExpirations.length > 0" class="mt-4 pt-3 border-t border-brand-dark">
-                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">{{ $t('dashboard.other_motos_expiring') }}</p>
-                            <ul class="space-y-1.5">
-                                <li v-for="item in otherExpirations" :key="`${item.motorcycle_id}-${item.type}`" class="flex items-center justify-between gap-2 text-xs">
-                                    <span class="text-gray-400 truncate">{{ item.brand }} {{ item.model }} · {{ $t(`motorcycles.${item.type}_badge`) }}</span>
-                                    <span :class="expiryBadgeClass(item.status)" class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded border flex-shrink-0">
-                                        {{ formatDate(item.expires_at) }}
-                                    </span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <p class="text-[10px] text-brand-neon/60 uppercase tracking-widest mt-3 group-hover:text-brand-neon transition">
-                            {{ $t('dashboard.edit_documentation') }} →
-                        </p>
-                    </Link>
                     
                     <Link :href="route('motorcycles.maintenance.index', moto.id)" class="sm:col-span-2 flex items-center gap-3 bg-brand-surface border border-brand-dark rounded-xl p-4 hover:border-brand-neon hover:bg-brand-dark/50 transition group text-left relative overflow-hidden" :class="{'ring-2 ring-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)] border-red-500/50': moto.has_pending_maintenance}">
                         <div v-if="moto.has_pending_maintenance" class="absolute top-2 right-2 sm:top-3 sm:right-3 flex items-center gap-1 text-red-500 text-[9px] sm:text-[10px] font-black uppercase bg-red-500/10 px-2 py-1 rounded border border-red-500/30 animate-pulse">
@@ -161,6 +84,25 @@
                         </div>
                     </Link>
 
+                    <Link
+                        :href="route('motorcycles.documentation.show', moto.id)"
+                        class="sm:col-span-2 flex items-center gap-3 bg-brand-surface border border-brand-dark rounded-xl p-4 hover:border-emerald-500 hover:bg-brand-dark/50 transition group text-left relative overflow-hidden"
+                        :class="{'ring-2 ring-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)] border-red-500/50': hasDocAlert}"
+                    >
+                        <div v-if="hasDocAlert" class="absolute top-2 right-2 sm:top-3 sm:right-3 flex items-center gap-1 text-red-500 text-[9px] sm:text-[10px] font-black uppercase bg-red-500/10 px-2 py-1 rounded border border-red-500/30 animate-pulse">
+                            ⚠️ {{ $t('dashboard.documentation_attention') }}
+                        </div>
+                        <div :class="hasDocAlert ? 'bg-red-500/20 text-red-400 group-hover:text-red-300' : 'bg-emerald-500/20 text-emerald-400 group-hover:text-emerald-300'" class="p-2 sm:p-3 rounded-lg flex-shrink-0 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <span class="block font-bold text-gray-200 text-sm uppercase tracking-widest">{{ $t('dashboard.documentation') }}</span>
+                            <span class="block text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">{{ $t('dashboard.documentation_subtitle') }}</span>
+                        </div>
+                    </Link>
+
                 </div>
              </div>
 
@@ -173,63 +115,12 @@
 <script setup>
 import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
-import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 
-const { t } = useI18n();
-
-const props = defineProps({
-    moto: Object,
-    upcomingExpirations: { type: Array, default: () => [] },
-});
-
-const otherExpirations = computed(() =>
-    props.upcomingExpirations.filter(item => item.motorcycle_id !== props.moto.id)
-);
+const props = defineProps({ moto: Object });
 
 const hasDocAlert = computed(() =>
     ['expired', 'expiring_soon'].includes(props.moto.insurance_status) ||
     ['expired', 'expiring_soon'].includes(props.moto.itv_status)
 );
-
-const docAlertClass = computed(() =>
-    hasDocAlert.value
-        ? 'ring-2 ring-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)] border-red-500/50'
-        : ''
-);
-
-const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    const raw = String(dateStr).slice(0, 10);
-    const [y, m, d] = raw.split('-');
-    return `${d}/${m}/${y}`;
-};
-
-const daysUntil = (dateStr) => {
-    if (!dateStr) return null;
-    const exp = new Date(String(dateStr).slice(0, 10) + 'T00:00:00');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
-};
-
-const daysLeftLabel = (dateStr, status) => {
-    const days = daysUntil(dateStr);
-    if (days === null) return '';
-    if (status === 'expired') return t('dashboard.expired_days_ago', { n: Math.abs(days) });
-    if (days === 0) return t('dashboard.expires_today');
-    return t('dashboard.days_left', { n: days });
-};
-
-const expiryBadgeClass = (status) => {
-    if (status === 'expired') return 'bg-red-500/10 text-red-400 border-red-500/30';
-    if (status === 'expiring_soon') return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30';
-    return 'bg-green-500/10 text-green-400 border-green-500/30';
-};
-
-const daysLeftClass = (status) => {
-    if (status === 'expired') return 'text-red-400';
-    if (status === 'expiring_soon') return 'text-yellow-400';
-    return 'text-gray-500';
-};
 </script>

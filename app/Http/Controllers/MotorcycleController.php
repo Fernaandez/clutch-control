@@ -182,15 +182,59 @@ class MotorcycleController extends Controller
             $user->save();
         }
 
-        return Inertia::render('Dashboard', [
+        return Inertia::render('Dashboard', ['moto' => $motorcycle]);
+    }
+
+    public function documentation(Motorcycle $motorcycle)
+    {
+        if ($motorcycle->user_id !== Auth::id()) { abort(403); }
+
+        return Inertia::render('Motorcycles/Documentation', [
             'moto' => $motorcycle,
-            'upcomingExpirations' => $this->upcomingExpirations($user),
+            'otherExpirations' => $this->otherExpirations(Auth::user(), $motorcycle->id),
         ]);
     }
 
-    private function upcomingExpirations($user): array
+    public function documentationEdit(Motorcycle $motorcycle)
+    {
+        if ($motorcycle->user_id !== Auth::id()) { abort(403); }
+
+        return Inertia::render('Motorcycles/DocumentationEdit', ['moto' => $motorcycle]);
+    }
+
+    public function documentationUpdate(Request $request, Motorcycle $motorcycle)
+    {
+        if ($motorcycle->user_id !== Auth::id()) { abort(403); }
+
+        $request->merge([
+            'insurance_company' => (($v = $request->input('insurance_company')) === '' || $v === null) ? null : $v,
+            'insurance_policy_number' => (($v = $request->input('insurance_policy_number')) === '' || $v === null) ? null : $v,
+            'insurance_expires_at' => (($v = $request->input('insurance_expires_at')) === '' || $v === null) ? null : $v,
+            'itv_expires_at' => (($v = $request->input('itv_expires_at')) === '' || $v === null) ? null : $v,
+            'itv_last_passed_at' => (($v = $request->input('itv_last_passed_at')) === '' || $v === null) ? null : $v,
+        ]);
+
+        $validated = $request->validate($this->documentationRules());
+        $motorcycle->update($validated);
+
+        return redirect()->route('motorcycles.documentation.show', $motorcycle);
+    }
+
+    private function documentationRules(): array
+    {
+        return [
+            'insurance_company' => 'nullable|string|max:100',
+            'insurance_policy_number' => 'nullable|string|max:100',
+            'insurance_expires_at' => 'nullable|date|after:today',
+            'itv_expires_at' => 'nullable|date|after:today',
+            'itv_last_passed_at' => 'nullable|date|before_or_equal:today',
+        ];
+    }
+
+    private function otherExpirations($user, int $excludeMotoId): array
     {
         return Motorcycle::where('user_id', $user->id)
+            ->where('id', '!=', $excludeMotoId)
             ->get()
             ->flatMap(function (Motorcycle $moto) {
                 $items = [];
