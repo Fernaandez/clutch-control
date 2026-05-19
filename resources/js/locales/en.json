@@ -115,7 +115,8 @@
     "expired_days_ago": "Expired {n} days ago",
     "itv_last": "Last MOT",
     "other_motos_expiring": "Other bikes in garage",
-    "edit_documentation": "Edit documentation"
+    "edit_documentation": "Edit documentation",
+    "documentation_itv_notice": "MOT due soon"
   },
   "motorcycles": {
     "my_garage": "My Garage",

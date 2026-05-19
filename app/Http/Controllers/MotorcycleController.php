@@ -174,6 +174,11 @@ class MotorcycleController extends Controller
     {
         if ($motorcycle->user_id !== Auth::id()) { abort(403); }
 
+        if ($motorcycle->itv_expires_at) {
+            $motorcycle->update(['doc_alert_acknowledged_for' => $motorcycle->itv_expires_at]);
+            $motorcycle->refresh();
+        }
+
         return Inertia::render('Motorcycles/Documentation', [
             'moto' => $motorcycle,
             'otherExpirations' => $this->otherExpirations(Auth::user(), $motorcycle->id),
@@ -222,6 +227,7 @@ class MotorcycleController extends Controller
         $motorcycle->update([
             'itv_last_passed_at' => $today,
             'itv_expires_at' => $today->copy()->addYear(),
+            'doc_alert_acknowledged_for' => $today->copy()->addYear(),
         ]);
 
         return redirect()->route('motorcycles.documentation.show', $motorcycle);

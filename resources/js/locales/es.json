@@ -115,7 +115,8 @@
     "expired_days_ago": "Caducado hace {n} días",
     "itv_last": "Última ITV",
     "other_motos_expiring": "Otras motos del garaje",
-    "edit_documentation": "Editar documentación"
+    "edit_documentation": "Editar documentación",
+    "documentation_itv_notice": "ITV próxima"
   },
   "motorcycles": {
     "my_garage": "Mi Garaje",

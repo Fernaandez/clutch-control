@@ -86,19 +86,18 @@
 
                     <Link
                         :href="route('motorcycles.documentation.show', moto.id)"
-                        class="sm:col-span-2 flex items-center gap-3 bg-brand-surface border border-brand-dark rounded-xl p-4 hover:border-emerald-500 hover:bg-brand-dark/50 transition group text-left relative overflow-hidden"
-                        :class="{'ring-2 ring-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)] border-red-500/50': hasDocAlert}"
+                        class="sm:col-span-2 flex items-center gap-3 bg-brand-surface border border-brand-dark rounded-xl p-4 hover:border-emerald-500 hover:bg-brand-dark/50 transition group text-left relative"
+                        :class="{'border-yellow-500/25': moto.show_documentation_alert}"
                     >
-                        <div v-if="hasDocAlert" class="absolute top-2 right-2 sm:top-3 sm:right-3 flex items-center gap-1 text-red-500 text-[9px] sm:text-[10px] font-black uppercase bg-red-500/10 px-2 py-1 rounded border border-red-500/30 animate-pulse">
-                            ⚠️ {{ $t('dashboard.documentation_attention') }}
-                        </div>
-                        <div :class="hasDocAlert ? 'bg-red-500/20 text-red-400 group-hover:text-red-300' : 'bg-emerald-500/20 text-emerald-400 group-hover:text-emerald-300'" class="p-2 sm:p-3 rounded-lg flex-shrink-0 transition-colors">
+                        <span v-if="moto.show_documentation_alert" class="absolute top-3 right-3 w-2 h-2 rounded-full bg-yellow-400/70" aria-hidden="true"></span>
+                        <div :class="moto.show_documentation_alert ? 'bg-yellow-500/10 text-yellow-400/80' : 'bg-emerald-500/20 text-emerald-400 group-hover:text-emerald-300'" class="p-2 sm:p-3 rounded-lg flex-shrink-0 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
                             </svg>
                         </div>
                         <div>
                             <span class="block font-bold text-gray-200 text-sm uppercase tracking-widest">{{ $t('dashboard.documentation') }}</span>
+                            <span v-if="moto.show_documentation_alert" class="block text-[10px] text-yellow-500/60 uppercase tracking-widest mt-0.5">{{ $t('dashboard.documentation_itv_notice') }}</span>
                         </div>
                     </Link>
 
@@ -112,13 +111,8 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 
-const props = defineProps({ moto: Object });
-
-const hasDocAlert = computed(() =>
-    ['expired', 'expiring_soon'].includes(props.moto.itv_status)
-);
+defineProps({ moto: Object });
 </script>

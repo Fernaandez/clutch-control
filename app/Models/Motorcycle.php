@@ -27,15 +27,17 @@ class Motorcycle extends Model
         'insurance_expires_at',
         'itv_expires_at',
         'itv_last_passed_at',
+        'doc_alert_acknowledged_for',
     ];
 
     protected $casts = [
         'insurance_expires_at' => 'date',
         'itv_expires_at' => 'date',
         'itv_last_passed_at' => 'date',
+        'doc_alert_acknowledged_for' => 'date',
     ];
 
-    protected $appends = ['has_pending_maintenance', 'itv_status'];
+    protected $appends = ['has_pending_maintenance', 'itv_status', 'show_documentation_alert'];
 
     public function getPendingMaintenanceTasksAttribute()
     {
@@ -59,6 +61,15 @@ class Motorcycle extends Model
     public function getItvStatusAttribute(): ?string
     {
         return $this->expiryStatus($this->itv_expires_at);
+    }
+
+    public function getShowDocumentationAlertAttribute(): bool
+    {
+        if (!in_array($this->itv_status, ['expiring_soon', 'expired'], true) || !$this->itv_expires_at) {
+            return false;
+        }
+
+        return $this->doc_alert_acknowledged_for?->toDateString() !== $this->itv_expires_at->toDateString();
     }
 
     private function expiryStatus($date): ?string
