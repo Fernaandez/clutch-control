@@ -106,6 +106,35 @@
                         </div>
                     </div>
 
+                    <!-- DOCUMENTACIÓ -->
+                    <div class="mt-6 pt-6 border-t border-brand-dark">
+                        <h3 class="text-sm font-bold text-brand-neon uppercase tracking-widest mb-4">{{ $t('motorcycles.documentation') }}</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">{{ $t('motorcycles.insurance_company') }}</label>
+                                <input v-model="form.insurance_company" type="text" :class="inputClass(form.errors.insurance_company)">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">{{ $t('motorcycles.insurance_policy') }}</label>
+                                <input v-model="form.insurance_policy_number" type="text" :class="inputClass(form.errors.insurance_policy_number)">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">{{ $t('motorcycles.insurance_expires') }}</label>
+                                <input v-model="form.insurance_expires_at" type="date" :class="inputClass(form.errors.insurance_expires_at)">
+                                <p v-if="form.errors.insurance_expires_at" class="text-red-400 text-xs mt-1">⚠ {{ form.errors.insurance_expires_at }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">{{ $t('motorcycles.itv_expires') }}</label>
+                                <input v-model="form.itv_expires_at" type="date" :class="inputClass(form.errors.itv_expires_at)">
+                                <p v-if="form.errors.itv_expires_at" class="text-red-400 text-xs mt-1">⚠ {{ form.errors.itv_expires_at }}</p>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">{{ $t('motorcycles.itv_last_passed') }}</label>
+                                <input v-model="form.itv_last_passed_at" type="date" :class="inputClass(form.errors.itv_last_passed_at)">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="pt-6 flex flex-col gap-4 border-t border-brand-dark">
                         <button type="submit" :disabled="form.processing" class="w-full bg-brand-base hover:bg-brand-neon text-brand-black font-black uppercase tracking-wider py-4 rounded-xl transition disabled:opacity-50">
                             {{ form.processing ? $t('motorcycles.saving') : $t('motorcycles.update') }}
@@ -140,6 +169,8 @@ const inputClass = (error) =>
         ? 'w-full rounded bg-brand-black border-red-500 ring-1 ring-red-500 text-white focus:border-red-400 focus:ring-red-400'
         : 'w-full rounded bg-brand-black border-brand-dark text-white focus:border-brand-neon focus:ring-0';
 
+const formatDate = (val) => val ? String(val).slice(0, 10) : '';
+
 const form = useForm({
     brand: props.moto.brand,
     model: props.moto.model,
@@ -150,6 +181,11 @@ const form = useForm({
     license_type: props.moto.license_type || '',
     type: props.moto.type || '',
     extras: props.moto.extras || '',
+    insurance_company: props.moto.insurance_company || '',
+    insurance_policy_number: props.moto.insurance_policy_number || '',
+    insurance_expires_at: formatDate(props.moto.insurance_expires_at),
+    itv_expires_at: formatDate(props.moto.itv_expires_at),
+    itv_last_passed_at: formatDate(props.moto.itv_last_passed_at),
     photo: null,
     _method: 'put'
 });

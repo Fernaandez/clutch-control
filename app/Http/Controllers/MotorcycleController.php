@@ -33,6 +33,11 @@ class MotorcycleController extends Controller
             'license_type' => (($v = $request->input('license_type')) === '' || $v === null) ? null : $v,
             'type' => (($v = $request->input('type')) === '' || $v === null) ? null : $v,
             'extras' => (($v = $request->input('extras')) === '' || $v === null) ? null : $v,
+            'insurance_company' => (($v = $request->input('insurance_company')) === '' || $v === null) ? null : $v,
+            'insurance_policy_number' => (($v = $request->input('insurance_policy_number')) === '' || $v === null) ? null : $v,
+            'insurance_expires_at' => (($v = $request->input('insurance_expires_at')) === '' || $v === null) ? null : $v,
+            'itv_expires_at' => (($v = $request->input('itv_expires_at')) === '' || $v === null) ? null : $v,
+            'itv_last_passed_at' => (($v = $request->input('itv_last_passed_at')) === '' || $v === null) ? null : $v,
         ]);
 
         // Validem exactament els mateixos camps que envia el Vue
@@ -48,6 +53,11 @@ class MotorcycleController extends Controller
             'license_type' => 'nullable|string|in:AM,A1,A2,A',
             'type' => 'nullable|string|in:Naked,Sport,Trail,Custom,Scooter,Touring,Off-Road,Classic',
             'extras' => 'nullable|string|max:1000',
+            'insurance_company' => 'nullable|string|max:100',
+            'insurance_policy_number' => 'nullable|string|max:100',
+            'insurance_expires_at' => 'nullable|date|after:today',
+            'itv_expires_at' => 'nullable|date|after:today',
+            'itv_last_passed_at' => 'nullable|date|before_or_equal:today',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
@@ -55,7 +65,7 @@ class MotorcycleController extends Controller
         // Això evita 500 si alguna migració antiga encara no s'ha executat.
         $motorcycleColumns = array_flip(Schema::getColumnListing('motorcycles'));
         $data = collect($validated)
-            ->only(['brand', 'model', 'year', 'current_km', 'cc', 'power_cv', 'license_type', 'type', 'extras'])
+            ->only(['brand', 'model', 'year', 'current_km', 'cc', 'power_cv', 'license_type', 'type', 'extras', 'insurance_company', 'insurance_policy_number', 'insurance_expires_at', 'itv_expires_at', 'itv_last_passed_at'])
             ->filter(fn ($value, $key) => isset($motorcycleColumns[$key]))
             ->all();
         $data['user_id'] = Auth::id();
@@ -86,6 +96,14 @@ class MotorcycleController extends Controller
     {
         if ($motorcycle->user_id !== Auth::id()) { abort(403); }
 
+        $request->merge([
+            'insurance_company' => (($v = $request->input('insurance_company')) === '' || $v === null) ? null : $v,
+            'insurance_policy_number' => (($v = $request->input('insurance_policy_number')) === '' || $v === null) ? null : $v,
+            'insurance_expires_at' => (($v = $request->input('insurance_expires_at')) === '' || $v === null) ? null : $v,
+            'itv_expires_at' => (($v = $request->input('itv_expires_at')) === '' || $v === null) ? null : $v,
+            'itv_last_passed_at' => (($v = $request->input('itv_last_passed_at')) === '' || $v === null) ? null : $v,
+        ]);
+
         $validated = $request->validate([
             'brand' => 'required|string|max:50',
             'model' => 'required|string|max:50',
@@ -96,6 +114,11 @@ class MotorcycleController extends Controller
             'license_type' => 'nullable|string|in:AM,A1,A2,A',
             'type' => 'nullable|string|in:Naked,Sport,Trail,Custom,Scooter,Touring,Off-Road,Classic',
             'extras' => 'nullable|string|max:1000',
+            'insurance_company' => 'nullable|string|max:100',
+            'insurance_policy_number' => 'nullable|string|max:100',
+            'insurance_expires_at' => 'nullable|date|after:today',
+            'itv_expires_at' => 'nullable|date|after:today',
+            'itv_last_passed_at' => 'nullable|date|before_or_equal:today',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
@@ -159,7 +182,38 @@ class MotorcycleController extends Controller
             $user->save();
         }
 
-        return Inertia::render('Dashboard', ['moto' => $motorcycle]);
+        return Inertia::render('Dashboard', [
+            'moto' => $motorcycle,
+            'upcomingExpirations' => $this->upcomingExpirations($user),
+        ]);
+    }
+
+    private function upcomingExpirations($user): array
+    {
+        return Motorcycle::where('user_id', $user->id)
+            ->get()
+            ->flatMap(function (Motorcycle $moto) {
+                $items = [];
+
+                foreach (['insurance' => 'insurance_expires_at', 'itv' => 'itv_expires_at'] as $type => $field) {
+                    $status = $type === 'insurance' ? $moto->insurance_status : $moto->itv_status;
+                    if ($moto->{$field} && in_array($status, ['expiring_soon', 'expired'], true)) {
+                        $items[] = [
+                            'motorcycle_id' => $moto->id,
+                            'brand' => $moto->brand,
+                            'model' => $moto->model,
+                            'type' => $type,
+                            'expires_at' => $moto->{$field}->format('Y-m-d'),
+                            'status' => $status,
+                        ];
+                    }
+                }
+
+                return $items;
+            })
+            ->sortBy('expires_at')
+            ->values()
+            ->all();
     }
 
     public function addKm(Request $request, Motorcycle $motorcycle)

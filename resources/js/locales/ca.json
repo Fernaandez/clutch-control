@@ -104,7 +104,8 @@
     "before": "Abans:",
     "total": "Total:",
     "saving": "Guardant...",
-    "confirm_km": "Confirmar Suma ✅"
+    "confirm_km": "Confirmar Suma ✅",
+    "upcoming_expirations": "Pròxims venciments"
   },
   "motorcycles": {
     "my_garage": "El meu Garatge",
@@ -159,7 +160,18 @@
     "update": "Actualitzar Dades",
     "delete_moto": "Eliminar aquesta moto definitivament",
     "delete_confirm": "Estàs segur? Això esborrarà la moto, el seu historial i l'anunci de venda si en té un.",
-    "check_errors": "⚠️ Revisa els errors:"
+    "check_errors": "⚠️ Revisa els errors:",
+    "documentation": "Documentació",
+    "insurance_company": "Companyia d'assegurança",
+    "insurance_policy": "Núm. de pòlissa",
+    "insurance_expires": "Venciment assegurança",
+    "itv_expires": "Venciment ITV",
+    "itv_last_passed": "Última ITV passada",
+    "insurance_badge": "Assegurança",
+    "itv_badge": "ITV",
+    "status_ok": "OK",
+    "status_expiring_soon": "Propera a caducar",
+    "status_expired": "Caducada"
   },
   "maintenance": {
     "title": "Manteniment",

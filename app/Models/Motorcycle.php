@@ -21,11 +21,21 @@ class Motorcycle extends Model
         'power_cv',
         'license_type',
         'type',
-        'extras'
+        'extras',
+        'insurance_company',
+        'insurance_policy_number',
+        'insurance_expires_at',
+        'itv_expires_at',
+        'itv_last_passed_at',
     ];
 
-    
-    protected $appends = ['has_pending_maintenance'];
+    protected $casts = [
+        'insurance_expires_at' => 'date',
+        'itv_expires_at' => 'date',
+        'itv_last_passed_at' => 'date',
+    ];
+
+    protected $appends = ['has_pending_maintenance', 'insurance_status', 'itv_status'];
 
     public function getPendingMaintenanceTasksAttribute()
     {
@@ -44,6 +54,36 @@ class Motorcycle extends Model
     public function getHasPendingMaintenanceAttribute()
     {
         return $this->pending_maintenance_tasks->count() > 0;
+    }
+
+    public function getInsuranceStatusAttribute(): ?string
+    {
+        return $this->expiryStatus($this->insurance_expires_at);
+    }
+
+    public function getItvStatusAttribute(): ?string
+    {
+        return $this->expiryStatus($this->itv_expires_at);
+    }
+
+    private function expiryStatus($date): ?string
+    {
+        if (!$date) {
+            return null;
+        }
+
+        $today = now()->startOfDay();
+        $expiry = $date->copy()->startOfDay();
+
+        if ($expiry->lt($today)) {
+            return 'expired';
+        }
+
+        if ($expiry->lte($today->copy()->addDays(30))) {
+            return 'expiring_soon';
+        }
+
+        return 'ok';
     }
 
     public function user() {

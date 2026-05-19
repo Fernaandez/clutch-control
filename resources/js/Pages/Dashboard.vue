@@ -38,6 +38,21 @@
                 <div class="absolute right-0 top-0 w-48 h-48 bg-brand-neon blur-[80px] opacity-10 rounded-full pointer-events-none"></div>
             </div>
 
+            <div v-if="upcomingExpirations.length > 0" class="bg-brand-surface rounded-2xl p-5 border border-brand-dark">
+                <h3 class="text-brand-muted font-bold text-sm uppercase mb-3">{{ $t('dashboard.upcoming_expirations') }}</h3>
+                <ul class="space-y-2">
+                    <li v-for="item in upcomingExpirations" :key="`${item.motorcycle_id}-${item.type}`" class="flex items-center justify-between gap-3 text-sm">
+                        <div class="min-w-0">
+                            <span class="text-white font-bold truncate block">{{ item.brand }} {{ item.model }}</span>
+                            <span class="text-gray-500 text-xs">{{ $t(`motorcycles.${item.type}_badge`) }} · {{ formatDate(item.expires_at) }}</span>
+                        </div>
+                        <span :class="expiryBadgeClass(item.status)" class="text-[10px] font-black uppercase px-2 py-1 rounded border flex-shrink-0">
+                            {{ $t(`motorcycles.status_${item.status}`) }}
+                        </span>
+                    </li>
+                </ul>
+            </div>
+
             <div class="pt-2">
                 <h3 class="text-brand-muted font-bold text-sm uppercase mb-3 px-1">{{ $t('dashboard.control_panel') }}</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -97,5 +112,20 @@
 import { Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 
-const props = defineProps({ moto: Object });
+const props = defineProps({
+    moto: Object,
+    upcomingExpirations: { type: Array, default: () => [] },
+});
+
+const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const [y, m, d] = dateStr.split('-');
+    return `${d}/${m}/${y}`;
+};
+
+const expiryBadgeClass = (status) => {
+    if (status === 'expired') return 'bg-red-500/10 text-red-400 border-red-500/30';
+    if (status === 'expiring_soon') return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30';
+    return 'bg-green-500/10 text-green-400 border-green-500/30';
+};
 </script>

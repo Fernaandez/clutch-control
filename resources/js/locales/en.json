@@ -104,7 +104,8 @@
     "before": "Before:",
     "total": "Total:",
     "saving": "Saving...",
-    "confirm_km": "Confirm Sum ✅"
+    "confirm_km": "Confirm Sum ✅",
+    "upcoming_expirations": "Upcoming expirations"
   },
   "motorcycles": {
     "my_garage": "My Garage",
@@ -159,7 +160,18 @@
     "update": "Update Data",
     "delete_moto": "Permanently delete this bike",
     "delete_confirm": "Are you sure? This will delete the bike, its history and the sale listing if it has one.",
-    "check_errors": "⚠️ Please fix the errors:"
+    "check_errors": "⚠️ Please fix the errors:",
+    "documentation": "Documentation",
+    "insurance_company": "Insurance company",
+    "insurance_policy": "Policy number",
+    "insurance_expires": "Insurance expiry",
+    "itv_expires": "MOT expiry",
+    "itv_last_passed": "Last MOT passed",
+    "insurance_badge": "Insurance",
+    "itv_badge": "MOT",
+    "status_ok": "OK",
+    "status_expiring_soon": "Expiring soon",
+    "status_expired": "Expired"
   },
   "maintenance": {
     "title": "Maintenance",
