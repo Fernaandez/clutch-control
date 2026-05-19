@@ -186,7 +186,8 @@
     "documentation_edit": "Edit documentation",
     "documentation_empty": "You haven't registered insurance or MOT yet.",
     "insurance_auto": "Auto-renewal",
-    "itv_renewed_today": "Renewed today"
+    "itv_renewed_today": "Renewed today",
+    "itv_renew_confirm": "Did you pass the MOT today? Today's date will be set and expiry in 1 year."
   },
   "maintenance": {
     "title": "Maintenance",

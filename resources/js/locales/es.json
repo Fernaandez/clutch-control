@@ -186,7 +186,8 @@
     "documentation_edit": "Editar documentación",
     "documentation_empty": "Aún no has registrado seguro ni ITV.",
     "insurance_auto": "Renovación automática",
-    "itv_renewed_today": "Renovada hoy"
+    "itv_renewed_today": "Renovada hoy",
+    "itv_renew_confirm": "¿Has pasado la ITV hoy? Se pondrá la fecha de hoy y el vencimiento dentro de 1 año."
   },
   "maintenance": {
     "title": "Mantenimiento",

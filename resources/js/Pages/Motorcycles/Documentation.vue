@@ -110,6 +110,10 @@ const renewing = ref(false);
 const goBack = () => smartBack(route('dashboard', props.moto.id));
 
 const renewItvToday = () => {
+    if (!confirm(t('motorcycles.itv_renew_confirm'))) {
+        return;
+    }
+
     renewing.value = true;
     router.post(route('motorcycles.documentation.itv-renew', props.moto.id), {}, {
         onFinish: () => { renewing.value = false; },
