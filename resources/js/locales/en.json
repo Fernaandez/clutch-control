@@ -105,7 +105,17 @@
     "total": "Total:",
     "saving": "Saving...",
     "confirm_km": "Confirm Sum ✅",
-    "upcoming_expirations": "Upcoming expirations"
+    "upcoming_expirations": "Upcoming expirations",
+    "documentation": "Documentation",
+    "documentation_subtitle": "Insurance & MOT",
+    "documentation_attention": "Requires Attention",
+    "no_date_set": "No date set",
+    "days_left": "{n} days left",
+    "expires_today": "Expires today",
+    "expired_days_ago": "Expired {n} days ago",
+    "itv_last": "Last MOT",
+    "other_motos_expiring": "Other bikes in garage",
+    "edit_documentation": "Edit documentation"
   },
   "motorcycles": {
     "my_garage": "My Garage",

@@ -105,7 +105,17 @@
     "total": "Total:",
     "saving": "Guardando...",
     "confirm_km": "Confirmar Suma ✅",
-    "upcoming_expirations": "Próximos vencimientos"
+    "upcoming_expirations": "Próximos vencimientos",
+    "documentation": "Documentación",
+    "documentation_subtitle": "Seguro e ITV",
+    "documentation_attention": "Requiere Atención",
+    "no_date_set": "Sin fecha",
+    "days_left": "Quedan {n} días",
+    "expires_today": "Caduca hoy",
+    "expired_days_ago": "Caducado hace {n} días",
+    "itv_last": "Última ITV",
+    "other_motos_expiring": "Otras motos del garaje",
+    "edit_documentation": "Editar documentación"
   },
   "motorcycles": {
     "my_garage": "Mi Garaje",

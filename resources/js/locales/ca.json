@@ -105,7 +105,17 @@
     "total": "Total:",
     "saving": "Guardant...",
     "confirm_km": "Confirmar Suma ✅",
-    "upcoming_expirations": "Pròxims venciments"
+    "upcoming_expirations": "Pròxims venciments",
+    "documentation": "Documentació",
+    "documentation_subtitle": "Assegurança i ITV",
+    "documentation_attention": "Requereix Atenció",
+    "no_date_set": "Sense data",
+    "days_left": "Queden {n} dies",
+    "expires_today": "Caduca avui",
+    "expired_days_ago": "Caducada fa {n} dies",
+    "itv_last": "Última ITV",
+    "other_motos_expiring": "Altres motos del garatge",
+    "edit_documentation": "Editar documentació"
   },
   "motorcycles": {
     "my_garage": "El meu Garatge",
