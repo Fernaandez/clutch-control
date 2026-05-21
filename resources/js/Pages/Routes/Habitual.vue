@@ -11,6 +11,10 @@
                 </div>
             </div>
 
+            <div v-if="page.props.errors?.habitual" class="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+                <p class="text-red-400 text-sm">{{ page.props.errors.habitual }}</p>
+            </div>
+
             <div v-if="flashDone" class="mb-4 p-4 bg-brand-neon/10 border border-brand-neon/40 rounded-xl">
                 <p class="text-brand-neon font-bold text-sm">{{ $t('routes.habitual_done_flash', { title: flashDone.title, km: flashDone.km }) }}</p>
             </div>
@@ -176,7 +180,12 @@ const props = defineProps({
 
 const page = usePage();
 const completingId = ref(null);
-const flashDone = computed(() => page.props.flash?.habitual_done ?? null);
+const flashDone = computed(() => {
+    const title = page.props.flash?.habitual_done_title;
+    const km = page.props.flash?.habitual_done_km;
+    if (!title || km == null) return null;
+    return { title, km };
+});
 
 const goBack = () => smartBack(route('routes.index'));
 

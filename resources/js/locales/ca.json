@@ -551,7 +551,7 @@
     "habitual_title": "Rutes habituals",
     "habitual_subtitle": "Configura les teves rutes i prem Feta quan les facis",
     "habitual_no_moto": "Necessites una moto al garatge per registrar quilòmetres.",
-    "habitual_list_title": "Avui",
+    "habitual_list_title": "Rutes configurades",
     "habitual_list_desc": "Prem Feta quan hagis fet la ruta. Els km s'apliquen un cop per clic.",
     "habitual_list_empty": "Encara no tens rutes habituals configurades.",
     "habitual_done_btn": "Feta",

@@ -56,7 +56,8 @@ class HandleInertiaRequests extends Middleware
                   )->where('sender_id', '!=', $user->id)->whereNull('read_at')->count()
                 : 0,
             'flash' => [
-                'habitual_done' => fn () => $request->session()->get('habitual_done'),
+                'habitual_done_title' => fn () => $request->session()->get('habitual_done_title'),
+                'habitual_done_km'    => fn () => $request->session()->get('habitual_done_km'),
             ],
         ];
     }

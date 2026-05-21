@@ -41,13 +41,13 @@ class HabitualRouteController extends Controller
         return redirect()->route('routes.habitual');
     }
 
-    public function complete(HabitualRoute $habitualRoute, TripController $trips)
+    public function complete(HabitualRoute $habitualRoute)
     {
         if ($habitualRoute->user_id !== Auth::id()) {
             abort(403);
         }
 
-        return $trips->completeFromHabitual($habitualRoute);
+        return app(TripController::class)->completeFromHabitual($habitualRoute);
     }
 
     public function destroy(HabitualRoute $habitualRoute)

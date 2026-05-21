@@ -8,6 +8,7 @@ use App\Models\Route;
 use App\Models\HabitualRoute;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 
 class TripController extends Controller
@@ -67,11 +68,11 @@ class TripController extends Controller
         $moto->save();
     }
 
-    private function routeDistanceKm(Route $route, bool $roundTrip): float
+    private function routeDistanceKm(Route $route, bool $roundTrip): ?float
     {
         $base = (float) ($route->planned_distance_km ?? $route->distance_km ?? 0);
         if ($base <= 0) {
-            abort(422, 'La ruta no té quilòmetres definits.');
+            return null;
         }
 
         return $roundTrip ? $base * 2 : $base;
@@ -79,12 +80,16 @@ class TripController extends Controller
 
     private function waypointsFromRoute(Route $route): array
     {
-        $geo = $route->geo_json;
-        if (is_string($geo)) {
-            $geo = json_decode($geo, true);
+        try {
+            $geo = $route->getRawOriginal('geo_json');
             if (is_string($geo)) {
                 $geo = json_decode($geo, true);
+                if (is_string($geo)) {
+                    $geo = json_decode($geo, true);
+                }
             }
+        } catch (\Throwable $e) {
+            return [];
         }
         if (! is_array($geo)) {
             return [];
@@ -114,7 +119,7 @@ class TripController extends Controller
         $waypoints = $data['waypoints'] ?? [];
         $first = $waypoints[0] ?? null;
 
-        $trip = Trip::create([
+        $payload = [
             'user_id'          => Auth::id(),
             'motorcycle_id'    => $moto->id,
             'route_id'         => $data['route_id'] ?? null,
@@ -122,11 +127,18 @@ class TripController extends Controller
             'duration_seconds' => $data['duration_seconds'] ?? null,
             'starting_lat'     => $first['lat'] ?? $data['starting_lat'] ?? null,
             'starting_lng'     => $first['lng'] ?? $data['starting_lng'] ?? null,
-            'waypoints'        => $waypoints,
+            'waypoints'        => $waypoints ?: [],
             'started_at'       => $data['started_at'],
-            'manual_entry'     => true,
-            'notes'            => $data['notes'] ?? null,
-        ]);
+        ];
+
+        if (Schema::hasColumn('trips', 'manual_entry')) {
+            $payload['manual_entry'] = true;
+        }
+        if (Schema::hasColumn('trips', 'notes')) {
+            $payload['notes'] = $data['notes'] ?? null;
+        }
+
+        $trip = Trip::create($payload);
 
         $this->addKmToMotorcycle($moto, (float) $data['distance_km']);
 
@@ -255,6 +267,11 @@ class TripController extends Controller
 
         $roundTrip = (bool) ($validated['round_trip'] ?? false);
         $distance = $this->routeDistanceKm($route, $roundTrip);
+        if ($distance === null) {
+            return redirect()->route('routes.habitual')->withErrors([
+                'habitual' => 'La ruta no té quilòmetres definits.',
+            ]);
+        }
         $waypoints = $this->waypointsFromRoute($route);
 
         $trip = $this->createManualTrip([
@@ -282,25 +299,37 @@ class TripController extends Controller
 
         $roundTrip = (bool) $habitualRoute->round_trip;
         $distance = $this->routeDistanceKm($route, $roundTrip);
+        if ($distance === null) {
+            return redirect()->route('routes.habitual')->withErrors([
+                'habitual' => 'La ruta no té quilòmetres definits.',
+            ]);
+        }
+
         $waypoints = $this->waypointsFromRoute($route);
 
-        $this->createManualTrip([
-            'motorcycle_id' => $habitualRoute->motorcycle_id,
-            'route_id'      => $route->id,
-            'distance_km'   => $distance,
-            'started_at'    => now(),
-            'notes'         => $habitualRoute->label,
-            'waypoints'     => $waypoints,
-            'starting_lat'  => $route->starting_lat ?? ($waypoints[0]['lat'] ?? null),
-            'starting_lng'  => $route->starting_lng ?? ($waypoints[0]['lng'] ?? null),
-        ]);
+        try {
+            $this->createManualTrip([
+                'motorcycle_id' => $habitualRoute->motorcycle_id,
+                'route_id'      => $route->id,
+                'distance_km'   => $distance,
+                'started_at'    => now(),
+                'notes'         => $habitualRoute->label,
+                'waypoints'     => $waypoints,
+                'starting_lat'  => $route->getAttributes()['starting_lat'] ?? ($waypoints[0]['lat'] ?? null),
+                'starting_lng'  => $route->getAttributes()['starting_lng'] ?? ($waypoints[0]['lng'] ?? null),
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()->route('routes.habitual')->withErrors([
+                'habitual' => 'No s\'ha pogut registrar el trajecte. Torna-ho a provar.',
+            ]);
+        }
 
         return redirect()
             ->route('routes.habitual')
-            ->with('habitual_done', [
-                'title' => $habitualRoute->displayTitle(),
-                'km'    => $distance,
-            ]);
+            ->with('habitual_done_title', $habitualRoute->displayTitle())
+            ->with('habitual_done_km', round($distance, 1));
     }
 
     public function destroy(Trip $trip)

@@ -551,7 +551,7 @@
     "habitual_title": "Rutas habituales",
     "habitual_subtitle": "Configura tus rutas y pulsa Hecha cuando las hagas",
     "habitual_no_moto": "Necesitas una moto en el garaje para registrar kilómetros.",
-    "habitual_list_title": "Hoy",
+    "habitual_list_title": "Rutas configuradas",
     "habitual_list_desc": "Pulsa Hecha cuando hayas hecho la ruta. Los km se aplican una vez por clic.",
     "habitual_list_empty": "Aún no tienes rutas habituales configuradas.",
     "habitual_done_btn": "Hecha",

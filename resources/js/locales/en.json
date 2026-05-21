@@ -551,7 +551,7 @@
     "habitual_title": "Regular routes",
     "habitual_subtitle": "Set up your routes and tap Done when you ride them",
     "habitual_no_moto": "You need a motorcycle in your garage to log kilometres.",
-    "habitual_list_title": "Today",
+    "habitual_list_title": "Configured routes",
     "habitual_list_desc": "Tap Done when you've ridden the route. Km are applied once per tap.",
     "habitual_list_empty": "No regular routes configured yet.",
     "habitual_done_btn": "Done",
