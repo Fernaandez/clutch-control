@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Route;
 use App\Models\Motorcycle;
+use App\Models\HabitualRoute;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
@@ -62,9 +63,35 @@ class RouteController extends Controller
             ->orderBy('title')
             ->get(['id', 'title', 'planned_distance_km', 'location_city']);
 
+        $habitualRoutes = HabitualRoute::where('user_id', Auth::id())
+            ->with([
+                'route:id,title,planned_distance_km,distance_km',
+                'motorcycle:id,brand,model',
+            ])
+            ->orderBy('sort_order')
+            ->orderBy('created_at')
+            ->get()
+            ->map(function (HabitualRoute $item) {
+                return [
+                    'id'           => $item->id,
+                    'label'        => $item->label,
+                    'title'        => $item->displayTitle(),
+                    'round_trip'   => $item->round_trip,
+                    'distance_km'  => $item->distanceKm(),
+                    'route_id'     => $item->route_id,
+                    'route_title'  => $item->route?->title,
+                    'motorcycle'   => $item->motorcycle ? [
+                        'id'    => $item->motorcycle->id,
+                        'brand' => $item->motorcycle->brand,
+                        'model' => $item->motorcycle->model,
+                    ] : null,
+                ];
+            });
+
         return Inertia::render('Routes/Habitual', [
-            'motorcycles' => $motorcycles,
-            'routes' => $routes,
+            'motorcycles'      => $motorcycles,
+            'routes'           => $routes,
+            'habitualRoutes'   => $habitualRoutes,
             'preselectedRouteId' => $request->integer('route') ?: null,
         ]);
     }

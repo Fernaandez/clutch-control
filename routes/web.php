@@ -95,6 +95,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/routes/explore', [RouteController::class, 'explore'])->name('routes.explore');
     Route::get('/routes/history', [\App\Http\Controllers\TripController::class, 'history'])->name('routes.history');
     Route::get('/routes/habitual', [RouteController::class, 'habitual'])->name('routes.habitual');
+    Route::post('/habitual-routes', [\App\Http\Controllers\HabitualRouteController::class, 'store'])->name('habitual-routes.store');
+    Route::post('/habitual-routes/{habitualRoute}/complete', [\App\Http\Controllers\HabitualRouteController::class, 'complete'])->name('habitual-routes.complete');
+    Route::delete('/habitual-routes/{habitualRoute}', [\App\Http\Controllers\HabitualRouteController::class, 'destroy'])->name('habitual-routes.destroy');
     Route::get('/my-routes', [RouteController::class, 'MyRoutes'])->name('routes.MyRoutes');
     Route::get('/routes/pending', [RouteController::class, 'pending'])->name('routes.pending');
     Route::get('/motorcycles/{motorcycle}/free-ride', [RouteController::class, 'freeRide'])->name('routes.free-ride');

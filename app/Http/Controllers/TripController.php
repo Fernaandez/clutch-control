@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Trip;
 use App\Models\Motorcycle;
 use App\Models\Route;
+use App\Models\HabitualRoute;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -268,6 +269,38 @@ class TripController extends Controller
         ]);
 
         return redirect()->route('trips.show', $trip);
+    }
+
+    public function completeFromHabitual(HabitualRoute $habitualRoute)
+    {
+        $habitualRoute->load(['route', 'motorcycle']);
+
+        $route = $habitualRoute->route;
+        if (! $route) {
+            abort(404);
+        }
+
+        $roundTrip = (bool) $habitualRoute->round_trip;
+        $distance = $this->routeDistanceKm($route, $roundTrip);
+        $waypoints = $this->waypointsFromRoute($route);
+
+        $this->createManualTrip([
+            'motorcycle_id' => $habitualRoute->motorcycle_id,
+            'route_id'      => $route->id,
+            'distance_km'   => $distance,
+            'started_at'    => now(),
+            'notes'         => $habitualRoute->label,
+            'waypoints'     => $waypoints,
+            'starting_lat'  => $route->starting_lat ?? ($waypoints[0]['lat'] ?? null),
+            'starting_lng'  => $route->starting_lng ?? ($waypoints[0]['lng'] ?? null),
+        ]);
+
+        return redirect()
+            ->route('routes.habitual')
+            ->with('habitual_done', [
+                'title' => $habitualRoute->displayTitle(),
+                'km'    => $distance,
+            ]);
     }
 
     public function destroy(Trip $trip)

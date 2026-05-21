@@ -55,6 +55,9 @@ class HandleInertiaRequests extends Middleware
                     \App\Models\Conversation::whereHas('participants', fn($q) => $q->where('user_id', $user->id))->pluck('id')
                   )->where('sender_id', '!=', $user->id)->whereNull('read_at')->count()
                 : 0,
+            'flash' => [
+                'habitual_done' => fn () => $request->session()->get('habitual_done'),
+            ],
         ];
     }
 }
