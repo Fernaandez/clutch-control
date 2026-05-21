@@ -6,8 +6,10 @@ use App\Models\Trip;
 use App\Models\Motorcycle;
 use App\Models\Route;
 use App\Models\HabitualRoute;
+use App\Services\ManualTripService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 
@@ -290,46 +292,20 @@ class TripController extends Controller
 
     public function completeFromHabitual(HabitualRoute $habitualRoute)
     {
-        $habitualRoute->load(['route', 'motorcycle']);
-
-        $route = $habitualRoute->route;
-        if (! $route) {
-            abort(404);
-        }
-
-        $roundTrip = (bool) $habitualRoute->round_trip;
-        $distance = $this->routeDistanceKm($route, $roundTrip);
-        if ($distance === null) {
-            return redirect()->route('routes.habitual')->withErrors([
-                'habitual' => 'La ruta no té quilòmetres definits.',
-            ]);
-        }
-
-        $waypoints = $this->waypointsFromRoute($route);
-
         try {
-            $this->createManualTrip([
-                'motorcycle_id' => $habitualRoute->motorcycle_id,
-                'route_id'      => $route->id,
-                'distance_km'   => $distance,
-                'started_at'    => now(),
-                'notes'         => $habitualRoute->label,
-                'waypoints'     => $waypoints,
-                'starting_lat'  => $route->getAttributes()['starting_lat'] ?? ($waypoints[0]['lat'] ?? null),
-                'starting_lng'  => $route->getAttributes()['starting_lng'] ?? ($waypoints[0]['lng'] ?? null),
-            ]);
+            $result = app(ManualTripService::class)->registerFromHabitual($habitualRoute);
+
+            return redirect()
+                ->route('routes.habitual')
+                ->with('habitual_done_title', $result['title'])
+                ->with('habitual_done_km', $result['km']);
         } catch (\Throwable $e) {
-            report($e);
+            Log::error('completeFromHabitual failed', ['message' => $e->getMessage()]);
 
-            return redirect()->route('routes.habitual')->withErrors([
-                'habitual' => 'No s\'ha pogut registrar el trajecte. Torna-ho a provar.',
-            ]);
+            return redirect()
+                ->route('routes.habitual')
+                ->withErrors(['habitual' => $e->getMessage() ?: 'No s\'ha pogut registrar el trajecte.']);
         }
-
-        return redirect()
-            ->route('routes.habitual')
-            ->with('habitual_done_title', $habitualRoute->displayTitle())
-            ->with('habitual_done_km', round($distance, 1));
     }
 
     public function destroy(Trip $trip)

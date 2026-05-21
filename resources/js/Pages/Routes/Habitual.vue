@@ -235,6 +235,9 @@ const markDone = (item) => {
     router.post(route('habitual-routes.complete', item.id), {}, {
         preserveScroll: true,
         onFinish: () => { completingId.value = null; },
+        onError: (errors) => {
+            console.error('habitual complete failed', errors);
+        },
     });
 };
 

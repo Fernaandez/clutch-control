@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\HabitualRoute;
 use App\Models\Route;
+use App\Services\ManualTripService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class HabitualRouteController extends Controller
 {
@@ -41,13 +43,30 @@ class HabitualRouteController extends Controller
         return redirect()->route('routes.habitual');
     }
 
-    public function complete(HabitualRoute $habitualRoute)
+    public function complete(HabitualRoute $habitualRoute, ManualTripService $trips)
     {
         if ($habitualRoute->user_id !== Auth::id()) {
             abort(403);
         }
 
-        return app(TripController::class)->completeFromHabitual($habitualRoute);
+        try {
+            $result = $trips->registerFromHabitual($habitualRoute);
+
+            return redirect()
+                ->route('routes.habitual')
+                ->with('habitual_done_title', $result['title'])
+                ->with('habitual_done_km', $result['km']);
+        } catch (\Throwable $e) {
+            Log::error('habitual-routes.complete failed', [
+                'habitual_route_id' => $habitualRoute->id,
+                'user_id' => Auth::id(),
+                'message' => $e->getMessage(),
+            ]);
+
+            return redirect()
+                ->route('routes.habitual')
+                ->withErrors(['habitual' => $e->getMessage() ?: 'No s\'ha pogut registrar el trajecte.']);
+        }
     }
 
     public function destroy(HabitualRoute $habitualRoute)
