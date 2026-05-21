@@ -93,6 +93,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // --- RUTES (GPS) ---
     Route::get('/routes', [RouteController::class, 'hub'])->name('routes.index');
     Route::get('/routes/explore', [RouteController::class, 'explore'])->name('routes.explore');
+    Route::get('/routes/history', [\App\Http\Controllers\TripController::class, 'history'])->name('routes.history');
     Route::get('/my-routes', [RouteController::class, 'MyRoutes'])->name('routes.MyRoutes');
     Route::get('/routes/pending', [RouteController::class, 'pending'])->name('routes.pending');
     Route::get('/motorcycles/{motorcycle}/free-ride', [RouteController::class, 'freeRide'])->name('routes.free-ride');

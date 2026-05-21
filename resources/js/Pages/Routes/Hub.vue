@@ -35,9 +35,9 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Link
                     :href="route('routes.explore')"
-                    class="flex items-center gap-3 bg-brand-surface border border-brand-dark rounded-xl p-4 hover:border-brand-neon hover:bg-brand-dark/50 transition group text-left"
+                    class="flex items-center gap-3 bg-brand-surface border border-brand-dark rounded-xl p-4 hover:border-emerald-500 hover:bg-brand-dark/50 transition group text-left"
                 >
-                    <div class="bg-brand-neon/20 p-2 sm:p-3 rounded-lg text-brand-neon group-hover:text-brand-neon flex-shrink-0">
+                    <div class="bg-emerald-500/20 p-2 sm:p-3 rounded-lg text-emerald-400 group-hover:text-emerald-300 flex-shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" /></svg>
                     </div>
                     <div>
@@ -73,7 +73,7 @@
                 </Link>
 
                 <Link
-                    :href="historialUrl"
+                    :href="route('routes.history')"
                     class="flex items-center gap-3 bg-brand-surface border border-brand-dark rounded-xl p-4 hover:border-yellow-500 hover:bg-brand-dark/50 transition group text-left"
                 >
                     <div class="bg-yellow-500/20 p-2 sm:p-3 rounded-lg text-yellow-400 group-hover:text-yellow-300 flex-shrink-0">
@@ -90,7 +90,6 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Link } from '@inertiajs/vue3';
 
@@ -100,6 +99,4 @@ defineProps({
         default: null,
     },
 });
-
-const historialUrl = computed(() => `${route('routes.MyRoutes')}#historial-recorreguts`);
 </script>

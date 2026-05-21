@@ -92,7 +92,7 @@ const props = defineProps({
     trip: Object
 });
 
-const goBack = () => smartBack(route('trips.mine'));
+const goBack = () => smartBack(route('routes.history'));
 
 const map = ref(null);
 const showComparativa = ref(false);

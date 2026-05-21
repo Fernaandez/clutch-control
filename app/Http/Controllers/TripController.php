@@ -11,33 +11,49 @@ use Inertia\Inertia;
 
 class TripController extends Controller
 {
-    // Llista els meus recorreguts (per MyRoutes.vue)
+    private function formatTripListItem(Trip $trip): array
+    {
+        return [
+            'id'               => $trip->id,
+            'distance_km'      => $trip->distance_km,
+            'duration_seconds' => $trip->duration_seconds,
+            'started_at'       => $trip->started_at,
+            'motorcycle'       => $trip->motorcycle ? [
+                'id'    => $trip->motorcycle->id,
+                'brand' => $trip->motorcycle->brand,
+                'model' => $trip->motorcycle->model,
+            ] : null,
+            'route' => $trip->route ? [
+                'id'    => $trip->route->id,
+                'title' => $trip->route->title,
+            ] : null,
+            'starting_lat' => $trip->starting_lat,
+            'starting_lng' => $trip->starting_lng,
+        ];
+    }
+
+    private function userTripsQuery()
+    {
+        return Trip::where('user_id', Auth::id())
+            ->with(['motorcycle', 'route'])
+            ->orderBy('started_at', 'desc');
+    }
+
+    public function history()
+    {
+        $trips = $this->userTripsQuery()
+            ->get()
+            ->map(fn (Trip $trip) => $this->formatTripListItem($trip));
+
+        return Inertia::render('Trips/History', ['trips' => $trips]);
+    }
+
+    // Llista els meus recorreguts (API JSON)
     public function myTrips()
     {
-        $trips = Trip::where('user_id', Auth::id())
-            ->with(['motorcycle', 'route'])
-            ->orderBy('started_at', 'desc')
+        $trips = $this->userTripsQuery()
             ->get()
-            ->map(function ($trip) {
-                return [
-                    'id'               => $trip->id,
-                    'distance_km'      => $trip->distance_km,
-                    'duration_seconds' => $trip->duration_seconds,
-                    'started_at'       => $trip->started_at,
-                    'motorcycle'       => $trip->motorcycle ? [
-                        'id'    => $trip->motorcycle->id,
-                        'brand' => $trip->motorcycle->brand,
-                        'model' => $trip->motorcycle->model,
-                    ] : null,
-                    'route' => $trip->route ? [
-                        'id'    => $trip->route->id,
-                        'title' => $trip->route->title,
-                    ] : null,
-                    // Primer i últim punt per mostrar minimap
-                    'starting_lat' => $trip->starting_lat,
-                    'starting_lng' => $trip->starting_lng,
-                ];
-            });
+            ->map(fn (Trip $trip) => $this->formatTripListItem($trip));
 
         return response()->json($trips);
     }
