@@ -2,66 +2,15 @@
     <AppLayout :title="$t('routes.explore_title')">
         <div class="px-4 py-6 pb-24">
             
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-3 mb-6">
+                <Link :href="route('routes.index')" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]" :aria-label="$t('common.back')">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
+                </Link>
                 <div>
-                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">{{ $t('routes.title') }}</h1>
-                </div>
-                <div class="relative z-[60]">
-                    <button
-                        type="button"
-                        @click="showQuickActions = !showQuickActions"
-                        class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.4)] hover:scale-110 transition"
-                        :aria-expanded="showQuickActions"
-                        aria-haspopup="menu"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                    </button>
-
-                    <Transition
-                        enter-active-class="transition ease-out duration-150"
-                        enter-from-class="opacity-0 scale-95 -translate-y-1"
-                        enter-to-class="opacity-100 scale-100 translate-y-0"
-                        leave-active-class="transition ease-in duration-100"
-                        leave-from-class="opacity-100 scale-100 translate-y-0"
-                        leave-to-class="opacity-0 scale-95 -translate-y-1"
-                    >
-                        <div
-                            v-if="showQuickActions"
-                            class="absolute right-0 mt-2 w-52 bg-brand-surface border border-brand-dark rounded-xl shadow-2xl overflow-hidden z-[70]"
-                            role="menu"
-                        >
-                            <Link
-                                :href="route('routes.create')"
-                                class="w-full flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-brand-dark transition"
-                                role="menuitem"
-                                @click="showQuickActions = false"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5 text-brand-neon"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                                {{ newRouteActionLabel }}
-                            </Link>
-
-                            <button
-                                type="button"
-                                class="w-full flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-brand-dark transition disabled:opacity-50 disabled:cursor-not-allowed"
-                                role="menuitem"
-                                :disabled="!defaultMotorcycleId"
-                                @click="goToFreeRide"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5 text-brand-neon"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10.5a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 5.5-7.5 11.25-7.5 11.25S4.5 16 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
-                                {{ $t('free_ride.title') }}
-                            </button>
-                        </div>
-                    </Transition>
+                    <h1 class="text-2xl font-black text-white uppercase tracking-tighter">{{ $t('routes.explore_title') }}</h1>
+                    <p class="text-gray-500 text-[10px] font-bold uppercase tracking-widest mt-0.5">{{ $t('routes.explore_subtitle') }}</p>
                 </div>
             </div>
-
-            <Link :href="route('routes.MyRoutes')" class="w-full mb-4 bg-brand-surface border border-brand-neon/30 text-white py-3 rounded-xl flex items-center justify-between px-4 hover:bg-brand-neon/10 transition group shadow-lg">
-                <span class="font-bold uppercase flex items-center gap-2 text-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-brand-neon"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" /></svg>
-                    {{ $t('routes.manage_mine') }}
-                </span>
-                <span class="text-brand-neon group-hover:translate-x-1 transition">&rarr;</span>
-            </Link>
 
             <button 
                 @click="showFilters = !showFilters"
@@ -197,19 +146,13 @@
             </div>
         </div>
 
-        <div
-            v-if="showQuickActions"
-            class="fixed inset-0 z-40 bg-black/35 backdrop-blur-[2px]"
-            @click="showQuickActions = false"
-        ></div>
-
     </AppLayout>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Link, router } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import RouteMiniMap from '@/Components/RouteMiniMap.vue';
 import { useRoutesStore } from '@/Stores/useRoutesStore';
@@ -218,10 +161,6 @@ const { t } = useI18n();
 
 const props = defineProps({
     routes: Array,
-    defaultMotorcycleId: {
-        type: Number,
-        default: null,
-    },
 });
 
 const routesStore = useRoutesStore();
@@ -233,15 +172,6 @@ onMounted(() => {
 });
 
 const showFilters = ref(false);
-const showQuickActions = ref(false);
-
-const goToFreeRide = () => {
-    if (!props.defaultMotorcycleId) return;
-    showQuickActions.value = false;
-    router.visit(route('routes.free-ride', props.defaultMotorcycleId));
-};
-
-const newRouteActionLabel = computed(() => t('routes.new_route').replace(/^\+\s*/, ''));
 
 const filters = ref({
     search: '',

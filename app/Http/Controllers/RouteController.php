@@ -11,8 +11,20 @@ use Illuminate\Support\Facades\Schema;
 
 class RouteController extends Controller
 {
-    // 1. LLISTAT COMUNITAT (Només rutes públiques)
-    public function index()
+    // Hub principal de rutes (entrada des del tab inferior)
+    public function hub()
+    {
+        $motorcycles = Auth::user()
+            ? Auth::user()->motorcycles()->select('id', 'brand', 'model')->get()
+            : collect();
+
+        return Inertia::render('Routes/Hub', [
+            'defaultMotorcycleId' => optional($motorcycles->first())->id,
+        ]);
+    }
+
+    // Llistat comunitat (només rutes públiques)
+    public function explore()
     {
         // Carreguem l'usuari per poder mostrar el nom del creador
         $routes = Route::with(['user', 'reviews'])

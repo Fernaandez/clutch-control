@@ -272,6 +272,10 @@ onMounted(async () => {
     } finally {
         loadingTrips.value = false;
     }
+
+    if (window.location.hash === '#historial-recorreguts') {
+        setTimeout(() => scrollToTrips(), 150);
+    }
 });
 
 const formatDate = (isoStr) => {

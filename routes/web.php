@@ -91,8 +91,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/motorcycles/{motorcycle}/global-history', [MaintenanceController::class, 'globalHistory'])->name('motorcycles.global-history');
 
     // --- RUTES (GPS) ---
-    Route::get('/routes', [RouteController::class, 'index'])->name('routes.index');
-    Route::get('/my-routes', [RouteController::class, 'MyRoutes'])->name('routes.MyRoutes'); 
+    Route::get('/routes', [RouteController::class, 'hub'])->name('routes.index');
+    Route::get('/routes/explore', [RouteController::class, 'explore'])->name('routes.explore');
+    Route::get('/my-routes', [RouteController::class, 'MyRoutes'])->name('routes.MyRoutes');
     Route::get('/routes/pending', [RouteController::class, 'pending'])->name('routes.pending');
     Route::get('/motorcycles/{motorcycle}/free-ride', [RouteController::class, 'freeRide'])->name('routes.free-ride');
     Route::post('/routes/sync-offline', [RouteController::class, 'syncOffline'])->name('routes.sync-offline');
