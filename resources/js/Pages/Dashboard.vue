@@ -24,16 +24,10 @@
         </div>
 
         <div class="p-4 space-y-4">
-            <div class="bg-brand-surface rounded-2xl p-5 sm:p-6 border border-brand-dark shadow-neon flex flex-col md:flex-row justify-between items-center gap-5 relative overflow-hidden">
-                <div class="z-10 text-center md:text-left">
+            <div class="bg-brand-surface rounded-2xl p-5 sm:p-6 border border-brand-dark shadow-neon relative overflow-hidden">
+                <div class="z-10">
                     <p class="text-gray-400 text-[10px] uppercase tracking-widest mb-1">{{ $t('dashboard.current_km') }}</p>
                     <p class="text-4xl font-mono font-bold text-white whitespace-nowrap">{{ moto.current_km }} <span class="text-lg text-brand-neon">km</span></p>
-                </div>
-                <div class="z-10 w-full md:w-auto">
-                    <Link :href="route('routes.free-ride', moto.id)" class="flex items-center justify-center gap-2 bg-brand-dark hover:bg-brand-neon hover:text-brand-black text-brand-neon w-full px-6 py-4 rounded-xl transition border border-brand-neon font-black uppercase tracking-widest text-xs whitespace-nowrap">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
-                        {{ $t('dashboard.free_ride') }}
-                    </Link>
                 </div>
                 <div class="absolute right-0 top-0 w-48 h-48 bg-brand-neon blur-[80px] opacity-10 rounded-full pointer-events-none"></div>
             </div>
