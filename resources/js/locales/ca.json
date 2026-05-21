@@ -546,6 +546,8 @@
     "hub_create_desc": "Dibuixa una ruta nova",
     "hub_soon": "Properament",
     "hub_coming_soon": "Aviat",
+    "hub_habitual": "Rutes habituals",
+    "hub_habitual_desc": "Feina, anar i tornar, km sense GPS",
     "hub_recommend": "Recomanar ruta",
     "hub_recommend_desc": "Km, temps, dificultat i estil",
     "hub_auto_route": "Calcular viatge",

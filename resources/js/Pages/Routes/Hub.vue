@@ -90,6 +90,17 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div class="flex items-center gap-3 bg-brand-surface/40 border border-brand-dark/80 rounded-xl p-4 opacity-60 cursor-not-allowed relative">
                     <span class="absolute top-3 right-3 text-[9px] font-black uppercase tracking-widest text-gray-500 bg-brand-dark px-2 py-0.5 rounded border border-brand-dark">{{ $t('routes.hub_coming_soon') }}</span>
+                    <div class="bg-rose-500/15 p-2 sm:p-3 rounded-lg text-rose-400/70 flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 .414-.336.75-.75.75h-4.5a.75.75 0 0 1-.75-.75v-4.25m0 0h4.125c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9m7.5 12.15v4.125A2.625 2.625 0 0 1 16.5 21h-9a2.625 2.625 0 0 1-2.625-2.625V15M12 9v6m0 0-3-3m3 3 3-3" /></svg>
+                    </div>
+                    <div class="pr-14">
+                        <span class="block font-bold text-gray-400 text-sm uppercase tracking-widest">{{ $t('routes.hub_habitual') }}</span>
+                        <span class="block text-[10px] text-gray-600 uppercase tracking-widest mt-0.5">{{ $t('routes.hub_habitual_desc') }}</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 bg-brand-surface/40 border border-brand-dark/80 rounded-xl p-4 opacity-60 cursor-not-allowed relative">
+                    <span class="absolute top-3 right-3 text-[9px] font-black uppercase tracking-widest text-gray-500 bg-brand-dark px-2 py-0.5 rounded border border-brand-dark">{{ $t('routes.hub_coming_soon') }}</span>
                     <div class="bg-orange-500/15 p-2 sm:p-3 rounded-lg text-orange-400/70 flex-shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" /></svg>
                     </div>

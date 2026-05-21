@@ -546,6 +546,8 @@
     "hub_create_desc": "Draw a new route",
     "hub_soon": "Coming soon",
     "hub_coming_soon": "Soon",
+    "hub_habitual": "Regular routes",
+    "hub_habitual_desc": "Commute, round trips, km without GPS",
     "hub_recommend": "Recommend route",
     "hub_recommend_desc": "Distance, time, difficulty and style",
     "hub_auto_route": "Calculate trip",
