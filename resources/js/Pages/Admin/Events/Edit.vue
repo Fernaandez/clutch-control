@@ -126,6 +126,7 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { onMounted } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { addMapTileLayer } from '@/config/mapTiles.js';
 
 const props = defineProps({
     eventRecord: Object,
@@ -142,10 +143,7 @@ onMounted(() => {
             attributionControl: false
         });
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            subdomains: 'abcd',
-            maxZoom: 20
-        }).addTo(map);
+        addMapTileLayer(map, L);
 
         const bounds = L.latLngBounds();
         const colors = ['#0CE1B5', '#f43f5e', '#a855f7', '#eab308', '#3b82f6'];

@@ -86,6 +86,7 @@ import { Link, router } from '@inertiajs/vue3';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { smartBack } from '@/Composables/navigationStack.js';
+import { addMapTileLayer } from '@/config/mapTiles.js';
 
 const props = defineProps({
     trip: Object
@@ -108,9 +109,7 @@ const buildMap = async () => {
 
     map.value = L.map('trip-map', { zoomControl: false, attributionControl: false }).setView([startLat, startLng], 13);
 
-    L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-        maxZoom: 20,
-    }).addTo(map.value);
+    addMapTileLayer(map.value, L);
 
     // Dibuixar la polilínia GPS del recorregut
     if (props.trip.waypoints && props.trip.waypoints.length > 1) {

@@ -197,6 +197,7 @@ import L from 'leaflet';
 import 'leaflet-routing-machine';
 import draggable from 'vuedraggable';
 import { smartBack } from '@/Composables/navigationStack.js';
+import { addMapTileLayer } from '@/config/mapTiles.js';
 
 const props = defineProps({
     motorcycles: Array,
@@ -362,12 +363,7 @@ onMounted(() => {
 
     map.value = L.map('map', { zoomControl: false, attributionControl: false }).setView([startLat, startLng], 13);
     
-    L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-        maxZoom: 20,
-        className: 'map-tiles-inverse',
-        keepBuffer: 100,
-        updateWhenIdle: false
-    }).addTo(map.value);
+    addMapTileLayer(map.value, L, { keepBuffer: 100, updateWhenIdle: false });
 
     const initialWaypoints = uiWaypoints.value.map(wp => L.latLng(wp.lat, wp.lng));
 
@@ -426,5 +422,4 @@ const submit = () => {
 .pt-safe-top { padding-top: env(safe-area-inset-top, 20px); }
 .pb-safe-bottom { padding-bottom: env(safe-area-inset-bottom, 20px); }
 .leaflet-routing-container { display: none !important; }
-.map-tiles-inverse { filter: brightness(150%) contrast(150%); }
 </style>

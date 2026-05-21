@@ -6,6 +6,7 @@
 import { onMounted } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { addMapTileLayer } from '@/config/mapTiles.js';
 
 const props = defineProps({
     routeId: Number,
@@ -38,10 +39,7 @@ onMounted(() => {
         attributionControl: false
     });
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        subdomains: 'abcd',
-        maxZoom: 20
-    }).addTo(map);
+    addMapTileLayer(map, L);
 
     const validPoints = points.map(p => {
         if (Array.isArray(p) && p.length >= 2) return [p[1], p[0]]; // [lng, lat] -> [lat, lng]

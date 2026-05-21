@@ -192,6 +192,7 @@ import ReportButton from '@/Components/ReportButton.vue';
 import { smartBack } from '@/Composables/navigationStack.js';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { addMapTileLayer } from '@/config/mapTiles.js';
 
 const { locale } = useI18n();
 
@@ -280,7 +281,7 @@ const openGlobalMap = async () => {
     await nextTick();
     if (!map.value) {
         map.value = L.map('event-global-map', { zoomControl: false, attributionControl: false }).setView([41.3851, 2.1734], 13);
-        L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', { maxZoom: 20, className: 'map-tiles-inverse' }).addTo(map.value);
+        addMapTileLayer(map.value, L);
     } else {
         mapLayers.value.forEach(layer => { if (map.value && layer) map.value.removeLayer(layer); });
         mapLayers.value = [];
@@ -317,5 +318,4 @@ const closeMap = () => { isMapOpen.value = false; };
 <style scoped>
 .pt-safe-top { padding-top: env(safe-area-inset-top, 20px); }
 .pb-safe-bottom { padding-bottom: env(safe-area-inset-bottom, 20px); }
-.map-tiles-inverse { filter: brightness(150%) contrast(150%); }
 </style>

@@ -252,6 +252,7 @@ const BackgroundGeolocation = registerPlugin('BackgroundGeolocation');
 import { Geolocation } from '@capacitor/geolocation';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import axios from 'axios';
+import { addMapTileLayer } from '@/config/mapTiles.js';
 
 const props = defineProps({
     mapRoute: Object,
@@ -463,10 +464,7 @@ onMounted(async () => {
 
     map.value = L.map('map-detail', { zoomControl: false, attributionControl: false }).setView([startLat, startLng], 13);
 
-    L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-        maxZoom: 20,
-        className: 'map-tiles-inverse'
-    }).addTo(map.value);
+    addMapTileLayer(map.value, L);
 
     const points = getRoutePoints();
 
@@ -663,5 +661,4 @@ const stopRecording = () => {
 .pt-safe-top { padding-top: env(safe-area-inset-top, 40px); }
 .top-safe-top { top: calc(env(safe-area-inset-top, 40px) + 1rem); }
 .pb-safe-bottom { padding-bottom: env(safe-area-inset-bottom, 20px); }
-.map-tiles-inverse { filter: brightness(150%) contrast(150%); }
 </style>

@@ -68,6 +68,7 @@ import { registerPlugin } from '@capacitor/core';
 const BackgroundGeolocation = registerPlugin('BackgroundGeolocation');
 import { Geolocation } from '@capacitor/geolocation';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { addMapTileLayer } from '@/config/mapTiles.js';
 
 const { t } = useI18n();
 
@@ -103,10 +104,7 @@ onMounted(async () => {
     // Centrat genèric o última posició coneguda si cal (per defecte BCN)
     map.value = L.map('map-freeride', { zoomControl: false, attributionControl: false }).setView([41.3851, 2.1734], 14);
 
-    L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-        maxZoom: 20,
-        className: 'map-tiles-inverse'
-    }).addTo(map.value);
+    addMapTileLayer(map.value, L);
 
     // Intentar centrar el mapa a la posició actual directament abans de gravar
     try {
@@ -244,5 +242,4 @@ const stopRecording = () => {
 .pt-safe-top { padding-top: env(safe-area-inset-top, 40px); }
 .top-safe-top { top: calc(env(safe-area-inset-top, 40px) + 1rem); }
 .pb-safe-bottom { padding-bottom: env(safe-area-inset-bottom, 20px); }
-.map-tiles-inverse { filter: brightness(150%) contrast(150%); }
 </style>

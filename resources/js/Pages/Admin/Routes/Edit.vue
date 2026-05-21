@@ -132,6 +132,7 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { onMounted } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { addMapTileLayer } from '@/config/mapTiles.js';
 
 const props = defineProps({
     routeRecord: Object,
@@ -146,10 +147,7 @@ onMounted(() => {
             scrollWheelZoom: true,
         });
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            subdomains: 'abcd',
-            maxZoom: 20
-        }).addTo(map);
+        addMapTileLayer(map, L);
 
         let points = props.routeRecord.geo_json;
         if (typeof points === 'string') {

@@ -221,6 +221,7 @@ import AppIcon from '@/Components/AppIcon.vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { smartBack } from '@/Composables/navigationStack.js';
+import { addMapTileLayer } from '@/config/mapTiles.js';
 
 const { t } = useI18n();
 
@@ -271,7 +272,7 @@ const closePicker = () => isPickerOpen.value = false;
 
 const initMap = () => {
     map.value = L.map('map-picker', { zoomControl: false }).setView([41.3851, 2.1734], 13);
-    L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', { maxZoom: 20, className: 'map-tiles-inverse' }).addTo(map.value);
+    addMapTileLayer(map.value, L);
     if (navigator.geolocation) navigator.geolocation.getCurrentPosition(pos => map.value.flyTo([pos.coords.latitude, pos.coords.longitude], 15));
 };
 
@@ -289,5 +290,4 @@ const submit = () => form.post(route('events.store'), { forceFormData: true });
 </script>
 
 <style>
-.map-tiles-inverse { filter: brightness(150%) contrast(150%); }
 </style>
