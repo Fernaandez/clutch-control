@@ -42,9 +42,9 @@ class ManualTripService
             'route_id'         => $route->id,
             'distance_km'      => $distance,
             'duration_seconds' => null,
-            'starting_lat'     => $first['lat'] ?? $route->starting_lat ?? null,
-            'starting_lng'     => $first['lng'] ?? $route->starting_lng ?? null,
-            'waypoints'        => $waypoints ?: [],
+            'starting_lat'     => (is_array($first) ? ($first['lat'] ?? null) : null) ?? $route->starting_lat ?? null,
+            'starting_lng'     => (is_array($first) ? ($first['lng'] ?? null) : null) ?? $route->starting_lng ?? null,
+            'waypoints'        => $waypoints,
             'started_at'       => now(),
         ];
 
@@ -94,18 +94,38 @@ class ManualTripService
             return [];
         }
 
+        if (($geo['type'] ?? null) === 'LineString' && is_array($geo['coordinates'] ?? null)) {
+            $geo = $geo['coordinates'];
+        } elseif (($geo['type'] ?? null) === 'Feature' && is_array($geo['geometry']['coordinates'] ?? null)) {
+            $geo = $geo['geometry']['coordinates'];
+        }
+
         $waypoints = [];
         foreach ($geo as $point) {
-            if (is_array($point) && count($point) >= 2) {
-                $lat = $point[0];
-                $lng = $point[1];
-                if (abs($lat) <= 90 && abs($lng) <= 180) {
-                    $waypoints[] = ['lat' => (float) $lat, 'lng' => (float) $lng];
-                } else {
-                    $waypoints[] = ['lat' => (float) $point[1], 'lng' => (float) $point[0]];
-                }
-            } elseif (is_array($point) && isset($point['lat'], $point['lng'])) {
+            if (! is_array($point)) {
+                continue;
+            }
+
+            if (isset($point['lat'], $point['lng'])) {
                 $waypoints[] = ['lat' => (float) $point['lat'], 'lng' => (float) $point['lng']];
+                continue;
+            }
+
+            if (isset($point['latitude'], $point['longitude'])) {
+                $waypoints[] = ['lat' => (float) $point['latitude'], 'lng' => (float) $point['longitude']];
+                continue;
+            }
+
+            if (! isset($point[0], $point[1])) {
+                continue;
+            }
+
+            $a = (float) $point[0];
+            $b = (float) $point[1];
+            if (abs($a) <= 90 && abs($b) <= 180) {
+                $waypoints[] = ['lat' => $a, 'lng' => $b];
+            } else {
+                $waypoints[] = ['lat' => $b, 'lng' => $a];
             }
         }
 
