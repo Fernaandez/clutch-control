@@ -18,7 +18,7 @@ class TripController extends Controller
             'distance_km'      => $trip->distance_km,
             'duration_seconds' => $trip->duration_seconds,
             'started_at'       => $trip->started_at,
-            'manual_entry'     => (bool) $trip->manual_entry,
+            'manual_entry'     => (bool) ($trip->manual_entry ?? false),
             'notes'            => $trip->notes,
             'motorcycle'       => $trip->motorcycle ? [
                 'id'    => $trip->motorcycle->id,
@@ -165,7 +165,7 @@ class TripController extends Controller
                 'waypoints'        => $trip->waypoints,
                 'starting_lat'     => $trip->starting_lat,
                 'starting_lng'     => $trip->starting_lng,
-                'manual_entry'     => (bool) $trip->manual_entry,
+                'manual_entry'     => (bool) ($trip->manual_entry ?? false),
                 'notes'            => $trip->notes,
                 'motorcycle'       => $trip->motorcycle ? [
                     'id'    => $trip->motorcycle->id,

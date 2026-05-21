@@ -55,7 +55,7 @@ class RouteController extends Controller
     public function habitual(Request $request)
     {
         $motorcycles = Auth::user()->motorcycles()
-            ->select('id', 'brand', 'model', 'alias', 'current_km')
+            ->select('id', 'brand', 'model', 'current_km')
             ->get();
 
         $routes = Route::where('user_id', Auth::id())
@@ -264,7 +264,7 @@ class RouteController extends Controller
         return Inertia::render('Routes/Show', [
             'mapRoute' => $route->load(['user', 'waypoints', 'reviews.user']),
             'motorcycle' => $route->motorcycle,
-            'motorcycles' => Auth::user()?->motorcycles()->select('id', 'brand', 'model', 'alias')->get() ?? [],
+            'motorcycles' => Auth::user()?->motorcycles()->select('id', 'brand', 'model')->get() ?? [],
         ]);
     }
 

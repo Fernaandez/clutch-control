@@ -44,7 +44,7 @@
                             <select v-model="routeForm.motorcycle_id" required :class="inputClass">
                                 <option value="">{{ $t('routes.habitual_select_moto') }}</option>
                                 <option v-for="m in motorcycles" :key="m.id" :value="m.id">
-                                    {{ m.alias || `${m.brand} ${m.model}` }} ({{ m.current_km ?? 0 }} km)
+                                    {{ `${m.brand} ${m.model}` }} ({{ m.current_km ?? 0 }} km)
                                 </option>
                             </select>
                         </div>
@@ -86,7 +86,7 @@
                             <select v-model="manualForm.motorcycle_id" required :class="inputClass">
                                 <option value="">{{ $t('routes.habitual_select_moto') }}</option>
                                 <option v-for="m in motorcycles" :key="m.id" :value="m.id">
-                                    {{ m.alias || `${m.brand} ${m.model}` }} ({{ m.current_km ?? 0 }} km)
+                                    {{ `${m.brand} ${m.model}` }} ({{ m.current_km ?? 0 }} km)
                                 </option>
                             </select>
                         </div>
