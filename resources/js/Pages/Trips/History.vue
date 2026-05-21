@@ -5,10 +5,13 @@
                 <button type="button" @click="goBack" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]" :aria-label="$t('common.back')">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
                 </button>
-                <div>
+                <div class="flex-1 min-w-0">
                     <h1 class="text-2xl font-black uppercase tracking-tighter text-white leading-none">{{ $t('routes.history_title') }}</h1>
                     <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">{{ $t('routes.hub_history_desc') }}</p>
                 </div>
+                <Link :href="route('routes.habitual')" class="flex-shrink-0 bg-brand-neon/10 text-brand-neon border border-brand-neon/30 px-3 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-brand-neon/20 transition">
+                    + {{ $t('routes.register_km') }}
+                </Link>
             </div>
 
             <div v-if="pendingTrips.length > 0" class="mb-6 bg-brand-dark/30 border border-brand-neon rounded-xl p-4 shadow-[0_0_15px_rgba(12,225,181,0.2)]">
@@ -36,12 +39,15 @@
             <div v-else class="space-y-3">
                 <Link v-for="trip in trips" :key="trip.id" :href="route('trips.show', trip.id)"
                     class="flex items-center gap-4 bg-brand-surface border border-brand-dark rounded-2xl p-4 hover:border-brand-neon/50 transition shadow-lg group">
-                    <div class="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center flex-shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 border"
+                        :class="trip.manual_entry ? 'bg-rose-500/10 border-rose-500/20' : 'bg-red-500/10 border-red-500/20'">
+                        <svg v-if="trip.manual_entry" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-rose-400"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg>
+                        <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-400"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1">
+                        <div class="flex items-center gap-2 mb-1 flex-wrap">
                             <span class="text-white font-bold text-sm">{{ formatDate(trip.started_at) }}</span>
+                            <span v-if="trip.manual_entry" class="inline-flex items-center bg-rose-500/10 border border-rose-500/20 text-rose-400 px-2 py-0.5 rounded text-[9px] uppercase font-bold tracking-widest">{{ $t('routes.manual_badge') }}</span>
                         </div>
                         <div class="flex items-center gap-3 text-xs font-mono flex-wrap">
                             <span class="text-brand-neon font-black">{{ trip.distance_km ?? '?' }} km</span>

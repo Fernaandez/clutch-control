@@ -52,6 +52,23 @@ class RouteController extends Controller
         return Inertia::render('Routes/MyRoutes', ['routes' => $routes]);
     }
 
+    public function habitual(Request $request)
+    {
+        $motorcycles = Auth::user()->motorcycles()
+            ->select('id', 'brand', 'model', 'alias', 'current_km')
+            ->get();
+
+        $routes = Route::where('user_id', Auth::id())
+            ->orderBy('title')
+            ->get(['id', 'title', 'planned_distance_km', 'location_city']);
+
+        return Inertia::render('Routes/Habitual', [
+            'motorcycles' => $motorcycles,
+            'routes' => $routes,
+            'preselectedRouteId' => $request->integer('route') ?: null,
+        ]);
+    }
+
     // NOVA FUNCIÓ: PREVISUALITZAR RUTA VIA ENLLAÇ (Guest/Public)
     public function preview(Request $request, $token)
     {
@@ -246,7 +263,8 @@ class RouteController extends Controller
 
         return Inertia::render('Routes/Show', [
             'mapRoute' => $route->load(['user', 'waypoints', 'reviews.user']),
-            'motorcycle' => $route->motorcycle
+            'motorcycle' => $route->motorcycle,
+            'motorcycles' => Auth::user()?->motorcycles()->select('id', 'brand', 'model', 'alias')->get() ?? [],
         ]);
     }
 

@@ -16,11 +16,14 @@ class Trip extends Model
         'starting_lng',
         'waypoints',
         'started_at',
+        'manual_entry',
+        'notes',
     ];
 
     protected $casts = [
-        'waypoints'  => 'array',
-        'started_at' => 'datetime',
+        'waypoints'    => 'array',
+        'started_at'   => 'datetime',
+        'manual_entry' => 'boolean',
     ];
 
     public function user()

@@ -13,6 +13,7 @@
                         RECORREGUT
                     </h1>
                     <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest truncate mt-0.5">{{ formatDate(trip.started_at) }}</p>
+                    <span v-if="trip.manual_entry" class="inline-flex items-center bg-rose-500/10 border border-rose-500/20 text-rose-400 px-2 py-0.5 rounded text-[9px] uppercase font-bold tracking-widest mt-1">{{ $t('routes.manual_badge') }}</span>
                 </div>
                 <!-- Botó eliminar -->
                 <button @click="deleteTrip" class="ml-auto text-red-500 hover:text-white hover:bg-red-500/20 p-2 rounded-xl border border-transparent hover:border-red-500/50 transition flex-shrink-0">
@@ -37,11 +38,15 @@
 
                 <!-- Llegenda -->
                 <div class="absolute top-24 right-3 z-[500] bg-brand-black/90 backdrop-blur-sm border border-brand-dark rounded-xl p-3 space-y-2 shadow-lg">
-                    <div class="flex items-center gap-2">
+                    <div v-if="!trip.manual_entry" class="flex items-center gap-2">
                         <div class="w-6 h-1 rounded bg-red-500"></div>
                         <span class="text-[10px] text-white font-bold uppercase tracking-widest">El teu GPS</span>
                     </div>
-                    <div v-if="showComparativa && trip.route" class="flex items-center gap-2">
+                    <div v-else-if="trip.route" class="flex items-center gap-2">
+                        <div class="w-6 h-1 rounded bg-rose-400"></div>
+                        <span class="text-[10px] text-rose-400 font-bold uppercase tracking-widest">{{ $t('routes.manual_badge') }}</span>
+                    </div>
+                    <div v-if="showComparativa && trip.route && !trip.manual_entry" class="flex items-center gap-2">
                         <div class="w-6 h-1 rounded bg-blue-400"></div>
                         <span class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">Ruta oficial</span>
                     </div>
@@ -70,6 +75,10 @@
                     <div v-if="trip.route" class="px-4 py-2 border-t border-brand-dark flex items-center gap-2">
                         <span class="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Ruta:</span>
                         <Link :href="route('routes.show', trip.route.id)" class="text-[10px] text-brand-neon font-bold uppercase tracking-widest hover:underline truncate">{{ trip.route.title }}</Link>
+                    </div>
+                    <div v-if="trip.notes" class="px-4 py-2 border-t border-brand-dark">
+                        <span class="text-[10px] text-gray-500 uppercase font-bold tracking-widest block mb-1">{{ $t('routes.habitual_notes') }}</span>
+                        <p class="text-xs text-gray-300">{{ trip.notes }}</p>
                     </div>
                 </div>
             </div>
@@ -103,6 +112,40 @@ onMounted(async () => {
     await buildMap();
 });
 
+const drawRouteGeoJson = (geoJson, isManual = false) => {
+    try {
+        let data = geoJson;
+        if (typeof data === 'string') {
+            try {
+                data = JSON.parse(data);
+                if (typeof data === 'string') data = JSON.parse(data);
+            } catch (e) {}
+        }
+
+        const points = Array.isArray(data) ? data : [];
+        const validPoints = points.map(p => {
+            if (Array.isArray(p) && p.length >= 2) return [p[1], p[0]];
+            if (p && (p.lat !== undefined || p.latitude !== undefined)) return [p.lat ?? p.latitude, p.lng ?? p.longitude];
+            if (Array.isArray(p) && p.length === 2 && p[0] <= 90 && p[0] >= -90) return [p[0], p[1]];
+            return null;
+        }).filter(Boolean);
+
+        if (routePolyline) map.value.removeLayer(routePolyline);
+
+        if (validPoints.length > 0) {
+            routePolyline = L.polyline(validPoints, {
+                color: isManual ? '#fb7185' : '#60a5fa',
+                weight: isManual ? 5 : 4,
+                dashArray: isManual ? undefined : '8 6',
+                opacity: 0.9,
+            }).addTo(map.value);
+            map.value.fitBounds(routePolyline.getBounds(), { padding: [30, 30] });
+        }
+    } catch (e) {
+        console.warn('Error carregant GeoJSON de la ruta', e);
+    }
+};
+
 const buildMap = async () => {
     const startLat = props.trip.starting_lat ?? (props.trip.waypoints?.[0]?.lat) ?? 41.3851;
     const startLng = props.trip.starting_lng ?? (props.trip.waypoints?.[0]?.lng) ?? 2.1734;
@@ -115,7 +158,7 @@ const buildMap = async () => {
     if (props.trip.waypoints && props.trip.waypoints.length > 1) {
         const latlngs = props.trip.waypoints.map(p => [p.lat, p.lng]);
         tripPolyline = L.polyline(latlngs, {
-            color: '#ef4444',
+            color: props.trip.manual_entry ? '#fb7185' : '#ef4444',
             weight: 5,
             opacity: 0.95,
             lineJoin: 'round',
@@ -127,40 +170,15 @@ const buildMap = async () => {
             .bindTooltip('Inici', { permanent: false }).addTo(map.value);
         L.circleMarker(latlngs[latlngs.length - 1], { radius: 7, color: '#ffffff', fillColor: '#ef4444', fillOpacity: 1, weight: 2 })
             .bindTooltip('Fi', { permanent: false }).addTo(map.value);
+    } else if (props.trip.manual_entry && props.trip.route?.geo_json) {
+        drawRouteGeoJson(props.trip.route.geo_json, true);
     }
 };
 
 const toggleComparativa = () => {
     showComparativa.value = !showComparativa.value;
     if (showComparativa.value && props.trip.route?.geo_json) {
-        try {
-            let data = props.trip.route.geo_json;
-            if (typeof data === 'string') {
-                try {
-                    data = JSON.parse(data);
-                    if (typeof data === 'string') data = JSON.parse(data);
-                } catch (e) {}
-            }
-            
-            const points = Array.isArray(data) ? data : [];
-            
-            const validPoints = points.map(p => {
-                if (Array.isArray(p) && p.length >= 2) return [p[1], p[0]]; // [lng, lat] -> [lat, lng] usually or depends on format
-                if (p && (p.lat !== undefined || p.latitude !== undefined)) return [p.lat ?? p.latitude, p.lng ?? p.longitude];
-                if (Array.isArray(p) && p.length === 2 && p[0] <= 90 && p[0] >= -90) return [p[0], p[1]]; // direct lat,lng assumption
-                return null;
-            }).filter(Boolean);
-
-            if (routePolyline) map.value.removeLayer(routePolyline);
-            
-            if (validPoints.length > 0) {
-                routePolyline = L.polyline(validPoints, {
-                    color: '#60a5fa', weight: 4, dashArray: '8 6', opacity: 0.9
-                }).addTo(map.value);
-            }
-        } catch (e) {
-            console.warn('Error carregant GeoJSON de la ruta', e);
-        }
+        drawRouteGeoJson(props.trip.route.geo_json, false);
     } else if (!showComparativa.value && routePolyline) {
         map.value.removeLayer(routePolyline);
         routePolyline = null;
@@ -169,9 +187,7 @@ const toggleComparativa = () => {
 
 const deleteTrip = async () => {
     if (!confirm('Segur que vols eliminar aquest recorregut? Aquesta acció no es pot desfer.')) return;
-    router.delete(route('trips.destroy', props.trip.id), {
-        onSuccess: () => router.visit(route('routes.MyRoutes'))
-    });
+    router.delete(route('trips.destroy', props.trip.id));
 };
 
 const formatDate = (isoStr) => {

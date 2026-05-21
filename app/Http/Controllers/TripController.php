@@ -18,6 +18,8 @@ class TripController extends Controller
             'distance_km'      => $trip->distance_km,
             'duration_seconds' => $trip->duration_seconds,
             'started_at'       => $trip->started_at,
+            'manual_entry'     => (bool) $trip->manual_entry,
+            'notes'            => $trip->notes,
             'motorcycle'       => $trip->motorcycle ? [
                 'id'    => $trip->motorcycle->id,
                 'brand' => $trip->motorcycle->brand,
@@ -39,6 +41,97 @@ class TripController extends Controller
             ->orderBy('started_at', 'desc');
     }
 
+    private function ownedMotorcycle(int $motorcycleId): Motorcycle
+    {
+        return Motorcycle::where('id', $motorcycleId)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+    }
+
+    private function addKmToMotorcycle(Motorcycle $moto, float $km): void
+    {
+        if ($km <= 0) {
+            return;
+        }
+        $moto->current_km = ($moto->current_km ?? 0) + $km;
+        $moto->save();
+    }
+
+    private function subtractKmFromMotorcycle(Motorcycle $moto, float $km): void
+    {
+        if ($km <= 0) {
+            return;
+        }
+        $moto->current_km = max(0, ($moto->current_km ?? 0) - $km);
+        $moto->save();
+    }
+
+    private function routeDistanceKm(Route $route, bool $roundTrip): float
+    {
+        $base = (float) ($route->planned_distance_km ?? $route->distance_km ?? 0);
+        if ($base <= 0) {
+            abort(422, 'La ruta no té quilòmetres definits.');
+        }
+
+        return $roundTrip ? $base * 2 : $base;
+    }
+
+    private function waypointsFromRoute(Route $route): array
+    {
+        $geo = $route->geo_json;
+        if (is_string($geo)) {
+            $geo = json_decode($geo, true);
+            if (is_string($geo)) {
+                $geo = json_decode($geo, true);
+            }
+        }
+        if (! is_array($geo)) {
+            return [];
+        }
+
+        $waypoints = [];
+        foreach ($geo as $point) {
+            if (is_array($point) && count($point) >= 2) {
+                $lat = $point[0];
+                $lng = $point[1];
+                if (abs($lat) <= 90 && abs($lng) <= 180) {
+                    $waypoints[] = ['lat' => (float) $lat, 'lng' => (float) $lng];
+                } else {
+                    $waypoints[] = ['lat' => (float) $point[1], 'lng' => (float) $point[0]];
+                }
+            } elseif (is_array($point) && isset($point['lat'], $point['lng'])) {
+                $waypoints[] = ['lat' => (float) $point['lat'], 'lng' => (float) $point['lng']];
+            }
+        }
+
+        return $waypoints;
+    }
+
+    private function createManualTrip(array $data): Trip
+    {
+        $moto = $this->ownedMotorcycle((int) $data['motorcycle_id']);
+        $waypoints = $data['waypoints'] ?? [];
+        $first = $waypoints[0] ?? null;
+
+        $trip = Trip::create([
+            'user_id'          => Auth::id(),
+            'motorcycle_id'    => $moto->id,
+            'route_id'         => $data['route_id'] ?? null,
+            'distance_km'      => $data['distance_km'],
+            'duration_seconds' => $data['duration_seconds'] ?? null,
+            'starting_lat'     => $first['lat'] ?? $data['starting_lat'] ?? null,
+            'starting_lng'     => $first['lng'] ?? $data['starting_lng'] ?? null,
+            'waypoints'        => $waypoints,
+            'started_at'       => $data['started_at'],
+            'manual_entry'     => true,
+            'notes'            => $data['notes'] ?? null,
+        ]);
+
+        $this->addKmToMotorcycle($moto, (float) $data['distance_km']);
+
+        return $trip;
+    }
+
     public function history()
     {
         $trips = $this->userTripsQuery()
@@ -48,7 +141,6 @@ class TripController extends Controller
         return Inertia::render('Trips/History', ['trips' => $trips]);
     }
 
-    // Llista els meus recorreguts (API JSON)
     public function myTrips()
     {
         $trips = $this->userTripsQuery()
@@ -58,7 +150,6 @@ class TripController extends Controller
         return response()->json($trips);
     }
 
-    // Detall d'un recorregut (Trips/Show.vue)
     public function show(Trip $trip)
     {
         if ($trip->user_id !== Auth::id()) {
@@ -74,21 +165,22 @@ class TripController extends Controller
                 'waypoints'        => $trip->waypoints,
                 'starting_lat'     => $trip->starting_lat,
                 'starting_lng'     => $trip->starting_lng,
+                'manual_entry'     => (bool) $trip->manual_entry,
+                'notes'            => $trip->notes,
                 'motorcycle'       => $trip->motorcycle ? [
                     'id'    => $trip->motorcycle->id,
                     'brand' => $trip->motorcycle->brand,
                     'model' => $trip->motorcycle->model,
                 ] : null,
                 'route' => $trip->route ? [
-                    'id'      => $trip->route->id,
-                    'title'   => $trip->route->title,
+                    'id'       => $trip->route->id,
+                    'title'    => $trip->route->title,
                     'geo_json' => $trip->route->geo_json,
                 ] : null,
             ],
         ]);
     }
 
-    // Crear recorregut (des del frontend, via sync)
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -112,47 +204,87 @@ class TripController extends Controller
             'starting_lng'     => $firstPoint['lng'] ?? null,
             'waypoints'        => $validated['waypoints'],
             'started_at'       => $validated['started_at'],
+            'manual_entry'     => false,
         ]);
 
-        // Sumar KM a la moto automàticament
-        if (!empty($validated['motorcycle_id']) && !empty($validated['distance_km'])) {
+        if (! empty($validated['motorcycle_id']) && ! empty($validated['distance_km'])) {
             $moto = Motorcycle::find($validated['motorcycle_id']);
             if ($moto && $moto->user_id === Auth::id()) {
-                $moto->current_km = ($moto->current_km ?? 0) + $validated['distance_km'];
-                $moto->save();
+                $this->addKmToMotorcycle($moto, (float) $validated['distance_km']);
             }
         }
 
         return response()->json(['success' => true, 'trip_id' => $trip->id]);
     }
 
-    // Eliminar recorregut
+    public function storeManual(Request $request)
+    {
+        $validated = $request->validate([
+            'motorcycle_id' => 'required|exists:motorcycles,id',
+            'distance_km'   => 'required|numeric|min:0.1',
+            'started_at'    => 'required|date',
+            'notes'         => 'nullable|string|max:500',
+        ]);
+
+        $trip = $this->createManualTrip([
+            'motorcycle_id' => $validated['motorcycle_id'],
+            'distance_km'   => $validated['distance_km'],
+            'started_at'    => $validated['started_at'],
+            'notes'         => $validated['notes'] ?? null,
+            'waypoints'     => [],
+        ]);
+
+        return redirect()->route('trips.show', $trip);
+    }
+
+    public function applyRouteToMotorcycle(Request $request, Route $route)
+    {
+        $user = Auth::user();
+        $isOwner = $user && (int) $route->user_id === (int) $user->id;
+        if (! $route->is_public && ! $isOwner) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'motorcycle_id' => 'required|exists:motorcycles,id',
+            'started_at'    => 'nullable|date',
+            'round_trip'    => 'sometimes|boolean',
+            'notes'         => 'nullable|string|max:500',
+        ]);
+
+        $roundTrip = (bool) ($validated['round_trip'] ?? false);
+        $distance = $this->routeDistanceKm($route, $roundTrip);
+        $waypoints = $this->waypointsFromRoute($route);
+
+        $trip = $this->createManualTrip([
+            'motorcycle_id' => $validated['motorcycle_id'],
+            'route_id'      => $route->id,
+            'distance_km'   => $distance,
+            'started_at'    => $validated['started_at'] ?? now(),
+            'notes'         => $validated['notes'] ?? null,
+            'waypoints'     => $waypoints,
+            'starting_lat'  => $route->starting_lat ?? ($waypoints[0]['lat'] ?? null),
+            'starting_lng'  => $route->starting_lng ?? ($waypoints[0]['lng'] ?? null),
+        ]);
+
+        return redirect()->route('trips.show', $trip);
+    }
+
     public function destroy(Trip $trip)
     {
         if ($trip->user_id !== Auth::id()) {
             abort(403);
         }
+
+        if ($trip->manual_entry && $trip->motorcycle_id && $trip->distance_km) {
+            $moto = Motorcycle::find($trip->motorcycle_id);
+            if ($moto && $moto->user_id === Auth::id()) {
+                $this->subtractKmFromMotorcycle($moto, (float) $trip->distance_km);
+            }
+        }
+
         $trip->delete();
-        return response()->json(['success' => true]);
-    }
 
-    // Recorreguts vinculats a una ruta (per Routes/Show.vue)
-    public function forRoute(Route $route)
-    {
-        $trips = Trip::where('user_id', Auth::id())
-            ->where('route_id', $route->id)
-            ->orderBy('started_at', 'desc')
-            ->get()
-            ->map(function ($trip) {
-                return [
-                    'id'               => $trip->id,
-                    'distance_km'      => $trip->distance_km,
-                    'duration_seconds' => $trip->duration_seconds,
-                    'started_at'       => $trip->started_at,
-                    'waypoints'        => $trip->waypoints,
-                ];
-            });
-
-        return response()->json($trips);
+        return redirect()->route('routes.history');
     }
 }

@@ -94,6 +94,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/routes', [RouteController::class, 'hub'])->name('routes.index');
     Route::get('/routes/explore', [RouteController::class, 'explore'])->name('routes.explore');
     Route::get('/routes/history', [\App\Http\Controllers\TripController::class, 'history'])->name('routes.history');
+    Route::get('/routes/habitual', [RouteController::class, 'habitual'])->name('routes.habitual');
     Route::get('/my-routes', [RouteController::class, 'MyRoutes'])->name('routes.MyRoutes');
     Route::get('/routes/pending', [RouteController::class, 'pending'])->name('routes.pending');
     Route::get('/motorcycles/{motorcycle}/free-ride', [RouteController::class, 'freeRide'])->name('routes.free-ride');
@@ -106,9 +107,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/routes/{route}', [RouteController::class, 'destroy'])->name('routes.destroy');
     Route::post('/routes/{route}/clone', [RouteController::class, 'clone'])->name('routes.clone');
     Route::post('/routes/{route}/reviews', [\App\Http\Controllers\RouteReviewController::class, 'store'])->name('routes.reviews.store');
+    Route::post('/routes/{route}/apply-to-motorcycle', [\App\Http\Controllers\TripController::class, 'applyRouteToMotorcycle'])->name('routes.apply-to-motorcycle');
 
     // --- RECORREGUTS (TRIPS GPS) ---
     Route::post('/trips', [\App\Http\Controllers\TripController::class, 'store'])->name('trips.store');
+    Route::post('/trips/manual', [\App\Http\Controllers\TripController::class, 'storeManual'])->name('trips.store-manual');
     Route::get('/my-trips', [\App\Http\Controllers\TripController::class, 'myTrips'])->name('trips.mine');
     Route::get('/trips/{trip}', [\App\Http\Controllers\TripController::class, 'show'])->name('trips.show');
     Route::delete('/trips/{trip}', [\App\Http\Controllers\TripController::class, 'destroy'])->name('trips.destroy');
