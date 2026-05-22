@@ -102,6 +102,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/routes/pending', [RouteController::class, 'pending'])->name('routes.pending');
     Route::get('/motorcycles/{motorcycle}/free-ride', [RouteController::class, 'freeRide'])->name('routes.free-ride');
     Route::post('/routes/sync-offline', [RouteController::class, 'syncOffline'])->name('routes.sync-offline');
+    Route::get('/routes/plan', [RouteController::class, 'plan'])->name('routes.plan');
     Route::get('/routes/create', [RouteController::class, 'create'])->name('routes.create');
     Route::post('/routes', [RouteController::class, 'store'])->name('routes.store');
     Route::get('/routes/{route}', [RouteController::class, 'show'])->name('routes.show');

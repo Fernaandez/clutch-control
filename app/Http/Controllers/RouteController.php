@@ -182,6 +182,11 @@ class RouteController extends Controller
         return response()->json(['success' => true, 'route_id' => $route->id]);
     }
 
+    public function plan()
+    {
+        return Inertia::render('Routes/Plan');
+    }
+
     // FORMULARI CREAR
     public function create()
     {

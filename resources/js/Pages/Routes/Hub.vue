@@ -97,6 +97,19 @@
                         <span class="block text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">{{ $t('routes.hub_habitual_desc') }}</span>
                     </div>
                 </Link>
+
+                <Link
+                    :href="route('routes.plan')"
+                    class="flex items-center gap-3 bg-brand-surface border border-brand-dark rounded-xl p-4 hover:border-cyan-500 hover:bg-brand-dark/50 transition group text-left"
+                >
+                    <div class="bg-cyan-500/20 p-2 sm:p-3 rounded-lg text-cyan-400 group-hover:text-cyan-300 flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
+                    </div>
+                    <div>
+                        <span class="block font-bold text-gray-200 text-sm uppercase tracking-widest">{{ $t('routes.hub_auto_route') }}</span>
+                        <span class="block text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">{{ $t('routes.hub_auto_route_desc') }}</span>
+                    </div>
+                </Link>
             </div>
 
             <h3 class="text-brand-muted font-bold text-sm uppercase mb-3 mt-8 px-1">{{ $t('routes.hub_soon') }}</h3>
@@ -112,16 +125,6 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3 bg-brand-surface/40 border border-brand-dark/80 rounded-xl p-4 opacity-60 cursor-not-allowed relative">
-                    <span class="absolute top-3 right-3 text-[9px] font-black uppercase tracking-widest text-gray-500 bg-brand-dark px-2 py-0.5 rounded border border-brand-dark">{{ $t('routes.hub_coming_soon') }}</span>
-                    <div class="bg-cyan-500/15 p-2 sm:p-3 rounded-lg text-cyan-400/70 flex-shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
-                    </div>
-                    <div class="pr-14">
-                        <span class="block font-bold text-gray-400 text-sm uppercase tracking-widest">{{ $t('routes.hub_auto_route') }}</span>
-                        <span class="block text-[10px] text-gray-600 uppercase tracking-widest mt-0.5">{{ $t('routes.hub_auto_route_desc') }}</span>
-                    </div>
-                </div>
             </div>
         </div>
     </AppLayout>

@@ -367,7 +367,37 @@ const undoPoint = () => {
     }
 };
 
+const loadPlannedDraft = () => {
+    const raw = sessionStorage.getItem('clutch_planned_route');
+    if (!raw) return;
+
+    try {
+        const draft = JSON.parse(raw);
+        sessionStorage.removeItem('clutch_planned_route');
+
+        if (draft.title) form.title = draft.title;
+        if (draft.planned_distance_km) form.planned_distance_km = draft.planned_distance_km;
+        if (draft.duration_seconds) {
+            form.duration_seconds = draft.duration_seconds;
+            duration.value = draft.duration_seconds;
+        }
+        if (draft.geo_json) form.geo_json = draft.geo_json;
+        if (Array.isArray(draft.waypoints) && draft.waypoints.length) {
+            uiWaypoints.value = draft.waypoints.map((wp, index) => ({
+                id: Date.now() + index,
+                lat: wp.lat,
+                lng: wp.lng,
+                name: wp.name || `Punt ${index + 1}`,
+            }));
+        }
+    } catch (e) {
+        console.error('Error carregant esborrany de ruta planificada:', e);
+    }
+};
+
 onMounted(() => {
+    loadPlannedDraft();
+
     map.value = L.map('map', { zoomControl: false, attributionControl: false }).setView([41.3851, 2.1734], 13);
     
     addMapTileLayer(map.value, L, { keepBuffer: 100, updateWhenIdle: false });
@@ -423,8 +453,10 @@ onMounted(() => {
             console.error("Error parsing stored route:", e);
         }
         localStorage.removeItem('clutch_recorded_route');
-    } else {
+    } else if (uiWaypoints.value.length === 0) {
         locateUser();
+    } else {
+        syncWaypointsToMap();
     }
 });
 
