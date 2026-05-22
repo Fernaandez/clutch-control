@@ -22,19 +22,14 @@ const LOOP_MAX_LENGTH_M = 800000;
 const LOOP_DURATION_TOLERANCE = 0.18;
 
 function getLoopVariants(targetDurationMinutes) {
-    const basePoints = targetDurationMinutes >= 300 ? 8
-        : targetDurationMinutes >= 240 ? 7
-            : targetDurationMinutes >= 180 ? 6
-                : targetDurationMinutes >= 120 ? 5
-                    : 4;
+    const points = targetDurationMinutes >= 180 ? 5
+        : targetDurationMinutes >= 120 ? 4
+            : 3;
 
     return [
-        { seed: 11, points: basePoints },
-        { seed: 22, points: basePoints },
-        { seed: 33, points: basePoints + 1 },
-        { seed: 44, points: basePoints + 1 },
-        { seed: 55, points: Math.min(9, basePoints + 2) },
-        { seed: 66, points: Math.max(3, basePoints - 1) },
+        { seed: 11, points },
+        { seed: 22, points },
+        { seed: 33, points: points + 1 },
     ];
 }
 
@@ -287,6 +282,10 @@ export async function fetchDirections({
     });
 
     if (!response.ok) {
+        if (response.status === 429) {
+            throw new Error('ORS_RATE_LIMIT');
+        }
+
         let message = `HTTP ${response.status}`;
         try {
             const payload = await response.json();
@@ -301,7 +300,12 @@ export async function fetchDirections({
 }
 
 async function fetchDirectionsAvoidingFastRoads(params) {
-    const { highway, roundTrip, ...rest } = params;
+    const {
+        highway,
+        roundTrip,
+        maxAvoidAttempts = MAX_FAST_ROAD_AVOID_ATTEMPTS,
+        ...rest
+    } = params;
 
     if (highway !== 'avoid') {
         return fetchDirections({ ...rest, highway, roundTrip });
@@ -310,7 +314,7 @@ async function fetchDirectionsAvoidingFastRoads(params) {
     const avoidPolygons = [];
     let geojson = null;
 
-    for (let attempt = 0; attempt < MAX_FAST_ROAD_AVOID_ATTEMPTS; attempt += 1) {
+    for (let attempt = 0; attempt < maxAvoidAttempts; attempt += 1) {
         geojson = await fetchDirections({
             ...rest,
             highway,
@@ -376,6 +380,10 @@ export function parseProposals(geojson, {
     });
 }
 
+function isRateLimitError(message) {
+    return message === 'ORS_RATE_LIMIT' || message.includes('429');
+}
+
 async function fetchSingleLoopRoute({
     origin,
     targetDurationMinutes,
@@ -388,12 +396,16 @@ async function fetchSingleLoopRoute({
     const coordinates = [[origin.lng, origin.lat]];
     const targetSeconds = targetDurationMinutes * 60;
     let lengthM = clampLoopLength(estimateLoopLengthMeters(targetDurationMinutes, roadStyle) * lengthFactor);
+    const avoidParams = {
+        maxAvoidAttempts: highway === 'avoid' ? 2 : MAX_FAST_ROAD_AVOID_ATTEMPTS,
+    };
 
     let geojson = await fetchDirectionsAvoidingFastRoads({
         coordinates,
         highway,
         roadStyle,
         roundTrip: { length: lengthM, points, seed },
+        ...avoidParams,
     });
 
     let durationSeconds = geojson?.features?.[0]?.properties?.summary?.duration || 0;
@@ -407,6 +419,7 @@ async function fetchSingleLoopRoute({
                 highway,
                 roadStyle,
                 roundTrip: { length: lengthM, points, seed: seed + 1000 },
+                ...avoidParams,
             });
         }
     }
@@ -510,42 +523,6 @@ export async function fetchRouteProposals({
     return { proposals, straightKm, usedAlternatives: !strict && proposals.length > 1 };
 }
 
-async function fetchLoopVariantBatch({
-    origin,
-    targetDurationMinutes,
-    highway,
-    roadStyle,
-    labelPrefix,
-    tag,
-    lengthFactor = 1,
-}) {
-    const variants = getLoopVariants(targetDurationMinutes);
-    const results = await Promise.allSettled(
-        variants.map(({ seed, points }, index) => (
-            fetchSingleLoopRoute({
-                origin,
-                targetDurationMinutes,
-                highway,
-                roadStyle,
-                seed,
-                points,
-                lengthFactor,
-            }).then((geojson) => parseProposals(geojson, {
-                origin,
-                destination: origin,
-                labelPrefix: `${labelPrefix} ${String.fromCharCode(65 + index)}`,
-                tag,
-                targetDurationMinutes,
-                isLoop: true,
-            })[0])
-        )),
-    );
-
-    return results
-        .filter((result) => result.status === 'fulfilled' && result.value)
-        .map((result) => result.value);
-}
-
 export async function fetchLoopProposals({
     origin,
     targetDurationMinutes,
@@ -554,38 +531,61 @@ export async function fetchLoopProposals({
     labelPrefix = 'Volta',
 }) {
     const tag = buildRequestOptions({ highway, roadStyle }).tag;
-    let proposals = await fetchLoopVariantBatch({
-        origin,
-        targetDurationMinutes,
-        highway,
-        roadStyle,
-        labelPrefix,
-        tag,
-    });
+    const variants = getLoopVariants(targetDurationMinutes);
+    const proposals = [];
+    const maxProposals = 3;
 
-    if (!proposals.length) {
-        for (const lengthFactor of [0.85, 1.15, 0.7, 1.3]) {
-            proposals = await fetchLoopVariantBatch({
-                origin,
-                targetDurationMinutes,
-                highway,
-                roadStyle,
-                labelPrefix,
-                tag,
-                lengthFactor,
-            });
-            if (proposals.length) break;
+    const tryVariant = async ({ seed, points, lengthFactor }, index) => {
+        const geojson = await fetchSingleLoopRoute({
+            origin,
+            targetDurationMinutes,
+            highway,
+            roadStyle,
+            seed,
+            points,
+            lengthFactor,
+        });
+
+        const parsed = parseProposals(geojson, {
+            origin,
+            destination: origin,
+            labelPrefix: `${labelPrefix} ${String.fromCharCode(65 + index)}`,
+            tag,
+            targetDurationMinutes,
+            isLoop: true,
+        })[0];
+
+        return parsed || null;
+    };
+
+    for (let index = 0; index < variants.length && proposals.length < maxProposals; index += 1) {
+        try {
+            const proposal = await tryVariant({ ...variants[index], lengthFactor: 1 }, index);
+            if (proposal) proposals.push(proposal);
+        } catch (err) {
+            if (isRateLimitError(err.message)) {
+                if (proposals.length) break;
+                throw err;
+            }
         }
     }
 
-    proposals = dedupeProposals(proposals);
+    if (!proposals.length) {
+        try {
+            const proposal = await tryVariant({ ...variants[0], lengthFactor: 0.9 }, 0);
+            if (proposal) proposals.push(proposal);
+        } catch (err) {
+            if (isRateLimitError(err.message)) throw err;
+        }
+    }
 
+    const deduped = dedupeProposals(proposals);
     const targetSeconds = targetDurationMinutes * 60;
-    proposals.sort((a, b) => {
+    deduped.sort((a, b) => {
         const diffA = Math.abs(a.durationSeconds - targetSeconds);
         const diffB = Math.abs(b.durationSeconds - targetSeconds);
         return diffA - diffB;
     });
 
-    return { proposals, targetDurationMinutes };
+    return { proposals: deduped, targetDurationMinutes };
 }

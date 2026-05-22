@@ -596,6 +596,7 @@
     "plan_loop_4h": "4 h",
     "plan_loop_6h": "6 h",
     "plan_loop_no_results": "No se pudo generar una vuelta cerrada. Prueba otro tiempo o punto de inicio.",
+    "plan_rate_limit": "Demasiadas peticiones al servicio de rutas. Espera unos segundos e inténtalo de nuevo.",
     "plan_map_pick_loop_hint": "Haz clic en el mapa para el punto de inicio",
     "plan_duration": "Tiempo objetivo",
     "plan_p2p_mode": "Modo de ruta",

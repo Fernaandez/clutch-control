@@ -597,6 +597,8 @@ const generateProposals = async () => {
     } catch (err) {
         if (err.message === 'ORS_API_KEY_MISSING') {
             errorMessage.value = t('routes.plan_no_api_key');
+        } else if (err.message === 'ORS_RATE_LIMIT') {
+            errorMessage.value = t('routes.plan_rate_limit');
         } else {
             errorMessage.value = t('routes.plan_error', { msg: err.message });
         }

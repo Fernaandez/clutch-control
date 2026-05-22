@@ -596,6 +596,7 @@
     "plan_loop_4h": "4 h",
     "plan_loop_6h": "6 h",
     "plan_loop_no_results": "Could not generate a closed loop. Try a different time or start point.",
+    "plan_rate_limit": "Too many requests to the routing service. Wait a few seconds and try again.",
     "plan_map_pick_loop_hint": "Tap the map for the start point",
     "plan_duration": "Target time",
     "plan_p2p_mode": "Route mode",

@@ -596,6 +596,7 @@
     "plan_loop_4h": "4 h",
     "plan_loop_6h": "6 h",
     "plan_loop_no_results": "No s'ha pogut generar una volta tancada. Prova un altre temps o punt d'inici.",
+    "plan_rate_limit": "Massa peticions al servei de rutes. Espera uns segons i torna-ho a provar.",
     "plan_map_pick_loop_hint": "Clica al mapa per al punt d'inici",
     "plan_duration": "Temps objectiu",
     "plan_p2p_mode": "Mode de ruta",
