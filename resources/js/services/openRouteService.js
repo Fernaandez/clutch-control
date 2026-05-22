@@ -22,6 +22,12 @@ const LOOP_MAX_LENGTH_M = 800000;
 const LOOP_DURATION_TOLERANCE = 0.18;
 /** ORS public API caps round_trip routes at ~100 km */
 const ORS_ROUND_TRIP_MAX_M = 95000;
+/** Above this target length, prefer multi-lap round trips (only origin must snap to roads) */
+const ORS_MULTI_LAP_PREFER_M = 120000;
+const ORS_LAP_LENGTH_AVOID_M = 52000;
+const ORS_LAP_LENGTH_DEFAULT_M = 85000;
+const MAX_WAYPOINT_RADIUS_M = 28000;
+const ORS_SNAP_RADIUS_M = 800;
 
 function getLoopVariants(targetDurationMinutes) {
     const points = targetDurationMinutes >= 360 ? 8
@@ -39,7 +45,10 @@ function getLoopVariants(targetDurationMinutes) {
 
 function generateLoopWaypoints(origin, targetLengthM, points, seed = 11) {
     const circumferenceM = targetLengthM * 0.88;
-    const radiusM = Math.max(3000, circumferenceM / (2 * Math.PI));
+    const radiusM = Math.min(
+        MAX_WAYPOINT_RADIUS_M,
+        Math.max(3000, circumferenceM / (2 * Math.PI)),
+    );
     const latRad = (origin.lat * Math.PI) / 180;
     const mPerDegLat = 111320;
     const mPerDegLng = Math.max(111320 * Math.cos(latRad), 1);
@@ -81,6 +90,10 @@ function buildSyntheticLoopGeojson(latLngs, summary) {
 
 function isRoundTripDistanceError(message) {
     return /100.?000|100.?km|round.?trip|maximum.*distance|exceed/i.test(message || '');
+}
+
+function isRoutingNotFoundError(message) {
+    return /route could not be found|unable to find a route|not routable|no route/i.test(message || '');
 }
 
 const LOOP_SPEED_KMH = {
@@ -303,6 +316,7 @@ export async function fetchDirections({
         coordinates,
         preference,
         instructions: true,
+        radiuses: coordinates.map(() => ORS_SNAP_RADIUS_M),
     };
 
     if (Object.keys(options).length) {
@@ -365,13 +379,20 @@ async function fetchDirectionsAvoidingFastRoads(params) {
     let geojson = null;
 
     for (let attempt = 0; attempt < maxAvoidAttempts; attempt += 1) {
-        geojson = await fetchDirections({
-            ...rest,
-            highway,
-            roundTrip,
-            avoidPolygons,
-            withFastRoadAnalysis: true,
-        });
+        try {
+            geojson = await fetchDirections({
+                ...rest,
+                highway,
+                roundTrip,
+                avoidPolygons,
+                withFastRoadAnalysis: true,
+            });
+        } catch (err) {
+            if (geojson) {
+                break;
+            }
+            throw err;
+        }
 
         const violations = findFastRoadViolations(geojson);
         if (!violations.length) {
@@ -517,6 +538,54 @@ async function fetchWaypointLoop({
     return geojson;
 }
 
+async function fetchOneRoundTripLap({
+    origin,
+    highway,
+    roadStyle,
+    seed,
+    points,
+    lapLengthM,
+    avoidParams,
+}) {
+    const lapPoints = Math.min(points, 5);
+    const attempts = [
+        { lengthM: lapLengthM, maxAvoidAttempts: avoidParams.maxAvoidAttempts, seedOffset: 0 },
+        { lengthM: lapLengthM * 0.82, maxAvoidAttempts: 1, seedOffset: 17 },
+        { lengthM: lapLengthM * 0.65, maxAvoidAttempts: 1, seedOffset: 34 },
+        { lengthM: Math.min(lapLengthM * 0.5, 38000), maxAvoidAttempts: 0, seedOffset: 51 },
+    ];
+
+    for (const attempt of attempts) {
+        let lengthM = clampLoopLength(attempt.lengthM);
+
+        try {
+            const geojson = await fetchDirectionsAvoidingFastRoads({
+                coordinates: [[origin.lng, origin.lat]],
+                highway,
+                roadStyle,
+                roundTrip: {
+                    length: lengthM,
+                    points: lapPoints,
+                    seed: seed + attempt.seedOffset,
+                },
+                maxAvoidAttempts: attempt.maxAvoidAttempts,
+            });
+
+            const feature = geojson?.features?.[0];
+            if (feature?.geometry?.coordinates?.length) {
+                return feature;
+            }
+        } catch (err) {
+            if (isRateLimitError(err.message)) throw err;
+            if (!isRoutingNotFoundError(err.message) && !isRoundTripDistanceError(err.message)) {
+                throw err;
+            }
+        }
+    }
+
+    return null;
+}
+
 async function fetchMultiLapLoop({
     origin,
     targetDurationMinutes,
@@ -528,29 +597,27 @@ async function fetchMultiLapLoop({
     avoidParams,
 }) {
     const targetSeconds = targetDurationMinutes * 60;
+    const defaultLapM = highway === 'avoid' ? ORS_LAP_LENGTH_AVOID_M : ORS_LAP_LENGTH_DEFAULT_M;
     let remainingM = lengthM;
     let allLatLngs = [];
     let totalDuration = 0;
     let totalDistance = 0;
     let lapSeed = seed;
-    const maxLaps = Math.min(6, Math.ceil(lengthM / ORS_ROUND_TRIP_MAX_M) + 1);
+    const maxLaps = Math.min(8, Math.max(2, Math.ceil(lengthM / defaultLapM) + 1));
 
-    for (let lap = 0; lap < maxLaps && remainingM > 12000; lap += 1) {
-        const lapLength = clampLoopLength(Math.min(remainingM, ORS_ROUND_TRIP_MAX_M));
-        const geojson = await fetchDirectionsAvoidingFastRoads({
-            coordinates: [[origin.lng, origin.lat]],
+    for (let lap = 0; lap < maxLaps && remainingM > 10000; lap += 1) {
+        const lapLength = Math.min(remainingM, defaultLapM, ORS_ROUND_TRIP_MAX_M);
+        const feature = await fetchOneRoundTripLap({
+            origin,
             highway,
             roadStyle,
-            roundTrip: {
-                length: lapLength,
-                points: Math.min(points, 6),
-                seed: lapSeed,
-            },
-            ...avoidParams,
+            seed: lapSeed,
+            points,
+            lapLengthM: lapLength,
+            avoidParams,
         });
 
-        const feature = geojson?.features?.[0];
-        if (!feature?.geometry?.coordinates?.length) {
+        if (!feature) {
             break;
         }
 
@@ -568,7 +635,7 @@ async function fetchMultiLapLoop({
         remainingM -= summary.distance || lapLength;
         lapSeed += 997;
 
-        if (totalDuration >= targetSeconds * 0.85) {
+        if (totalDuration >= targetSeconds * 0.82) {
             break;
         }
     }
@@ -607,22 +674,34 @@ async function fetchSingleLoopRoute({
         avoidParams,
     };
 
-    if (lengthM <= ORS_ROUND_TRIP_MAX_M) {
+    const strategies = lengthM > ORS_MULTI_LAP_PREFER_M
+        ? ['multilap']
+        : lengthM <= ORS_ROUND_TRIP_MAX_M
+            ? ['round', 'multilap', 'waypoint']
+            : ['multilap', 'waypoint'];
+
+    for (const strategy of strategies) {
         try {
-            return await fetchRoundTripLoop(baseParams);
+            if (strategy === 'round' && lengthM <= ORS_ROUND_TRIP_MAX_M) {
+                return await fetchRoundTripLoop(baseParams);
+            }
+            if (strategy === 'multilap') {
+                return await fetchMultiLapLoop(baseParams);
+            }
+            if (strategy === 'waypoint') {
+                return await fetchWaypointLoop(baseParams);
+            }
         } catch (err) {
             if (isRateLimitError(err.message)) throw err;
-            if (!isRoundTripDistanceError(err.message)) throw err;
+            if (err.message === 'LOOP_GENERATION_FAILED') continue;
+            if (isRoutingNotFoundError(err.message) || isRoundTripDistanceError(err.message)) {
+                continue;
+            }
+            throw err;
         }
     }
 
-    try {
-        return await fetchWaypointLoop(baseParams);
-    } catch (err) {
-        if (isRateLimitError(err.message)) throw err;
-    }
-
-    return fetchMultiLapLoop(baseParams);
+    throw new Error('LOOP_GENERATION_FAILED');
 }
 
 function dedupeProposals(list) {
@@ -765,6 +844,9 @@ export async function fetchLoopProposals({
                 if (proposals.length) break;
                 throw err;
             }
+            if (err.message !== 'LOOP_GENERATION_FAILED' && !isRoutingNotFoundError(err.message)) {
+                // unexpected error on one variant — keep trying others
+            }
         }
     }
 
@@ -784,6 +866,9 @@ export async function fetchLoopProposals({
                     if (isRateLimitError(err.message)) {
                         if (proposals.length) break;
                         throw err;
+                    }
+                    if (err.message !== 'LOOP_GENERATION_FAILED' && !isRoutingNotFoundError(err.message)) {
+                        // unexpected error on one variant — keep trying others
                     }
                 }
             }

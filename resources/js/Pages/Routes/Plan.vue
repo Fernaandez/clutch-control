@@ -589,12 +589,15 @@ const generateProposals = async () => {
         await nextTick();
         renderResultMap();
     } catch (err) {
-        if (err.message === 'ORS_API_KEY_MISSING') {
-            errorMessage.value = t('routes.plan_no_api_key');
-        } else if (err.message === 'ORS_RATE_LIMIT') {
+        const msg = err?.message || '';
+        const routingNotFound = /route could not be found|unable to find a route|not routable|no route/i.test(msg);
+
+        if (msg === 'ORS_RATE_LIMIT') {
             errorMessage.value = t('routes.plan_rate_limit');
+        } else if (msg === 'LOOP_GENERATION_FAILED' || routingNotFound) {
+            errorMessage.value = t('routes.plan_loop_no_results');
         } else {
-            errorMessage.value = t('routes.plan_error', { msg: err.message });
+            errorMessage.value = t('routes.plan_error', { msg });
         }
     } finally {
         isGenerating.value = false;
