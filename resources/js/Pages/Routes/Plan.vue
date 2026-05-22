@@ -133,6 +133,33 @@
                     </div>
                 </div>
 
+                <!-- Mapa per triar punts -->
+                <div class="bg-brand-surface p-5 rounded-2xl border border-brand-dark space-y-3">
+                    <div class="flex items-center justify-between gap-2">
+                        <label class="text-xs font-bold text-gray-400 uppercase">{{ $t('routes.plan_map_pick') }}</label>
+                        <p class="text-[10px] text-gray-500 uppercase tracking-widest">{{ mapPickHint }}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button
+                            type="button"
+                            class="flex-1 py-2 rounded-lg text-[10px] font-bold uppercase border transition"
+                            :class="mapPickTarget === 'origin' ? 'bg-green-500/20 text-green-400 border-green-500' : 'bg-brand-black text-gray-400 border-brand-dark'"
+                            @click="mapPickTarget = 'origin'"
+                        >
+                            {{ $t('routes.plan_pick_origin_map') }}
+                        </button>
+                        <button
+                            type="button"
+                            class="flex-1 py-2 rounded-lg text-[10px] font-bold uppercase border transition"
+                            :class="mapPickTarget === 'destination' ? 'bg-red-500/20 text-red-400 border-red-500' : 'bg-brand-black text-gray-400 border-brand-dark'"
+                            @click="mapPickTarget = 'destination'"
+                        >
+                            {{ $t('routes.plan_pick_dest_map') }}
+                        </button>
+                    </div>
+                    <div id="plan-picker-map" class="h-52 rounded-xl border border-brand-dark overflow-hidden bg-gray-900"></div>
+                </div>
+
                 <button
                     type="button"
                     :disabled="isGenerating || !canGenerate"
@@ -156,7 +183,7 @@
                     <p class="text-[10px] text-gray-400 uppercase tracking-widest">{{ longRouteNotice }}</p>
                 </div>
 
-                <div id="plan-map" class="h-48 rounded-xl border border-brand-dark overflow-hidden bg-gray-900"></div>
+                <div id="plan-map" ref="resultMapEl" class="h-48 rounded-xl border border-brand-dark overflow-hidden bg-gray-900"></div>
 
                 <div class="space-y-3">
                     <button
@@ -196,7 +223,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, onUnmounted } from 'vue';
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { Geolocation } from '@capacitor/geolocation';
 import { useI18n } from 'vue-i18n';
@@ -234,13 +261,23 @@ const isGenerating = ref(false);
 const errorMessage = ref('');
 const longRouteNotice = ref('');
 
-const map = ref(null);
+const mapPickTarget = ref('origin');
+const pickerMap = ref(null);
+const resultMap = ref(null);
+const resultMapEl = ref(null);
+const pickerMarkers = ref({ origin: null, destination: null });
 const routeLayers = ref([]);
 
 let originTimeout = null;
 let destTimeout = null;
 
 const canGenerate = computed(() => hasOrsApiKey() && origin.value && destination.value);
+
+const mapPickHint = computed(() => (
+    mapPickTarget.value === 'destination'
+        ? t('routes.plan_map_pick_dest_hint')
+        : t('routes.plan_map_pick_origin_hint')
+));
 
 const goBack = () => smartBack(route('routes.index'));
 
@@ -297,12 +334,48 @@ const selectOrigin = (result) => {
     origin.value = pickPlace(result);
     originQuery.value = origin.value.name;
     originResults.value = [];
+    updatePickerMarkers();
+    focusPickerMap();
 };
 
 const selectDestination = (result) => {
     destination.value = pickPlace(result);
     destQuery.value = destination.value.name;
     destResults.value = [];
+    updatePickerMarkers();
+    focusPickerMap();
+};
+
+const reverseGeocode = async (lat, lng) => {
+    try {
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14`;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data?.display_name) {
+            return data.display_name.split(',')[0];
+        }
+    } catch {
+        // fallback below
+    }
+    return t('routes.plan_map_point');
+};
+
+const setPointFromMap = async (latlng) => {
+    const name = await reverseGeocode(latlng.lat, latlng.lng);
+    const point = { lat: latlng.lat, lng: latlng.lng, name };
+
+    if (mapPickTarget.value === 'destination') {
+        destination.value = point;
+        destQuery.value = name;
+        destResults.value = [];
+    } else {
+        origin.value = point;
+        originQuery.value = name;
+        originResults.value = [];
+    }
+
+    updatePickerMarkers();
+    focusPickerMap();
 };
 
 const useMyLocation = async () => {
@@ -319,6 +392,8 @@ const useMyLocation = async () => {
         };
         originQuery.value = origin.value.name;
         originResults.value = [];
+        updatePickerMarkers();
+        focusPickerMap();
     } catch {
         errorMessage.value = t('routes.plan_gps_error');
     }
@@ -336,9 +411,6 @@ const generateProposals = async () => {
     isGenerating.value = true;
     errorMessage.value = '';
     longRouteNotice.value = '';
-    proposals.value = [];
-    selectedId.value = null;
-    clearMapLayers();
 
     try {
         const { proposals: results, straightKm } = await fetchRouteProposals({
@@ -361,7 +433,7 @@ const generateProposals = async () => {
         proposals.value = results;
         selectedId.value = results[0].id;
         await nextTick();
-        renderMap();
+        renderResultMap();
     } catch (err) {
         if (err.message === 'ORS_API_KEY_MISSING') {
             errorMessage.value = t('routes.plan_no_api_key');
@@ -373,30 +445,95 @@ const generateProposals = async () => {
     }
 };
 
-const initMap = () => {
-    if (map.value) return;
-    const el = document.getElementById('plan-map');
-    if (!el) return;
-
-    map.value = L.map(el, { zoomControl: false, attributionControl: false }).setView([41.3851, 2.1734], 8);
-    addMapTileLayer(map.value, L);
+const destroyResultMap = () => {
+    if (resultMap.value) {
+        resultMap.value.remove();
+        resultMap.value = null;
+    }
+    routeLayers.value = [];
 };
 
-const clearMapLayers = () => {
-    routeLayers.value.forEach((layer) => map.value?.removeLayer(layer));
+const initPickerMap = () => {
+    const el = document.getElementById('plan-picker-map');
+    if (!el || pickerMap.value) return;
+
+    pickerMap.value = L.map(el, { zoomControl: false, attributionControl: false }).setView([41.3851, 2.1734], 8);
+    addMapTileLayer(pickerMap.value, L);
+
+    pickerMap.value.on('click', (e) => {
+        setPointFromMap(e.latlng);
+    });
+};
+
+const updatePickerMarkers = () => {
+    if (!pickerMap.value) return;
+
+    if (pickerMarkers.value.origin) {
+        pickerMap.value.removeLayer(pickerMarkers.value.origin);
+        pickerMarkers.value.origin = null;
+    }
+    if (pickerMarkers.value.destination) {
+        pickerMap.value.removeLayer(pickerMarkers.value.destination);
+        pickerMarkers.value.destination = null;
+    }
+
+    const bounds = L.latLngBounds([]);
+
+    if (origin.value) {
+        pickerMarkers.value.origin = L.circleMarker([origin.value.lat, origin.value.lng], {
+            radius: 8, color: '#fff', fillColor: '#22c55e', weight: 2, fillOpacity: 1,
+        }).addTo(pickerMap.value);
+        bounds.extend([origin.value.lat, origin.value.lng]);
+    }
+    if (destination.value) {
+        pickerMarkers.value.destination = L.circleMarker([destination.value.lat, destination.value.lng], {
+            radius: 8, color: '#fff', fillColor: '#ef4444', weight: 2, fillOpacity: 1,
+        }).addTo(pickerMap.value);
+        bounds.extend([destination.value.lat, destination.value.lng]);
+    }
+
+    if (bounds.isValid()) {
+        pickerMap.value.fitBounds(bounds, { padding: [32, 32], maxZoom: 12 });
+    }
+};
+
+const focusPickerMap = () => {
+    nextTick(() => {
+        pickerMap.value?.invalidateSize();
+        updatePickerMarkers();
+    });
+};
+
+const initResultMap = () => {
+    const el = resultMapEl.value || document.getElementById('plan-map');
+    if (!el) return;
+
+    if (resultMap.value) {
+        resultMap.value.remove();
+        resultMap.value = null;
+    }
+
+    resultMap.value = L.map(el, { zoomControl: false, attributionControl: false }).setView([41.3851, 2.1734], 8);
+    addMapTileLayer(resultMap.value, L);
+};
+
+const clearResultMapLayers = () => {
+    routeLayers.value.forEach((layer) => resultMap.value?.removeLayer(layer));
     routeLayers.value = [];
 };
 
 const selectProposal = (proposal) => {
     selectedId.value = proposal.id;
-    renderMap();
+    renderResultMap();
 };
 
-const renderMap = () => {
-    initMap();
-    if (!map.value || !proposals.value.length) return;
+const renderResultMap = () => {
+    if (!proposals.value.length) return;
 
-    clearMapLayers();
+    initResultMap();
+    if (!resultMap.value) return;
+
+    clearResultMapLayers();
     const colors = ['#0CE1B5', '#60a5fa', '#f472b6', '#fbbf24'];
     const bounds = L.latLngBounds([]);
 
@@ -407,7 +544,7 @@ const renderMap = () => {
             color: colors[index % colors.length],
             weight: isSelected ? 6 : 3,
             opacity: isSelected ? 0.95 : 0.45,
-        }).addTo(map.value);
+        }).addTo(resultMap.value);
         routeLayers.value.push(layer);
         latlngs.forEach((ll) => bounds.extend(ll));
     });
@@ -415,28 +552,36 @@ const renderMap = () => {
     if (origin.value) {
         const m = L.circleMarker([origin.value.lat, origin.value.lng], {
             radius: 6, color: '#fff', fillColor: '#22c55e', weight: 2, fillOpacity: 1,
-        }).addTo(map.value);
+        }).addTo(resultMap.value);
         routeLayers.value.push(m);
         bounds.extend([origin.value.lat, origin.value.lng]);
     }
     if (destination.value) {
         const m = L.circleMarker([destination.value.lat, destination.value.lng], {
             radius: 6, color: '#fff', fillColor: '#ef4444', weight: 2, fillOpacity: 1,
-        }).addTo(map.value);
+        }).addTo(resultMap.value);
         routeLayers.value.push(m);
         bounds.extend([destination.value.lat, destination.value.lng]);
     }
 
     if (bounds.isValid()) {
-        map.value.fitBounds(bounds, { padding: [24, 24] });
+        resultMap.value.fitBounds(bounds, { padding: [24, 24] });
     }
+
+    nextTick(() => resultMap.value?.invalidateSize());
 };
 
 watch(proposals, async (list) => {
     if (list.length) {
         await nextTick();
-        renderMap();
+        renderResultMap();
     }
+});
+
+onMounted(async () => {
+    await nextTick();
+    initPickerMap();
+    focusPickerMap();
 });
 
 const continueToCreate = () => {
@@ -457,14 +602,16 @@ const continueToCreate = () => {
 };
 
 onUnmounted(() => {
-    if (map.value) {
-        map.value.remove();
-        map.value = null;
+    destroyResultMap();
+    if (pickerMap.value) {
+        pickerMap.value.remove();
+        pickerMap.value = null;
     }
 });
 </script>
 
 <style scoped>
+#plan-picker-map,
 #plan-map {
     z-index: 0;
 }
