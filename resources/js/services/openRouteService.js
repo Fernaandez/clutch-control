@@ -22,11 +22,10 @@ const LOOP_MAX_LENGTH_M = 800000;
 const LOOP_DURATION_TOLERANCE = 0.18;
 /** ORS public API caps round_trip routes at ~100 km */
 const ORS_ROUND_TRIP_MAX_M = 95000;
-/** Above this target length, prefer multi-lap round trips (only origin must snap to roads) */
+/** Above this target length, prefer a single circular waypoint loop */
 const ORS_MULTI_LAP_PREFER_M = 120000;
-const ORS_LAP_LENGTH_AVOID_M = 52000;
-const ORS_LAP_LENGTH_DEFAULT_M = 85000;
-const MAX_WAYPOINT_RADIUS_M = 28000;
+const MIN_WAYPOINT_RADIUS_M = 12000;
+const MAX_WAYPOINT_RADIUS_M = 42000;
 const ORS_SNAP_RADIUS_M = 800;
 
 function getLoopVariants(targetDurationMinutes) {
@@ -43,12 +42,26 @@ function getLoopVariants(targetDurationMinutes) {
     ];
 }
 
-function generateLoopWaypoints(origin, targetLengthM, points, seed = 11) {
-    const circumferenceM = targetLengthM * 0.88;
-    const radiusM = Math.min(
-        MAX_WAYPOINT_RADIUS_M,
-        Math.max(3000, circumferenceM / (2 * Math.PI)),
-    );
+function estimateLoopRadiusM(lengthM) {
+    const ideal = (lengthM * 0.88) / (2 * Math.PI);
+
+    return Math.round(Math.min(MAX_WAYPOINT_RADIUS_M, Math.max(MIN_WAYPOINT_RADIUS_M, ideal)));
+}
+
+function getLoopRadiusAttempts(lengthM) {
+    const ideal = estimateLoopRadiusM(lengthM);
+    const candidates = [
+        ideal,
+        ideal * 0.9,
+        ideal * 0.78,
+        ideal * 0.66,
+        ideal * 0.54,
+    ].map((radius) => Math.round(Math.min(MAX_WAYPOINT_RADIUS_M, Math.max(MIN_WAYPOINT_RADIUS_M, radius))));
+
+    return [...new Set(candidates)];
+}
+
+function generateLoopWaypoints(origin, radiusM, points, seed = 11) {
     const latRad = (origin.lat * Math.PI) / 180;
     const mPerDegLat = 111320;
     const mPerDegLng = Math.max(111320 * Math.cos(latRad), 1);
@@ -72,20 +85,6 @@ function buildLoopCoordinates(origin, waypoints) {
         ...waypoints.map((point) => [point.lng, point.lat]),
         [origin.lng, origin.lat],
     ];
-}
-
-function buildSyntheticLoopGeojson(latLngs, summary) {
-    return {
-        type: 'FeatureCollection',
-        features: [{
-            type: 'Feature',
-            geometry: {
-                type: 'LineString',
-                coordinates: latLngs.map((point) => [point.lng, point.lat]),
-            },
-            properties: { summary },
-        }],
-    };
 }
 
 function isRoundTripDistanceError(message) {
@@ -506,84 +505,68 @@ async function fetchWaypointLoop({
     avoidParams,
 }) {
     const targetSeconds = targetDurationMinutes * 60;
-    let currentLengthM = lengthM;
+    const radiusAttempts = getLoopRadiusAttempts(lengthM);
+    let lastError = null;
 
-    let waypoints = generateLoopWaypoints(origin, currentLengthM, points, seed);
-    let coordinates = buildLoopCoordinates(origin, waypoints);
+    for (const radiusM of radiusAttempts) {
+        try {
+            let waypoints = generateLoopWaypoints(origin, radiusM, points, seed);
+            let coordinates = buildLoopCoordinates(origin, waypoints);
 
-    let geojson = await fetchDirectionsAvoidingFastRoads({
-        coordinates,
-        highway,
-        roadStyle,
-        ...avoidParams,
-    });
-
-    let durationSeconds = geojson?.features?.[0]?.properties?.summary?.duration || 0;
-
-    if (durationSeconds > 0) {
-        const ratio = targetSeconds / durationSeconds;
-        if (Math.abs(1 - ratio) > LOOP_DURATION_TOLERANCE) {
-            currentLengthM = clampLoopLength(currentLengthM * ratio);
-            waypoints = generateLoopWaypoints(origin, currentLengthM, points, seed + 1000);
-            coordinates = buildLoopCoordinates(origin, waypoints);
-            geojson = await fetchDirectionsAvoidingFastRoads({
+            let geojson = await fetchDirectionsAvoidingFastRoads({
                 coordinates,
                 highway,
                 roadStyle,
                 ...avoidParams,
             });
-        }
-    }
 
-    return geojson;
-}
+            let durationSeconds = geojson?.features?.[0]?.properties?.summary?.duration || 0;
+            let distanceM = geojson?.features?.[0]?.properties?.summary?.distance || 0;
 
-async function fetchOneRoundTripLap({
-    origin,
-    highway,
-    roadStyle,
-    seed,
-    points,
-    lapLengthM,
-    avoidParams,
-}) {
-    const lapPoints = Math.min(points, 5);
-    const attempts = [
-        { lengthM: lapLengthM, maxAvoidAttempts: avoidParams.maxAvoidAttempts, seedOffset: 0 },
-        { lengthM: lapLengthM * 0.82, maxAvoidAttempts: 1, seedOffset: 17 },
-        { lengthM: lapLengthM * 0.65, maxAvoidAttempts: 1, seedOffset: 34 },
-        { lengthM: Math.min(lapLengthM * 0.5, 38000), maxAvoidAttempts: 0, seedOffset: 51 },
-    ];
+            if (durationSeconds > 0) {
+                const ratio = targetSeconds / durationSeconds;
+                if (Math.abs(1 - ratio) > LOOP_DURATION_TOLERANCE && ratio > 1.05) {
+                    const widerRadius = Math.min(
+                        MAX_WAYPOINT_RADIUS_M,
+                        Math.round(radiusM * Math.min(1.35, ratio ** 0.45)),
+                    );
+                    if (widerRadius > radiusM + 1500) {
+                        waypoints = generateLoopWaypoints(origin, widerRadius, points, seed + 500);
+                        coordinates = buildLoopCoordinates(origin, waypoints);
+                        geojson = await fetchDirectionsAvoidingFastRoads({
+                            coordinates,
+                            highway,
+                            roadStyle,
+                            ...avoidParams,
+                        });
+                        durationSeconds = geojson?.features?.[0]?.properties?.summary?.duration || 0;
+                        distanceM = geojson?.features?.[0]?.properties?.summary?.distance || 0;
+                    }
+                }
+            }
 
-    for (const attempt of attempts) {
-        let lengthM = clampLoopLength(attempt.lengthM);
+            if (durationSeconds >= targetSeconds * 0.55) {
+                return geojson;
+            }
 
-        try {
-            const geojson = await fetchDirectionsAvoidingFastRoads({
-                coordinates: [[origin.lng, origin.lat]],
-                highway,
-                roadStyle,
-                roundTrip: {
-                    length: lengthM,
-                    points: lapPoints,
-                    seed: seed + attempt.seedOffset,
-                },
-                maxAvoidAttempts: attempt.maxAvoidAttempts,
-            });
-
-            const feature = geojson?.features?.[0];
-            if (feature?.geometry?.coordinates?.length) {
-                return feature;
+            if (distanceM > lengthM * 0.45) {
+                return geojson;
             }
         } catch (err) {
             if (isRateLimitError(err.message)) throw err;
-            if (!isRoutingNotFoundError(err.message) && !isRoundTripDistanceError(err.message)) {
-                throw err;
+            if (isRoutingNotFoundError(err.message) || isRoundTripDistanceError(err.message)) {
+                lastError = err;
+                continue;
             }
+            throw err;
         }
     }
 
-    return null;
+    if (lastError) {
+        throw lastError;
+    }
+
+    throw new Error('LOOP_GENERATION_FAILED');
 }
 
 async function fetchMultiLapLoop({
@@ -597,57 +580,44 @@ async function fetchMultiLapLoop({
     avoidParams,
 }) {
     const targetSeconds = targetDurationMinutes * 60;
-    const defaultLapM = highway === 'avoid' ? ORS_LAP_LENGTH_AVOID_M : ORS_LAP_LENGTH_DEFAULT_M;
-    let remainingM = lengthM;
-    let allLatLngs = [];
-    let totalDuration = 0;
-    let totalDistance = 0;
-    let lapSeed = seed;
-    const maxLaps = Math.min(8, Math.max(2, Math.ceil(lengthM / defaultLapM) + 1));
+    const segmentCount = Math.min(12, Math.max(points + 2, Math.ceil(lengthM / ORS_ROUND_TRIP_MAX_M) + 3));
+    const radiusAttempts = getLoopRadiusAttempts(lengthM);
+    let lastError = null;
 
-    for (let lap = 0; lap < maxLaps && remainingM > 10000; lap += 1) {
-        const lapLength = Math.min(remainingM, defaultLapM, ORS_ROUND_TRIP_MAX_M);
-        const feature = await fetchOneRoundTripLap({
-            origin,
-            highway,
-            roadStyle,
-            seed: lapSeed,
-            points,
-            lapLengthM: lapLength,
-            avoidParams,
-        });
+    for (const attemptRadius of radiusAttempts) {
+        try {
+            const waypoints = generateLoopWaypoints(origin, attemptRadius, segmentCount, seed);
+            const coordinates = buildLoopCoordinates(origin, waypoints);
+            const geojson = await fetchDirectionsAvoidingFastRoads({
+                coordinates,
+                highway,
+                roadStyle,
+                ...avoidParams,
+            });
 
-        if (!feature) {
-            break;
-        }
+            const durationSeconds = geojson?.features?.[0]?.properties?.summary?.duration || 0;
+            if (durationSeconds >= targetSeconds * 0.55) {
+                return geojson;
+            }
 
-        const summary = feature.properties?.summary || {};
-        const coords = feature.geometry.coordinates.map(([lng, lat]) => ({ lat, lng }));
-
-        if (allLatLngs.length) {
-            allLatLngs.push(...coords.slice(1));
-        } else {
-            allLatLngs = coords;
-        }
-
-        totalDuration += summary.duration || 0;
-        totalDistance += summary.distance || 0;
-        remainingM -= summary.distance || lapLength;
-        lapSeed += 997;
-
-        if (totalDuration >= targetSeconds * 0.82) {
-            break;
+            if (durationSeconds > 0) {
+                return geojson;
+            }
+        } catch (err) {
+            if (isRateLimitError(err.message)) throw err;
+            if (isRoutingNotFoundError(err.message) || isRoundTripDistanceError(err.message)) {
+                lastError = err;
+                continue;
+            }
+            throw err;
         }
     }
 
-    if (!allLatLngs.length) {
-        throw new Error('LOOP_GENERATION_FAILED');
+    if (lastError) {
+        throw lastError;
     }
 
-    return buildSyntheticLoopGeojson(allLatLngs, {
-        duration: totalDuration,
-        distance: totalDistance,
-    });
+    throw new Error('LOOP_GENERATION_FAILED');
 }
 
 async function fetchSingleLoopRoute({
@@ -675,10 +645,10 @@ async function fetchSingleLoopRoute({
     };
 
     const strategies = lengthM > ORS_MULTI_LAP_PREFER_M
-        ? ['multilap']
+        ? ['waypoint', 'multilap']
         : lengthM <= ORS_ROUND_TRIP_MAX_M
-            ? ['round', 'multilap', 'waypoint']
-            : ['multilap', 'waypoint'];
+            ? ['round', 'waypoint', 'multilap']
+            : ['waypoint', 'multilap'];
 
     for (const strategy of strategies) {
         try {
