@@ -223,6 +223,7 @@ import 'leaflet-routing-machine';
 import draggable from 'vuedraggable';
 import { smartBack } from '@/Composables/navigationStack.js';
 import { addMapTileLayer } from '@/config/mapTiles.js';
+import { parseLatLngPath } from '@/services/routeGeometry.js';
 
 const props = defineProps({
     motorcycles: Array,
@@ -250,7 +251,10 @@ const routingControl = ref(null);
 const duration = ref(0);
 const isMapOpen = ref(false);
 const userLocationMarker = ref(null);
-const uiWaypoints = ref([]); 
+const uiWaypoints = ref([]);
+const isPlannedRoute = ref(false);
+const plannedRouteLayer = ref(null);
+const plannedRouteMarkers = ref([]); 
 
 const searchQuery = ref('');
 const searchResults = ref([]);
@@ -265,6 +269,10 @@ const formattedDuration = computed(() => {
 });
 
 const addPointToMap = (latlng, name = '') => {
+    if (isPlannedRoute.value) {
+        clearPlannedRouteDisplay();
+        isPlannedRoute.value = false;
+    }
     uiWaypoints.value.push({
         id: Date.now() + Math.random(),
         lat: latlng.lat,
@@ -275,12 +283,73 @@ const addPointToMap = (latlng, name = '') => {
 };
 
 const removeWaypoint = (index) => {
+    if (isPlannedRoute.value) {
+        clearPlannedRouteDisplay();
+        isPlannedRoute.value = false;
+    }
     uiWaypoints.value.splice(index, 1);
     syncWaypointsToMap();
 };
 
 const onDragEnd = () => {
+    if (isPlannedRoute.value) {
+        clearPlannedRouteDisplay();
+        isPlannedRoute.value = false;
+    }
     syncWaypointsToMap();
+};
+
+const clearPlannedRouteDisplay = () => {
+    if (plannedRouteLayer.value && map.value) {
+        map.value.removeLayer(plannedRouteLayer.value);
+        plannedRouteLayer.value = null;
+    }
+    plannedRouteMarkers.value.forEach((marker) => map.value?.removeLayer(marker));
+    plannedRouteMarkers.value = [];
+};
+
+const syncFormWaypoints = () => {
+    form.waypoints = uiWaypoints.value.map((wp) => ({
+        lat: wp.lat,
+        lng: wp.lng,
+        name: wp.name,
+    }));
+};
+
+const drawPlannedRoute = () => {
+    if (!map.value || !form.geo_json) return;
+
+    clearPlannedRouteDisplay();
+    routingControl.value?.setWaypoints([]);
+
+    const latLngs = parseLatLngPath(form.geo_json);
+    if (!latLngs.length) return;
+
+    const line = latLngs.map((point) => [point.lat, point.lng]);
+    plannedRouteLayer.value = L.polyline(line, {
+        color: '#0CE1B5',
+        weight: 6,
+        opacity: 0.85,
+    }).addTo(map.value);
+
+    uiWaypoints.value.forEach((wp, index) => {
+        const marker = L.circleMarker([wp.lat, wp.lng], {
+            radius: index === 0 ? 7 : 5,
+            color: '#fff',
+            fillColor: index === 0 ? '#22c55e' : '#0CE1B5',
+            weight: 2,
+            fillOpacity: 1,
+        }).addTo(map.value);
+        plannedRouteMarkers.value.push(marker);
+    });
+
+    try {
+        map.value.fitBounds(plannedRouteLayer.value.getBounds(), { padding: [48, 48] });
+    } catch {
+        // ignore invalid bounds
+    }
+
+    syncFormWaypoints();
 };
 
 const syncWaypointsToMap = () => {
@@ -327,7 +396,12 @@ const selectSearchResult = (result) => {
 const openMap = async () => {
     isMapOpen.value = true;
     await nextTick();
-    if (map.value) map.value.invalidateSize();
+    if (map.value) {
+        map.value.invalidateSize();
+        if (isPlannedRoute.value && form.geo_json) {
+            drawPlannedRoute();
+        }
+    }
 };
 
 const closeMap = () => {
@@ -382,6 +456,7 @@ const loadPlannedDraft = () => {
             duration.value = draft.duration_seconds;
         }
         if (draft.geo_json) form.geo_json = draft.geo_json;
+        if (draft.is_planned_route) isPlannedRoute.value = true;
         if (Array.isArray(draft.waypoints) && draft.waypoints.length) {
             uiWaypoints.value = draft.waypoints.map((wp, index) => ({
                 id: Date.now() + index,
@@ -389,6 +464,7 @@ const loadPlannedDraft = () => {
                 lng: wp.lng,
                 name: wp.name || `Punt ${index + 1}`,
             }));
+            syncFormWaypoints();
         }
     } catch (e) {
         console.error('Error carregant esborrany de ruta planificada:', e);
@@ -430,12 +506,14 @@ onMounted(() => {
     });
 
     routingControl.value.on('routesfound', function(e) {
+        if (isPlannedRoute.value) return;
+
         const routes = e.routes;
         const summary = routes[0].summary;
         form.planned_distance_km = (summary.totalDistance / 1000).toFixed(1);
         duration.value = summary.totalTime;
         form.duration_seconds = Math.round(summary.totalTime);
-        form.geo_json = JSON.stringify(routes[0].coordinates); 
+        form.geo_json = JSON.stringify(routes[0].coordinates);
         const wps = routingControl.value.getWaypoints().filter(wp => wp.latLng);
         form.waypoints = wps.map(wp => ({ lat: wp.latLng.lat, lng: wp.latLng.lng }));
     });
@@ -453,6 +531,8 @@ onMounted(() => {
             console.error("Error parsing stored route:", e);
         }
         localStorage.removeItem('clutch_recorded_route');
+    } else if (isPlannedRoute.value && form.geo_json) {
+        drawPlannedRoute();
     } else if (uiWaypoints.value.length === 0) {
         locateUser();
     } else {
@@ -461,6 +541,10 @@ onMounted(() => {
 });
 
 const submit = () => {
+    if (isPlannedRoute.value) {
+        syncFormWaypoints();
+    }
+
     form.transform(data => ({
         ...data,
         geo_json: typeof data.geo_json === 'string' ? data.geo_json : JSON.stringify(data.geo_json)

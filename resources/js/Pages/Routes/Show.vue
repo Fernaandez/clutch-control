@@ -257,6 +257,7 @@ import { Geolocation } from '@capacitor/geolocation';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import axios from 'axios';
 import { addMapTileLayer } from '@/config/mapTiles.js';
+import { buildGoogleMapsDirectionsUrl, isClosedLoopRoute, parseLatLngPath } from '@/services/routeGeometry.js';
 
 const props = defineProps({
     mapRoute: Object,
@@ -437,23 +438,19 @@ const getRoutePoints = () => {
 };
 
 const googleMapsLink = computed(() => {
-    if (!props.mapRoute || !props.mapRoute.waypoints || props.mapRoute.waypoints.length === 0) return '#';
-    const baseUrl = "https://www.google.com/maps/dir/?api=1";
+    if (!props.mapRoute?.waypoints?.length) return '#';
 
-    try {
-        const origin = `&origin=${props.mapRoute.waypoints[0].lat || props.mapRoute.waypoints[0].latitude},${props.mapRoute.waypoints[0].lng || props.mapRoute.waypoints[0].longitude}`;
-        const last = props.mapRoute.waypoints[props.mapRoute.waypoints.length - 1];
-        const destination = `&destination=${last.lat || last.latitude},${last.lng || last.longitude}`;
+    const waypoints = props.mapRoute.waypoints.map((wp) => ({
+        lat: parseFloat(wp.lat ?? wp.latitude),
+        lng: parseFloat(wp.lng ?? wp.longitude),
+    })).filter((wp) => Number.isFinite(wp.lat) && Number.isFinite(wp.lng));
 
-        let waypointsStr = "";
-        if (props.mapRoute.waypoints.length > 2) {
-            const intermediates = props.mapRoute.waypoints.slice(1, -1);
-            const coords = intermediates.map(wp => `${wp.lat || wp.latitude},${wp.lng || wp.longitude}`).join('|');
-            waypointsStr = `&waypoints=${coords}`;
-        }
+    if (waypoints.length < 2) return '#';
 
-        return `${baseUrl}${origin}${destination}${waypointsStr}&travelmode=driving`;
-    } catch(e) { return '#'; }
+    const geoPoints = parseLatLngPath(props.mapRoute.geo_json);
+    const isLoop = isClosedLoopRoute(waypoints, geoPoints);
+
+    return buildGoogleMapsDirectionsUrl(waypoints, { isLoop });
 });
 
 onMounted(async () => {

@@ -1,3 +1,5 @@
+import { extractNavigationWaypoints } from './routeGeometry.js';
+
 const ORS_URL = 'https://api.openrouteservice.org/v2/directions/driving-car/geojson';
 
 /** ORS alternative_routes only works when routed distance is under ~100 km */
@@ -16,21 +18,25 @@ const MAX_FAST_ROAD_AVOID_ATTEMPTS = 3;
 const AVOID_POLYGON_BUFFER_DEG = 0.0035;
 
 const LOOP_MIN_LENGTH_M = 5000;
-const LOOP_MAX_LENGTH_M = 500000;
-/** ORS public API caps round-trip algorithm at ~100 km routed distance */
-const ORS_ROUND_TRIP_MAX_LENGTH_M = 95000;
+const LOOP_MAX_LENGTH_M = 800000;
 const LOOP_DURATION_TOLERANCE = 0.18;
 
-export const LOOP_MIN_MINUTES = 30;
-export const LOOP_MAX_MINUTES = 480;
-export const LOOP_SLIDER_STEP = 15;
+function getLoopVariants(targetDurationMinutes) {
+    const basePoints = targetDurationMinutes >= 300 ? 8
+        : targetDurationMinutes >= 240 ? 7
+            : targetDurationMinutes >= 180 ? 6
+                : targetDurationMinutes >= 120 ? 5
+                    : 4;
 
-const LOOP_VARIANTS = [
-    { seed: 11, points: 3 },
-    { seed: 22, points: 4 },
-    { seed: 33, points: 5 },
-    { seed: 44, points: 4 },
-];
+    return [
+        { seed: 11, points: basePoints },
+        { seed: 22, points: basePoints },
+        { seed: 33, points: basePoints + 1 },
+        { seed: 44, points: basePoints + 1 },
+        { seed: 55, points: Math.min(9, basePoints + 2) },
+        { seed: 66, points: Math.max(3, basePoints - 1) },
+    ];
+}
 
 const LOOP_SPEED_KMH = {
     fast: 65,
@@ -216,34 +222,8 @@ export function estimateLoopLengthMeters(targetDurationMinutes, roadStyle) {
     return Math.round(Math.min(LOOP_MAX_LENGTH_M, Math.max(LOOP_MIN_LENGTH_M, lengthM)));
 }
 
-export function estimateLoopDistanceKm(targetDurationMinutes, roadStyle) {
-    return Math.round((estimateLoopLengthMeters(targetDurationMinutes, roadStyle) / 1000) * 10) / 10;
-}
-
 function clampLoopLength(lengthM) {
     return Math.round(Math.min(LOOP_MAX_LENGTH_M, Math.max(LOOP_MIN_LENGTH_M, lengthM)));
-}
-
-function destinationFromBearing(origin, bearingDeg, distanceM) {
-    const earthR = 6371000;
-    const brng = (bearingDeg * Math.PI) / 180;
-    const lat1 = (origin.lat * Math.PI) / 180;
-    const lon1 = (origin.lng * Math.PI) / 180;
-    const angular = distanceM / earthR;
-
-    const lat2 = Math.asin(
-        Math.sin(lat1) * Math.cos(angular)
-        + Math.cos(lat1) * Math.sin(angular) * Math.cos(brng),
-    );
-    const lon2 = lon1 + Math.atan2(
-        Math.sin(brng) * Math.sin(angular) * Math.cos(lat1),
-        Math.cos(angular) - Math.sin(lat1) * Math.sin(lat2),
-    );
-
-    return {
-        lat: (lat2 * 180) / Math.PI,
-        lng: (lon2 * 180) / Math.PI,
-    };
 }
 
 export async function fetchDirections({
@@ -321,11 +301,10 @@ export async function fetchDirections({
 }
 
 async function fetchDirectionsAvoidingFastRoads(params) {
-    const { highway, roundTrip, coordinates, ...rest } = params;
-    const skipPolygonAvoidance = roundTrip || (coordinates?.length > 2);
+    const { highway, roundTrip, ...rest } = params;
 
-    if (highway !== 'avoid' || skipPolygonAvoidance) {
-        return fetchDirections({ coordinates, highway, roundTrip, ...rest });
+    if (highway !== 'avoid') {
+        return fetchDirections({ ...rest, highway, roundTrip });
     }
 
     const avoidPolygons = [];
@@ -334,7 +313,6 @@ async function fetchDirectionsAvoidingFastRoads(params) {
     for (let attempt = 0; attempt < MAX_FAST_ROAD_AVOID_ATTEMPTS; attempt += 1) {
         geojson = await fetchDirections({
             ...rest,
-            coordinates,
             highway,
             roundTrip,
             avoidPolygons,
@@ -376,6 +354,8 @@ export function parseProposals(geojson, {
             ? Math.round(durationSeconds / 60) - targetDurationMinutes
             : null;
 
+        const navWaypoints = extractNavigationWaypoints(latLngs, { isLoop });
+
         return {
             id: `${labelPrefix}-${index}-${durationSeconds}-${Math.round(summary.distance || 0)}`,
             label: features.length > 1 ? `${labelPrefix} ${index + 1}` : labelPrefix,
@@ -385,28 +365,29 @@ export function parseProposals(geojson, {
             isLoop,
             latLngs,
             geoJson: JSON.stringify(latLngs),
-            waypoints: [
-                { lat: origin.lat, lng: origin.lng, name: origin.name || 'Origen' },
-                { lat: dest.lat, lng: dest.lng, name: dest.name || (isLoop ? origin.name : 'Destí') },
-            ],
+            waypoints: navWaypoints.length
+                ? navWaypoints
+                : [
+                    { lat: origin.lat, lng: origin.lng, name: origin.name || 'Origen' },
+                    { lat: dest.lat, lng: dest.lng, name: dest.name || (isLoop ? origin.name : 'Destí') },
+                ],
             tag,
         };
     });
 }
 
-async function fetchRoundTripRoute({
+async function fetchSingleLoopRoute({
     origin,
     targetDurationMinutes,
     highway,
     roadStyle,
     seed,
     points,
-    lengthScale = 1,
+    lengthFactor = 1,
 }) {
     const coordinates = [[origin.lng, origin.lat]];
     const targetSeconds = targetDurationMinutes * 60;
-    let lengthM = clampLoopLength(estimateLoopLengthMeters(targetDurationMinutes, roadStyle) * lengthScale);
-    lengthM = Math.min(lengthM, ORS_ROUND_TRIP_MAX_LENGTH_M);
+    let lengthM = clampLoopLength(estimateLoopLengthMeters(targetDurationMinutes, roadStyle) * lengthFactor);
 
     let geojson = await fetchDirectionsAvoidingFastRoads({
         coordinates,
@@ -420,10 +401,7 @@ async function fetchRoundTripRoute({
     if (durationSeconds > 0) {
         const ratio = targetSeconds / durationSeconds;
         if (Math.abs(1 - ratio) > LOOP_DURATION_TOLERANCE) {
-            lengthM = clampLoopLength(Math.min(
-                ORS_ROUND_TRIP_MAX_LENGTH_M,
-                lengthM * ratio,
-            ));
+            lengthM = clampLoopLength(lengthM * ratio);
             geojson = await fetchDirectionsAvoidingFastRoads({
                 coordinates,
                 highway,
@@ -434,75 +412,6 @@ async function fetchRoundTripRoute({
     }
 
     return geojson;
-}
-
-async function fetchLoopViaWaypoints({
-    origin,
-    targetDurationMinutes,
-    highway,
-    roadStyle,
-    seed,
-    lengthScale = 1,
-}) {
-    const lengthM = estimateLoopLengthMeters(targetDurationMinutes, roadStyle) * lengthScale;
-    const numPoints = Math.min(8, Math.max(4, Math.round(3 + targetDurationMinutes / 50)));
-    const startBearing = (seed * 53) % 360;
-    const radiusM = Math.max(4000, lengthM / (2 * Math.PI));
-
-    const intermediates = [];
-    for (let i = 0; i < numPoints; i += 1) {
-        const bearing = startBearing + (360 / numPoints) * i;
-        intermediates.push(destinationFromBearing(origin, bearing, radiusM));
-    }
-
-    const coordinates = [
-        [origin.lng, origin.lat],
-        ...intermediates.map((point) => [point.lng, point.lat]),
-        [origin.lng, origin.lat],
-    ];
-
-    return fetchDirectionsAvoidingFastRoads({
-        coordinates,
-        highway,
-        roadStyle,
-        withFastRoadAnalysis: highway === 'avoid',
-    });
-}
-
-async function fetchSingleLoopRoute(params) {
-    const lengthM = estimateLoopLengthMeters(params.targetDurationMinutes, params.roadStyle);
-    const useRoundTrip = lengthM <= ORS_ROUND_TRIP_MAX_LENGTH_M;
-
-    const strategies = useRoundTrip
-        ? [
-            () => fetchRoundTripRoute(params),
-            () => fetchRoundTripRoute({
-                ...params,
-                lengthScale: 0.88,
-                points: Math.max(3, params.points - 1),
-                seed: params.seed + 500,
-            }),
-        ]
-        : [
-            () => fetchLoopViaWaypoints(params),
-            () => fetchLoopViaWaypoints({ ...params, seed: params.seed + 500, lengthScale: 0.92 }),
-            () => fetchLoopViaWaypoints({ ...params, seed: params.seed + 900, lengthScale: 0.85 }),
-        ];
-
-    let lastError = null;
-
-    for (const strategy of strategies) {
-        try {
-            const geojson = await strategy();
-            if (geojson?.features?.[0]) {
-                return geojson;
-            }
-        } catch (err) {
-            lastError = err;
-        }
-    }
-
-    throw lastError || new Error('LOOP_ROUTE_FAILED');
 }
 
 function dedupeProposals(list) {
@@ -601,16 +510,18 @@ export async function fetchRouteProposals({
     return { proposals, straightKm, usedAlternatives: !strict && proposals.length > 1 };
 }
 
-export async function fetchLoopProposals({
+async function fetchLoopVariantBatch({
     origin,
     targetDurationMinutes,
     highway,
     roadStyle,
-    labelPrefix = 'Volta',
+    labelPrefix,
+    tag,
+    lengthFactor = 1,
 }) {
-    const tag = buildRequestOptions({ highway, roadStyle }).tag;
+    const variants = getLoopVariants(targetDurationMinutes);
     const results = await Promise.allSettled(
-        LOOP_VARIANTS.map(({ seed, points }, index) => (
+        variants.map(({ seed, points }, index) => (
             fetchSingleLoopRoute({
                 origin,
                 targetDurationMinutes,
@@ -618,6 +529,7 @@ export async function fetchLoopProposals({
                 roadStyle,
                 seed,
                 points,
+                lengthFactor,
             }).then((geojson) => parseProposals(geojson, {
                 origin,
                 destination: origin,
@@ -629,9 +541,42 @@ export async function fetchLoopProposals({
         )),
     );
 
-    let proposals = results
+    return results
         .filter((result) => result.status === 'fulfilled' && result.value)
         .map((result) => result.value);
+}
+
+export async function fetchLoopProposals({
+    origin,
+    targetDurationMinutes,
+    highway,
+    roadStyle,
+    labelPrefix = 'Volta',
+}) {
+    const tag = buildRequestOptions({ highway, roadStyle }).tag;
+    let proposals = await fetchLoopVariantBatch({
+        origin,
+        targetDurationMinutes,
+        highway,
+        roadStyle,
+        labelPrefix,
+        tag,
+    });
+
+    if (!proposals.length) {
+        for (const lengthFactor of [0.85, 1.15, 0.7, 1.3]) {
+            proposals = await fetchLoopVariantBatch({
+                origin,
+                targetDurationMinutes,
+                highway,
+                roadStyle,
+                labelPrefix,
+                tag,
+                lengthFactor,
+            });
+            if (proposals.length) break;
+        }
+    }
 
     proposals = dedupeProposals(proposals);
 

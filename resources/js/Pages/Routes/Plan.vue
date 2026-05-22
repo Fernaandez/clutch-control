@@ -84,44 +84,33 @@
 
                 <!-- Origen / punt d'inici -->
                 <div class="bg-brand-surface p-5 rounded-2xl border border-brand-dark space-y-4">
-                    <div v-if="tripType === 'loop'" class="pb-1 border-b border-brand-dark/60">
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('routes.plan_duration') }}</label>
-                        <div class="flex items-end justify-between gap-3 mb-3">
-                            <div>
-                                <p class="text-2xl font-black text-white font-mono">{{ formatLoopDuration(loopDurationMinutes) }}</p>
-                                <p class="text-[10px] text-gray-500 uppercase tracking-widest">
-                                    {{ $t('routes.plan_loop_estimated_km', { km: loopEstimatedKm }) }}
-                                </p>
-                            </div>
-                        </div>
+                    <div v-if="tripType === 'loop'" class="pb-1 border-b border-brand-dark/60 space-y-3">
+                        <label class="block text-xs font-bold text-gray-400 uppercase">{{ $t('routes.plan_duration') }}</label>
                         <input
                             v-model.number="loopDurationMinutes"
                             type="range"
-                            class="loop-duration-slider w-full"
-                            :min="LOOP_MIN_MINUTES"
-                            :max="LOOP_MAX_MINUTES"
-                            :step="LOOP_SLIDER_STEP"
+                            min="45"
+                            max="480"
+                            step="15"
+                            class="w-full h-2 rounded-lg appearance-none cursor-pointer accent-brand-neon bg-brand-black"
                         />
-                        <div class="flex justify-between text-[10px] text-gray-600 uppercase mt-1">
-                            <span>{{ formatLoopDuration(LOOP_MIN_MINUTES) }}</span>
-                            <span>{{ formatLoopDuration(LOOP_MAX_MINUTES) }}</span>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-bold text-brand-neon">{{ formatLoopDuration(loopDurationMinutes) }}</span>
+                            <span class="text-[10px] text-gray-500">~{{ estimatedLoopKm }} km</span>
                         </div>
-                        <div class="flex flex-wrap gap-2 mt-3">
+                        <div class="grid grid-cols-3 gap-2">
                             <button
-                                v-for="minutes in loopDurationPresets"
-                                :key="minutes"
+                                v-for="preset in loopDurationPresets"
+                                :key="preset.minutes"
                                 type="button"
-                                class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase border transition"
-                                :class="loopDurationMinutes === minutes ? 'bg-brand-neon text-black border-brand-neon' : 'bg-brand-black text-gray-400 border-brand-dark'"
-                                @click="loopDurationMinutes = minutes"
+                                class="py-2 rounded-lg text-[10px] font-bold uppercase border transition"
+                                :class="loopDurationMinutes === preset.minutes ? 'bg-brand-neon text-black border-brand-neon' : 'bg-brand-black text-gray-400 border-brand-dark'"
+                                @click="loopDurationMinutes = preset.minutes"
                             >
-                                {{ formatLoopDuration(minutes) }}
+                                {{ $t(preset.labelKey) }}
                             </button>
                         </div>
-                        <p v-if="loopEstimatedKm > 95" class="text-[10px] text-yellow-600/80 mt-2">
-                            {{ $t('routes.plan_loop_long_route_hint') }}
-                        </p>
-                        <p class="text-[10px] text-gray-600 mt-2">{{ $t('routes.plan_loop_hint') }}</p>
+                        <p class="text-[10px] text-gray-600">{{ $t('routes.plan_loop_hint') }}</p>
                     </div>
                     <div>
                         <div class="flex items-center justify-between mb-2">
@@ -285,7 +274,7 @@ import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { smartBack } from '@/Composables/navigationStack.js';
 import { addMapTileLayer } from '@/config/mapTiles.js';
-import { fetchRouteProposals, fetchLoopProposals, hasOrsApiKey, LOOP_MIN_MINUTES, LOOP_MAX_MINUTES, LOOP_SLIDER_STEP, estimateLoopDistanceKm } from '@/services/openRouteService.js';
+import { fetchRouteProposals, fetchLoopProposals, hasOrsApiKey, estimateLoopLengthMeters } from '@/services/openRouteService.js';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -298,17 +287,26 @@ const highway = ref('avoid');
 const roadStyle = ref('balanced');
 const loopDurationMinutes = ref(120);
 
-const loopDurationPresets = [60, 90, 120, 180, 240, 360, 480];
+const loopDurationPresets = [
+    { minutes: 60, labelKey: 'routes.plan_loop_1h' },
+    { minutes: 90, labelKey: 'routes.plan_loop_90m' },
+    { minutes: 120, labelKey: 'routes.plan_loop_2h' },
+    { minutes: 180, labelKey: 'routes.plan_loop_3h' },
+    { minutes: 240, labelKey: 'routes.plan_loop_4h' },
+    { minutes: 360, labelKey: 'routes.plan_loop_6h' },
+];
 
-function formatLoopDuration(minutes) {
+const estimatedLoopKm = computed(() => (
+    Math.round(estimateLoopLengthMeters(loopDurationMinutes.value, roadStyle.value) / 1000)
+));
+
+const formatLoopDuration = (minutes) => {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
-    if (h === 0) return `${m} min`;
-    if (m === 0) return `${h} h`;
-    return `${h} h ${m} min`;
-}
-
-const loopEstimatedKm = computed(() => estimateLoopDistanceKm(loopDurationMinutes.value, roadStyle.value));
+    if (h && m) return `${h}h ${m}m`;
+    if (h) return `${h}h`;
+    return `${m} min`;
+};
 
 const roadStyles = [
     { value: 'fast', labelKey: 'routes.plan_style_fast' },
@@ -341,7 +339,7 @@ let destTimeout = null;
 
 const canGenerate = computed(() => {
     if (!hasOrsApiKey() || !origin.value) return false;
-    if (tripType.value === 'loop') return loopDurationMinutes.value >= LOOP_MIN_MINUTES;
+    if (tripType.value === 'loop') return loopDurationMinutes.value >= 45;
     return !!destination.value;
 });
 
@@ -703,6 +701,8 @@ const continueToCreate = () => {
         duration_seconds: proposal.durationSeconds,
         geo_json: proposal.geoJson,
         waypoints: proposal.waypoints,
+        is_planned_route: true,
+        is_loop: proposal.isLoop || tripType.value === 'loop',
     }));
 
     router.visit(route('routes.create'));
@@ -718,34 +718,5 @@ onUnmounted(() => {
 #plan-picker-map,
 #plan-map {
     z-index: 1;
-}
-
-.loop-duration-slider {
-    -webkit-appearance: none;
-    appearance: none;
-    height: 6px;
-    border-radius: 9999px;
-    background: #1a1a1a;
-    outline: none;
-}
-
-.loop-duration-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #c8ff00;
-    border: 2px solid #000;
-    cursor: pointer;
-}
-
-.loop-duration-slider::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #c8ff00;
-    border: 2px solid #000;
-    cursor: pointer;
 }
 </style>
