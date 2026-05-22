@@ -63,6 +63,7 @@
                                 {{ $t('routes.plan_highway_avoid') }}
                             </button>
                         </div>
+                        <p v-if="highway === 'avoid'" class="text-[10px] text-gray-600 mt-2">{{ $t('routes.plan_highway_avoid_hint') }}</p>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('routes.plan_road_style') }}</label>

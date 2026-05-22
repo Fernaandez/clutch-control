@@ -3,6 +3,18 @@ const ORS_URL = 'https://api.openrouteservice.org/v2/directions/driving-car/geoj
 /** ORS alternative_routes only works when routed distance is under ~100 km */
 const ALTERNATIVES_MAX_STRAIGHT_KM = 75;
 
+/** ORS waycategory bit flag for motorway / motorway_link only */
+const WAYCATEGORY_HIGHWAY = 1;
+
+/** ORS waytype: state road (motorway, trunk, primary, …) */
+const WAYTYPE_STATE_ROAD = 1;
+
+/** Matches Spanish autopistes/autovies in turn-by-turn names (A-2, AP-7, N-II, …) */
+const FAST_ROAD_NAME = /\b(AP|A|N|E|C)-?\d+\b|\bautopista\b|\bautov[ií]a\b|\bvia\s+(de\s+)?alta\s+capacitat\b/i;
+
+const MAX_FAST_ROAD_AVOID_ATTEMPTS = 3;
+const AVOID_POLYGON_BUFFER_DEG = 0.0035;
+
 export function getOrsApiKey() {
     return import.meta.env.VITE_ORS_API_KEY || '';
 }
@@ -38,7 +50,10 @@ export function buildRequestOptions({ highway, roadStyle, variant = 'primary' })
     }
 
     let preference = 'recommended';
-    if (roadStyle === 'fast') {
+    if (highway === 'avoid') {
+        // ORS "highways" only blocks motorway/motorway_link; prefer smaller roads for autovies too.
+        preference = variant === 'secondary' ? 'shortest' : 'recommended';
+    } else if (roadStyle === 'fast') {
         preference = 'fastest';
     } else if (roadStyle === 'scenic') {
         preference = variant === 'secondary' ? 'shortest' : 'recommended';
@@ -52,15 +67,123 @@ export function buildRequestOptions({ highway, roadStyle, variant = 'primary' })
         options.avoid_features = [...new Set(avoid_features)];
     }
 
-    if (roadStyle === 'scenic') {
-        options.weightings = { green: 1, quiet: 1 };
-    }
-
     return {
         preference,
         options: Object.keys(options).length ? options : undefined,
         tag: { highway, roadStyle },
     };
+}
+
+function segmentBBoxPolygon(coordinates, startIdx, endIdx, bufferDeg = AVOID_POLYGON_BUFFER_DEG) {
+    const from = Math.max(0, Math.min(startIdx, endIdx));
+    const to = Math.min(coordinates.length - 1, Math.max(startIdx, endIdx));
+    const slice = coordinates.slice(from, to + 1);
+    if (!slice.length) {
+        return null;
+    }
+
+    const lngs = slice.map(([lng]) => lng);
+    const lats = slice.map(([, lat]) => lat);
+    const minLng = Math.min(...lngs) - bufferDeg;
+    const maxLng = Math.max(...lngs) + bufferDeg;
+    const minLat = Math.min(...lats) - bufferDeg;
+    const maxLat = Math.max(...lats) + bufferDeg;
+
+    return {
+        type: 'Polygon',
+        coordinates: [[
+            [minLng, minLat],
+            [maxLng, minLat],
+            [maxLng, maxLat],
+            [minLng, maxLat],
+            [minLng, minLat],
+        ]],
+    };
+}
+
+function polygonKey(polygon) {
+    const ring = polygon?.coordinates?.[0] || [];
+    const lngs = ring.map(([lng]) => lng);
+    const lats = ring.map(([, lat]) => lat);
+    return `${Math.round(Math.min(...lngs) * 1000)}_${Math.round(Math.max(...lngs) * 1000)}_${Math.round(Math.min(...lats) * 1000)}_${Math.round(Math.max(...lats) * 1000)}`;
+}
+
+function mergeAvoidPolygons(polygons) {
+    const unique = [];
+    const seen = new Set();
+
+    for (const polygon of polygons) {
+        if (!polygon) continue;
+        const key = polygonKey(polygon);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        unique.push(polygon);
+    }
+
+    if (!unique.length) {
+        return undefined;
+    }
+
+    if (unique.length === 1) {
+        return unique[0];
+    }
+
+    return {
+        type: 'MultiPolygon',
+        coordinates: unique.map((polygon) => polygon.coordinates),
+    };
+}
+
+function findFastRoadViolations(geojson) {
+    const feature = geojson?.features?.[0];
+    if (!feature) {
+        return [];
+    }
+
+    const props = feature.properties || {};
+    const coordinates = feature.geometry?.coordinates || [];
+    const violations = [];
+    const seen = new Set();
+
+    const pushViolation = (start, end, bufferDeg = AVOID_POLYGON_BUFFER_DEG) => {
+        const polygon = segmentBBoxPolygon(coordinates, start, end, bufferDeg);
+        if (!polygon) return;
+        const key = polygonKey(polygon);
+        if (seen.has(key)) return;
+        seen.add(key);
+        violations.push({ start, end, polygon });
+    };
+
+    for (const [start, end, value] of (props.extras?.waycategory?.values || [])) {
+        if ((value & WAYCATEGORY_HIGHWAY) === WAYCATEGORY_HIGHWAY) {
+            pushViolation(start, end);
+        }
+    }
+
+    for (const segment of (props.segments || [])) {
+        for (const step of (segment.steps || [])) {
+            const name = `${step.name || ''} ${step.ref || ''}`.trim();
+            const wayPoints = step.way_points || [];
+            const start = wayPoints[0] ?? 0;
+            const end = wayPoints[1] ?? start;
+
+            if (FAST_ROAD_NAME.test(name)) {
+                pushViolation(start, end, AVOID_POLYGON_BUFFER_DEG * 1.2);
+                continue;
+            }
+
+            if ((props.extras?.waytype?.values || []).some(([s, e, type]) => (
+                type === WAYTYPE_STATE_ROAD
+                && s <= start
+                && e >= end
+                && FAST_ROAD_NAME.test(name)
+            ))) {
+                pushViolation(start, end);
+            }
+        }
+    }
+
+    return violations;
 }
 
 export async function fetchDirections({
@@ -70,21 +193,34 @@ export async function fetchDirections({
     variant = 'primary',
     useAlternatives = false,
     alternativeCount = 2,
+    avoidPolygons = [],
+    withFastRoadAnalysis = false,
 }) {
     const apiKey = getOrsApiKey();
     if (!apiKey) {
         throw new Error('ORS_API_KEY_MISSING');
     }
 
-    const { preference, options } = buildRequestOptions({ highway, roadStyle, variant });
+    const { preference, options: baseOptions } = buildRequestOptions({ highway, roadStyle, variant });
+    const options = { ...(baseOptions || {}) };
+    const mergedAvoid = mergeAvoidPolygons(avoidPolygons);
+
+    if (mergedAvoid) {
+        options.avoid_polygons = mergedAvoid;
+    }
 
     const body = {
         coordinates,
         preference,
+        instructions: true,
     };
 
-    if (options) {
+    if (Object.keys(options).length) {
         body.options = options;
+    }
+
+    if (withFastRoadAnalysis || highway === 'avoid') {
+        body.extra_info = ['waytype', 'waycategory'];
     }
 
     if (useAlternatives) {
@@ -117,6 +253,37 @@ export async function fetchDirections({
     }
 
     return response.json();
+}
+
+async function fetchDirectionsAvoidingFastRoads(params) {
+    const { highway, ...rest } = params;
+
+    if (highway !== 'avoid') {
+        return fetchDirections(params);
+    }
+
+    const avoidPolygons = [];
+    let geojson = null;
+
+    for (let attempt = 0; attempt < MAX_FAST_ROAD_AVOID_ATTEMPTS; attempt += 1) {
+        geojson = await fetchDirections({
+            ...rest,
+            highway,
+            avoidPolygons,
+            withFastRoadAnalysis: true,
+        });
+
+        const violations = findFastRoadViolations(geojson);
+        if (!violations.length) {
+            break;
+        }
+
+        for (const violation of violations) {
+            avoidPolygons.push(violation.polygon);
+        }
+    }
+
+    return geojson;
 }
 
 export function parseProposals(geojson, { origin, destination, labelPrefix, tag }) {
@@ -185,7 +352,7 @@ export async function fetchRouteProposals({
 
     if (!strict && straightKm < ALTERNATIVES_MAX_STRAIGHT_KM) {
         try {
-            const geojson = await fetchDirections({
+            const geojson = await fetchDirectionsAvoidingFastRoads({
                 coordinates,
                 highway,
                 roadStyle,
@@ -201,7 +368,7 @@ export async function fetchRouteProposals({
     }
 
     if (!proposals.length) {
-        const geojson = await fetchDirections({
+        const geojson = await fetchDirectionsAvoidingFastRoads({
             coordinates,
             highway,
             roadStyle,
@@ -213,7 +380,7 @@ export async function fetchRouteProposals({
 
     if (strict && straightKm < ALTERNATIVES_MAX_STRAIGHT_KM && proposals.length < 2) {
         try {
-            const altGeo = await fetchDirections({
+            const altGeo = await fetchDirectionsAvoidingFastRoads({
                 coordinates,
                 highway,
                 roadStyle,
