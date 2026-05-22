@@ -7,7 +7,6 @@
                 </button>
                 <div>
                     <h1 class="text-2xl font-black uppercase tracking-tighter text-white leading-none">{{ $t('routes.plan_title') }}</h1>
-                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">{{ pageSubtitle }}</p>
                 </div>
             </div>
 
@@ -342,12 +341,6 @@ const canGenerate = computed(() => {
     if (tripType.value === 'loop') return loopDurationMinutes.value >= 45;
     return !!destination.value;
 });
-
-const pageSubtitle = computed(() => (
-    tripType.value === 'loop'
-        ? t('routes.plan_loop_subtitle')
-        : t('routes.plan_subtitle')
-));
 
 const mapModalHint = computed(() => {
     if (mapModalOpen.value === 'destination') {

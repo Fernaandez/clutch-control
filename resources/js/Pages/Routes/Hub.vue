@@ -3,13 +3,11 @@
         <div class="px-4 py-6 pb-24">
             <div class="mb-6">
                 <h1 class="text-3xl font-black text-white uppercase tracking-tighter">{{ $t('routes.title') }}</h1>
-                <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mt-1">{{ $t('routes.hub_subtitle') }}</p>
             </div>
 
             <div class="bg-brand-surface rounded-2xl p-5 border border-brand-dark shadow-neon flex flex-col gap-4 relative overflow-hidden mb-6">
                 <div class="z-10">
-                    <p class="text-gray-400 text-[10px] uppercase tracking-widest mb-1">{{ $t('routes.hub_ride_now') }}</p>
-                    <p class="text-white font-bold text-sm">{{ $t('routes.hub_ride_now_desc') }}</p>
+                    <p class="text-white font-bold text-sm">{{ $t('routes.hub_ride_now') }}</p>
                 </div>
                 <div class="z-10">
                     <Link
@@ -42,7 +40,6 @@
                     </div>
                     <div>
                         <span class="block font-bold text-gray-200 text-sm uppercase tracking-widest">{{ $t('routes.hub_create') }}</span>
-                        <span class="block text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">{{ $t('routes.hub_create_desc') }}</span>
                     </div>
                 </Link>
 
@@ -55,7 +52,6 @@
                     </div>
                     <div>
                         <span class="block font-bold text-gray-200 text-sm uppercase tracking-widest">{{ $t('routes.hub_explore') }}</span>
-                        <span class="block text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">{{ $t('routes.hub_explore_desc') }}</span>
                     </div>
                 </Link>
 
@@ -68,7 +64,6 @@
                     </div>
                     <div>
                         <span class="block font-bold text-gray-200 text-sm uppercase tracking-widest">{{ $t('routes.my_routes') }}</span>
-                        <span class="block text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">{{ $t('routes.hub_my_routes_desc') }}</span>
                     </div>
                 </Link>
 
@@ -81,7 +76,6 @@
                     </div>
                     <div>
                         <span class="block font-bold text-gray-200 text-sm uppercase tracking-widest">{{ $t('routes.hub_history') }}</span>
-                        <span class="block text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">{{ $t('routes.hub_history_desc') }}</span>
                     </div>
                 </Link>
 
@@ -94,7 +88,6 @@
                     </div>
                     <div>
                         <span class="block font-bold text-gray-200 text-sm uppercase tracking-widest">{{ $t('routes.hub_habitual') }}</span>
-                        <span class="block text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">{{ $t('routes.hub_habitual_desc') }}</span>
                     </div>
                 </Link>
 
@@ -107,24 +100,8 @@
                     </div>
                     <div>
                         <span class="block font-bold text-gray-200 text-sm uppercase tracking-widest">{{ $t('routes.hub_auto_route') }}</span>
-                        <span class="block text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">{{ $t('routes.hub_auto_route_desc') }}</span>
                     </div>
                 </Link>
-            </div>
-
-            <h3 class="text-brand-muted font-bold text-sm uppercase mb-3 mt-8 px-1">{{ $t('routes.hub_soon') }}</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div class="flex items-center gap-3 bg-brand-surface/40 border border-brand-dark/80 rounded-xl p-4 opacity-60 cursor-not-allowed relative">
-                    <span class="absolute top-3 right-3 text-[9px] font-black uppercase tracking-widest text-gray-500 bg-brand-dark px-2 py-0.5 rounded border border-brand-dark">{{ $t('routes.hub_coming_soon') }}</span>
-                    <div class="bg-orange-500/15 p-2 sm:p-3 rounded-lg text-orange-400/70 flex-shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" /></svg>
-                    </div>
-                    <div class="pr-14">
-                        <span class="block font-bold text-gray-400 text-sm uppercase tracking-widest">{{ $t('routes.hub_recommend') }}</span>
-                        <span class="block text-[10px] text-gray-600 uppercase tracking-widest mt-0.5">{{ $t('routes.hub_recommend_desc') }}</span>
-                    </div>
-                </div>
-
             </div>
         </div>
     </AppLayout>

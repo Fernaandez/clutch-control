@@ -7,7 +7,6 @@
                 </button>
                 <div>
                     <h1 class="text-2xl font-black uppercase tracking-tighter text-white leading-none">{{ $t('routes.habitual_title') }}</h1>
-                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">{{ $t('routes.habitual_subtitle') }}</p>
                 </div>
             </div>
 

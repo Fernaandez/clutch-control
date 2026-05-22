@@ -8,7 +8,6 @@
                 </Link>
                 <div>
                     <h1 class="text-2xl font-black text-white uppercase tracking-tighter">{{ $t('routes.explore_title') }}</h1>
-                    <p class="text-gray-500 text-[10px] font-bold uppercase tracking-widest mt-0.5">{{ $t('routes.explore_subtitle') }}</p>
                 </div>
             </div>
 

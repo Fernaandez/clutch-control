@@ -7,7 +7,6 @@
                 </button>
                 <div class="flex-1 min-w-0">
                     <h1 class="text-2xl font-black uppercase tracking-tighter text-white leading-none">{{ $t('routes.history_title') }}</h1>
-                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">{{ $t('routes.hub_history_desc') }}</p>
                 </div>
                 <Link :href="route('routes.habitual')" class="flex-shrink-0 bg-brand-neon/10 text-brand-neon border border-brand-neon/30 px-3 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-brand-neon/20 transition">
                     + {{ $t('routes.register_km') }}
