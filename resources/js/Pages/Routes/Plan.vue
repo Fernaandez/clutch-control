@@ -41,48 +41,6 @@
             </div>
 
             <div class="space-y-4">
-                <!-- Temps objectiu -->
-                <div class="bg-brand-surface p-5 rounded-2xl border border-brand-dark">
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-3">{{ $t('routes.plan_duration') }}</label>
-                    <div class="flex flex-wrap gap-2">
-                        <button
-                            v-for="mins in durationOptions"
-                            :key="mins"
-                            type="button"
-                            class="px-3 py-2 rounded-lg text-xs font-bold uppercase border transition"
-                            :class="durationMinutes === mins ? 'bg-brand-neon text-black border-brand-neon' : 'bg-brand-black text-gray-400 border-brand-dark hover:border-gray-500'"
-                            @click="durationMinutes = mins"
-                        >
-                            {{ formatDurationLabel(mins) }}
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Mode punt a punt -->
-                <div class="bg-brand-surface p-5 rounded-2xl border border-brand-dark">
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-3">{{ $t('routes.plan_p2p_mode') }}</label>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <button
-                            type="button"
-                            class="p-3 rounded-xl border text-left transition"
-                            :class="p2pMode === 'direct' ? 'border-brand-neon bg-brand-neon/10' : 'border-brand-dark bg-brand-black'"
-                            @click="p2pMode = 'direct'"
-                        >
-                            <span class="block text-white text-xs font-bold uppercase">{{ $t('routes.plan_mode_direct') }}</span>
-                            <span class="block text-[10px] text-gray-500 mt-1">{{ $t('routes.plan_mode_direct_desc') }}</span>
-                        </button>
-                        <button
-                            type="button"
-                            class="p-3 rounded-xl border text-left transition"
-                            :class="p2pMode === 'time_fit' ? 'border-brand-neon bg-brand-neon/10' : 'border-brand-dark bg-brand-black'"
-                            @click="p2pMode = 'time_fit'"
-                        >
-                            <span class="block text-white text-xs font-bold uppercase">{{ $t('routes.plan_mode_time') }}</span>
-                            <span class="block text-[10px] text-gray-500 mt-1">{{ $t('routes.plan_mode_time_desc') }}</span>
-                        </button>
-                    </div>
-                </div>
-
                 <!-- Preferències -->
                 <div class="bg-brand-surface p-5 rounded-2xl border border-brand-dark space-y-4">
                     <div>
@@ -194,6 +152,10 @@
                     </button>
                 </div>
 
+                <div v-if="longRouteNotice" class="p-3 bg-brand-black/60 border border-brand-dark rounded-xl">
+                    <p class="text-[10px] text-gray-400 uppercase tracking-widest">{{ longRouteNotice }}</p>
+                </div>
+
                 <div id="plan-map" class="h-48 rounded-xl border border-brand-dark overflow-hidden bg-gray-900"></div>
 
                 <div class="space-y-3">
@@ -217,13 +179,6 @@
                                 <p class="text-white text-xs font-mono">{{ formatDuration(proposal.durationSeconds) }}</p>
                             </div>
                         </div>
-                        <p
-                            v-if="p2pMode === 'time_fit' && timeDiffLabel(proposal)"
-                            class="text-[10px] mt-2"
-                            :class="Math.abs(proposal.durationSeconds - targetDurationSeconds) <= 900 ? 'text-green-400' : 'text-yellow-500'"
-                        >
-                            {{ timeDiffLabel(proposal) }}
-                        </p>
                     </button>
                 </div>
 
@@ -257,11 +212,8 @@ const { t } = useI18n();
 const DRAFT_KEY = 'clutch_planned_route';
 
 const tripType = ref('p2p');
-const durationMinutes = ref(120);
-const p2pMode = ref('direct');
 const highway = ref('avoid');
 const roadStyle = ref('balanced');
-const durationOptions = [30, 60, 90, 120, 180, 240, 360];
 
 const roadStyles = [
     { value: 'fast', labelKey: 'routes.plan_style_fast' },
@@ -280,6 +232,7 @@ const proposals = ref([]);
 const selectedId = ref(null);
 const isGenerating = ref(false);
 const errorMessage = ref('');
+const longRouteNotice = ref('');
 
 const map = ref(null);
 const routeLayers = ref([]);
@@ -287,18 +240,9 @@ const routeLayers = ref([]);
 let originTimeout = null;
 let destTimeout = null;
 
-const targetDurationSeconds = computed(() => durationMinutes.value * 60);
-
 const canGenerate = computed(() => hasOrsApiKey() && origin.value && destination.value);
 
 const goBack = () => smartBack(route('routes.index'));
-
-const formatDurationLabel = (mins) => {
-    if (mins < 60) return `${mins} min`;
-    const h = Math.floor(mins / 60);
-    const m = mins % 60;
-    return m ? `${h}h ${m}m` : `${h}h`;
-};
 
 const formatDuration = (seconds) => {
     const h = Math.floor(seconds / 3600);
@@ -307,21 +251,12 @@ const formatDuration = (seconds) => {
     return `${m} min`;
 };
 
-const proposalTag = () => {
+const proposalTag = (proposal) => {
+    const tag = proposal?.tag || { highway: highway.value, roadStyle: roadStyle.value };
     const parts = [];
-    if (highway.value === 'avoid') parts.push(t('routes.plan_highway_avoid'));
-    else parts.push(t('routes.plan_highway_allow'));
-    parts.push(t(`routes.plan_style_${roadStyle.value}`));
+    parts.push(tag.highway === 'avoid' ? t('routes.plan_highway_avoid') : t('routes.plan_highway_allow'));
+    parts.push(t(`routes.plan_style_${tag.roadStyle}`));
     return parts.join(' · ');
-};
-
-const timeDiffLabel = (proposal) => {
-    const diff = proposal.durationSeconds - targetDurationSeconds.value;
-    const abs = Math.abs(diff);
-    const mins = Math.round(abs / 60);
-    if (mins <= 15) return t('routes.plan_time_match');
-    if (diff > 0) return t('routes.plan_time_over', { n: mins });
-    return t('routes.plan_time_under', { n: mins });
 };
 
 const nominatimSearch = async (query) => {
@@ -400,24 +335,27 @@ const generateProposals = async () => {
 
     isGenerating.value = true;
     errorMessage.value = '';
+    longRouteNotice.value = '';
     proposals.value = [];
     selectedId.value = null;
     clearMapLayers();
 
     try {
-        const results = await fetchRouteProposals({
+        const { proposals: results, straightKm } = await fetchRouteProposals({
             origin: origin.value,
             destination: destination.value,
             highway: highway.value,
             roadStyle: roadStyle.value,
-            p2pMode: p2pMode.value,
-            targetDurationSeconds: targetDurationSeconds.value,
             labelPrefix: styleLabelPrefix(),
         });
 
         if (!results.length) {
             errorMessage.value = t('routes.plan_no_results');
             return;
+        }
+
+        if (straightKm >= 75) {
+            longRouteNotice.value = t('routes.plan_long_route_notice');
         }
 
         proposals.value = results;

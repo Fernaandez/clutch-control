@@ -1,5 +1,8 @@
 const ORS_URL = 'https://api.openrouteservice.org/v2/directions/driving-car/geojson';
 
+/** ORS alternative_routes only works when routed distance is under ~100 km */
+const ALTERNATIVES_MAX_STRAIGHT_KM = 75;
+
 export function getOrsApiKey() {
     return import.meta.env.VITE_ORS_API_KEY || '';
 }
@@ -8,7 +11,19 @@ export function hasOrsApiKey() {
     return Boolean(getOrsApiKey());
 }
 
-function buildRequestOptions({ highway, roadStyle }) {
+export function haversineKm(a, b) {
+    const R = 6371;
+    const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+    const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+    const lat1 = (a.lat * Math.PI) / 180;
+    const lat2 = (b.lat * Math.PI) / 180;
+    const x = Math.sin(dLat / 2) ** 2
+        + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+
+    return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+}
+
+export function buildRequestOptions({ highway, roadStyle }) {
     const avoid_features = [];
 
     if (highway === 'avoid' || roadStyle !== 'fast') {
@@ -16,9 +31,7 @@ function buildRequestOptions({ highway, roadStyle }) {
     }
 
     if (roadStyle === 'scenic') {
-        if (!avoid_features.includes('tollways')) {
-            avoid_features.push('tollways');
-        }
+        avoid_features.push('tollways');
     }
 
     let preference = 'recommended';
@@ -29,10 +42,20 @@ function buildRequestOptions({ highway, roadStyle }) {
     return {
         preference,
         options: avoid_features.length ? { avoid_features } : undefined,
+        tag: {
+            highway,
+            roadStyle,
+        },
     };
 }
 
-export async function fetchDirections({ coordinates, highway, roadStyle, alternativeCount = 2 }) {
+export async function fetchDirections({
+    coordinates,
+    highway,
+    roadStyle,
+    useAlternatives = false,
+    alternativeCount = 2,
+}) {
     const apiKey = getOrsApiKey();
     if (!apiKey) {
         throw new Error('ORS_API_KEY_MISSING');
@@ -43,15 +66,18 @@ export async function fetchDirections({ coordinates, highway, roadStyle, alterna
     const body = {
         coordinates,
         preference,
-        alternative_routes: {
-            target_count: Math.min(alternativeCount, 2),
-            share_factor: 0.55,
-            weight_factor: 1.35,
-        },
     };
 
     if (options) {
         body.options = options;
+    }
+
+    if (useAlternatives) {
+        body.alternative_routes = {
+            target_count: Math.min(alternativeCount, 2),
+            share_factor: 0.55,
+            weight_factor: 1.35,
+        };
     }
 
     const response = await fetch(ORS_URL, {
@@ -78,7 +104,7 @@ export async function fetchDirections({ coordinates, highway, roadStyle, alterna
     return response.json();
 }
 
-export function parseProposals(geojson, { origin, destination, labelPrefix }) {
+export function parseProposals(geojson, { origin, destination, labelPrefix, tag }) {
     const features = geojson?.features || [];
 
     return features.map((feature, index) => {
@@ -90,7 +116,7 @@ export function parseProposals(geojson, { origin, destination, labelPrefix }) {
 
         return {
             id: `${labelPrefix}-${index}-${Math.round(summary.duration || 0)}`,
-            label: `${labelPrefix} ${index + 1}`,
+            label: features.length > 1 ? `${labelPrefix} ${index + 1}` : labelPrefix,
             distanceKm: Math.round(((summary.distance || 0) / 1000) * 10) / 10,
             durationSeconds: Math.round(summary.duration || 0),
             latLngs,
@@ -99,6 +125,7 @@ export function parseProposals(geojson, { origin, destination, labelPrefix }) {
                 { lat: origin.lat, lng: origin.lng, name: origin.name || 'Origen' },
                 { lat: destination.lat, lng: destination.lng, name: destination.name || 'Destí' },
             ],
+            tag,
         };
     });
 }
@@ -116,13 +143,15 @@ function dedupeProposals(list) {
     });
 }
 
+function isAlternativesLimitError(message) {
+    return message.includes('100000') || message.toLowerCase().includes('alternative');
+}
+
 export async function fetchRouteProposals({
     origin,
     destination,
     highway,
     roadStyle,
-    p2pMode,
-    targetDurationSeconds,
     labelPrefix = 'Ruta',
 }) {
     const coordinates = [
@@ -130,42 +159,41 @@ export async function fetchRouteProposals({
         [destination.lng, destination.lat],
     ];
 
-    const geojson = await fetchDirections({
-        coordinates,
-        highway,
-        roadStyle,
-        alternativeCount: 2,
-    });
+    const straightKm = haversineKm(origin, destination);
+    const tag = buildRequestOptions({ highway, roadStyle }).tag;
+    const useAlternatives = straightKm < ALTERNATIVES_MAX_STRAIGHT_KM;
 
-    let proposals = parseProposals(geojson, { origin, destination, labelPrefix });
+    let proposals = [];
 
-    if (proposals.length < 3 && roadStyle === 'fast' && highway === 'allow') {
+    if (useAlternatives) {
         try {
-            const scenicGeo = await fetchDirections({
+            const geojson = await fetchDirections({
                 coordinates,
-                highway: 'avoid',
-                roadStyle: 'balanced',
-                alternativeCount: 1,
+                highway,
+                roadStyle,
+                useAlternatives: true,
+                alternativeCount: 2,
             });
-            proposals = [
-                ...proposals,
-                ...parseProposals(scenicGeo, { origin, destination, labelPrefix: `${labelPrefix} alt` }),
-            ];
-        } catch {
-            // optional enrichment
+            proposals = parseProposals(geojson, { origin, destination, labelPrefix, tag });
+        } catch (err) {
+            if (!isAlternativesLimitError(err.message)) {
+                throw err;
+            }
         }
     }
 
-    proposals = dedupeProposals(proposals).slice(0, 4);
-
-    if (p2pMode === 'time_fit' && targetDurationSeconds) {
-        proposals.sort(
-            (a, b) => Math.abs(a.durationSeconds - targetDurationSeconds)
-                - Math.abs(b.durationSeconds - targetDurationSeconds),
-        );
-    } else {
-        proposals.sort((a, b) => a.durationSeconds - b.durationSeconds);
+    if (!proposals.length) {
+        const geojson = await fetchDirections({
+            coordinates,
+            highway,
+            roadStyle,
+            useAlternatives: false,
+        });
+        proposals = parseProposals(geojson, { origin, destination, labelPrefix, tag });
     }
 
-    return proposals;
+    proposals = dedupeProposals(proposals).slice(0, 4);
+    proposals.sort((a, b) => a.durationSeconds - b.durationSeconds);
+
+    return { proposals, straightKm, usedAlternatives: useAlternatives && proposals.length > 1 };
 }
