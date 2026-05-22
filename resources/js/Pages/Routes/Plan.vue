@@ -7,7 +7,7 @@
                 </button>
                 <div>
                     <h1 class="text-2xl font-black uppercase tracking-tighter text-white leading-none">{{ $t('routes.plan_title') }}</h1>
-                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">{{ $t('routes.plan_subtitle') }}</p>
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">{{ pageSubtitle }}</p>
                 </div>
             </div>
 
@@ -25,18 +25,17 @@
                     type="button"
                     class="flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition"
                     :class="tripType === 'p2p' ? 'bg-brand-neon text-black border-brand-neon' : 'bg-brand-surface text-gray-400 border-brand-dark'"
-                    @click="tripType = 'p2p'"
+                    @click="switchTripType('p2p')"
                 >
                     {{ $t('routes.plan_p2p') }}
                 </button>
                 <button
                     type="button"
-                    disabled
-                    class="flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-brand-dark bg-brand-surface/40 text-gray-600 opacity-60 cursor-not-allowed relative"
-                    :title="$t('routes.plan_loop_soon')"
+                    class="flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition"
+                    :class="tripType === 'loop' ? 'bg-brand-neon text-black border-brand-neon' : 'bg-brand-surface text-gray-400 border-brand-dark'"
+                    @click="switchTripType('loop')"
                 >
                     {{ $t('routes.plan_loop') }}
-                    <span class="absolute -top-1 -right-1 text-[8px] bg-brand-dark px-1 rounded">{{ $t('routes.hub_coming_soon') }}</span>
                 </button>
             </div>
 
@@ -83,11 +82,29 @@
                     </div>
                 </div>
 
-                <!-- Origen i destí -->
+                <!-- Origen / punt d'inici -->
                 <div class="bg-brand-surface p-5 rounded-2xl border border-brand-dark space-y-4">
+                    <div v-if="tripType === 'loop'" class="pb-1 border-b border-brand-dark/60">
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('routes.plan_duration') }}</label>
+                        <div class="grid grid-cols-5 gap-2">
+                            <button
+                                v-for="preset in loopDurationPresets"
+                                :key="preset.minutes"
+                                type="button"
+                                class="py-2 rounded-lg text-[10px] font-bold uppercase border transition"
+                                :class="loopDurationMinutes === preset.minutes ? 'bg-brand-neon text-black border-brand-neon' : 'bg-brand-black text-gray-400 border-brand-dark'"
+                                @click="loopDurationMinutes = preset.minutes"
+                            >
+                                {{ $t(preset.labelKey) }}
+                            </button>
+                        </div>
+                        <p class="text-[10px] text-gray-600 mt-2">{{ $t('routes.plan_loop_hint') }}</p>
+                    </div>
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <label class="text-xs font-bold text-gray-400 uppercase">{{ $t('routes.plan_origin') }}</label>
+                            <label class="text-xs font-bold text-gray-400 uppercase">
+                                {{ tripType === 'loop' ? $t('routes.plan_loop_start') : $t('routes.plan_origin') }}
+                            </label>
                             <button type="button" class="text-[10px] font-bold text-brand-neon uppercase" @click="useMyLocation">
                                 {{ $t('routes.plan_use_gps') }}
                             </button>
@@ -121,7 +138,7 @@
                             </li>
                         </ul>
                     </div>
-                    <div>
+                    <div v-if="tripType === 'p2p'">
                         <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('routes.plan_destination') }}</label>
                         <div class="flex gap-2">
                             <input
@@ -193,6 +210,7 @@
                                 <p class="text-white font-bold text-sm">{{ proposal.label }}</p>
                                 <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">
                                     {{ proposalTag(proposal) }}
+                                    <span v-if="proposal.isLoop && loopTimeNote(proposal)" class="text-brand-neon"> · {{ loopTimeNote(proposal) }}</span>
                                 </p>
                             </div>
                             <div class="text-right flex-shrink-0">
@@ -221,7 +239,7 @@
                     <div class="flex items-center justify-between p-4 border-b border-brand-dark">
                         <div>
                             <p class="text-white font-black uppercase tracking-widest text-sm">
-                                {{ mapModalOpen === 'origin' ? $t('routes.plan_origin') : $t('routes.plan_destination') }}
+                                {{ mapModalOpen === 'destination' ? $t('routes.plan_destination') : (tripType === 'loop' ? $t('routes.plan_loop_start') : $t('routes.plan_origin')) }}
                             </p>
                             <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">{{ mapModalHint }}</p>
                         </div>
@@ -244,7 +262,7 @@ import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { smartBack } from '@/Composables/navigationStack.js';
 import { addMapTileLayer } from '@/config/mapTiles.js';
-import { fetchRouteProposals, hasOrsApiKey } from '@/services/openRouteService.js';
+import { fetchRouteProposals, fetchLoopProposals, hasOrsApiKey } from '@/services/openRouteService.js';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -255,6 +273,15 @@ const DRAFT_KEY = 'clutch_planned_route';
 const tripType = ref('p2p');
 const highway = ref('avoid');
 const roadStyle = ref('balanced');
+const loopDurationMinutes = ref(120);
+
+const loopDurationPresets = [
+    { minutes: 60, labelKey: 'routes.plan_loop_1h' },
+    { minutes: 90, labelKey: 'routes.plan_loop_90m' },
+    { minutes: 120, labelKey: 'routes.plan_loop_2h' },
+    { minutes: 180, labelKey: 'routes.plan_loop_3h' },
+    { minutes: 240, labelKey: 'routes.plan_loop_4h' },
+];
 
 const roadStyles = [
     { value: 'fast', labelKey: 'routes.plan_style_fast' },
@@ -285,13 +312,27 @@ const routeLayers = ref([]);
 let originTimeout = null;
 let destTimeout = null;
 
-const canGenerate = computed(() => hasOrsApiKey() && origin.value && destination.value);
+const canGenerate = computed(() => {
+    if (!hasOrsApiKey() || !origin.value) return false;
+    if (tripType.value === 'loop') return loopDurationMinutes.value >= 45;
+    return !!destination.value;
+});
 
-const mapModalHint = computed(() => (
-    mapModalOpen.value === 'destination'
-        ? t('routes.plan_map_pick_dest_hint')
-        : t('routes.plan_map_pick_origin_hint')
+const pageSubtitle = computed(() => (
+    tripType.value === 'loop'
+        ? t('routes.plan_loop_subtitle')
+        : t('routes.plan_subtitle')
 ));
+
+const mapModalHint = computed(() => {
+    if (mapModalOpen.value === 'destination') {
+        return t('routes.plan_map_pick_dest_hint');
+    }
+    if (tripType.value === 'loop') {
+        return t('routes.plan_map_pick_loop_hint');
+    }
+    return t('routes.plan_map_pick_origin_hint');
+});
 
 const goBack = () => smartBack(route('routes.index'));
 
@@ -310,6 +351,26 @@ const proposalTag = (proposal) => {
     return parts.join(' · ');
 };
 
+const loopTimeNote = (proposal) => {
+    const delta = proposal?.durationDeltaMinutes;
+    if (delta == null) return '';
+    if (Math.abs(delta) <= 5) return t('routes.plan_time_match');
+    if (delta > 0) return t('routes.plan_time_over', { n: delta });
+    return t('routes.plan_time_under', { n: Math.abs(delta) });
+};
+
+const resetResults = () => {
+    proposals.value = [];
+    selectedId.value = null;
+    longRouteNotice.value = '';
+    errorMessage.value = '';
+};
+
+const switchTripType = (type) => {
+    if (tripType.value === type) return;
+    tripType.value = type;
+    resetResults();
+};
 const nominatimSearch = async (query) => {
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5`;
     const response = await fetch(url);
@@ -468,25 +529,44 @@ const generateProposals = async () => {
     longRouteNotice.value = '';
 
     try {
-        const { proposals: results, straightKm } = await fetchRouteProposals({
-            origin: origin.value,
-            destination: destination.value,
-            highway: highway.value,
-            roadStyle: roadStyle.value,
-            labelPrefix: styleLabelPrefix(),
-        });
+        if (tripType.value === 'loop') {
+            const { proposals: results } = await fetchLoopProposals({
+                origin: origin.value,
+                targetDurationMinutes: loopDurationMinutes.value,
+                highway: highway.value,
+                roadStyle: roadStyle.value,
+                labelPrefix: t('routes.plan_loop'),
+            });
 
-        if (!results.length) {
-            errorMessage.value = t('routes.plan_no_results');
-            return;
+            if (!results.length) {
+                errorMessage.value = t('routes.plan_loop_no_results');
+                return;
+            }
+
+            proposals.value = results;
+            selectedId.value = results[0].id;
+        } else {
+            const { proposals: results, straightKm } = await fetchRouteProposals({
+                origin: origin.value,
+                destination: destination.value,
+                highway: highway.value,
+                roadStyle: roadStyle.value,
+                labelPrefix: styleLabelPrefix(),
+            });
+
+            if (!results.length) {
+                errorMessage.value = t('routes.plan_no_results');
+                return;
+            }
+
+            if (straightKm >= 75) {
+                longRouteNotice.value = t('routes.plan_long_route_notice');
+            }
+
+            proposals.value = results;
+            selectedId.value = results[0].id;
         }
 
-        if (straightKm >= 75) {
-            longRouteNotice.value = t('routes.plan_long_route_notice');
-        }
-
-        proposals.value = results;
-        selectedId.value = results[0].id;
         await nextTick();
         renderResultMap();
     } catch (err) {
@@ -555,12 +635,12 @@ const renderResultMap = () => {
 
     if (origin.value) {
         const m = L.circleMarker([origin.value.lat, origin.value.lng], {
-            radius: 6, color: '#fff', fillColor: '#22c55e', weight: 2, fillOpacity: 1,
+            radius: 6, color: '#fff', fillColor: tripType.value === 'loop' ? '#0CE1B5' : '#22c55e', weight: 2, fillOpacity: 1,
         }).addTo(resultMap.value);
         routeLayers.value.push(m);
         bounds.extend([origin.value.lat, origin.value.lng]);
     }
-    if (destination.value) {
+    if (tripType.value === 'p2p' && destination.value) {
         const m = L.circleMarker([destination.value.lat, destination.value.lng], {
             radius: 6, color: '#fff', fillColor: '#ef4444', weight: 2, fillOpacity: 1,
         }).addTo(resultMap.value);
@@ -586,7 +666,9 @@ const continueToCreate = () => {
     const proposal = proposals.value.find((p) => p.id === selectedId.value);
     if (!proposal) return;
 
-    const title = `${origin.value?.name || 'Origen'} → ${destination.value?.name || 'Destí'}`;
+    const title = tripType.value === 'loop'
+        ? `${t('routes.plan_loop')} · ${origin.value?.name || t('routes.plan_loop_start')}`
+        : `${origin.value?.name || 'Origen'} → ${destination.value?.name || 'Destí'}`;
 
     sessionStorage.setItem(DRAFT_KEY, JSON.stringify({
         title,

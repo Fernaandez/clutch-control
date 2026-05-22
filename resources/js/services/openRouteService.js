@@ -15,6 +15,22 @@ const FAST_ROAD_NAME = /\b(AP|A|N|E|C)-?\d+\b|\bautopista\b|\bautov[ií]a\b|\bvi
 const MAX_FAST_ROAD_AVOID_ATTEMPTS = 3;
 const AVOID_POLYGON_BUFFER_DEG = 0.0035;
 
+const LOOP_MIN_LENGTH_M = 5000;
+const LOOP_MAX_LENGTH_M = 400000;
+const LOOP_DURATION_TOLERANCE = 0.18;
+
+const LOOP_VARIANTS = [
+    { seed: 11, points: 3 },
+    { seed: 22, points: 4 },
+    { seed: 33, points: 5 },
+];
+
+const LOOP_SPEED_KMH = {
+    fast: 65,
+    balanced: 50,
+    scenic: 42,
+};
+
 export function getOrsApiKey() {
     return import.meta.env.VITE_ORS_API_KEY || '';
 }
@@ -186,6 +202,17 @@ function findFastRoadViolations(geojson) {
     return violations;
 }
 
+export function estimateLoopLengthMeters(targetDurationMinutes, roadStyle) {
+    const speedKmh = LOOP_SPEED_KMH[roadStyle] || LOOP_SPEED_KMH.balanced;
+    const lengthM = (targetDurationMinutes / 60) * speedKmh * 1000;
+
+    return Math.round(Math.min(LOOP_MAX_LENGTH_M, Math.max(LOOP_MIN_LENGTH_M, lengthM)));
+}
+
+function clampLoopLength(lengthM) {
+    return Math.round(Math.min(LOOP_MAX_LENGTH_M, Math.max(LOOP_MIN_LENGTH_M, lengthM)));
+}
+
 export async function fetchDirections({
     coordinates,
     highway,
@@ -195,6 +222,7 @@ export async function fetchDirections({
     alternativeCount = 2,
     avoidPolygons = [],
     withFastRoadAnalysis = false,
+    roundTrip,
 }) {
     const apiKey = getOrsApiKey();
     if (!apiKey) {
@@ -207,6 +235,10 @@ export async function fetchDirections({
 
     if (mergedAvoid) {
         options.avoid_polygons = mergedAvoid;
+    }
+
+    if (roundTrip) {
+        options.round_trip = roundTrip;
     }
 
     const body = {
@@ -256,10 +288,10 @@ export async function fetchDirections({
 }
 
 async function fetchDirectionsAvoidingFastRoads(params) {
-    const { highway, ...rest } = params;
+    const { highway, roundTrip, ...rest } = params;
 
     if (highway !== 'avoid') {
-        return fetchDirections(params);
+        return fetchDirections({ ...rest, highway, roundTrip });
     }
 
     const avoidPolygons = [];
@@ -269,6 +301,7 @@ async function fetchDirectionsAvoidingFastRoads(params) {
         geojson = await fetchDirections({
             ...rest,
             highway,
+            roundTrip,
             avoidPolygons,
             withFastRoadAnalysis: true,
         });
@@ -286,8 +319,16 @@ async function fetchDirectionsAvoidingFastRoads(params) {
     return geojson;
 }
 
-export function parseProposals(geojson, { origin, destination, labelPrefix, tag }) {
+export function parseProposals(geojson, {
+    origin,
+    destination,
+    labelPrefix,
+    tag,
+    targetDurationMinutes = null,
+    isLoop = false,
+}) {
     const features = geojson?.features || [];
+    const dest = destination || origin;
 
     return features.map((feature, index) => {
         const summary = feature.properties?.summary
@@ -295,21 +336,64 @@ export function parseProposals(geojson, { origin, destination, labelPrefix, tag 
             || {};
         const coords = feature.geometry?.coordinates || [];
         const latLngs = coords.map(([lng, lat]) => ({ lat, lng }));
+        const durationSeconds = Math.round(summary.duration || 0);
+        const durationDeltaMinutes = targetDurationMinutes != null
+            ? Math.round(durationSeconds / 60) - targetDurationMinutes
+            : null;
 
         return {
-            id: `${labelPrefix}-${index}-${Math.round(summary.duration || 0)}-${Math.round(summary.distance || 0)}`,
+            id: `${labelPrefix}-${index}-${durationSeconds}-${Math.round(summary.distance || 0)}`,
             label: features.length > 1 ? `${labelPrefix} ${index + 1}` : labelPrefix,
             distanceKm: Math.round(((summary.distance || 0) / 1000) * 10) / 10,
-            durationSeconds: Math.round(summary.duration || 0),
+            durationSeconds,
+            durationDeltaMinutes,
+            isLoop,
             latLngs,
             geoJson: JSON.stringify(latLngs),
             waypoints: [
                 { lat: origin.lat, lng: origin.lng, name: origin.name || 'Origen' },
-                { lat: destination.lat, lng: destination.lng, name: destination.name || 'Destí' },
+                { lat: dest.lat, lng: dest.lng, name: dest.name || (isLoop ? origin.name : 'Destí') },
             ],
             tag,
         };
     });
+}
+
+async function fetchSingleLoopRoute({
+    origin,
+    targetDurationMinutes,
+    highway,
+    roadStyle,
+    seed,
+    points,
+}) {
+    const coordinates = [[origin.lng, origin.lat]];
+    const targetSeconds = targetDurationMinutes * 60;
+    let lengthM = estimateLoopLengthMeters(targetDurationMinutes, roadStyle);
+
+    let geojson = await fetchDirectionsAvoidingFastRoads({
+        coordinates,
+        highway,
+        roadStyle,
+        roundTrip: { length: lengthM, points, seed },
+    });
+
+    let durationSeconds = geojson?.features?.[0]?.properties?.summary?.duration || 0;
+
+    if (durationSeconds > 0) {
+        const ratio = targetSeconds / durationSeconds;
+        if (Math.abs(1 - ratio) > LOOP_DURATION_TOLERANCE) {
+            lengthM = clampLoopLength(lengthM * ratio);
+            geojson = await fetchDirectionsAvoidingFastRoads({
+                coordinates,
+                highway,
+                roadStyle,
+                roundTrip: { length: lengthM, points, seed: seed + 1000 },
+            });
+        }
+    }
+
+    return geojson;
 }
 
 function dedupeProposals(list) {
@@ -406,4 +490,48 @@ export async function fetchRouteProposals({
     proposals.sort((a, b) => a.durationSeconds - b.durationSeconds);
 
     return { proposals, straightKm, usedAlternatives: !strict && proposals.length > 1 };
+}
+
+export async function fetchLoopProposals({
+    origin,
+    targetDurationMinutes,
+    highway,
+    roadStyle,
+    labelPrefix = 'Volta',
+}) {
+    const tag = buildRequestOptions({ highway, roadStyle }).tag;
+    const results = await Promise.allSettled(
+        LOOP_VARIANTS.map(({ seed, points }, index) => (
+            fetchSingleLoopRoute({
+                origin,
+                targetDurationMinutes,
+                highway,
+                roadStyle,
+                seed,
+                points,
+            }).then((geojson) => parseProposals(geojson, {
+                origin,
+                destination: origin,
+                labelPrefix: `${labelPrefix} ${String.fromCharCode(65 + index)}`,
+                tag,
+                targetDurationMinutes,
+                isLoop: true,
+            })[0])
+        )),
+    );
+
+    let proposals = results
+        .filter((result) => result.status === 'fulfilled' && result.value)
+        .map((result) => result.value);
+
+    proposals = dedupeProposals(proposals);
+
+    const targetSeconds = targetDurationMinutes * 60;
+    proposals.sort((a, b) => {
+        const diffA = Math.abs(a.durationSeconds - targetSeconds);
+        const diffB = Math.abs(b.durationSeconds - targetSeconds);
+        return diffA - diffB;
+    });
+
+    return { proposals, targetDurationMinutes };
 }
