@@ -91,13 +91,23 @@
                                 {{ $t('routes.plan_use_gps') }}
                             </button>
                         </div>
-                        <input
-                            v-model="originQuery"
-                            type="text"
-                            class="w-full bg-brand-black border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon"
-                            :placeholder="$t('routes.plan_search_placeholder')"
-                            @input="searchOrigin"
-                        />
+                        <div class="flex gap-2">
+                            <input
+                                v-model="originQuery"
+                                type="text"
+                                class="flex-1 min-w-0 bg-brand-black border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon"
+                                :placeholder="$t('routes.plan_search_placeholder')"
+                                @input="searchOrigin"
+                            />
+                            <button
+                                type="button"
+                                class="flex-shrink-0 w-11 h-[42px] rounded-lg border border-brand-dark bg-brand-black text-brand-neon hover:border-brand-neon hover:bg-brand-dark transition flex items-center justify-center"
+                                :title="$t('routes.plan_pick_on_map')"
+                                @click="openMapModal('origin')"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                            </button>
+                        </div>
                         <p v-if="origin" class="text-[10px] text-brand-neon mt-1 truncate">✓ {{ origin.name }}</p>
                         <ul v-if="originResults.length" class="mt-2 border border-brand-dark rounded-lg overflow-hidden">
                             <li
@@ -112,13 +122,23 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('routes.plan_destination') }}</label>
-                        <input
-                            v-model="destQuery"
-                            type="text"
-                            class="w-full bg-brand-black border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon"
-                            :placeholder="$t('routes.plan_search_placeholder')"
-                            @input="searchDestination"
-                        />
+                        <div class="flex gap-2">
+                            <input
+                                v-model="destQuery"
+                                type="text"
+                                class="flex-1 min-w-0 bg-brand-black border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon"
+                                :placeholder="$t('routes.plan_search_placeholder')"
+                                @input="searchDestination"
+                            />
+                            <button
+                                type="button"
+                                class="flex-shrink-0 w-11 h-[42px] rounded-lg border border-brand-dark bg-brand-black text-brand-neon hover:border-brand-neon hover:bg-brand-dark transition flex items-center justify-center"
+                                :title="$t('routes.plan_pick_on_map')"
+                                @click="openMapModal('destination')"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                            </button>
+                        </div>
                         <p v-if="destination" class="text-[10px] text-brand-neon mt-1 truncate">✓ {{ destination.name }}</p>
                         <ul v-if="destResults.length" class="mt-2 border border-brand-dark rounded-lg overflow-hidden">
                             <li
@@ -131,33 +151,6 @@
                             </li>
                         </ul>
                     </div>
-                </div>
-
-                <!-- Mapa per triar punts -->
-                <div class="bg-brand-surface p-5 rounded-2xl border border-brand-dark space-y-3">
-                    <div class="flex items-center justify-between gap-2">
-                        <label class="text-xs font-bold text-gray-400 uppercase">{{ $t('routes.plan_map_pick') }}</label>
-                        <p class="text-[10px] text-gray-500 uppercase tracking-widest">{{ mapPickHint }}</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <button
-                            type="button"
-                            class="flex-1 py-2 rounded-lg text-[10px] font-bold uppercase border transition"
-                            :class="mapPickTarget === 'origin' ? 'bg-green-500/20 text-green-400 border-green-500' : 'bg-brand-black text-gray-400 border-brand-dark'"
-                            @click="mapPickTarget = 'origin'"
-                        >
-                            {{ $t('routes.plan_pick_origin_map') }}
-                        </button>
-                        <button
-                            type="button"
-                            class="flex-1 py-2 rounded-lg text-[10px] font-bold uppercase border transition"
-                            :class="mapPickTarget === 'destination' ? 'bg-red-500/20 text-red-400 border-red-500' : 'bg-brand-black text-gray-400 border-brand-dark'"
-                            @click="mapPickTarget = 'destination'"
-                        >
-                            {{ $t('routes.plan_pick_dest_map') }}
-                        </button>
-                    </div>
-                    <div id="plan-picker-map" class="h-52 rounded-xl border border-brand-dark overflow-hidden bg-gray-900"></div>
                 </div>
 
                 <button
@@ -219,11 +212,31 @@
                 </button>
             </div>
         </div>
+
+        <Teleport to="body">
+            <div v-if="mapModalOpen" class="fixed inset-0 z-[6000] flex items-end sm:items-center justify-center p-4">
+                <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="closeMapModal"></div>
+                <div class="relative w-full max-w-lg bg-brand-surface border border-brand-dark rounded-2xl shadow-2xl overflow-hidden z-10">
+                    <div class="flex items-center justify-between p-4 border-b border-brand-dark">
+                        <div>
+                            <p class="text-white font-black uppercase tracking-widest text-sm">
+                                {{ mapModalOpen === 'origin' ? $t('routes.plan_origin') : $t('routes.plan_destination') }}
+                            </p>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">{{ mapModalHint }}</p>
+                        </div>
+                        <button type="button" class="text-gray-400 hover:text-white p-2" @click="closeMapModal" :aria-label="$t('common.close')">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+                    <div id="plan-picker-map" class="h-[55vh] sm:h-80 bg-gray-900"></div>
+                </div>
+            </div>
+        </Teleport>
     </AppLayout>
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, nextTick, onUnmounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { Geolocation } from '@capacitor/geolocation';
 import { useI18n } from 'vue-i18n';
@@ -261,11 +274,11 @@ const isGenerating = ref(false);
 const errorMessage = ref('');
 const longRouteNotice = ref('');
 
-const mapPickTarget = ref('origin');
+const mapModalOpen = ref(null);
 const pickerMap = ref(null);
+const pickerMarker = ref(null);
 const resultMap = ref(null);
 const resultMapEl = ref(null);
-const pickerMarkers = ref({ origin: null, destination: null });
 const routeLayers = ref([]);
 
 let originTimeout = null;
@@ -273,8 +286,8 @@ let destTimeout = null;
 
 const canGenerate = computed(() => hasOrsApiKey() && origin.value && destination.value);
 
-const mapPickHint = computed(() => (
-    mapPickTarget.value === 'destination'
+const mapModalHint = computed(() => (
+    mapModalOpen.value === 'destination'
         ? t('routes.plan_map_pick_dest_hint')
         : t('routes.plan_map_pick_origin_hint')
 ));
@@ -334,16 +347,12 @@ const selectOrigin = (result) => {
     origin.value = pickPlace(result);
     originQuery.value = origin.value.name;
     originResults.value = [];
-    updatePickerMarkers();
-    focusPickerMap();
 };
 
 const selectDestination = (result) => {
     destination.value = pickPlace(result);
     destQuery.value = destination.value.name;
     destResults.value = [];
-    updatePickerMarkers();
-    focusPickerMap();
 };
 
 const reverseGeocode = async (lat, lng) => {
@@ -364,7 +373,7 @@ const setPointFromMap = async (latlng) => {
     const name = await reverseGeocode(latlng.lat, latlng.lng);
     const point = { lat: latlng.lat, lng: latlng.lng, name };
 
-    if (mapPickTarget.value === 'destination') {
+    if (mapModalOpen.value === 'destination') {
         destination.value = point;
         destQuery.value = name;
         destResults.value = [];
@@ -374,8 +383,55 @@ const setPointFromMap = async (latlng) => {
         originResults.value = [];
     }
 
-    updatePickerMarkers();
-    focusPickerMap();
+    closeMapModal();
+};
+
+const destroyPickerMap = () => {
+    if (pickerMap.value) {
+        pickerMap.value.remove();
+        pickerMap.value = null;
+    }
+    pickerMarker.value = null;
+};
+
+const openMapModal = async (target) => {
+    mapModalOpen.value = target;
+    await nextTick();
+    destroyPickerMap();
+
+    const el = document.getElementById('plan-picker-map');
+    if (!el) return;
+
+    const existing = target === 'destination' ? destination.value : origin.value;
+    const center = existing
+        ? [existing.lat, existing.lng]
+        : (origin.value ? [origin.value.lat, origin.value.lng] : [41.3851, 2.1734]);
+    const zoom = existing ? 12 : 8;
+
+    pickerMap.value = L.map(el, { zoomControl: false, attributionControl: false }).setView(center, zoom);
+    addMapTileLayer(pickerMap.value, L);
+
+    pickerMap.value.on('click', (e) => {
+        setPointFromMap(e.latlng);
+    });
+
+    if (existing) {
+        pickerMarker.value = L.circleMarker([existing.lat, existing.lng], {
+            radius: 8,
+            color: '#fff',
+            fillColor: target === 'destination' ? '#ef4444' : '#22c55e',
+            weight: 2,
+            fillOpacity: 1,
+        }).addTo(pickerMap.value);
+    }
+
+    await nextTick();
+    pickerMap.value.invalidateSize();
+};
+
+const closeMapModal = () => {
+    mapModalOpen.value = null;
+    destroyPickerMap();
 };
 
 const useMyLocation = async () => {
@@ -392,8 +448,6 @@ const useMyLocation = async () => {
         };
         originQuery.value = origin.value.name;
         originResults.value = [];
-        updatePickerMarkers();
-        focusPickerMap();
     } catch {
         errorMessage.value = t('routes.plan_gps_error');
     }
@@ -451,57 +505,6 @@ const destroyResultMap = () => {
         resultMap.value = null;
     }
     routeLayers.value = [];
-};
-
-const initPickerMap = () => {
-    const el = document.getElementById('plan-picker-map');
-    if (!el || pickerMap.value) return;
-
-    pickerMap.value = L.map(el, { zoomControl: false, attributionControl: false }).setView([41.3851, 2.1734], 8);
-    addMapTileLayer(pickerMap.value, L);
-
-    pickerMap.value.on('click', (e) => {
-        setPointFromMap(e.latlng);
-    });
-};
-
-const updatePickerMarkers = () => {
-    if (!pickerMap.value) return;
-
-    if (pickerMarkers.value.origin) {
-        pickerMap.value.removeLayer(pickerMarkers.value.origin);
-        pickerMarkers.value.origin = null;
-    }
-    if (pickerMarkers.value.destination) {
-        pickerMap.value.removeLayer(pickerMarkers.value.destination);
-        pickerMarkers.value.destination = null;
-    }
-
-    const bounds = L.latLngBounds([]);
-
-    if (origin.value) {
-        pickerMarkers.value.origin = L.circleMarker([origin.value.lat, origin.value.lng], {
-            radius: 8, color: '#fff', fillColor: '#22c55e', weight: 2, fillOpacity: 1,
-        }).addTo(pickerMap.value);
-        bounds.extend([origin.value.lat, origin.value.lng]);
-    }
-    if (destination.value) {
-        pickerMarkers.value.destination = L.circleMarker([destination.value.lat, destination.value.lng], {
-            radius: 8, color: '#fff', fillColor: '#ef4444', weight: 2, fillOpacity: 1,
-        }).addTo(pickerMap.value);
-        bounds.extend([destination.value.lat, destination.value.lng]);
-    }
-
-    if (bounds.isValid()) {
-        pickerMap.value.fitBounds(bounds, { padding: [32, 32], maxZoom: 12 });
-    }
-};
-
-const focusPickerMap = () => {
-    nextTick(() => {
-        pickerMap.value?.invalidateSize();
-        updatePickerMarkers();
-    });
 };
 
 const initResultMap = () => {
@@ -578,12 +581,6 @@ watch(proposals, async (list) => {
     }
 });
 
-onMounted(async () => {
-    await nextTick();
-    initPickerMap();
-    focusPickerMap();
-});
-
 const continueToCreate = () => {
     const proposal = proposals.value.find((p) => p.id === selectedId.value);
     if (!proposal) return;
@@ -603,16 +600,13 @@ const continueToCreate = () => {
 
 onUnmounted(() => {
     destroyResultMap();
-    if (pickerMap.value) {
-        pickerMap.value.remove();
-        pickerMap.value = null;
-    }
+    destroyPickerMap();
 });
 </script>
 
 <style scoped>
 #plan-picker-map,
 #plan-map {
-    z-index: 0;
+    z-index: 1;
 }
 </style>

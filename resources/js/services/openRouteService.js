@@ -23,29 +23,43 @@ export function haversineKm(a, b) {
     return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
 }
 
-export function buildRequestOptions({ highway, roadStyle }) {
+export function buildRequestOptions({ highway, roadStyle, variant = 'primary' }) {
     const avoid_features = [];
 
-    if (highway === 'avoid' || roadStyle !== 'fast') {
+    if (highway === 'avoid') {
         avoid_features.push('highways');
     }
 
     if (roadStyle === 'scenic') {
+        if (!avoid_features.includes('highways')) {
+            avoid_features.push('highways');
+        }
         avoid_features.push('tollways');
     }
 
     let preference = 'recommended';
-    if (roadStyle === 'fast' && highway === 'allow') {
+    if (roadStyle === 'fast') {
         preference = 'fastest';
+    } else if (roadStyle === 'scenic') {
+        preference = variant === 'secondary' ? 'shortest' : 'recommended';
+    } else if (roadStyle === 'balanced' && variant === 'secondary') {
+        preference = 'shortest';
+    }
+
+    const options = {};
+
+    if (avoid_features.length) {
+        options.avoid_features = [...new Set(avoid_features)];
+    }
+
+    if (roadStyle === 'scenic') {
+        options.weightings = { green: 1, quiet: 1 };
     }
 
     return {
         preference,
-        options: avoid_features.length ? { avoid_features } : undefined,
-        tag: {
-            highway,
-            roadStyle,
-        },
+        options: Object.keys(options).length ? options : undefined,
+        tag: { highway, roadStyle },
     };
 }
 
@@ -53,6 +67,7 @@ export async function fetchDirections({
     coordinates,
     highway,
     roadStyle,
+    variant = 'primary',
     useAlternatives = false,
     alternativeCount = 2,
 }) {
@@ -61,7 +76,7 @@ export async function fetchDirections({
         throw new Error('ORS_API_KEY_MISSING');
     }
 
-    const { preference, options } = buildRequestOptions({ highway, roadStyle });
+    const { preference, options } = buildRequestOptions({ highway, roadStyle, variant });
 
     const body = {
         coordinates,
@@ -75,8 +90,8 @@ export async function fetchDirections({
     if (useAlternatives) {
         body.alternative_routes = {
             target_count: Math.min(alternativeCount, 2),
-            share_factor: 0.55,
-            weight_factor: 1.35,
+            share_factor: 0.45,
+            weight_factor: 1.6,
         };
     }
 
@@ -115,7 +130,7 @@ export function parseProposals(geojson, { origin, destination, labelPrefix, tag 
         const latLngs = coords.map(([lng, lat]) => ({ lat, lng }));
 
         return {
-            id: `${labelPrefix}-${index}-${Math.round(summary.duration || 0)}`,
+            id: `${labelPrefix}-${index}-${Math.round(summary.duration || 0)}-${Math.round(summary.distance || 0)}`,
             label: features.length > 1 ? `${labelPrefix} ${index + 1}` : labelPrefix,
             distanceKm: Math.round(((summary.distance || 0) / 1000) * 10) / 10,
             durationSeconds: Math.round(summary.duration || 0),
@@ -147,6 +162,10 @@ function isAlternativesLimitError(message) {
     return message.includes('100000') || message.toLowerCase().includes('alternative');
 }
 
+function wantsStrictRouting(highway, roadStyle) {
+    return highway === 'avoid' || roadStyle !== 'fast';
+}
+
 export async function fetchRouteProposals({
     origin,
     destination,
@@ -161,11 +180,10 @@ export async function fetchRouteProposals({
 
     const straightKm = haversineKm(origin, destination);
     const tag = buildRequestOptions({ highway, roadStyle }).tag;
-    const useAlternatives = straightKm < ALTERNATIVES_MAX_STRAIGHT_KM;
-
+    const strict = wantsStrictRouting(highway, roadStyle);
     let proposals = [];
 
-    if (useAlternatives) {
+    if (!strict && straightKm < ALTERNATIVES_MAX_STRAIGHT_KM) {
         try {
             const geojson = await fetchDirections({
                 coordinates,
@@ -187,13 +205,38 @@ export async function fetchRouteProposals({
             coordinates,
             highway,
             roadStyle,
+            variant: 'primary',
             useAlternatives: false,
         });
         proposals = parseProposals(geojson, { origin, destination, labelPrefix, tag });
     }
 
+    if (strict && straightKm < ALTERNATIVES_MAX_STRAIGHT_KM && proposals.length < 2) {
+        try {
+            const altGeo = await fetchDirections({
+                coordinates,
+                highway,
+                roadStyle,
+                variant: 'secondary',
+                useAlternatives: false,
+            });
+            const altLabel = `${labelPrefix} B`;
+            proposals = [
+                ...proposals,
+                ...parseProposals(altGeo, {
+                    origin,
+                    destination,
+                    labelPrefix: altLabel,
+                    tag,
+                }),
+            ];
+        } catch {
+            // optional second variant
+        }
+    }
+
     proposals = dedupeProposals(proposals).slice(0, 4);
     proposals.sort((a, b) => a.durationSeconds - b.durationSeconds);
 
-    return { proposals, straightKm, usedAlternatives: useAlternatives && proposals.length > 1 };
+    return { proposals, straightKm, usedAlternatives: !strict && proposals.length > 1 };
 }
