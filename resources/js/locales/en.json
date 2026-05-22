@@ -556,7 +556,7 @@
     "habitual_list_empty": "No regular routes configured yet.",
     "habitual_done_btn": "Done",
     "habitual_done_flash": "{title}: +{km} km added to motorcycle",
-    "habitual_round_trip_short": "R/T",
+    "habitual_round_trip_short": "Round trip",
     "habitual_add_title": "Add regular route",
     "habitual_add_desc": "Set up once (e.g. Saturday). Then just tap Done when you ride it.",
     "habitual_add_btn": "Add to list",

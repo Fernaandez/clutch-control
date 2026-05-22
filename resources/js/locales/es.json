@@ -556,7 +556,7 @@
     "habitual_list_empty": "Aún no tienes rutas habituales configuradas.",
     "habitual_done_btn": "Hecha",
     "habitual_done_flash": "{title}: +{km} km añadidos a la moto",
-    "habitual_round_trip_short": "I/V",
+    "habitual_round_trip_short": "Ida y vuelta",
     "habitual_add_title": "Añadir ruta habitual",
     "habitual_add_desc": "Configura una vez (ej.: sábado). Después solo pulsa Hecha cuando la hagas.",
     "habitual_add_btn": "Añadir al listado",

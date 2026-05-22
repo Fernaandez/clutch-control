@@ -556,7 +556,7 @@
     "habitual_list_empty": "Encara no tens rutes habituals configurades.",
     "habitual_done_btn": "Feta",
     "habitual_done_flash": "{title}: +{km} km afegits a la moto",
-    "habitual_round_trip_short": "A/T",
+    "habitual_round_trip_short": "Anada i tornada",
     "habitual_add_title": "Afegir ruta habitual",
     "habitual_add_desc": "Configura un cop (ex.: dissabte). Després només prem Feta quan la facis.",
     "habitual_add_btn": "Afegir al llistat",
