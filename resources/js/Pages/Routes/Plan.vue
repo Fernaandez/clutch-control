@@ -293,6 +293,7 @@ const loopDurationPresets = [
     { minutes: 180, labelKey: 'routes.plan_loop_3h' },
     { minutes: 240, labelKey: 'routes.plan_loop_4h' },
     { minutes: 360, labelKey: 'routes.plan_loop_6h' },
+    { minutes: 480, labelKey: 'routes.plan_loop_8h' },
 ];
 
 const estimatedLoopKm = computed(() => (
