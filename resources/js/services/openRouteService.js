@@ -16,13 +16,20 @@ const MAX_FAST_ROAD_AVOID_ATTEMPTS = 3;
 const AVOID_POLYGON_BUFFER_DEG = 0.0035;
 
 const LOOP_MIN_LENGTH_M = 5000;
-const LOOP_MAX_LENGTH_M = 400000;
+const LOOP_MAX_LENGTH_M = 500000;
+/** ORS public API caps round-trip algorithm at ~100 km routed distance */
+const ORS_ROUND_TRIP_MAX_LENGTH_M = 95000;
 const LOOP_DURATION_TOLERANCE = 0.18;
+
+export const LOOP_MIN_MINUTES = 30;
+export const LOOP_MAX_MINUTES = 480;
+export const LOOP_SLIDER_STEP = 15;
 
 const LOOP_VARIANTS = [
     { seed: 11, points: 3 },
     { seed: 22, points: 4 },
     { seed: 33, points: 5 },
+    { seed: 44, points: 4 },
 ];
 
 const LOOP_SPEED_KMH = {
@@ -209,8 +216,34 @@ export function estimateLoopLengthMeters(targetDurationMinutes, roadStyle) {
     return Math.round(Math.min(LOOP_MAX_LENGTH_M, Math.max(LOOP_MIN_LENGTH_M, lengthM)));
 }
 
+export function estimateLoopDistanceKm(targetDurationMinutes, roadStyle) {
+    return Math.round((estimateLoopLengthMeters(targetDurationMinutes, roadStyle) / 1000) * 10) / 10;
+}
+
 function clampLoopLength(lengthM) {
     return Math.round(Math.min(LOOP_MAX_LENGTH_M, Math.max(LOOP_MIN_LENGTH_M, lengthM)));
+}
+
+function destinationFromBearing(origin, bearingDeg, distanceM) {
+    const earthR = 6371000;
+    const brng = (bearingDeg * Math.PI) / 180;
+    const lat1 = (origin.lat * Math.PI) / 180;
+    const lon1 = (origin.lng * Math.PI) / 180;
+    const angular = distanceM / earthR;
+
+    const lat2 = Math.asin(
+        Math.sin(lat1) * Math.cos(angular)
+        + Math.cos(lat1) * Math.sin(angular) * Math.cos(brng),
+    );
+    const lon2 = lon1 + Math.atan2(
+        Math.sin(brng) * Math.sin(angular) * Math.cos(lat1),
+        Math.cos(angular) - Math.sin(lat1) * Math.sin(lat2),
+    );
+
+    return {
+        lat: (lat2 * 180) / Math.PI,
+        lng: (lon2 * 180) / Math.PI,
+    };
 }
 
 export async function fetchDirections({
@@ -288,10 +321,11 @@ export async function fetchDirections({
 }
 
 async function fetchDirectionsAvoidingFastRoads(params) {
-    const { highway, roundTrip, ...rest } = params;
+    const { highway, roundTrip, coordinates, ...rest } = params;
+    const skipPolygonAvoidance = roundTrip || (coordinates?.length > 2);
 
-    if (highway !== 'avoid') {
-        return fetchDirections({ ...rest, highway, roundTrip });
+    if (highway !== 'avoid' || skipPolygonAvoidance) {
+        return fetchDirections({ coordinates, highway, roundTrip, ...rest });
     }
 
     const avoidPolygons = [];
@@ -300,6 +334,7 @@ async function fetchDirectionsAvoidingFastRoads(params) {
     for (let attempt = 0; attempt < MAX_FAST_ROAD_AVOID_ATTEMPTS; attempt += 1) {
         geojson = await fetchDirections({
             ...rest,
+            coordinates,
             highway,
             roundTrip,
             avoidPolygons,
@@ -359,17 +394,19 @@ export function parseProposals(geojson, {
     });
 }
 
-async function fetchSingleLoopRoute({
+async function fetchRoundTripRoute({
     origin,
     targetDurationMinutes,
     highway,
     roadStyle,
     seed,
     points,
+    lengthScale = 1,
 }) {
     const coordinates = [[origin.lng, origin.lat]];
     const targetSeconds = targetDurationMinutes * 60;
-    let lengthM = estimateLoopLengthMeters(targetDurationMinutes, roadStyle);
+    let lengthM = clampLoopLength(estimateLoopLengthMeters(targetDurationMinutes, roadStyle) * lengthScale);
+    lengthM = Math.min(lengthM, ORS_ROUND_TRIP_MAX_LENGTH_M);
 
     let geojson = await fetchDirectionsAvoidingFastRoads({
         coordinates,
@@ -383,7 +420,10 @@ async function fetchSingleLoopRoute({
     if (durationSeconds > 0) {
         const ratio = targetSeconds / durationSeconds;
         if (Math.abs(1 - ratio) > LOOP_DURATION_TOLERANCE) {
-            lengthM = clampLoopLength(lengthM * ratio);
+            lengthM = clampLoopLength(Math.min(
+                ORS_ROUND_TRIP_MAX_LENGTH_M,
+                lengthM * ratio,
+            ));
             geojson = await fetchDirectionsAvoidingFastRoads({
                 coordinates,
                 highway,
@@ -394,6 +434,75 @@ async function fetchSingleLoopRoute({
     }
 
     return geojson;
+}
+
+async function fetchLoopViaWaypoints({
+    origin,
+    targetDurationMinutes,
+    highway,
+    roadStyle,
+    seed,
+    lengthScale = 1,
+}) {
+    const lengthM = estimateLoopLengthMeters(targetDurationMinutes, roadStyle) * lengthScale;
+    const numPoints = Math.min(8, Math.max(4, Math.round(3 + targetDurationMinutes / 50)));
+    const startBearing = (seed * 53) % 360;
+    const radiusM = Math.max(4000, lengthM / (2 * Math.PI));
+
+    const intermediates = [];
+    for (let i = 0; i < numPoints; i += 1) {
+        const bearing = startBearing + (360 / numPoints) * i;
+        intermediates.push(destinationFromBearing(origin, bearing, radiusM));
+    }
+
+    const coordinates = [
+        [origin.lng, origin.lat],
+        ...intermediates.map((point) => [point.lng, point.lat]),
+        [origin.lng, origin.lat],
+    ];
+
+    return fetchDirectionsAvoidingFastRoads({
+        coordinates,
+        highway,
+        roadStyle,
+        withFastRoadAnalysis: highway === 'avoid',
+    });
+}
+
+async function fetchSingleLoopRoute(params) {
+    const lengthM = estimateLoopLengthMeters(params.targetDurationMinutes, params.roadStyle);
+    const useRoundTrip = lengthM <= ORS_ROUND_TRIP_MAX_LENGTH_M;
+
+    const strategies = useRoundTrip
+        ? [
+            () => fetchRoundTripRoute(params),
+            () => fetchRoundTripRoute({
+                ...params,
+                lengthScale: 0.88,
+                points: Math.max(3, params.points - 1),
+                seed: params.seed + 500,
+            }),
+        ]
+        : [
+            () => fetchLoopViaWaypoints(params),
+            () => fetchLoopViaWaypoints({ ...params, seed: params.seed + 500, lengthScale: 0.92 }),
+            () => fetchLoopViaWaypoints({ ...params, seed: params.seed + 900, lengthScale: 0.85 }),
+        ];
+
+    let lastError = null;
+
+    for (const strategy of strategies) {
+        try {
+            const geojson = await strategy();
+            if (geojson?.features?.[0]) {
+                return geojson;
+            }
+        } catch (err) {
+            lastError = err;
+        }
+    }
+
+    throw lastError || new Error('LOOP_ROUTE_FAILED');
 }
 
 function dedupeProposals(list) {
