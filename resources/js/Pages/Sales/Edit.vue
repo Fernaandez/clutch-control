@@ -130,8 +130,9 @@
                     <div class="flex flex-col gap-3">
                         <select v-model="form.state" class="w-full bg-brand-black border-brand-dark rounded-lg text-white font-bold focus:border-brand-neon focus:ring-brand-neon p-3">
                             <option value="actiu">{{ $t('sales.state_active') }}</option>
-                            <option value="actiu (reservat) (nou)">{{ $t('sales.state_reserved') }}</option>
+                            <option value="reservat">{{ $t('sales.state_reserved') }}</option>
                             <option value="venuda">{{ $t('sales.state_sold') }}</option>
+                            <option value="pausat">{{ $t('sales.state_paused') }}</option>
                         </select>
                     </div>
                 </div>

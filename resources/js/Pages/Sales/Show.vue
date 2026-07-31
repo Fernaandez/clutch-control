@@ -16,7 +16,7 @@
                         button-class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500 hover:text-white transition"
                     />
                     <div v-if="sale.state === 'venuda'" class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-red-500/20 text-red-400 border border-red-500/30">Venuda</div>
-                    <div v-else-if="sale.state === 'actiu (reservat) (nou)'" class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-yellow-500/20 text-yellow-500 border border-yellow-500/30">Reservada</div>
+                    <div v-else-if="sale.state === 'reservat'" class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-yellow-500/20 text-yellow-500 border border-yellow-500/30">Reservada</div>
                     <div v-else class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-brand-neon/10 text-brand-neon border border-brand-neon/20">{{ $t('sales.state_active') }}</div>
                 </div>
             </div>
@@ -149,7 +149,7 @@
             <!-- Botons propietari (si és el teu anunci) -->
             <div v-if="isOwner" class="mb-6 flex gap-3">
                 <Link 
-                    v-if="!sale.is_sold"
+                    v-if="sale.state !== 'venuda'"
                     :href="route('sales.mark-sold', sale.id)"
                     method="patch" as="button"
                     class="flex-1 bg-red-900/30 border border-red-700/30 text-red-400 hover:bg-red-900/60 font-bold uppercase tracking-wider text-xs py-3 rounded-xl text-center transition"
@@ -161,7 +161,7 @@
         </div>
 
         <!-- Barra de contacte fixa (si no és el teu anunci i no està venut) -->
-        <div v-if="!isOwner && !sale.is_sold" class="fixed bottom-16 left-0 w-full p-4 bg-brand-black/90 backdrop-blur-xl border-t border-brand-dark z-50">
+        <div v-if="!isOwner && sale.state !== 'venuda'" class="fixed bottom-16 left-0 w-full p-4 bg-brand-black/90 backdrop-blur-xl border-t border-brand-dark z-50">
             <div class="max-w-3xl mx-auto">
                 <Link 
                     :href="route('chats.start')"

@@ -161,7 +161,7 @@
                     <div v-if="sale.state === 'venuda'" class="absolute inset-0 bg-black/60 backdrop-blur-sm z-30 flex items-center justify-center">
                         <span class="bg-red-600 text-white px-6 py-2 font-black uppercase tracking-widest text-xl transform -rotate-12 border-2 border-red-900 shadow-2xl">Venuda</span>
                     </div>
-                    <div v-else-if="sale.state === 'actiu (reservat) (nou)'" class="absolute inset-0 bg-black/40 backdrop-blur-sm z-30 flex items-center justify-center">
+                    <div v-else-if="sale.state === 'reservat'" class="absolute inset-0 bg-black/40 backdrop-blur-sm z-30 flex items-center justify-center">
                         <span class="bg-yellow-500 text-black px-6 py-2 font-black uppercase tracking-widest text-xl transform -rotate-12 border-2 border-yellow-700 shadow-2xl">Reservada</span>
                     </div>
 

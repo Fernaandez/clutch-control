@@ -13,6 +13,13 @@
 
             <form @submit.prevent="submit" class="space-y-8">
 
+                <div v-if="Object.keys(form.errors).length > 0" class="p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+                    <p class="text-red-500 font-black text-xs uppercase tracking-widest mb-2">{{ $t('events.check_errors') }}</p>
+                    <ul class="list-disc pl-5 text-red-400 text-sm space-y-1">
+                        <li v-for="(error, field) in form.errors" :key="field">{{ error }}</li>
+                    </ul>
+                </div>
+
                 <!-- DADES GENERALS -->
                 <div class="bg-brand-surface p-6 rounded-xl border border-brand-dark shadow-lg space-y-5">
                     <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2 mb-4">Dades Generals</h2>

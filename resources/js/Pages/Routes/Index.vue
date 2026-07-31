@@ -39,8 +39,6 @@
                             <option value="easy">{{ $t('routes.difficulty_easy') }}</option>
                             <option value="medium">{{ $t('routes.difficulty_medium') }}</option>
                             <option value="hard">{{ $t('routes.difficulty_hard') }}</option>
-                            <option value="expert">{{ $t('routes.difficulty_expert') }}</option>
-                            <option value="extreme">{{ $t('routes.difficulty_extreme') }}</option>
                         </select>
                     </div>
                 </div>
@@ -151,7 +149,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import RouteMiniMap from '@/Components/RouteMiniMap.vue';
 import { useRoutesStore } from '@/Stores/useRoutesStore';
@@ -198,7 +196,7 @@ const resetFilters = () => {
 };
 
 const difficultyLabel = (d) => {
-    const map = { easy: t('routes.diff_label_easy'), medium: t('routes.diff_label_medium'), hard: t('routes.diff_label_hard'), expert: t('routes.diff_label_expert'), extreme: t('routes.diff_label_extreme') };
+    const map = { easy: t('routes.diff_label_easy'), medium: t('routes.diff_label_medium'), hard: t('routes.diff_label_hard') };
     return map[d] || d;
 };
 

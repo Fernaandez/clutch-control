@@ -4,7 +4,10 @@
     "routes": "Rutes",
     "events": "Quedades",
     "sales": "Vendes",
-    "settings": "Ajustos"
+    "chats": "Xats",
+    "settings": "Ajustos",
+    "logged_in_as": "Connectat com",
+    "logout": "Sortir"
   },
   "lang": {
     "es": "Castellà",
@@ -514,6 +517,7 @@
     "state_active": "Visible al Mercat (Actiu)",
     "state_reserved": "Actiu (Reservat)",
     "state_sold": "Marcar com a VENUDA",
+    "state_paused": "Pausat (ocult del mercat)",
     "moto_specs": "Especificacions de la Moto",
     "listing_data": "Dades de l'Anunci",
     "current_photos": "Fotos Actuals",
@@ -661,13 +665,9 @@
     "difficulty_easy": "🟢 Fàcil",
     "difficulty_medium": "🟡 Mitjana",
     "difficulty_hard": "🔴 Difícil",
-    "difficulty_expert": "🟣 Experta",
-    "difficulty_extreme": "☠️ Extrema",
     "diff_label_easy": "Fàcil",
     "diff_label_medium": "Mitjana",
     "diff_label_hard": "Difícil",
-    "diff_label_expert": "Experta",
-    "diff_label_extreme": "Extrema",
     "km_min": "KM Mínim",
     "km_max": "KM Màxim",
     "rating_min": "Valoració Mínima",

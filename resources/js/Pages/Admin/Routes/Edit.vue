@@ -12,7 +12,7 @@
             <div class="flex justify-between items-center mb-6 border-b pb-2">
                 <h2 class="text-xl font-bold text-gray-800">Route Details (ID: {{ routeRecord.id }})</h2>
                 <div class="flex gap-2">
-                    <a v-if="routeRecord.start_lat && routeRecord.start_lng" :href="`https://www.google.com/maps/search/?api=1&query=${routeRecord.start_lat},${routeRecord.start_lng}`" target="_blank" class="px-3 py-1 bg-green-100 text-green-700 text-sm font-semibold rounded hover:bg-green-200 transition">
+                    <a v-if="routeRecord.starting_lat && routeRecord.starting_lng" :href="`https://www.google.com/maps/search/?api=1&query=${routeRecord.starting_lat},${routeRecord.starting_lng}`" target="_blank" class="px-3 py-1 bg-green-100 text-green-700 text-sm font-semibold rounded hover:bg-green-200 transition">
                         🌍 Open in Google Maps
                     </a>
                 </div>

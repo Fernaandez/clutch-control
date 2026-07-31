@@ -6,6 +6,25 @@ use Illuminate\Database\Eloquent\Model;
 
 class SaleListing extends Model
 {
+    public const STATE_ACTIVE   = 'actiu';
+    public const STATE_RESERVED = 'reservat';
+    public const STATE_SOLD     = 'venuda';
+    public const STATE_PAUSED   = 'pausat';
+
+    /** Estats vàlids d'un anunci. */
+    public const STATES = [
+        self::STATE_ACTIVE,
+        self::STATE_RESERVED,
+        self::STATE_SOLD,
+        self::STATE_PAUSED,
+    ];
+
+    /** Estats que es mostren al mercat públic. */
+    public const PUBLIC_STATES = [
+        self::STATE_ACTIVE,
+        self::STATE_RESERVED,
+    ];
+
     protected $fillable = [
         'motorcycle_id', 
         'title', 

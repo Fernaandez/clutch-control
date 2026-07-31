@@ -185,6 +185,19 @@ class TripController extends Controller
         return response()->json($trips);
     }
 
+    /**
+     * Recorreguts propis fets sobre una ruta concreta (per comparar passades).
+     */
+    public function forRoute(Route $route)
+    {
+        $trips = $this->userTripsQuery()
+            ->where('route_id', $route->id)
+            ->get()
+            ->map(fn (Trip $trip) => $this->formatTripListItem($trip));
+
+        return response()->json($trips);
+    }
+
     public function show(Trip $trip)
     {
         if ($trip->user_id !== Auth::id()) {

@@ -70,10 +70,6 @@ class MotorcycleController extends Controller
             ->all();
         $data['user_id'] = Auth::id();
 
-        if (isset($motorcycleColumns['plate'])) {
-            $data['plate'] = 'SENSE-' . Auth::id() . '-' . \Illuminate\Support\Str::upper(\Illuminate\Support\Str::random(8));
-        }
-
         if ($request->hasFile('photo')) {
             $ext = $request->file('photo')->getClientOriginalExtension() ?: $request->file('photo')->guessExtension() ?: 'jpg';
             if (isset($motorcycleColumns['photo'])) {

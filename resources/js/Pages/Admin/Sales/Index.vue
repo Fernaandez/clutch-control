@@ -19,7 +19,8 @@
                     >
                         <option value="all">All States</option>
                         <option value="actiu">Active</option>
-                        <option value="actiu (reservat) (nou)">Reserved</option>
+                        <option value="reservat">Reserved</option>
+                        <option value="pausat">Paused</option>
                         <option value="venuda">Sold</option>
                     </select>
                 </div>
@@ -53,7 +54,7 @@
                             <td class="px-6 py-4">
                                 <span v-if="item.state === 'venuda'" class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-semibold uppercase tracking-wider mr-2">Sold</span>
                                 <span v-if="item.state === 'actiu'" class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-semibold uppercase tracking-wider">Active</span>
-                                <span v-if="item.state === 'actiu (reservat) (nou)'" class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-semibold uppercase tracking-wider">Reserved</span>
+                                <span v-if="item.state === 'reservat'" class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-semibold uppercase tracking-wider">Reserved</span>
                             </td>
                             <td class="px-6 py-4 text-right space-x-2">
                                 <Link :href="route('admin.sales.edit', item.id)" class="text-blue-600 hover:text-blue-900 font-medium bg-blue-50 px-3 py-1.5 rounded transition">Edit</Link>

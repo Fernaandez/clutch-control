@@ -22,7 +22,7 @@
             </div>
 
             <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <div v-for="sale in sales" :key="sale.id" class="bg-brand-surface rounded-xl overflow-hidden border border-brand-dark shadow-lg group hover:border-brand-neon transition duration-300 flex flex-col animate-fade-in" :class="sale.state === 'venuda' ? 'opacity-70 grayscale-[30%]' : (sale.state === 'actiu (reservat) (nou)' ? 'ring-1 ring-yellow-500/50' : '')">
+                <div v-for="sale in sales" :key="sale.id" class="bg-brand-surface rounded-xl overflow-hidden border border-brand-dark shadow-lg group hover:border-brand-neon transition duration-300 flex flex-col animate-fade-in" :class="sale.state === 'venuda' ? 'opacity-70 grayscale-[30%]' : (sale.state === 'reservat' ? 'ring-1 ring-yellow-500/50' : (sale.state === 'pausat' ? 'opacity-60' : ''))">
                     
                     <div class="h-40 bg-gray-900 relative w-full overflow-hidden flex items-center justify-center">
                         <img v-if="sale.images && sale.images.length > 0" :src="$page.props.storageUrl + '/' + sale.images[0].image_path" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Foto">
@@ -34,7 +34,8 @@
 
                         <!-- Pill d'estat a dalt esquerra -->
                         <div v-if="sale.state === 'venuda'" class="absolute top-2 left-2 bg-red-600/90 border border-red-500 text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md">{{ $t('sales.sold') }}</div>
-                        <div v-else-if="sale.state === 'actiu (reservat) (nou)'" class="absolute top-2 left-2 bg-yellow-500/90 border border-yellow-400 text-black px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md">Reservada</div>
+                        <div v-else-if="sale.state === 'reservat'" class="absolute top-2 left-2 bg-yellow-500/90 border border-yellow-400 text-black px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md">{{ $t('sales.state_reserved') }}</div>
+                        <div v-else-if="sale.state === 'pausat'" class="absolute top-2 left-2 bg-gray-600/90 border border-gray-500 text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md">{{ $t('sales.state_paused') }}</div>
                         <div v-else class="absolute top-2 left-2 bg-brand-neon/90 border border-brand-neon text-black px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md">{{ $t('sales.active') }}</div>
 
                         <!-- Vistes & Cors (badges petits on normalment aniria la dificultat) a dalt dreta -->
@@ -56,7 +57,7 @@
                         </div>
 
                         <div class="flex gap-2 mt-4 pt-4 border-t border-brand-dark/50">
-                            <Link :href="route('sales.show', sale.id)" prefetch="hover" class="flex-1 text-center bg-brand-dark hover:bg-white hover:text-black text-white text-xs font-bold uppercase py-2 rounded transition">
+                            <Link :href="route('sales.show', { sale: sale.id, from: 'mine' })" prefetch="hover" class="flex-1 text-center bg-brand-dark hover:bg-white hover:text-black text-white text-xs font-bold uppercase py-2 rounded transition">
                                 {{ $t('sales.view_detail') }}
                             </Link>
 

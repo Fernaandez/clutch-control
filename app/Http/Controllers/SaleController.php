@@ -18,7 +18,7 @@ class SaleController extends Controller
     {
         $sales = SaleListing::with(['motorcycle', 'images'])
             ->withCount('favoritedBy')
-            ->whereIn('state', ['actiu', 'actiu (reservat) (nou)'])
+            ->whereIn('state', SaleListing::PUBLIC_STATES)
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($sale) {
@@ -69,7 +69,6 @@ class SaleController extends Controller
             'power_cv'       => 'nullable|integer|min:0',
             'license_type'   => 'nullable|string|in:AM,A1,A2,A',
             'type'           => 'nullable|string|in:Naked,Sport,Trail,Custom,Scooter,Touring,Off-Road,Classic',
-            'has_abs'        => 'boolean',
             'extras'         => 'nullable|string|max:1000',
             'show_history'   => 'boolean',
             // Fotos
@@ -93,7 +92,7 @@ class SaleController extends Controller
             'description'   => $validated['description'],
             'price'         => $validated['price'],
             'location'      => $validated['location'],
-            'state'         => 'actiu',
+            'state'         => SaleListing::STATE_ACTIVE,
             'show_history'  => $request->boolean('show_history', false),
         ]);
 
@@ -103,7 +102,6 @@ class SaleController extends Controller
             'power_cv'     => $validated['power_cv'] ?? $moto->power_cv,
             'license_type' => $validated['license_type'] ?? $moto->license_type,
             'type'         => $validated['type'] ?? $moto->type,
-            'has_abs'      => $request->boolean('has_abs'),
             'extras'       => $validated['extras'] ?? $moto->extras,
         ]);
 
@@ -173,7 +171,7 @@ class SaleController extends Controller
             'description'    => 'nullable|string',
             'price'          => 'required|numeric|min:0',
             'location'       => 'required|string|max:255',
-            'state'          => 'required|string|in:actiu,actiu (reservat) (nou),venuda',
+            'state'          => 'required|string|in:' . implode(',', SaleListing::STATES),
             // Dades tècniques de la moto
             'cc'             => 'nullable|integer|min:0',
             'power_cv'       => 'nullable|integer|min:0',
@@ -221,7 +219,7 @@ class SaleController extends Controller
     public function markSold(SaleListing $sale)
     {
         if ($sale->motorcycle->user_id !== Auth::id()) abort(403);
-        $sale->update(['state' => 'venuda']);
+        $sale->update(['state' => SaleListing::STATE_SOLD]);
         return back();
     }
 
@@ -268,7 +266,7 @@ class SaleController extends Controller
         $sales = $user->favoriteSales()
             ->with(['motorcycle', 'images'])
             ->withCount('favoritedBy')
-            ->whereIn('state', ['actiu', 'actiu (reservat) (nou)'])
+            ->whereIn('state', SaleListing::PUBLIC_STATES)
             ->orderBy('sale_favorites.created_at', 'desc')
             ->get()
             ->map(function ($sale) {

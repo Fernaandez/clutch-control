@@ -52,7 +52,7 @@ class SaleController extends Controller
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'location' => 'required|string|max:255',
-            'state' => 'required|string|in:actiu,actiu (reservat) (nou),venuda',
+            'state' => 'required|string|in:' . implode(',', \App\Models\SaleListing::STATES),
         ]);
 
         $sale->update($validated);

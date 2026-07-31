@@ -4,7 +4,10 @@
     "routes": "Rutas",
     "events": "Quedadas",
     "sales": "Ventas",
-    "settings": "Ajustes"
+    "chats": "Chats",
+    "settings": "Ajustes",
+    "logged_in_as": "Conectado como",
+    "logout": "Salir"
   },
   "lang": {
     "es": "Castellano",
@@ -514,6 +517,7 @@
     "state_active": "Visible en el Mercado (Activo)",
     "state_reserved": "Activo (Reservado)",
     "state_sold": "Marcar como VENDIDA",
+    "state_paused": "Pausado (oculto del mercado)",
     "moto_specs": "Especificaciones de la Moto",
     "listing_data": "Datos del Anuncio",
     "current_photos": "Fotos Actuales",
@@ -661,13 +665,9 @@
     "difficulty_easy": "🟢 Fácil",
     "difficulty_medium": "🟡 Media",
     "difficulty_hard": "🔴 Difícil",
-    "difficulty_expert": "🟣 Experta",
-    "difficulty_extreme": "☠️ Extrema",
     "diff_label_easy": "Fácil",
     "diff_label_medium": "Media",
     "diff_label_hard": "Difícil",
-    "diff_label_expert": "Experta",
-    "diff_label_extreme": "Extrema",
     "km_min": "KM Mínimo",
     "km_max": "KM Máximo",
     "rating_min": "Valoración Mínima",

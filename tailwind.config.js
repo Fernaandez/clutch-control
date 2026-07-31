@@ -28,8 +28,15 @@ export default {
                 }
             },
             boxShadow: {
-                'neon': '0 0 10px rgba(12, 225, 181, 0.5)',
-                'neon-hover': '0 0 20px rgba(12, 225, 181, 0.7)',
+                'soft': 'var(--shadow-sm)',
+                'elevated': 'var(--shadow-md)',
+                'floating': 'var(--shadow-lg)',
+                'accent': 'var(--accent-glow)',
+            },
+            borderRadius: {
+                'xl': '0.875rem',
+                '2xl': '1.125rem',
+                '3xl': '1.5rem',
             },
             borderColor: {
                 DEFAULT: 'var(--color-brand-dark)',

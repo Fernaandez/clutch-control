@@ -4,7 +4,10 @@
     "routes": "Routes",
     "events": "Meetups",
     "sales": "Sales",
-    "settings": "Settings"
+    "chats": "Chats",
+    "settings": "Settings",
+    "logged_in_as": "Signed in as",
+    "logout": "Sign out"
   },
   "lang": {
     "es": "Spanish",
@@ -514,6 +517,7 @@
     "state_active": "Visible on Marketplace (Active)",
     "state_reserved": "Active (Reserved)",
     "state_sold": "Mark as SOLD",
+    "state_paused": "Paused (hidden from marketplace)",
     "moto_specs": "Bike Specifications",
     "listing_data": "Listing Details",
     "current_photos": "Current Photos",
@@ -661,13 +665,9 @@
     "difficulty_easy": "🟢 Easy",
     "difficulty_medium": "🟡 Medium",
     "difficulty_hard": "🔴 Hard",
-    "difficulty_expert": "🟣 Expert",
-    "difficulty_extreme": "☠️ Extreme",
     "diff_label_easy": "Easy",
     "diff_label_medium": "Medium",
     "diff_label_hard": "Hard",
-    "diff_label_expert": "Expert",
-    "diff_label_extreme": "Extreme",
     "km_min": "Min KM",
     "km_max": "Max KM",
     "rating_min": "Minimum Rating",
