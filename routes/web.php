@@ -91,14 +91,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/motorcycles/{motorcycle}/global-history', [MaintenanceController::class, 'globalHistory'])->name('motorcycles.global-history');
 
     // --- RUTES (GPS) ---
-    Route::get('/routes', [RouteController::class, 'hub'])->name('routes.index');
-    Route::get('/routes/explore', [RouteController::class, 'explore'])->name('routes.explore');
+    Route::get('/routes', [RouteController::class, 'index'])->name('routes.index');
+
+    // Enllaços antics: ara són segments de la pantalla única de Rutes.
+    Route::get('/routes/explore', fn () => redirect()->route('routes.index', ['tab' => 'community']))
+        ->name('routes.explore');
     Route::get('/routes/history', [\App\Http\Controllers\TripController::class, 'history'])->name('routes.history');
     Route::get('/routes/habitual', [RouteController::class, 'habitual'])->name('routes.habitual');
     Route::post('/habitual-routes', [\App\Http\Controllers\HabitualRouteController::class, 'store'])->name('habitual-routes.store');
     Route::post('/habitual-routes/{habitualRoute}/complete', [\App\Http\Controllers\HabitualRouteController::class, 'complete'])->name('habitual-routes.complete');
     Route::delete('/habitual-routes/{habitualRoute}', [\App\Http\Controllers\HabitualRouteController::class, 'destroy'])->name('habitual-routes.destroy');
-    Route::get('/my-routes', [RouteController::class, 'MyRoutes'])->name('routes.MyRoutes');
+    Route::get('/my-routes', fn () => redirect()->route('routes.index', ['tab' => 'mine']))
+        ->name('routes.MyRoutes');
     Route::get('/routes/pending', [RouteController::class, 'pending'])->name('routes.pending');
     Route::get('/motorcycles/{motorcycle}/free-ride', [RouteController::class, 'freeRide'])->name('routes.free-ride');
     Route::post('/routes/sync-offline', [RouteController::class, 'syncOffline'])->name('routes.sync-offline');

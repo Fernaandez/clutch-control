@@ -1,112 +1,261 @@
 <template>
     <AppLayout :current-moto-id="moto.id">
-        <div class="relative w-full h-64 bg-brand-surface border-b border-brand-dark overflow-hidden group">
-            <!-- Background Image -->
-            <img v-if="moto.photo" :src="$page.props.storageUrl + '/' + moto.photo" alt="Moto Background" class="absolute inset-0 w-full h-full object-cover">
-            
-            <!-- Overlay -->
-            <div :class="['absolute inset-0 flex items-center justify-center', moto.photo ? 'photo-gradient-overlay' : 'bg-gradient-to-br from-brand-dark to-brand-black opacity-80']">
-                 <svg v-if="!moto.photo" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-32 h-32 text-brand-muted opacity-20">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                </svg>
-            </div>
-            <Link :href="route('motorcycles.index')" class="absolute top-4 right-4 z-20 flex items-center gap-2 bg-black/60 backdrop-blur-sm border border-white/20 text-white/90 hover:bg-brand-neon/20 hover:border-brand-neon hover:text-brand-neon px-3 py-1.5 rounded-full text-xs font-bold transition shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
-                {{ $t('dashboard.change_moto') }}
-            </Link>
-            <div class="absolute bottom-0 left-0 w-full p-4 photo-gradient-bottom">
-                <div class="inline-block bg-black/65 backdrop-blur-sm border border-white/15 rounded-xl px-4 py-3 shadow-lg">
-                    <h1 class="text-2xl sm:text-3xl font-black italic tracking-tighter uppercase line-clamp-1" style="color: white;">{{ moto.brand }}</h1>
-                    <h2 class="text-lg sm:text-xl text-brand-neon font-bold line-clamp-1">{{ moto.model }}</h2>
-                    <p class="text-gray-300 text-xs sm:text-sm mt-0.5">{{ moto.year }}</p>
-                </div>
-            </div>
-        </div>
+        <div class="relative min-h-[calc(100dvh-var(--app-header-total-height))] flex flex-col">
 
-        <div class="p-4 space-y-4">
-            <div class="bg-brand-surface rounded-2xl p-5 sm:p-6 border border-brand-dark shadow-neon relative overflow-hidden">
-                <div class="z-10">
-                    <p class="text-gray-400 text-[10px] uppercase tracking-widest mb-1">{{ $t('dashboard.current_km') }}</p>
-                    <p class="text-4xl font-mono font-bold text-white whitespace-nowrap">{{ moto.current_km }} <span class="text-lg text-brand-neon">km</span></p>
-                </div>
-                <div class="absolute right-0 top-0 w-48 h-48 bg-brand-neon blur-[80px] opacity-10 rounded-full pointer-events-none"></div>
+            <!-- La foto viu al fons, no ocupa mitja pantalla per decorar -->
+            <div v-if="moto.photo && !photoFailed" class="absolute inset-x-0 top-0 h-[52vh] pointer-events-none">
+                <img
+                    :src="$page.props.storageUrl + '/' + moto.photo"
+                    alt=""
+                    class="w-full h-full object-cover opacity-[0.22]"
+                    @error="photoFailed = true"
+                >
+                <div class="absolute inset-0 bg-gradient-to-b from-transparent via-brand-black/70 to-brand-black"></div>
             </div>
 
-            <div class="pt-2">
-                <h3 class="text-brand-muted font-bold text-sm uppercase mb-3 px-1">{{ $t('dashboard.control_panel') }}</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    
-                    <Link :href="route('motorcycles.maintenance.index', moto.id)" class="sm:col-span-2 flex items-center gap-3 bg-brand-surface border border-brand-dark rounded-xl p-4 hover:border-brand-neon hover:bg-brand-dark/50 transition group text-left relative overflow-hidden" :class="{'ring-2 ring-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)] border-red-500/50': moto.has_pending_maintenance}">
-                        <div v-if="moto.has_pending_maintenance" class="absolute top-2 right-2 sm:top-3 sm:right-3 flex items-center gap-1 text-red-500 text-[9px] sm:text-[10px] font-black uppercase bg-red-500/10 px-2 py-1 rounded border border-red-500/30 animate-pulse">
-                            ⚠️ {{ $t('dashboard.maintenance_attention') }}
-                        </div>
-                        <div :class="moto.has_pending_maintenance ? 'bg-red-500/20 text-red-500 group-hover:text-red-400' : 'bg-blue-500/20 text-blue-400 group-hover:text-blue-300'" class="p-2 sm:p-3 rounded-lg flex-shrink-0 z-10 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
-                        </div>
-                        <div class="z-10 mt-1 sm:mt-0 pt-2 sm:pt-0 pb-2 sm:pb-0">
-                            <span class="block font-bold text-gray-200 text-sm uppercase tracking-widest">{{ $t('dashboard.maintenance') }}</span>
-                            <span v-if="moto.has_pending_maintenance" class="block text-[10px] uppercase font-bold text-red-500 tracking-widest mt-0.5">{{ $t('dashboard.maintenance_pending') }}</span>
-                        </div>
-                    </Link>
+            <div class="relative flex-1 flex flex-col px-6 pt-10 pb-28 w-full max-w-xl mx-auto">
 
-                    <Link :href="route('motorcycles.repairs.index', moto.id)" class="flex items-center gap-3 bg-brand-surface border border-brand-dark rounded-xl p-4 hover:border-red-500 hover:bg-brand-dark/50 transition group text-left">
-                        <div class="bg-red-500/20 p-2 sm:p-3 rounded-lg text-red-400 group-hover:text-red-300 flex-shrink-0">
-                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" /></svg>
-                        </div>
-                        <div>
-                            <span class="block font-bold text-gray-200 text-sm uppercase tracking-widest">{{ $t('dashboard.repairs') }}</span>
-                        </div>
-                    </Link>
+                <!-- Identitat: discreta. El protagonista és el número. -->
+                <Link
+                    :href="route('motorcycles.index')"
+                    class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-300 transition-colors"
+                >
+                    {{ moto.brand }} {{ moto.model }}
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-3.5 h-3.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                    </svg>
+                </Link>
 
-                    <Link :href="route('motorcycles.upgrades.index', moto.id)" class="flex items-center gap-3 bg-brand-surface border border-brand-dark rounded-xl p-4 hover:border-purple-500 hover:bg-brand-dark/50 transition group text-left">
-                        <div class="bg-purple-500/20 p-2 sm:p-3 rounded-lg text-purple-400 group-hover:text-purple-300 flex-shrink-0">
-                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" /></svg>
-                        </div>
-                        <div>
-                            <span class="block font-bold text-gray-200 text-sm uppercase tracking-widest">{{ $t('dashboard.upgrades') }}</span>
-                        </div>
-                    </Link>
+                <!-- El quilometratge és LA xifra d'una moto -->
+                <p class="mt-6 text-[64px] leading-[0.9] font-light tracking-[-0.04em] text-white tabular-nums">
+                    {{ formattedKm }}
+                </p>
+                <p class="mt-2 text-sm text-gray-500">{{ $t('dashboard.current_km') }}</p>
 
-                    <Link :href="route('motorcycles.global-history', moto.id)" class="sm:col-span-2 flex items-center gap-3 bg-brand-surface border border-brand-dark rounded-xl p-4 hover:border-yellow-500 hover:bg-brand-dark/50 transition group text-left">
-                        <div class="bg-yellow-500/20 p-2 sm:p-3 rounded-lg text-yellow-400 group-hover:text-yellow-300 flex-shrink-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
-                            </svg>
-                        </div>
-                        <div>
-                            <span class="block font-bold text-gray-200 text-sm uppercase tracking-widest">{{ $t('dashboard.full_history') }}</span>
-                        </div>
-                    </Link>
+                <Link
+                    :href="route('routes.free-ride', moto.id)"
+                    class="cc-btn-primary w-full mt-8 py-3.5"
+                >
+                    {{ $t('routes.record_now') }}
+                </Link>
 
+                <!-- ATENCIÓ — aquesta secció només existeix si hi ha alguna cosa malament -->
+                <section v-if="alerts.length" class="mt-12">
+                    <p class="cc-section-label">{{ $t('dashboard.attention') }}</p>
+                    <div class="mt-3 divide-y divide-white/[0.06]">
+                        <Link
+                            v-for="alert in alerts"
+                            :key="alert.key"
+                            :href="alert.href"
+                            class="flex items-baseline gap-3 py-3.5 group"
+                        >
+                            <span class="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0 translate-y-[-2px]"></span>
+                            <span class="flex-1 text-[15px] text-gray-200 group-hover:text-white transition-colors">
+                                {{ alert.label }}
+                            </span>
+                            <span class="text-sm text-gray-500 tabular-nums">{{ alert.value }}</span>
+                        </Link>
+                    </div>
+                </section>
+
+                <!-- ÚLTIM — el que has fet, no un botó cap a una llista -->
+                <section v-if="pulse.last_trip" class="mt-12">
+                    <p class="cc-section-label">{{ $t('dashboard.last_ride') }}</p>
+                    <Link :href="route('trips.show', pulse.last_trip.id)" class="block mt-3 group">
+                        <p class="text-[28px] font-light tracking-tight text-white tabular-nums leading-none">
+                            {{ pulse.last_trip.distance_km }}<span class="text-base text-gray-500 ml-1.5">km</span>
+                        </p>
+                        <p class="mt-2 text-sm text-gray-400 group-hover:text-gray-200 transition-colors">
+                            <span v-if="pulse.last_trip.route_title">{{ pulse.last_trip.route_title }} · </span>
+                            {{ relativeDate(pulse.last_trip.started_at) }}
+                        </p>
+                    </Link>
+                </section>
+
+                <!-- PRÒXIM -->
+                <section v-if="pulse.next_event" class="mt-12">
+                    <p class="cc-section-label">{{ $t('dashboard.upcoming') }}</p>
+                    <Link :href="route('events.show', pulse.next_event.id)" class="block mt-3 group">
+                        <p class="text-[15px] text-gray-200 group-hover:text-white transition-colors">
+                            {{ pulse.next_event.title }}
+                        </p>
+                        <p class="mt-1 text-sm text-gray-500">{{ relativeDate(pulse.next_event.start_time) }}</p>
+                    </Link>
+                </section>
+
+                <!-- HISTORIAL — dues xifres, no dos botons -->
+                <section v-if="pulse.logs_count > 0" class="mt-12">
+                    <p class="cc-section-label">{{ $t('dashboard.full_history') }}</p>
+                    <Link :href="route('motorcycles.global-history', moto.id)" class="flex items-baseline gap-8 mt-3 group">
+                        <span>
+                            <span class="block text-[28px] font-light tracking-tight text-white tabular-nums leading-none">{{ pulse.logs_count }}</span>
+                            <span class="block mt-1.5 text-xs text-gray-500">{{ $t('dashboard.records') }}</span>
+                        </span>
+                        <span v-if="pulse.total_spent > 0">
+                            <span class="block text-[28px] font-light tracking-tight text-white tabular-nums leading-none">{{ Math.round(pulse.total_spent) }}<span class="text-base text-gray-500 ml-1">€</span></span>
+                            <span class="block mt-1.5 text-xs text-gray-500">{{ $t('dashboard.invested') }}</span>
+                        </span>
+                    </Link>
+                </section>
+
+                <!-- Els mòduls de la moto: ocupen l'espai que queda, no floten com a text -->
+                <nav class="mt-12 flex-1 min-h-[16rem] sm:max-h-[24rem] grid grid-cols-2 auto-rows-fr gap-3">
                     <Link
-                        :href="route('motorcycles.documentation.show', moto.id)"
-                        class="sm:col-span-2 flex items-center gap-3 bg-brand-surface border border-brand-dark rounded-xl p-4 hover:border-emerald-500 hover:bg-brand-dark/50 transition group text-left relative"
-                        :class="{'border-yellow-500/25': moto.show_documentation_alert}"
+                        v-for="module in modules"
+                        :key="module.key"
+                        :href="module.href"
+                        class="group flex flex-col justify-between rounded-2xl border border-white/[0.07] bg-white/[0.03] p-4 transition-colors hover:bg-white/[0.06] hover:border-white/20 active:bg-white/[0.08]"
                     >
-                        <span v-if="moto.show_documentation_alert" class="absolute top-3 right-3 w-2 h-2 rounded-full bg-yellow-400/70" aria-hidden="true"></span>
-                        <div :class="moto.show_documentation_alert ? 'bg-yellow-500/10 text-yellow-400/80' : 'bg-emerald-500/20 text-emerald-400 group-hover:text-emerald-300'" class="p-2 sm:p-3 rounded-lg flex-shrink-0 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                            </svg>
+                        <div class="flex items-start justify-between gap-2">
+                            <span class="relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-500 transition-colors group-hover:text-white">
+                                    <path stroke-linecap="round" stroke-linejoin="round" :d="module.icon" />
+                                </svg>
+                                <span v-if="module.alert" class="absolute -top-1 -right-1.5 w-1.5 h-1.5 rounded-full bg-red-400"></span>
+                            </span>
+                            <span v-if="module.count !== null" class="text-[26px] font-light leading-none tabular-nums text-white">
+                                {{ module.count }}
+                            </span>
                         </div>
-                        <div>
-                            <span class="block font-bold text-gray-200 text-sm uppercase tracking-widest">{{ $t('dashboard.documentation') }}</span>
-                            <span v-if="moto.show_documentation_alert" class="block text-[10px] text-yellow-500/60 uppercase tracking-widest mt-0.5">{{ $t('dashboard.documentation_itv_notice') }}</span>
+                        <div class="mt-6">
+                            <p class="text-[15px] font-medium text-gray-100">{{ module.label }}</p>
+                            <p class="mt-0.5 text-xs text-gray-500 truncate">{{ module.hint }}</p>
                         </div>
                     </Link>
-
-                </div>
-             </div>
-
+                </nav>
+            </div>
         </div>
-
-
     </AppLayout>
 </template>
 
 <script setup>
+import { computed, ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import { useI18n } from 'vue-i18n';
 
-defineProps({ moto: Object });
+const props = defineProps({
+    moto: { type: Object, required: true },
+    pulse: { type: Object, default: () => ({}) },
+});
+
+const { t, locale } = useI18n();
+
+// Si la foto no carrega (fitxer absent en local), no mostrem el marc trencat.
+const photoFailed = ref(false);
+
+const formattedKm = computed(() =>
+    new Intl.NumberFormat(locale.value).format(Math.round(props.moto.current_km ?? 0)),
+);
+
+const daysUntil = (date) => {
+    if (!date) return null;
+    const diff = new Date(date).setHours(0, 0, 0, 0) - new Date().setHours(0, 0, 0, 0);
+    return Math.round(diff / 86400000);
+};
+
+const relativeDate = (date) => {
+    if (!date) return '';
+    const days = daysUntil(date);
+    if (days === 0) return t('chats.today');
+    if (days === -1) return t('chats.yesterday');
+
+    return new Date(date).toLocaleDateString(locale.value, {
+        day: 'numeric',
+        month: 'long',
+        ...(new Date(date).getFullYear() !== new Date().getFullYear() ? { year: 'numeric' } : {}),
+    });
+};
+
+/** Només es mostra el que reclama acció. Si tot està bé, la secció no existeix. */
+const alerts = computed(() => {
+    const list = [];
+    const docsHref = route('motorcycles.documentation.show', props.moto.id);
+
+    const itvDays = daysUntil(props.moto.itv_expires_at);
+    if (itvDays !== null && itvDays <= 30) {
+        list.push({
+            key: 'itv',
+            label: 'ITV',
+            value: itvDays < 0 ? t('dashboard.expired') : t('dashboard.in_days', { n: itvDays }),
+            href: docsHref,
+        });
+    }
+
+    const insuranceDays = daysUntil(props.moto.insurance_expires_at);
+    if (insuranceDays !== null && insuranceDays <= 30) {
+        list.push({
+            key: 'insurance',
+            label: t('motorcycles.insurance'),
+            value: insuranceDays < 0 ? t('dashboard.expired') : t('dashboard.in_days', { n: insuranceDays }),
+            href: docsHref,
+        });
+    }
+
+    if (props.pulse.next_task && props.pulse.next_task.km_left <= 0) {
+        list.push({
+            key: 'task',
+            label: props.pulse.next_task.title,
+            value: t('dashboard.overdue_km', { n: Math.abs(props.pulse.next_task.km_left) }),
+            href: route('motorcycles.maintenance.index', props.moto.id),
+        });
+    }
+
+    return list;
+});
+
+const ICONS = {
+    maintenance: 'M16.023 9.348h4.992V4.356m0 4.992-3.181-3.183a8.25 8.25 0 0 0-13.803 3.7M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7',
+    repair: 'M21.75 6.75a4.5 4.5 0 0 1-4.884 4.484c-1.076-.091-2.264.071-2.95.904l-7.152 8.684a2.548 2.548 0 1 1-3.586-3.586l8.684-7.152c.833-.686.995-1.874.904-2.95a4.5 4.5 0 0 1 6.336-4.486l-3.276 3.276a3.004 3.004 0 0 0 2.25 2.25l3.276-3.276c.256.565.398 1.192.398 1.852Z',
+    upgrade: 'M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z',
+    documentation: 'M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z',
+};
+
+const docAlert = computed(() =>
+    alerts.value.some(a => a.key === 'itv' || a.key === 'insurance'),
+);
+
+/** Els mòduls de la moto. Sempre hi són: són la manera d'arribar a tot el que la moto guarda. */
+const modules = computed(() => {
+    const counts = props.pulse.counts ?? {};
+
+    return [
+        {
+            key: 'maintenance',
+            label: t('dashboard.maintenance'),
+            hint: t('dashboard.maintenance_subtitle'),
+            icon: ICONS.maintenance,
+            count: counts.maintenance ?? 0,
+            alert: alerts.value.some(a => a.key === 'task'),
+            href: route('motorcycles.maintenance.index', props.moto.id),
+        },
+        {
+            key: 'repair',
+            label: t('dashboard.repairs'),
+            hint: t('dashboard.repairs_subtitle'),
+            icon: ICONS.repair,
+            count: counts.repair ?? 0,
+            alert: false,
+            href: route('motorcycles.repairs.index', props.moto.id),
+        },
+        {
+            key: 'upgrade',
+            label: t('dashboard.upgrades'),
+            hint: t('dashboard.upgrades_subtitle'),
+            icon: ICONS.upgrade,
+            count: counts.upgrade ?? 0,
+            alert: false,
+            href: route('motorcycles.upgrades.index', props.moto.id),
+        },
+        {
+            key: 'documentation',
+            label: t('dashboard.documentation'),
+            hint: t('dashboard.documentation_subtitle'),
+            icon: ICONS.documentation,
+            count: null,
+            alert: docAlert.value,
+            href: route('motorcycles.documentation.show', props.moto.id),
+        },
+    ];
+});
 </script>

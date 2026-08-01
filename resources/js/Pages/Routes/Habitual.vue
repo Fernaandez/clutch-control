@@ -1,50 +1,55 @@
 <template>
     <AppLayout :title="$t('routes.habitual_title')">
-        <div class="max-w-2xl mx-auto px-4 py-6 pb-24">
-            <div class="flex items-center gap-3 mb-6">
-                <button type="button" @click="goBack" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]" :aria-label="$t('common.back')">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
-                </button>
-                <h1 class="text-2xl font-black uppercase tracking-tighter text-white leading-none">{{ $t('routes.habitual_title') }}</h1>
-            </div>
+        <div class="max-w-3xl mx-auto px-4 py-6 pb-24 cc-fade-in">
 
-            <div v-if="page.props.errors?.habitual" class="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+            <header class="flex items-center gap-3 mb-6">
+                <button type="button" @click="goBack" class="cc-icon-btn" :aria-label="$t('common.back')">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
+                </button>
+                <h1 class="cc-title flex-1 truncate">{{ $t('routes.habitual_title') }}</h1>
+            </header>
+
+            <div v-if="page.props.errors?.habitual" class="mb-4 cc-card p-4 border-red-500/20 bg-red-500/[0.06]">
                 <p class="text-red-400 text-sm">{{ page.props.errors.habitual }}</p>
             </div>
 
-            <div v-if="flashDone" class="mb-4 p-4 bg-brand-neon/10 border border-brand-neon/40 rounded-xl flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-brand-neon/20 flex items-center justify-center flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 text-brand-neon"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+            <div v-if="flashDone" class="mb-4 cc-card p-4 bg-white/[0.04] border-white/[0.08] flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-white/[0.06] flex items-center justify-center flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 text-gray-300"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
                 </div>
-                <p class="text-brand-neon font-bold text-sm">{{ $t('routes.habitual_done_flash', { title: flashDone.title, km: flashDone.km }) }}</p>
+                <p class="text-gray-300 font-medium text-sm">{{ $t('routes.habitual_done_flash', { title: flashDone.title, km: flashDone.km }) }}</p>
             </div>
 
-            <div v-if="motorcycles.length === 0" class="bg-brand-surface border border-brand-dark border-dashed rounded-2xl p-10 text-center">
-                <div class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-brand-dark flex items-center justify-center text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177A48.016 48.016 0 0 0 6 6.094V6a3 3 0 0 1 3-3h2.25" /></svg>
+            <div v-if="motorcycles.length === 0" class="cc-card">
+                <div class="flex flex-col items-center justify-center text-center py-16 px-6">
+                    <div class="mb-4 text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177A48.016 48.016 0 0 0 6 6.094V6a3 3 0 0 1 3-3h2.25" /></svg>
+                    </div>
+                    <p class="text-base font-semibold text-gray-300">{{ $t('routes.habitual_no_moto') }}</p>
+                    <div class="mt-6">
+                        <Link :href="route('motorcycles.create')" class="cc-btn-primary">
+                            {{ $t('motorcycles.add_title') }}
+                        </Link>
+                    </div>
                 </div>
-                <p class="text-gray-400 font-bold uppercase tracking-widest text-xs">{{ $t('routes.habitual_no_moto') }}</p>
-                <Link :href="route('motorcycles.create')" class="inline-block mt-5 bg-brand-neon text-black font-black uppercase tracking-wider text-xs px-5 py-2.5 rounded-xl hover:bg-white transition">
-                    {{ $t('motorcycles.add_title') }}
-                </Link>
             </div>
 
             <div v-else class="space-y-6">
                 <!-- Pestanyes: afegir / manual -->
-                <section class="bg-brand-surface rounded-2xl border border-brand-dark overflow-hidden">
-                    <div class="grid grid-cols-2 border-b border-brand-dark">
+                <section class="cc-card overflow-hidden">
+                    <div class="flex items-center gap-1 p-1 border-b border-white/[0.06]">
                         <button
                             type="button"
-                            class="py-3.5 text-[10px] font-black uppercase tracking-widest transition"
-                            :class="activePanel === 'add' ? 'bg-brand-neon text-black' : 'text-gray-500 hover:text-white hover:bg-brand-dark/40'"
+                            class="flex-1 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
+                            :class="activePanel === 'add' ? 'bg-white/[0.1] text-white' : 'text-gray-500 hover:text-gray-300'"
                             @click="activePanel = 'add'"
                         >
                             {{ $t('routes.habitual_tab_add') }}
                         </button>
                         <button
                             type="button"
-                            class="py-3.5 text-[10px] font-black uppercase tracking-widest transition"
-                            :class="activePanel === 'manual' ? 'bg-brand-neon text-black' : 'text-gray-500 hover:text-white hover:bg-brand-dark/40'"
+                            class="flex-1 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
+                            :class="activePanel === 'manual' ? 'bg-white/[0.1] text-white' : 'text-gray-500 hover:text-gray-300'"
                             @click="activePanel = 'manual'"
                         >
                             {{ $t('routes.habitual_tab_manual') }}
@@ -53,12 +58,12 @@
 
                     <div v-show="activePanel === 'add'" class="p-5">
                         <form @submit.prevent="submitAdd" class="space-y-4">
-                            <div v-if="Object.keys(addForm.errors).length" class="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-xs">
+                            <div v-if="Object.keys(addForm.errors).length" class="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs">
                                 <p v-for="(err, key) in addForm.errors" :key="key">{{ err }}</p>
                             </div>
 
                             <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-1.5">{{ $t('routes.habitual_select_route') }}</label>
+                                <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('routes.habitual_select_route') }}</label>
                                 <select v-model="addForm.route_id" required :class="inputClass">
                                     <option value="">{{ $t('routes.habitual_select_route_placeholder') }}</option>
                                     <option v-for="r in routes" :key="r.id" :value="r.id">
@@ -69,11 +74,11 @@
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1.5">{{ $t('routes.habitual_label') }}</label>
+                                    <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('routes.habitual_label') }}</label>
                                     <input v-model="addForm.label" type="text" maxlength="120" :placeholder="$t('routes.habitual_label_placeholder')" :class="inputClass">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1.5">{{ $t('routes.habitual_motorcycle') }}</label>
+                                    <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('routes.habitual_motorcycle') }}</label>
                                     <select v-model="addForm.motorcycle_id" required :class="inputClass">
                                         <option value="">{{ $t('routes.habitual_select_moto') }}</option>
                                         <option v-for="m in motorcycles" :key="m.id" :value="m.id">
@@ -83,13 +88,13 @@
                                 </div>
                             </div>
 
-                            <label class="flex items-center gap-3 cursor-pointer bg-brand-black/50 border border-brand-dark rounded-xl px-4 py-3">
-                                <input v-model="addForm.round_trip" type="checkbox" class="rounded border-brand-dark bg-brand-black text-brand-neon focus:ring-brand-neon">
+                            <label class="flex items-center gap-3 cursor-pointer bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3">
+                                <input v-model="addForm.round_trip" type="checkbox" class="rounded border-white/[0.08] bg-white/[0.04] text-white focus:ring-white/20">
                                 <span class="text-sm text-gray-300">{{ $t('routes.habitual_round_trip') }}</span>
-                                <span v-if="estimatedAddKm" class="text-brand-neon font-mono font-bold text-sm ml-auto">{{ estimatedAddKm }} km</span>
+                                <span v-if="estimatedAddKm" class="text-white font-mono font-semibold text-sm ml-auto">{{ estimatedAddKm }} km</span>
                             </label>
 
-                            <button type="submit" :disabled="addForm.processing || !addForm.route_id" class="w-full bg-brand-neon text-black font-black uppercase tracking-widest text-xs py-3.5 rounded-xl hover:bg-white transition disabled:opacity-50">
+                            <button type="submit" :disabled="addForm.processing || !addForm.route_id" class="cc-btn-primary w-full">
                                 {{ $t('routes.habitual_add_btn') }}
                             </button>
                         </form>
@@ -97,13 +102,13 @@
 
                     <div v-show="activePanel === 'manual'" class="p-5">
                         <form @submit.prevent="submitManual" class="space-y-4">
-                            <div v-if="Object.keys(manualForm.errors).length" class="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-xs">
+                            <div v-if="Object.keys(manualForm.errors).length" class="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs">
                                 <p v-for="(err, key) in manualForm.errors" :key="key">{{ err }}</p>
                             </div>
 
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="col-span-2 sm:col-span-1">
-                                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1.5">{{ $t('routes.habitual_motorcycle') }}</label>
+                                    <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('routes.habitual_motorcycle') }}</label>
                                     <select v-model="manualForm.motorcycle_id" required :class="inputClass">
                                         <option value="">{{ $t('routes.habitual_select_moto') }}</option>
                                         <option v-for="m in motorcycles" :key="m.id" :value="m.id">
@@ -112,22 +117,22 @@
                                     </select>
                                 </div>
                                 <div class="col-span-2 sm:col-span-1">
-                                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1.5">{{ $t('routes.habitual_km') }}</label>
+                                    <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('routes.habitual_km') }}</label>
                                     <input v-model="manualForm.distance_km" type="number" step="0.1" min="0.1" required :class="inputClass" placeholder="12.5">
                                 </div>
                             </div>
 
                             <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-1.5">{{ $t('routes.habitual_date') }}</label>
+                                <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('routes.habitual_date') }}</label>
                                 <input v-model="manualForm.started_at" type="datetime-local" required :class="inputClass">
                             </div>
 
                             <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-1.5">{{ $t('routes.habitual_notes') }}</label>
+                                <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('routes.habitual_notes') }}</label>
                                 <input v-model="manualForm.notes" type="text" maxlength="500" :placeholder="$t('routes.habitual_notes_placeholder')" :class="inputClass">
                             </div>
 
-                            <button type="submit" :disabled="manualForm.processing" class="w-full bg-brand-dark text-gray-200 border border-brand-dark font-black uppercase tracking-widest text-xs py-3.5 rounded-xl hover:border-brand-neon hover:text-brand-neon transition disabled:opacity-50">
+                            <button type="submit" :disabled="manualForm.processing" class="cc-btn-secondary w-full">
                                 {{ $t('routes.habitual_manual_btn') }}
                             </button>
                         </form>
@@ -136,63 +141,62 @@
 
                 <!-- Llistat de rutes configurades -->
                 <section>
-                    <h2 v-if="habitualRoutes.length > 0" class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-3 px-1">
+                    <h2 v-if="habitualRoutes.length > 0" class="cc-section-label mb-3 px-1">
                         {{ $t('routes.habitual_list_title') }}
                     </h2>
 
-                    <div v-if="habitualRoutes.length === 0" class="bg-brand-surface border border-brand-dark border-dashed rounded-2xl p-8 text-center">
-                        <p class="text-gray-500 text-xs uppercase tracking-widest font-bold">{{ $t('routes.habitual_list_empty') }}</p>
+                    <div v-if="habitualRoutes.length === 0" class="cc-card">
+                        <div class="flex flex-col items-center justify-center text-center py-12 px-6">
+                            <p class="text-base font-semibold text-gray-400">{{ $t('routes.habitual_list_empty') }}</p>
+                        </div>
                     </div>
 
-                    <div v-else class="space-y-3">
+                    <div v-else class="cc-card divide-y divide-white/[0.06]">
                         <div
                             v-for="item in habitualRoutes"
                             :key="item.id"
-                            class="relative overflow-hidden rounded-2xl border border-brand-dark bg-brand-surface"
+                            class="flex items-center gap-3 p-4"
                         >
-                            <div class="absolute -right-6 -top-6 w-28 h-28 bg-brand-neon/5 blur-2xl rounded-full pointer-events-none"></div>
+                            <div class="w-10 h-10 rounded-xl bg-white/[0.06] border border-white/[0.08] flex items-center justify-center flex-shrink-0 text-gray-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.875 2.437a1.125 1.125 0 0 0 1.006 0Z" /></svg>
+                            </div>
 
-                            <button
-                                type="button"
-                                @click="removeItem(item)"
-                                class="absolute top-2.5 right-2.5 z-10 p-1.5 text-gray-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition"
-                                :aria-label="$t('common.delete')"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-                            </button>
-
-                            <div class="p-4 pr-10 flex items-center gap-3">
-                                <div class="flex flex-col items-center justify-center min-w-[4.5rem] bg-brand-black/70 rounded-xl px-3 py-2.5 border border-brand-dark">
-                                    <span class="text-2xl font-mono font-black text-brand-neon leading-none">{{ displayKm(item) }}</span>
-                                    <span class="text-[9px] text-gray-500 uppercase font-bold mt-0.5">km</span>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-white font-medium text-sm leading-snug truncate">{{ item.title }}</p>
+                                <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+                                    <span class="text-xs font-mono font-semibold text-gray-300">{{ displayKm(item) }} km</span>
+                                    <span
+                                        v-if="item.motorcycle"
+                                        class="cc-chip-neutral"
+                                    >
+                                        {{ item.motorcycle.brand }} {{ item.motorcycle.model }}
+                                    </span>
+                                    <span
+                                        v-if="item.round_trip"
+                                        :title="$t('routes.habitual_round_trip')"
+                                        class="cc-chip-neutral"
+                                    >
+                                        {{ $t('routes.habitual_round_trip_short') }}
+                                    </span>
                                 </div>
+                            </div>
 
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-white font-bold text-sm leading-snug truncate pr-2">{{ item.title }}</p>
-                                    <div class="flex flex-wrap items-center gap-1.5 mt-2">
-                                        <span
-                                            v-if="item.motorcycle"
-                                            class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand-dark text-gray-400 border border-brand-dark"
-                                        >
-                                            {{ item.motorcycle.brand }} {{ item.motorcycle.model }}
-                                        </span>
-                                        <span
-                                            v-if="item.round_trip"
-                                            :title="$t('routes.habitual_round_trip')"
-                                            class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand-neon/10 text-brand-neon border border-brand-neon/20"
-                                        >
-                                            {{ $t('routes.habitual_round_trip_short') }}
-                                        </span>
-                                    </div>
-                                </div>
-
+                            <div class="flex items-center gap-1 flex-shrink-0">
                                 <button
                                     type="button"
                                     :disabled="completingId === item.id || !item.distance_km"
                                     @click="markDone(item)"
-                                    class="flex-shrink-0 min-w-[4.5rem] bg-brand-neon text-black font-black uppercase tracking-widest text-[10px] px-4 py-3.5 rounded-xl hover:bg-white active:scale-95 transition disabled:opacity-50 shadow-[0_0_20px_rgba(12,225,181,0.25)]"
+                                    class="cc-btn-primary px-4 py-2.5 text-xs"
                                 >
                                     {{ completingId === item.id ? '…' : $t('routes.habitual_done_btn') }}
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="removeItem(item)"
+                                    class="cc-icon-btn w-9 h-9 text-gray-500 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20"
+                                    :aria-label="$t('common.delete')"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
                                 </button>
                             </div>
                         </div>

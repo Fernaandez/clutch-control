@@ -12,25 +12,23 @@ use Illuminate\Support\Facades\Schema;
 
 class RouteController extends Controller
 {
-    // Hub principal de rutes (entrada des del tab inferior)
-    public function hub()
+    /**
+     * Pantalla única de Rutes: les meves, les de la comunitat i les habituals.
+     * Substitueix el hub, l'explorador i "les meves rutes", que eren la mateixa
+     * llista amb filtres diferents.
+     */
+    public function index(Request $request)
     {
-        $motorcycles = Auth::user()
-            ? Auth::user()->motorcycles()->select('id', 'brand', 'model')->get()
-            : collect();
+        $userId = Auth::id();
 
-        return Inertia::render('Routes/Hub', [
-            'defaultMotorcycleId' => optional($motorcycles->first())->id,
-        ]);
-    }
+        $myRoutes = Route::where('user_id', $userId)
+            ->orderByDesc('created_at')
+            ->get();
 
-    // Llistat comunitat (només rutes públiques)
-    public function explore()
-    {
-        // Carreguem l'usuari per poder mostrar el nom del creador
-        $routes = Route::with(['user', 'reviews'])
+        $communityRoutes = Route::with(['user:id,name', 'reviews'])
             ->where('is_public', true)
-            ->orderBy('created_at', 'desc')
+            ->where('user_id', '!=', $userId)
+            ->orderByDesc('created_at')
             ->get();
 
         $motorcycles = Auth::user()
@@ -38,19 +36,68 @@ class RouteController extends Controller
             : collect();
 
         return Inertia::render('Routes/Index', [
-            'routes' => $routes,
+            'myRoutes'            => $myRoutes,
+            'communityRoutes'     => $communityRoutes,
+            'habitualRoutes'      => $this->habitualRoutesFor($userId),
             'defaultMotorcycleId' => optional($motorcycles->first())->id,
+            'initialTab'          => $request->query('tab', 'mine'),
+            'ridingStats'         => $this->ridingStats($userId),
         ]);
     }
 
-    // 2. NOVA FUNCIÓ: LES MEVES RUTES (Privades i públiques meves)
-    public function MyRoutes()
+    /**
+     * El que ha rodat l'usuari aquest any. La pantalla de rutes parla de rodar,
+     * no de gestionar fitxers: la xifra ha de ser el primer que es veu.
+     */
+    private function ridingStats(int $userId): array
     {
-        $routes = Route::where('user_id', Auth::id())
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $trips = \App\Models\Trip::where('user_id', $userId)
+            ->whereYear('started_at', now()->year);
 
-        return Inertia::render('Routes/MyRoutes', ['routes' => $routes]);
+        $last = \App\Models\Trip::with('route:id,title')
+            ->where('user_id', $userId)
+            ->orderByDesc('started_at')
+            ->first();
+
+        return [
+            'year'       => (int) now()->year,
+            'year_km'    => (float) (clone $trips)->sum('distance_km'),
+            'year_trips' => (int) (clone $trips)->count(),
+            'longest_km' => (float) (clone $trips)->max('distance_km'),
+            'last_trip'  => $last ? [
+                'id'          => $last->id,
+                'distance_km' => round((float) $last->distance_km),
+                'started_at'  => $last->started_at,
+                'title'       => $last->route?->title,
+            ] : null,
+        ];
+    }
+
+    /** Rutes habituals de l'usuari, en el format que espera el frontend. */
+    private function habitualRoutesFor(int $userId)
+    {
+        return HabitualRoute::where('user_id', $userId)
+            ->with([
+                'route:id,title,planned_distance_km,distance_km',
+                'motorcycle:id,brand,model',
+            ])
+            ->orderBy('sort_order')
+            ->orderBy('created_at')
+            ->get()
+            ->map(fn (HabitualRoute $item) => [
+                'id'          => $item->id,
+                'label'       => $item->label,
+                'title'       => $item->displayTitle(),
+                'round_trip'  => $item->round_trip,
+                'distance_km' => $item->distanceKm(),
+                'route_id'    => $item->route_id,
+                'route_title' => $item->route?->title,
+                'motorcycle'  => $item->motorcycle ? [
+                    'id'    => $item->motorcycle->id,
+                    'brand' => $item->motorcycle->brand,
+                    'model' => $item->motorcycle->model,
+                ] : null,
+            ]);
     }
 
     public function habitual(Request $request)
@@ -63,30 +110,7 @@ class RouteController extends Controller
             ->orderBy('title')
             ->get(['id', 'title', 'planned_distance_km', 'location_city']);
 
-        $habitualRoutes = HabitualRoute::where('user_id', Auth::id())
-            ->with([
-                'route:id,title,planned_distance_km,distance_km',
-                'motorcycle:id,brand,model',
-            ])
-            ->orderBy('sort_order')
-            ->orderBy('created_at')
-            ->get()
-            ->map(function (HabitualRoute $item) {
-                return [
-                    'id'           => $item->id,
-                    'label'        => $item->label,
-                    'title'        => $item->displayTitle(),
-                    'round_trip'   => $item->round_trip,
-                    'distance_km'  => $item->distanceKm(),
-                    'route_id'     => $item->route_id,
-                    'route_title'  => $item->route?->title,
-                    'motorcycle'   => $item->motorcycle ? [
-                        'id'    => $item->motorcycle->id,
-                        'brand' => $item->motorcycle->brand,
-                        'model' => $item->motorcycle->model,
-                    ] : null,
-                ];
-            });
+        $habitualRoutes = $this->habitualRoutesFor(Auth::id());
 
         return Inertia::render('Routes/Habitual', [
             'motorcycles'      => $motorcycles,

@@ -1,0 +1,49 @@
+---
+description: Llenguatge visual de Clutch Control (Dashboard + Rutes). Referència obligatòria per a tot UI nou o redissenyat.
+alwaysApply: true
+---
+
+# Llenguatge UI — Clutch Control
+
+Referència canònica: `Dashboard.vue` i `Routes/Index.vue` + `Routes/Show.vue`.
+Si una pantalla nova no sembla d'aquesta família, està malament.
+
+## Principis
+
+1. **Contingut, no menú.** La primera cosa que es veu és una xifra o un fet (km, última sortida), no una graella de navegació.
+2. **Una xifra hero.** `text-[64px] font-light tracking-tight tabular-nums`. El protagonista és el número.
+3. **Seccions només si hi ha dades.** Si no hi ha última sortida / atenció / historial, la secció no existeix.
+4. **Color = risc.** Monocrom (negre / gris / blanc). Vermell només per caducat, overdue, LIVE. Zero neó, zero liles, zero grocs decoratius.
+5. **Sense targetes per decorar.** Llistes amb `divide-y divide-white/[0.06]`. Cards només quan són un botó interactiu real (ex. tiles del dashboard).
+6. **Densitat sense buit.** Minimalista ≠ buit. Si sobra pantalla, omple-la amb botons/tiles o deixa que el contingut s'estiri (`flex-1`).
+
+## Components / classes
+
+- Accions principals: `cc-btn-primary`
+- Accions secundàries amb pes: `cc-btn-secondary`
+- Accions que abans eren "només text": **`cc-btn-text`** (contorn fi clar — sempre)
+- Icones circulars: `cc-icon-btn`
+- Etiquetes de secció: `cc-section-label` (uppercase tracking ample, gris)
+- Títols de pantalla: `cc-title` o una sola paraula
+
+## Patrons concrets
+
+- **Tiles de mòdul** (com dashboard): graella 2×2, `rounded-2xl border border-white/[0.07] bg-white/[0.03]`, icona + count + label + hint, omplen l'espai restant.
+- **Llista de rutes**: fila densa — forma SVG (`RouteShape`) + títol + meta · km a la dreta. No mini-mapes Leaflet a la llista.
+- **Detall sobre mapa**: full inferior amb títol, xifres en text gran, 1–2 CTAs; la resta plegada. Accions terciàries = `cc-btn-text`.
+- **Segments**: underline blanc a l'actiu, no pills farcits.
+- **Mapes**: traçat `#fafafa`, markers monocrom. Mai `#0CE1B5`.
+
+## Anti-patrons (rebutjar)
+
+- Paint job: canviar classes i deixar la mateixa estructura de cards/chips/grids.
+- Footer de links només text sense `cc-btn-text`.
+- Chips de dificultat/pública/privada competint amb el títol.
+- Empty states amb il·lustracions o copy llarg; una frase + un CTA basta.
+- "Dashboard genèric" amb stats strips, icon rows, o cards al hero.
+
+## Quan refàs una pantalla
+
+1. Pregunta: quina és LA xifra o el fet?
+2. Esborra tot el que no serveixi per actuar o entendre aquell fet.
+3. Copia estructura/spacing tipogràfic de Dashboard o Routes Index, no inventis un tercer dialecte.

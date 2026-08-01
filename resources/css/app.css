@@ -4,31 +4,34 @@
 
 /* ============================================================
    CLUTCH CONTROL — SISTEMA DE DISSENY
-   Paleta "Graphite & Ember": grafit neutre + accent ambre.
-   Tot el color de l'app surt d'aquestes variables: canviar
-   --color-brand-neon canvia l'accent de tota l'aplicació.
+   Paleta monocroma: negres, grisos i blanc. Sense color decoratiu.
+   La jerarquia es construeix amb contrast i espai, no amb color.
+   El color només apareix per comunicar risc (errors, destructiu).
+
+   Els colors es guarden com a canals RGB perquè Tailwind pugui
+   generar modificadors d'opacitat (bg-brand-neon/10, border-white/10…).
    ============================================================ */
 :root {
     /* Superfícies (de més fosca a més clara) */
-    --color-brand-black: #0a0a0c;
-    --color-brand-surface: #141418;
-    --color-brand-dark: #26262e;
+    --brand-black: 9 9 11;
+    --brand-surface: 24 24 27;
+    --brand-dark: 39 39 42;
 
-    /* Accent */
-    --color-brand-neon: #ff6a1f;
-    --color-brand-base: #ff8a4c;
-    --color-brand-muted: #8b8b96;
+    /* "Accent" = blanc. És el que destaca sobre el gris. */
+    --brand-neon: 250 250 250;
+    --brand-base: 161 161 170;
+    --brand-muted: 113 113 122;
 
     /* Text */
-    --color-text-primary: #f5f5f7;
-    --color-text-muted: #9a9aa5;
-    --color-text-input: #ededf0;
+    --color-text-primary: #fafafa;
+    --color-text-muted: #a1a1aa;
+    --color-text-input: #f4f4f5;
 
     /* Elevació: ombres neutres i suaus, sense glow */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
     --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
-    --accent-glow: 0 4px 16px rgba(255, 106, 31, 0.25);
+    --accent-glow: var(--shadow-md);
 
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-right: env(safe-area-inset-right, 0px);
@@ -47,7 +50,7 @@ body,
 }
 
 body {
-    background-color: var(--color-brand-black);
+    background-color: rgb(var(--brand-black));
     color: var(--color-text-primary);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
@@ -106,7 +109,7 @@ body {
     }
 
     .cc-btn-primary {
-        @apply cc-btn bg-brand-neon text-brand-black hover:brightness-110 active:scale-[0.98];
+        @apply cc-btn bg-brand-neon text-brand-black hover:opacity-90 active:scale-[0.98];
     }
 
     .cc-btn-secondary {
@@ -115,7 +118,21 @@ body {
     }
 
     .cc-btn-ghost {
-        @apply cc-btn text-gray-400 hover:text-white hover:bg-white/[0.06];
+        @apply cc-btn border border-white/[0.12] text-gray-400
+               hover:text-white hover:bg-white/[0.06] hover:border-white/25;
+    }
+
+    /*
+     * Accions secundàries que abans eren només text: el contorn fi és l'única
+     * pista que necessiten per llegir-se com a botó sense competir amb el principal.
+     */
+    .cc-btn-text {
+        @apply inline-flex items-center justify-center gap-1.5 rounded-full
+               border border-white/[0.14] px-3.5 py-1.5
+               text-[13px] font-medium text-gray-300
+               transition-colors duration-200
+               hover:border-white/30 hover:text-white
+               disabled:opacity-40 disabled:pointer-events-none;
     }
 
     .cc-btn-danger {
@@ -191,12 +208,16 @@ select {
    TEMA CLAR — override de variables sobre html.light
    ============================================================ */
 html.light {
-    --color-brand-black: #f7f7f9;
-    --color-brand-surface: #ffffff;
-    --color-brand-dark: #e4e4ea;
-    --color-text-primary: #101014;
-    --color-text-muted: #61616e;
-    --color-text-input: #1a1a20;
+    --brand-black: 250 250 250;
+    --brand-surface: 255 255 255;
+    --brand-dark: 228 228 231;
+    /* En clar, l'accent s'inverteix: el que destaca és el negre. */
+    --brand-neon: 9 9 11;
+    --brand-base: 82 82 91;
+    --brand-muted: 113 113 122;
+    --color-text-primary: #09090b;
+    --color-text-muted: #52525b;
+    --color-text-input: #18181b;
     --shadow-sm: 0 1px 2px rgba(16, 16, 20, 0.06);
     --shadow-md: 0 4px 16px rgba(16, 16, 20, 0.08);
     --shadow-lg: 0 12px 32px rgba(16, 16, 20, 0.1);
@@ -213,6 +234,11 @@ html.light .cc-card {
 html.light .cc-btn-secondary,
 html.light .cc-icon-btn {
     @apply bg-black/[0.04] border-black/[0.08] text-gray-700;
+}
+
+html.light .cc-btn-text,
+html.light .cc-btn-ghost {
+    @apply border-black/[0.14] text-gray-600 hover:text-black hover:border-black/30;
 }
 
 html.light [type='text'],

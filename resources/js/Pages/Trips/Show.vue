@@ -166,7 +166,7 @@ const buildMap = async () => {
         map.value.fitBounds(tripPolyline.getBounds(), { padding: [30, 30] });
 
         // Marcador inici/fi
-        L.circleMarker(latlngs[0], { radius: 7, color: '#0CE1B5', fillColor: '#0CE1B5', fillOpacity: 1, weight: 2 })
+        L.circleMarker(latlngs[0], { radius: 7, color: '#0a0a0a', fillColor: '#fafafa', fillOpacity: 1, weight: 3 })
             .bindTooltip('Inici', { permanent: false }).addTo(map.value);
         L.circleMarker(latlngs[latlngs.length - 1], { radius: 7, color: '#ffffff', fillColor: '#ef4444', fillOpacity: 1, weight: 2 })
             .bindTooltip('Fi', { permanent: false }).addTo(map.value);

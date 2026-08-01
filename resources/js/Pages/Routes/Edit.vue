@@ -1,180 +1,219 @@
 <template>
     <AppLayout :title="$t('routes.edit')">
-        <div class="max-w-4xl mx-auto px-4 py-6 pb-24">
-            
-            <div v-show="!isMapOpen">
-                
-                <div class="flex items-center justify-between mb-8">
-                    <div class="flex items-center gap-3">
-                        <button type="button" @click="goBack" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]" aria-label="Enrere">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
-                        </button>
-                        <h1 class="text-2xl font-black text-white uppercase tracking-tighter">EDITAR RUTA</h1>
-                    </div>
-                </div>
+        <div class="max-w-3xl mx-auto px-4 py-6 pb-24 cc-fade-in">
 
-                <form @submit.prevent="submit" class="space-y-8">
-                    
-                    <div class="bg-brand-surface p-6 rounded-xl border border-brand-dark shadow-lg space-y-6">
-                        <div class="grid md:grid-cols-2 gap-6">
+            <div v-show="!isMapOpen">
+
+                <header class="flex items-center gap-3 mb-6">
+                    <button
+                        type="button"
+                        @click="goBack"
+                        class="cc-icon-btn"
+                        :aria-label="$t('common.back')"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                        </svg>
+                    </button>
+                    <h1 class="cc-title flex-1 truncate">{{ $t('routes.edit') }}</h1>
+                </header>
+
+                <form @submit.prevent="submit" class="space-y-5">
+
+                    <div v-if="Object.keys(form.errors).length > 0" class="cc-card p-4 border-red-500/20 bg-red-500/[0.06] mb-6">
+                        <ul class="space-y-1">
+                            <li v-for="(error, field) in form.errors" :key="field" class="text-red-400 text-sm">{{ error }}</li>
+                        </ul>
+                    </div>
+
+                    <div class="cc-card p-5 space-y-5">
+                        <p class="cc-section-label">{{ $t('routes.route_name') }}</p>
+                        <div class="grid md:grid-cols-2 gap-5">
                             <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('routes.route_name') }}</label>
-                                <input v-model="form.title" type="text" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0">
-                                <div v-if="form.errors.title" class="text-red-500 text-xs mt-1">{{ form.errors.title }}</div>
+                                <label class="block text-sm font-medium text-gray-400 mb-2">{{ $t('routes.route_name') }}</label>
+                                <input v-model="form.title" type="text" class="w-full text-sm">
+                                <div v-if="form.errors.title" class="text-red-400 text-xs mt-1">{{ form.errors.title }}</div>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('nav.moto') }}</label>
-                                <select v-model="form.motorcycle_id" class="w-full bg-brand-black border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon">
+                                <label class="block text-sm font-medium text-gray-400 mb-2">{{ $t('nav.moto') }}</label>
+                                <select v-model="form.motorcycle_id" class="w-full text-sm">
                                     <option :value="null">{{ $t('routes.select_motorcycle') }}</option>
                                     <option v-for="moto in motorcycles" :key="moto.id" :value="moto.id">{{ moto.alias || moto.model }}</option>
                                 </select>
                             </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('routes.route_type') }}</label>
-                                <select v-model="form.category_id" class="w-full bg-brand-black border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon">
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-400 mb-2">{{ $t('routes.route_type') }}</label>
+                                <select v-model="form.category_id" class="w-full text-sm">
                                     <option :value="null">{{ $t('routes.select_category') }}</option>
                                     <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
                                 </select>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('routes.description_label') }}</label>
-                            <textarea v-model="form.description" rows="3" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0"></textarea>
-                            <div v-if="form.errors.description" class="text-red-500 text-xs mt-1">{{ form.errors.description }}</div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">{{ $t('routes.description_label') }}</label>
+                            <textarea v-model="form.description" rows="3" class="w-full text-sm"></textarea>
+                            <div v-if="form.errors.description" class="text-red-400 text-xs mt-1">{{ form.errors.description }}</div>
                         </div>
-                        <div class="grid md:grid-cols-2 gap-6">
+                    </div>
+
+                    <div class="cc-card p-5 space-y-5">
+                        <p class="cc-section-label">{{ $t('routes.difficulty_label') }}</p>
+                        <div class="grid md:grid-cols-2 gap-5">
                             <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('routes.difficulty_label') }}</label>
-                                <div class="grid grid-cols-3 gap-2 h-auto">
-                                    <button type="button" @click="form.difficulty = 'easy'" :class="form.difficulty === 'easy' ? 'bg-green-500/20 border-green-500 text-green-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border py-2 px-1 text-[10px] sm:text-xs font-bold transition hover:border-gray-500">{{ $t('routes.difficulty_easy') }}</button>
-                                    <button type="button" @click="form.difficulty = 'medium'" :class="form.difficulty === 'medium' ? 'bg-yellow-500/20 border-yellow-500 text-yellow-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border py-2 px-1 text-[10px] sm:text-xs font-bold transition hover:border-gray-500">{{ $t('routes.difficulty_medium') }}</button>
-                                    <button type="button" @click="form.difficulty = 'hard'" :class="form.difficulty === 'hard' ? 'bg-red-500/20 border-red-500 text-red-400' : 'bg-brand-black border-brand-dark text-gray-500'" class="rounded-lg border py-2 px-1 text-[10px] sm:text-xs font-bold transition hover:border-gray-500">{{ $t('routes.difficulty_hard') }}</button>
+                                <label class="block text-sm font-medium text-gray-400 mb-2">{{ $t('routes.difficulty_label') }}</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button type="button" @click="form.difficulty = 'easy'" :class="form.difficulty === 'easy' ? 'bg-green-500/20 border-green-500 text-green-400' : 'bg-white/[0.04] border-white/[0.08] text-gray-500'" class="rounded-xl border py-2 px-1 text-xs font-medium transition hover:border-white/[0.15]">{{ $t('routes.difficulty_easy') }}</button>
+                                    <button type="button" @click="form.difficulty = 'medium'" :class="form.difficulty === 'medium' ? 'bg-yellow-500/20 border-yellow-500 text-yellow-400' : 'bg-white/[0.04] border-white/[0.08] text-gray-500'" class="rounded-xl border py-2 px-1 text-xs font-medium transition hover:border-white/[0.15]">{{ $t('routes.difficulty_medium') }}</button>
+                                    <button type="button" @click="form.difficulty = 'hard'" :class="form.difficulty === 'hard' ? 'bg-red-500/20 border-red-500 text-red-400' : 'bg-white/[0.04] border-white/[0.08] text-gray-500'" class="rounded-xl border py-2 px-1 text-xs font-medium transition hover:border-white/[0.15]">{{ $t('routes.difficulty_hard') }}</button>
                                 </div>
                             </div>
-
                             <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('routes.visibility_label') }}</label>
-                                <div class="flex items-center gap-3 bg-brand-black p-2 rounded-lg border border-brand-dark h-[42px]">
-                                    <button type="button" @click="form.is_public = true" class="flex-1 py-1 rounded text-[10px] sm:text-xs font-bold uppercase transition flex items-center justify-center gap-1.5" :class="form.is_public ? 'bg-brand-neon text-black' : 'text-gray-500 hover:text-white'">
+                                <label class="block text-sm font-medium text-gray-400 mb-2">{{ $t('routes.visibility_label') }}</label>
+                                <div class="flex items-center gap-2 bg-white/[0.04] p-1.5 rounded-xl border border-white/[0.08] h-[42px]">
+                                    <button type="button" @click="form.is_public = true" class="flex-1 py-1.5 rounded-lg text-xs font-medium transition flex items-center justify-center gap-1.5" :class="form.is_public ? 'bg-brand-neon text-brand-black' : 'text-gray-500 hover:text-white'">
                                         <AppIcon name="globe" size="xs" />
                                         {{ $t('routes.public_badge') }}
                                     </button>
-                                    <button type="button" @click="form.is_public = false" class="flex-1 py-1 rounded text-[10px] sm:text-xs font-bold uppercase transition flex items-center justify-center gap-1.5" :class="!form.is_public ? 'bg-gray-600 text-white' : 'text-gray-500 hover:text-white'">
+                                    <button type="button" @click="form.is_public = false" class="flex-1 py-1.5 rounded-lg text-xs font-medium transition flex items-center justify-center gap-1.5" :class="!form.is_public ? 'bg-white/[0.1] text-white' : 'text-gray-500 hover:text-white'">
                                         <AppIcon name="lock" size="xs" />
                                         {{ $t('routes.private_badge') }}
                                     </button>
                                 </div>
                             </div>
                         </div>
-                        <div v-if="form.errors.motorcycle_id || form.errors.difficulty || form.errors.is_public" class="text-red-500 text-xs mt-1">
+                        <div v-if="form.errors.motorcycle_id || form.errors.difficulty || form.errors.is_public" class="text-red-400 text-xs">
                             {{ $t('routes.invalid_selections') }}
                         </div>
-                        <div v-if="form.errors.planned_distance_km || form.errors.duration_seconds || form.errors.geo_json || form.errors.waypoints" class="text-red-500 text-xs mt-1">
+                        <div v-if="form.errors.planned_distance_km || form.errors.duration_seconds || form.errors.geo_json || form.errors.waypoints" class="text-red-400 text-xs">
                             {{ $t('routes.invalid_route_draw') }}
                         </div>
                     </div>
 
-                    <div class="bg-brand-surface p-4 rounded-xl border border-brand-dark">
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('routes.route_photo') }}</label>
-                        <div v-if="mapRoute.photo" class="mb-3">
-                            <img :src="$page.props.storageUrl + '/' + mapRoute.photo" alt="Foto Ruta" class="h-32 w-full object-cover rounded-xl border border-brand-dark">
+                    <div class="cc-card p-5 space-y-4">
+                        <p class="cc-section-label">{{ $t('routes.route_photo') }}</p>
+                        <div v-if="mapRoute.photo" class="mb-1">
+                            <img :src="$page.props.storageUrl + '/' + mapRoute.photo" alt="Foto Ruta" class="h-32 w-full object-cover rounded-xl border border-white/[0.08]">
                         </div>
-                        <input @change="e => form.photo = e.target.files[0]" type="file" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-brand-base/20 file:text-brand-neon hover:file:bg-brand-base/30 transition cursor-pointer">
-                        <div v-if="form.errors.photo" class="text-red-500 text-xs mt-1">{{ form.errors.photo }}</div>
+                        <input @change="e => form.photo = e.target.files[0]" type="file" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-white/[0.06] file:text-white hover:file:bg-white/[0.1] transition cursor-pointer">
+                        <div v-if="form.errors.photo" class="text-red-400 text-xs">{{ form.errors.photo }}</div>
                     </div>
 
-                    <div class="bg-brand-surface p-6 rounded-xl border border-brand-dark shadow-lg">
-                        <div class="flex items-center justify-between mb-4">
-                            <label class="text-xs font-bold text-gray-400 uppercase">{{ $t('routes.route_trace') }}</label>
-                            <span v-if="uiWaypoints.length > 0" class="text-xs text-brand-neon font-bold">{{ $t('routes.points_defined', { n: uiWaypoints.length }) }}</span>
+                    <div class="cc-card p-5 space-y-5">
+                        <div class="flex items-center justify-between">
+                            <p class="cc-section-label">{{ $t('routes.route_trace') }}</p>
+                            <span v-if="uiWaypoints.length > 0" class="cc-chip-neutral">{{ $t('routes.points_defined', { n: uiWaypoints.length }) }}</span>
                         </div>
-                        <div v-if="form.planned_distance_km > 0" class="grid grid-cols-2 gap-4 mb-4">
-                            <div class="bg-brand-black p-3 rounded-lg border border-brand-dark text-center">
-                                <span class="block text-2xl font-mono font-bold text-brand-neon">{{ form.planned_distance_km }}</span>
-                                <span class="text-[10px] text-gray-500 uppercase">{{ $t('routes.km_label') }}</span>
+                        <div v-if="form.planned_distance_km > 0" class="grid grid-cols-2 gap-4">
+                            <div class="bg-white/[0.04] p-3 rounded-xl border border-white/[0.08] text-center">
+                                <span class="block text-2xl font-mono font-semibold text-white tracking-tight">{{ form.planned_distance_km }}</span>
+                                <span class="text-xs text-gray-500">{{ $t('routes.km_label') }}</span>
                             </div>
-                            <div class="bg-brand-black p-3 rounded-lg border border-brand-dark text-center">
-                                <span class="block text-2xl font-mono font-bold text-white">{{ formattedDuration }}</span>
-                                <span class="text-[10px] text-gray-500 uppercase">{{ $t('routes.estimated_time') }}</span>
+                            <div class="bg-white/[0.04] p-3 rounded-xl border border-white/[0.08] text-center">
+                                <span class="block text-2xl font-mono font-semibold text-white tracking-tight">{{ formattedDuration }}</span>
+                                <span class="text-xs text-gray-500">{{ $t('routes.estimated_time') }}</span>
                             </div>
                         </div>
-                        <button type="button" @click="openMap" class="w-full group relative overflow-hidden rounded-xl bg-brand-black border border-brand-dark hover:border-brand-neon transition-all duration-300 h-32 flex flex-col items-center justify-center gap-2">
-                            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-                            <div class="relative z-10 bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_20px_rgba(12,225,181,0.4)] group-hover:scale-110 transition-transform">
+                        <button type="button" @click="openMap" class="w-full group relative overflow-hidden rounded-xl bg-white/[0.04] border border-white/[0.08] hover:border-white/[0.15] transition-all duration-200 h-32 flex flex-col items-center justify-center gap-2">
+                            <div class="relative z-10 bg-white/[0.08] text-white p-3 rounded-full group-hover:bg-white/[0.12] transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
                             </div>
-                            <span class="relative z-10 text-brand-neon font-bold uppercase tracking-widest text-sm group-hover:text-white transition-colors">
+                            <span class="relative z-10 text-gray-300 font-medium text-sm group-hover:text-white transition-colors">
                                 {{ $t('routes.edit_map') }}
                             </span>
                         </button>
                     </div>
 
-                    <button type="submit" :disabled="form.processing || uiWaypoints.length < 2" class="w-full bg-white text-black font-black py-4 rounded-xl uppercase tracking-widest hover:bg-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-xl">
+                    <button type="submit" :disabled="form.processing || uiWaypoints.length < 2" class="cc-btn-primary w-full">
                         {{ $t('routes.save_changes') }}
                     </button>
                 </form>
             </div>
 
             <div v-show="isMapOpen" class="fixed inset-0 z-[5000] bg-gray-900 flex flex-col">
+
                 <div id="map" class="absolute inset-0 w-full h-full z-0"></div>
 
-                <div class="absolute top-6 left-0 w-full z-[5010] p-4 pt-safe-top pointer-events-none">
-                    <div class="pointer-events-auto bg-brand-black/95 backdrop-blur-xl border border-brand-dark/50 rounded-2xl shadow-2xl p-2 flex flex-col gap-2 max-w-2xl mx-auto">
+                <div class="absolute top-3 left-0 w-full z-[5010] p-4 pt-safe-top pointer-events-none">
+                    <div class="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-2 flex flex-col gap-2 max-w-2xl mx-auto">
+
                         <div class="flex items-center gap-2">
-                            <button @click="closeMap" class="p-3 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition flex-shrink-0">
+                            <button type="button" @click="closeMap" class="cc-icon-btn bg-black/50 backdrop-blur-md border-white/20 text-white flex-shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
                             </button>
                             <div class="h-8 w-px bg-white/10 mx-1"></div>
-                            
+
                             <div class="flex-1 relative group">
                                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                    <svg v-if="isSearching" class="animate-spin w-4 h-4 text-brand-neon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                    <svg v-else class="w-4 h-4 text-gray-500 group-focus-within:text-brand-neon transition" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/></svg>
+                                    <svg v-if="isSearching" class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    <svg v-else class="w-4 h-4 text-gray-500 group-focus-within:text-white transition" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/></svg>
                                 </div>
                                 <input v-model="searchQuery" @input="handleSearchInput" type="text" class="block w-full py-2.5 pl-10 pr-3 text-sm text-white bg-transparent border-none focus:ring-0 placeholder-gray-600" :placeholder="$t('routes.add_stop')" autocomplete="off">
                             </div>
-                            
                         </div>
 
-                        <div v-if="searchResults.length > 0" class="border-t border-brand-dark/50 pt-2">
+                        <div v-if="searchResults.length > 0" class="border-t border-white/[0.08] pt-2">
                             <ul class="max-h-40 overflow-y-auto">
-                                <li v-for="(result, index) in searchResults" :key="index" @click="selectSearchResult(result)" class="p-2 hover:bg-brand-neon/20 rounded-lg cursor-pointer flex items-center gap-3 transition">
-                                    <div class="bg-gray-800 p-1.5 rounded-full text-brand-neon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg></div>
-                                    <div class="flex-1 min-w-0"><p class="text-sm text-white font-medium truncate">{{ result.display_name.split(',')[0] }}</p><p class="text-xs text-gray-500 truncate">{{ result.display_name }}</p></div>
+                                <li v-for="(result, index) in searchResults" :key="index" @click="selectSearchResult(result)" class="p-2 hover:bg-white/[0.06] rounded-lg cursor-pointer flex items-center gap-3 transition">
+                                    <div class="bg-white/[0.08] p-1.5 rounded-full text-gray-300">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm text-white font-medium truncate">{{ result.display_name.split(',')[0] }}</p>
+                                        <p class="text-xs text-gray-500 truncate">{{ result.display_name }}</p>
+                                    </div>
                                 </li>
                             </ul>
                         </div>
 
-                        <div v-if="uiWaypoints.length > 0 && searchResults.length === 0" class="border-t border-brand-dark/50 pt-2 mt-1">
-                             <div class="text-[10px] text-gray-500 uppercase font-bold mb-2 pl-1">{{ $t('routes.route_order') }}</div>
-                             <draggable v-model="uiWaypoints" item-key="id" @end="onDragEnd" handle=".drag-handle" class="flex flex-col gap-2 max-h-40 overflow-y-auto">
+                        <div v-if="uiWaypoints.length > 0 && searchResults.length === 0" class="border-t border-white/[0.08] pt-2 mt-1">
+                            <div class="text-xs text-gray-500 font-medium mb-2 pl-1">{{ $t('routes.route_order') }}</div>
+
+                            <draggable
+                                v-model="uiWaypoints"
+                                item-key="id"
+                                @end="onDragEnd"
+                                handle=".drag-handle"
+                                class="flex flex-col gap-2 max-h-40 overflow-y-auto"
+                            >
                                 <template #item="{element, index}">
-                                    <div class="flex items-center gap-2 bg-brand-black p-2 rounded-lg border border-gray-800 text-sm group">
-                                        <div class="drag-handle text-gray-500 cursor-grab hover:text-white p-1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg></div>
-                                        <div class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0" :class="index === 0 ? 'bg-green-500 text-black' : (index === uiWaypoints.length -1 ? 'bg-red-500 text-white' : 'bg-brand-neon text-black')">{{ index + 1 }}</div>
-                                        <div class="flex-1 truncate text-gray-300">{{ element.name || `Punt ${index + 1}` }}</div>
-                                        <button @click="removeWaypoint(index)" class="text-gray-600 hover:text-red-500 p-1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                                    <div class="flex items-center gap-2 bg-white/[0.04] p-2 rounded-lg border border-white/[0.08] text-sm group">
+                                        <div class="drag-handle text-gray-500 cursor-grab hover:text-white p-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+                                        </div>
+
+                                        <div class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold flex-shrink-0" :class="index === 0 ? 'bg-green-500 text-black' : (index === uiWaypoints.length -1 ? 'bg-red-500 text-white' : 'bg-white/[0.15] text-white')">
+                                            {{ index + 1 }}
+                                        </div>
+
+                                        <div class="flex-1 truncate text-gray-300">
+                                            {{ element.name || `Punt ${index + 1}` }}
+                                        </div>
+
+                                        <button type="button" @click="removeWaypoint(index)" class="text-gray-600 hover:text-red-400 p-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                                        </button>
                                     </div>
                                 </template>
                             </draggable>
                         </div>
+
                     </div>
                 </div>
 
-                <div class="absolute bottom-8 left-0 w-full z-[5010] px-4 flex items-end justify-between pointer-events-none pb-safe-bottom">
-                    <div class="pointer-events-auto bg-brand-black/90 backdrop-blur-md border border-brand-dark rounded-xl p-3 shadow-lg">
-                        <div class="text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-1">{{ $t('routes.total_route') }}</div>
+                <div class="absolute bottom-3 left-0 w-full z-[5010] px-4 flex items-end justify-between pointer-events-none pb-safe-bottom">
+                    <div class="pointer-events-auto bg-black/80 backdrop-blur-md border border-white/[0.08] rounded-xl p-3">
+                        <div class="text-xs text-gray-400 font-medium mb-1">{{ $t('routes.total_route') }}</div>
                         <div class="flex items-baseline gap-1">
-                            <span class="text-2xl font-mono font-bold text-brand-neon">{{ form.planned_distance_km }}</span>
+                            <span class="text-2xl font-mono font-semibold text-white tracking-tight">{{ form.planned_distance_km }}</span>
                             <span class="text-xs text-gray-500">km</span>
                         </div>
                     </div>
                     <div class="flex flex-col gap-3 pointer-events-auto">
-                        <button @click="locateUser" class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.5)] hover:scale-110 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 transform rotate-45"><path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" /></svg>
+                        <button type="button" @click="locateUser" class="cc-icon-btn bg-black/50 backdrop-blur-md border-white/20 text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 transform rotate-45"><path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" /></svg>
                         </button>
-                        <button @click="closeMap" class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.5)] hover:scale-110 transition flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd" /></svg>
+                        <button type="button" @click="closeMap" class="cc-icon-btn-accent">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd" /></svg>
                         </button>
                     </div>
                 </div>
@@ -372,13 +411,13 @@ onMounted(() => {
         addWaypoints: false,
         draggableWaypoints: true,
         fitSelectedRoutes: true,
-        lineOptions: { styles: [{ color: '#0CE1B5', opacity: 0.8, weight: 6 }] },
+        lineOptions: { styles: [{ color: '#fafafa', opacity: 0.9, weight: 6 }] },
         createMarker: function(i, wp, nWps) {
             return L.marker(wp.latLng, {
                 draggable: true,
                 icon: L.divIcon({
                     className: 'custom-div-icon',
-                    html: `<div style="background-color: ${i === 0 ? 'white' : '#0CE1B5'}; width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 10px ${i === 0 ? 'white' : '#0CE1B5'}; border: 2px solid white;"></div>`,
+                    html: `<div style="background-color: ${i === 0 ? '#fafafa' : '#0a0a0a'}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid #fafafa;"></div>`,
                     iconSize: [12, 12]
                 })
             });

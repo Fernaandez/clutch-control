@@ -165,7 +165,67 @@ class MotorcycleController extends Controller
             $user->save();
         }
 
-        return Inertia::render('Dashboard', ['moto' => $motorcycle]);
+        return Inertia::render('Dashboard', [
+            'moto'  => $motorcycle,
+            'pulse' => $this->motorcyclePulse($motorcycle, $user),
+        ]);
+    }
+
+    /**
+     * Estat viu de la moto: què reclama atenció, què has fet i què ve.
+     * La pantalla principal mostra contingut, no un menú, i necessita aquestes dades.
+     */
+    private function motorcyclePulse(Motorcycle $motorcycle, $user): array
+    {
+        $km = (float) ($motorcycle->current_km ?? 0);
+
+        // Tasca de manteniment més urgent (la que ha passat més de la seva freqüència)
+        $nextTask = $motorcycle->maintenanceTasks()
+            ->whereNotNull('frequency_km')
+            ->where('frequency_km', '>', 0)
+            ->get()
+            ->map(function ($task) use ($km) {
+                $due = (float) ($task->last_km_done ?? 0) + (float) $task->frequency_km;
+
+                return [
+                    'title'   => $task->title,
+                    'km_left' => (int) round($due - $km),
+                ];
+            })
+            ->sortBy('km_left')
+            ->first();
+
+        $lastTrip = \App\Models\Trip::where('user_id', $user->id)
+            ->where('motorcycle_id', $motorcycle->id)
+            ->orderByDesc('started_at')
+            ->first();
+
+        $nextEvent = \App\Models\Event::whereHas('participants', fn ($q) => $q->where('user_id', $user->id))
+            ->where('start_time', '>=', now())
+            ->orderBy('start_time')
+            ->first();
+
+        return [
+            'next_task'  => $nextTask,
+            'last_trip'  => $lastTrip ? [
+                'id'          => $lastTrip->id,
+                'distance_km' => round((float) $lastTrip->distance_km),
+                'started_at'  => $lastTrip->started_at,
+                'route_title' => $lastTrip->route?->title,
+            ] : null,
+            'next_event' => $nextEvent ? [
+                'id'         => $nextEvent->id,
+                'title'      => $nextEvent->title,
+                'start_time' => $nextEvent->start_time,
+            ] : null,
+            'total_spent' => (float) $motorcycle->maintenanceLogs()->sum('cost'),
+            'logs_count'  => $motorcycle->maintenanceLogs()->count(),
+            'counts'      => [
+                'maintenance' => $motorcycle->maintenanceTasks()->where('type', 'maintenance')->count(),
+                'repair'      => $motorcycle->maintenanceTasks()->where('type', 'repair')->count(),
+                'upgrade'     => $motorcycle->maintenanceTasks()->where('type', 'upgrade')->count(),
+            ],
+        ];
     }
 
     public function documentation(Motorcycle $motorcycle)

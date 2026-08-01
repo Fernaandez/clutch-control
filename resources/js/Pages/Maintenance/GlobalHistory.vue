@@ -1,180 +1,173 @@
 <template>
     <AppLayout :current-moto-id="motorcycle.id">
-        <div class="w-full max-w-full min-w-0 overflow-x-hidden box-border px-4 py-6 pb-24">
-            
-            <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between w-full min-w-0">
-                <div class="flex items-start gap-3 min-w-0 flex-1">
-                    <button type="button" @click="goBack" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]" aria-label="Enrere">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
-                    </button>
-                    <div class="min-w-0 flex-1 pt-0.5">
-                        <h1 class="text-2xl font-bold text-white break-words">{{ $t('maintenance.full_history_title') }}</h1>
-                        <p class="text-brand-muted text-sm truncate">{{ motorcycle.brand }} {{ motorcycle.model }}</p>
-                    </div>
+        <div class="max-w-xl mx-auto px-6 py-6 pb-24 cc-fade-in">
+
+            <header class="flex items-center gap-3 mb-6">
+                <button type="button" @click="goBack" class="cc-icon-btn" :aria-label="$t('common.back')">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                    </svg>
+                </button>
+                <h1 class="cc-title flex-1 truncate">{{ $t('maintenance.history') }}</h1>
+            </header>
+
+            <p v-if="motorcycle.brand" class="text-sm text-gray-500 mb-8 truncate">{{ motorcycle.brand }} {{ motorcycle.model }}</p>
+
+            <div v-if="filteredHistory.length" class="flex gap-12 mb-12">
+                <div>
+                    <p class="text-[40px] font-light tracking-tight tabular-nums text-white leading-none">{{ filteredHistory.length }}</p>
+                    <p class="mt-2 text-sm text-gray-500">{{ $t('maintenance.total_records') }}</p>
                 </div>
-                <div class="w-full sm:w-auto sm:flex-shrink-0">
-                    <div class="text-right bg-brand-surface border border-brand-dark px-3 py-2 rounded-lg shadow-lg">
-                        <p class="text-[10px] text-gray-400 uppercase tracking-widest">{{ $t('maintenance.total_filtered') }}</p>
-                        <p class="text-xl font-mono font-bold text-brand-neon">{{ totalFilteredCost.toFixed(2) }} €</p>
-                    </div>
+                <div>
+                    <p class="text-[40px] font-light tracking-tight tabular-nums text-white leading-none">
+                        {{ totalFilteredCost.toFixed(2) }}<span class="text-base text-gray-500 ml-1">€</span>
+                    </p>
+                    <p class="mt-2 text-sm text-gray-500">{{ $t('maintenance.total_filtered') }}</p>
                 </div>
             </div>
 
-            <button 
-                @click="showFilters = !showFilters"
-                class="w-full mb-4 flex items-center justify-between bg-brand-surface border border-brand-dark p-3 rounded-xl text-sm font-bold text-gray-300 hover:text-white hover:border-brand-neon transition"
-            >
-                <span class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
+            <div class="mb-8">
+                <button
+                    type="button"
+                    @click="showFilters = !showFilters"
+                    class="cc-btn-text"
+                >
                     {{ showFilters ? $t('maintenance.hide_filters') : $t('maintenance.show_filters') }}
-                </span>
-                <span v-if="activeFiltersCount > 0" class="bg-brand-neon text-brand-black text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {{ activeFiltersCount }}
-                </span>
-                <span v-else>▼</span>
-            </button>
+                    <span v-if="activeFiltersCount > 0" class="ml-1 text-gray-400">({{ activeFiltersCount }})</span>
+                </button>
 
-            <div v-if="showFilters" class="bg-brand-black border border-brand-dark rounded-xl p-4 mb-6 shadow-inner space-y-4 animate-fade-in-down">
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div v-if="showFilters" class="mt-6 space-y-5">
                     <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('maintenance.search') }}</label>
-                        <input v-model="filters.search" type="text" :placeholder="$t('maintenance.search_placeholder')" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0 mt-1">
+                        <label class="cc-section-label">{{ $t('maintenance.search') }}</label>
+                        <input v-model="filters.search" type="text" :placeholder="$t('maintenance.search_placeholder')" class="w-full mt-2 text-sm">
                     </div>
                     <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('maintenance.type') }}</label>
-                        <select v-model="filters.type" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0 mt-1">
+                        <label class="cc-section-label">{{ $t('maintenance.type') }}</label>
+                        <select v-model="filters.type" class="w-full mt-2 text-sm">
                             <option value="all">{{ $t('maintenance.type_all') }}</option>
                             <option value="maintenance">{{ $t('maintenance.type_maintenance') }}</option>
                             <option value="repair">{{ $t('maintenance.type_repair') }}</option>
                             <option value="upgrade">{{ $t('maintenance.type_upgrade') }}</option>
                         </select>
                     </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="cc-section-label">{{ $t('maintenance.date_start') }}</label>
+                            <input v-model="filters.dateStart" type="date" class="w-full mt-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="cc-section-label">{{ $t('maintenance.date_end') }}</label>
+                            <input v-model="filters.dateEnd" type="date" class="w-full mt-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="cc-section-label">{{ $t('maintenance.km_min') }}</label>
+                            <input v-model="filters.kmMin" type="number" placeholder="0" class="w-full mt-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="cc-section-label">{{ $t('maintenance.km_max') }}</label>
+                            <input v-model="filters.kmMax" type="number" placeholder="Max" class="w-full mt-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="cc-section-label">{{ $t('maintenance.price_min') }}</label>
+                            <input v-model="filters.priceMin" type="number" placeholder="0" class="w-full mt-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="cc-section-label">{{ $t('maintenance.price_max') }}</label>
+                            <input v-model="filters.priceMax" type="number" placeholder="Max" class="w-full mt-2 text-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="cc-section-label">{{ $t('maintenance.sort_by') }}</label>
+                        <div class="flex gap-2 mt-2">
+                            <select v-model="filters.sortBy" class="flex-1 text-sm">
+                                <option value="date">{{ $t('maintenance.sort_date') }}</option>
+                                <option value="cost">{{ $t('maintenance.sort_price') }}</option>
+                                <option value="km_at_moment">{{ $t('maintenance.sort_km') }}</option>
+                            </select>
+                            <button type="button" @click="toggleSortDir" class="cc-btn-ghost text-sm px-3">
+                                {{ filters.sortDir === 'desc' ? $t('common.desc') : $t('common.asc') }}
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" @click="resetFilters" class="cc-btn-text">
+                        {{ $t('maintenance.clear_all_filters') }}
+                    </button>
                 </div>
+            </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('maintenance.date_start') }}</label>
-                        <input v-model="filters.dateStart" type="date" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('maintenance.date_end') }}</label>
-                        <input v-model="filters.dateEnd" type="date" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
-                    </div>
-
-                    <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('maintenance.km_min') }}</label>
-                        <input v-model="filters.kmMin" type="number" placeholder="0" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('maintenance.km_max') }}</label>
-                        <input v-model="filters.kmMax" type="number" placeholder="Max" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
-                    </div>
-
-                    <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('maintenance.price_min') }}</label>
-                        <input v-model="filters.priceMin" type="number" placeholder="0" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('maintenance.price_max') }}</label>
-                        <input v-model="filters.priceMax" type="number" placeholder="Max" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
-                    </div>
+            <div v-if="filteredHistory.length" class="divide-y divide-white/[0.06]">
+                <div v-for="log in filteredHistory" :key="log.id" class="py-5">
+                    <button type="button" @click="openShowModal(log)" class="w-full text-left">
+                        <p class="text-[15px] font-medium text-gray-100">{{ log.task_title }}</p>
+                        <p class="mt-1 text-sm text-gray-500">
+                            <span v-if="log.type !== 'maintenance'" class="text-gray-400">{{ typeLabel(log.type) }} · </span>
+                            {{ formatDate(log.date) }} · {{ log.km_at_moment }} km · {{ log.cost }} €
+                        </p>
+                    </button>
                 </div>
+            </div>
 
-                <div class="border-t border-brand-dark pt-3 mt-2">
-                    <label class="text-xs text-brand-neon uppercase font-bold mb-2 block">{{ $t('maintenance.sort_by') }}</label>
-                    <div class="flex gap-2">
-                        <select v-model="filters.sortBy" class="flex-1 bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
-                            <option value="date">{{ $t('maintenance.sort_date') }}</option>
-                            <option value="cost">{{ $t('maintenance.sort_price') }}</option>
-                            <option value="km_at_moment">{{ $t('maintenance.sort_km') }}</option>
-                        </select>
-                        <button @click="toggleSortDir" class="bg-brand-surface border border-brand-dark px-3 rounded-lg text-white hover:border-brand-neon transition">
-                            {{ filters.sortDir === 'desc' ? $t('common.desc') : $t('common.asc') }}
-                        </button>
-                    </div>
-                </div>
-                
-                <button @click="resetFilters" class="w-full text-xs text-gray-500 hover:text-white underline mt-2">
-                    {{ $t('maintenance.clear_all_filters') }}
+            <div v-else class="flex flex-col items-center justify-center text-center py-16 px-6">
+                <p class="text-base font-semibold text-gray-300">{{ $t('maintenance.no_results') }}</p>
+                <button type="button" @click="resetFilters" class="cc-btn-text mt-4">
+                    {{ $t('maintenance.clear_filters') }}
                 </button>
             </div>
-
-
-            <div v-if="filteredHistory.length === 0" class="text-center py-10 text-gray-500 bg-brand-surface rounded-xl border border-brand-dark border-dashed">
-                <p>{{ $t('maintenance.no_results') }}</p>
-                <button @click="resetFilters" class="text-brand-neon text-sm font-bold mt-2 hover:underline">{{ $t('maintenance.clear_filters') }}</button>
-            </div>
-
-            <div v-else class="space-y-4">
-                <div v-for="log in filteredHistory" :key="log.id" class="bg-brand-surface rounded-xl p-4 border border-brand-dark shadow-lg relative flex justify-between items-center gap-3 group hover:border-brand-neon transition animate-fade-in">
-                    
-                    <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <span v-if="log.type === 'maintenance'" class="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded uppercase border border-blue-500/30">{{ $t('maintenance.type_maintenance') }}</span>
-                            <span v-else-if="log.type === 'repair'" class="bg-red-500/20 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded uppercase border border-red-500/30">{{ $t('maintenance.type_repair') }}</span>
-                            <span v-else-if="log.type === 'upgrade'" class="bg-purple-500/20 text-purple-400 text-[10px] font-bold px-2 py-0.5 rounded uppercase border border-purple-500/30">{{ $t('maintenance.type_upgrade') }}</span>
-                            
-                            <span class="text-xs text-gray-500 font-mono">{{ formatDate(log.date) }}</span>
-                        </div>
-                        
-                        <h3 class="text-lg font-bold text-white">{{ log.task_title }}</h3>
-                        <p class="text-sm text-gray-400 mt-0.5">{{ log.location || '—' }}</p>
-                    </div>
-
-                    <div class="text-right min-w-[80px] flex-shrink-0">
-                        <p class="text-lg font-bold text-white">{{ log.cost }} €</p>
-                        <p class="text-xs text-gray-500">{{ log.km_at_moment }} km</p>
-                        <button @click="openShowModal(log)" class="mt-2 inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-dark border border-brand-neon/40 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition" title="Veure">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
-                        </button>
-                    </div>
-
-                </div>
-            </div>
-
         </div>
 
         <div v-if="selectedLog" class="fixed inset-0 z-[4000] flex items-center justify-center p-4">
-            <div @click="selectedLog = null" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-            <div class="relative bg-brand-surface border border-brand-neon/30 rounded-xl p-6 w-full max-w-sm max-h-[min(90vh,36rem)] overflow-y-auto overscroll-contain shadow-[0_0_20px_rgba(12,225,181,0.15)]">
-                <button @click="selectedLog = null" class="absolute top-4 right-4 inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition" aria-label="Tancar">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+            <div @click="selectedLog = null" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+            <div class="relative bg-brand-surface border border-white/[0.08] rounded-2xl p-6 max-w-sm w-full max-h-[min(90vh,36rem)] overflow-y-auto overscroll-contain">
+                <button type="button" @click="selectedLog = null" class="cc-icon-btn absolute top-4 right-4" aria-label="Tancar">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
                 </button>
-                <h3 class="text-xl font-bold text-white mb-1 pr-10">{{ selectedLog.task_title }}</h3>
-                <p class="text-xs text-brand-muted uppercase tracking-widest mb-4">{{ typeLabel(selectedLog.type) }}</p>
-
-                <div class="space-y-3">
-                    <div class="grid grid-cols-2 gap-2">
-                        <div class="bg-brand-black/60 rounded-lg p-3 border border-brand-dark">
-                            <p class="text-xs text-gray-500 mb-1">{{ $t('common.date') }}</p>
-                            <p class="text-white font-mono text-sm">{{ formatDate(selectedLog.date) }}</p>
-                        </div>
-                        <div class="bg-brand-black/60 rounded-lg p-3 border border-brand-dark">
-                            <p class="text-xs text-gray-500 mb-1">{{ $t('common.price') }}</p>
-                            <p class="text-white font-mono text-sm">{{ selectedLog.cost }} €</p>
-                        </div>
+                <h3 class="text-lg font-medium text-white mb-1 pr-10">{{ selectedLog.task_title }}</h3>
+                <p class="text-sm text-gray-500 mb-6">{{ typeLabel(selectedLog.type) }}</p>
+                <div class="space-y-4">
+                    <div>
+                        <p class="cc-section-label">{{ $t('common.date') }}</p>
+                        <p class="text-white tabular-nums mt-1">{{ formatDate(selectedLog.date) }}</p>
                     </div>
-                    <div class="bg-brand-black/60 rounded-lg p-3 border border-brand-dark">
-                        <p class="text-xs text-gray-500 mb-1">{{ $t('maintenance.done_at') }}</p>
-                        <p class="text-white font-mono text-sm">{{ selectedLog.km_at_moment }} km</p>
+                    <div>
+                        <p class="cc-section-label">{{ $t('common.price') }}</p>
+                        <p class="text-white tabular-nums mt-1">{{ selectedLog.cost }} €</p>
                     </div>
-                    <div class="bg-brand-black/60 rounded-lg p-3 border border-brand-dark">
-                        <p class="text-xs text-gray-500 mb-1">{{ $t('maintenance.workshop') }}</p>
-                        <p class="text-gray-200 text-sm">{{ selectedLog.location || '—' }}</p>
+                    <div>
+                        <p class="cc-section-label">{{ $t('maintenance.done_at') }}</p>
+                        <p class="text-white tabular-nums mt-1">{{ selectedLog.km_at_moment }} km</p>
                     </div>
-                    <button v-if="selectedLog.invoice_photo" type="button" @click="openPhoto(selectedLog.invoice_photo)" class="block w-full">
-                        <img :src="$page.props.storageUrl + '/' + selectedLog.invoice_photo" alt="Foto factura" class="max-h-56 w-full object-contain rounded-lg border border-brand-dark bg-brand-black">
+                    <div v-if="selectedLog.location">
+                        <p class="cc-section-label">{{ $t('maintenance.workshop') }}</p>
+                        <p class="text-gray-300 text-sm mt-1">{{ selectedLog.location }}</p>
+                    </div>
+                    <button v-if="selectedLog.invoice_photo" type="button" @click="openPhoto(selectedLog.invoice_photo)" class="block w-full text-left">
+                        <p class="cc-section-label">{{ $t('maintenance.invoice_photo') }}</p>
+                        <img
+                            :src="$page.props.storageUrl + '/' + selectedLog.invoice_photo"
+                            alt=""
+                            class="mt-2 max-h-56 w-full object-contain rounded-lg"
+                            @error="($event.target).style.display = 'none'"
+                        >
                     </button>
                 </div>
             </div>
         </div>
 
-        <div v-if="selectedPhoto" class="fixed inset-0 z-[4010] flex items-center justify-center p-4 bg-black/95">
-            <button @click="selectedPhoto = null" class="absolute top-4 right-4 inline-flex items-center justify-center w-10 h-10 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition" aria-label="Tancar">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+        <div v-if="selectedPhoto" class="fixed inset-0 z-[4010] flex items-center justify-center p-4">
+            <div @click="selectedPhoto = null" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+            <button type="button" @click="selectedPhoto = null" class="cc-icon-btn absolute top-4 right-4 z-10" aria-label="Tancar">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
             </button>
-            <img :src="$page.props.storageUrl + '/' + selectedPhoto" alt="Foto factura" class="max-h-[85vh] max-w-full object-contain rounded-lg border border-brand-dark">
+            <img
+                :src="$page.props.storageUrl + '/' + selectedPhoto"
+                alt=""
+                class="relative max-h-[85vh] max-w-full object-contain rounded-lg"
+                @error="($event.target).style.display = 'none'"
+            >
         </div>
     </AppLayout>
 </template>

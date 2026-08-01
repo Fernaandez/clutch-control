@@ -62,7 +62,7 @@
                     </div>
                 </div>
                 
-                <button @click="resetFilters" class="w-full text-xs text-gray-500 hover:text-white underline mt-2">
+                <button @click="resetFilters" class="cc-btn-text mt-2">
                     {{ $t('events.clear_all_filters') }}
                 </button>
             </div>

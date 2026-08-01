@@ -5,247 +5,219 @@
 
             <div v-if="mapRoute" id="map-detail" class="absolute inset-0 z-0 bg-gray-900"></div>
 
-            <button type="button" @click="goBack" class="absolute top-safe-top left-4 z-[5010] mt-2 inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]" aria-label="Enrere">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
+            <button
+                type="button"
+                @click="goBack"
+                class="cc-icon-btn absolute top-safe-top left-4 z-[5010] mt-2 bg-black/50 backdrop-blur-md border-white/20 text-white"
+                :aria-label="$t('common.back')"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                </svg>
             </button>
 
             <!-- LIVE TRACKING OVERLAY -->
-            <div v-if="isRecording" class="absolute top-safe-top left-1/2 -translate-x-1/2 z-50 bg-brand-black/90 backdrop-blur-xl border border-brand-dark rounded-full px-6 py-3 shadow-[0_0_20px_rgba(239,68,68,0.3)] mt-2 flex items-center gap-6">
-                <!-- Parpelleig LIVE -->
+            <div v-if="isRecording" class="absolute top-safe-top left-1/2 -translate-x-1/2 z-50 bg-black/80 backdrop-blur-xl border border-red-500/20 rounded-2xl px-6 py-3 mt-2 flex items-center gap-6">
                 <div class="flex items-center gap-2">
                     <span class="relative flex h-3 w-3">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
                     </span>
-                    <span class="text-xs font-black text-red-500 uppercase tracking-widest">LIVE</span>
+                    <span class="text-xs font-semibold text-red-400 tracking-tight">LIVE</span>
                 </div>
-                <!-- Temps -->
                 <div class="flex flex-col items-center">
-                    <span class="text-[10px] text-gray-500 uppercase font-bold leading-none mb-1">{{ $t('free_ride.chrono') }}</span>
-                    <span class="text-lg font-mono font-bold text-white leading-none">{{ formattedRecordingTime }}</span>
+                    <span class="text-[10px] text-gray-500 font-medium leading-none mb-1">{{ $t('free_ride.chrono') }}</span>
+                    <span class="text-lg font-mono font-semibold text-white leading-none">{{ formattedRecordingTime }}</span>
                 </div>
-                <!-- Distància -->
                 <div class="flex flex-col items-center">
-                    <span class="text-[10px] text-gray-500 uppercase font-bold leading-none mb-1">{{ $t('free_ride.distance') }}</span>
-                    <span class="text-lg font-mono font-bold text-brand-neon leading-none">{{ (recordedDistance / 1000).toFixed(2) }}<span class="text-xs text-gray-400 ml-1">km</span></span>
+                    <span class="text-[10px] text-gray-500 font-medium leading-none mb-1">{{ $t('free_ride.distance') }}</span>
+                    <span class="text-lg font-mono font-semibold text-white leading-none">{{ (recordedDistance / 1000).toFixed(2) }}<span class="text-xs text-gray-400 ml-1">km</span></span>
                 </div>
             </div>
 
-            <div class="absolute bottom-6 left-0 w-full p-4 z-10 pb-safe-bottom">
-                <div class="bg-brand-black/95 backdrop-blur-xl border border-brand-dark rounded-2xl shadow-2xl overflow-hidden flex flex-col transition-all duration-300">
+            <!-- Full de ruta: el mapa és el fons, aquí hi ha el que has de saber i fer -->
+            <div class="absolute bottom-0 left-0 w-full z-10">
+                <div class="mx-3 mb-3 rounded-3xl bg-brand-black/95 backdrop-blur-xl border border-white/[0.08] overflow-hidden pb-safe-bottom cc-fade-in">
 
-                    <!-- HEADER COLLAPSIBLE -->
-                    <div class="p-4 flex flex-col gap-3 flex-shrink-0 cursor-pointer hover:bg-white/5 transition" @click="isExpanded = !isExpanded">
-                        <div class="flex justify-between items-start">
-                            <div class="flex-1 pr-2">
-                                <h1 class="text-xl font-black text-white uppercase tracking-tighter leading-none line-clamp-1">{{ mapRoute.title || $t('events.no_title') }}</h1>
-                                <div class="flex items-center gap-2 mt-2 flex-wrap">
-                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border"
-                                        :class="{
-                                            'border-green-500 text-green-400 bg-green-500/10': mapRoute.difficulty === 'easy',
-                                            'border-yellow-500 text-yellow-400 bg-yellow-500/10': mapRoute.difficulty === 'medium',
-                                            'border-red-500 text-red-400 bg-red-500/10': mapRoute.difficulty === 'hard'
-                                        }">
-                                        {{ $t('routes.diff_label_' + (mapRoute.difficulty || 'medium')) }}
-                                    </span>
+                    <button
+                        type="button"
+                        @click="isExpanded = !isExpanded"
+                        class="w-full px-5 pt-4 pb-1 flex items-start gap-3 text-left"
+                    >
+                        <span class="min-w-0 flex-1">
+                            <span class="block text-[19px] font-medium text-white leading-snug line-clamp-2">
+                                {{ mapRoute.title || $t('events.no_title') }}
+                            </span>
+                            <span class="block mt-1 text-sm text-gray-500 truncate">{{ subtitleLine }}</span>
+                        </span>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                            class="w-4 h-4 mt-2 text-gray-500 flex-shrink-0 transition-transform"
+                            :class="isExpanded ? 'rotate-180' : ''"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                        </svg>
+                    </button>
 
-                                    <span v-if="mapRoute.is_public" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border border-brand-neon/30 text-brand-neon bg-brand-neon/10 inline-flex items-center gap-1">
-                                        <AppIcon name="globe" size="xs" />
-                                        {{ $t('routes.public_badge') }}
-                                    </span>
-                                    <span v-else class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border border-gray-500 text-gray-400 bg-gray-800 inline-flex items-center gap-1">
-                                        <AppIcon name="lock" size="xs" />
-                                        {{ $t('routes.private_badge') }}
-                                    </span>
-
-                                    <span v-if="motorcycle" class="text-xs text-gray-400 flex items-center gap-1">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3"><path d="M8 16.25a.75.75 0 01.75-.75h2.5a.75.75 0 010 1.5h-2.5a.75.75 0 01-.75-.75z" /><path fill-rule="evenodd" d="M4 4a3 3 0 013-3h6a3 3 0 013 3v12a3 3 0 01-3 3H7a3 3 0 01-3-3V4zm4-1.5a.75.75 0 000 1.5h4a.75.75 0 000-1.5H8z" clip-rule="evenodd" /></svg>
-                                        {{ motorcycle.alias || motorcycle.model }}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center gap-2">
-                                <div class="p-2 text-gray-400 bg-gray-800 rounded-lg">
-                                    <svg v-if="isExpanded" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
-                                    <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" /></svg>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Mini Actions (Visible when collapsed) -->
-                        <div v-show="!isExpanded" class="flex items-center gap-2 mt-1" @click.stop>
-                            <a :href="googleMapsLink" target="_blank" class="flex-1 flex items-center justify-center gap-1.5 bg-brand-neon/10 text-brand-neon border border-brand-neon/30 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-brand-neon/20 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M8.161 2.58a1.875 1.875 0 0 1 1.678 0l4.993 2.498c.106.052.23.052.336 0l3.869-1.935A1.875 1.875 0 0 1 21.75 4.82v12.485c0 .71-.401 1.36-1.037 1.677l-4.875 2.437a1.875 1.875 0 0 1-1.678 0l-4.993-2.498a.75.75 0 0 0-.336 0l-3.868 1.935A1.875 1.875 0 0 1 2.25 19.18V6.695c0-.71.401-1.36 1.036-1.677l4.875-2.437ZM9 6a.75.75 0 0 1 .75.75V15a.75.75 0 0 1-1.5 0V6.75A.75.75 0 0 1 9 6Zm6.75 3a.75.75 0 0 0-1.5 0v8.25a.75.75 0 0 0 1.5 0V9Z" clip-rule="evenodd" /></svg>
-                                {{ $t('routes.navigate') }}
-                            </a>
-                            <button v-if="!isRecording" @click.stop="startRecording" class="flex-1 flex items-center justify-center gap-1.5 bg-red-600/10 text-red-500 border border-red-500/30 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600/20 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><circle cx="12" cy="12" r="8" fill="currentColor" /></svg>
-                                {{ $t('routes.follow') }}
-                            </button>
-                            <button v-else @click.stop="stopRecording" class="flex-1 flex items-center justify-center gap-1.5 bg-red-900 border border-red-500 text-white py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest animate-pulse">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z" fill="currentColor" /></svg>
-                                {{ $t('routes.stop') }}
-                            </button>
-                        </div>
+                    <!-- Les xifres de la ruta: text, no caixes -->
+                    <div class="px-5 pt-4 flex items-baseline gap-8">
+                        <span>
+                            <span class="block text-[26px] font-light leading-none tabular-nums text-white">
+                                {{ Math.round(mapRoute.distance_km || mapRoute.planned_distance_km || 0) }}<span class="text-sm text-gray-500 ml-1">km</span>
+                            </span>
+                        </span>
+                        <span v-if="mapRoute.duration_seconds">
+                            <span class="block text-[26px] font-light leading-none tabular-nums text-white">{{ formattedDuration }}</span>
+                        </span>
+                        <span class="ml-auto text-sm text-gray-500">
+                            {{ $t('routes.diff_label_' + (mapRoute.difficulty || 'medium')) }}
+                        </span>
                     </div>
 
-                    <!-- EXPANDED BODY -->
-                    <div v-show="isExpanded" class="border-t border-gray-800 overflow-y-auto max-h-[55vh] overscroll-contain">
+                    <div class="px-5 pt-5 pb-5 flex items-center gap-2.5">
+                        <a :href="googleMapsLink" target="_blank" class="cc-btn-primary flex-1 py-3">
+                            {{ $t('routes.navigate') }}
+                        </a>
+                        <button v-if="!isRecording" type="button" @click="startRecording" class="cc-btn-secondary flex-1 py-3">
+                            {{ $t('routes.follow') }}
+                        </button>
+                        <button v-else type="button" @click="stopRecording" class="cc-btn-danger flex-1 py-3">
+                            {{ $t('routes.stop') }}
+                        </button>
+                    </div>
 
-                        <!-- Utilitats (compartir / editar) -->
-                        <div v-if="$page.props.auth.user && mapRoute.user_id === $page.props.auth.user.id" class="px-4 py-2 bg-brand-black/50 border-b border-gray-800 flex justify-end gap-2">
-                            <button @click="copyShareLink" class="bg-gray-800 hover:bg-brand-neon hover:text-black text-white p-2 rounded-lg transition border border-gray-700 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest" title="Copia l'enllaç de Compartició">
-                                <svg v-if="!copyLinkSuccess" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" /></svg>
-                                <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-                                {{ $t('routes.share') }}
-                            </button>
-                            <Link :href="route('routes.edit', mapRoute.id)" class="bg-gray-800 hover:bg-gray-700 text-white p-2 rounded-lg transition border border-gray-700 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>
-                                {{ $t('routes.edit') }}
-                            </Link>
+                    <!-- Tot el que no necessites per sortir a rodar viu aquí sota -->
+                    <div v-show="isExpanded" class="border-t border-white/[0.06] overflow-y-auto max-h-[55vh] overscroll-contain">
+
+                        <p v-if="mapRoute.description" class="px-5 pt-5 text-sm text-gray-400 leading-relaxed">
+                            {{ mapRoute.description }}
+                        </p>
+
+                        <div v-if="mapRoute.photo" class="px-5 pt-5">
+                            <img :src="$page.props.storageUrl + '/' + mapRoute.photo" alt="" class="w-full h-36 object-cover rounded-2xl">
                         </div>
 
-                        <div v-if="mapRoute.user" class="px-4 pt-4 flex items-center justify-between gap-3">
-                            <p class="text-xs text-gray-500">Publicada per <span class="font-bold text-gray-300">{{ mapRoute.user.name }}</span></p>
-                            <ReportButton
-                                v-if="!$page.props.auth.user || mapRoute.user_id !== $page.props.auth.user.id"
-                                reportable-type="user"
-                                :reportable-id="mapRoute.user.id"
-                                label="Denunciar usuari"
-                                :context-label="`Denunciar usuari: ${mapRoute.user.name}`"
-                                button-class="text-[10px] font-bold uppercase tracking-widest text-red-400 hover:text-red-300 underline"
-                            />
-                        </div>
-
-                        <!-- Descripció -->
-                        <div class="px-4 pt-4 pb-2">
-                            <p class="text-sm text-gray-400">{{ mapRoute.description || $t('routes.no_description') }}</p>
-                        </div>
-
-                        <!-- Foto -->
-                        <div v-if="mapRoute.photo" class="px-4 pt-2">
-                            <img :src="$page.props.storageUrl + '/' + mapRoute.photo" alt="Foto Ruta" class="w-full h-32 object-cover rounded-xl border border-brand-dark">
-                        </div>
-
-                        <!-- Stats -->
-                        <div class="grid grid-cols-2 gap-px bg-gray-800/50 mt-4 border-t border-gray-800">
-                            <div class="p-3 text-center bg-brand-black/50">
-                                <span class="block text-xl font-mono font-bold text-brand-neon">{{ mapRoute.planned_distance_km || 0 }}</span>
-                                <span class="text-[10px] text-gray-500 uppercase tracking-wider">Km</span>
+                        <!-- Els teus recorreguts sobre aquesta ruta -->
+                        <section v-if="$page.props.auth.user && myRouteTrips.length" class="px-5 pt-6">
+                            <div class="flex items-center justify-between gap-3">
+                                <p class="cc-section-label">{{ $t('routes.your_trips') }}</p>
+                                <button type="button" @click="toggleAllTripsMap" class="cc-btn-text px-3 py-1 text-xs">
+                                    {{ showingAllTrips ? $t('routes.hide_on_map') : $t('routes.show_on_map') }}
+                                </button>
                             </div>
-                            <div class="p-3 text-center bg-brand-black/50">
-                                <span class="block text-xl font-mono font-bold text-white">{{ formattedDuration }}</span>
-                                <span class="text-[10px] text-gray-500 uppercase tracking-wider">{{ $t('routes.time_label') }}</span>
+
+                            <div class="mt-2 divide-y divide-white/[0.06]">
+                                <Link
+                                    v-for="trip in myRouteTrips"
+                                    :key="trip.id"
+                                    :href="route('trips.show', trip.id)"
+                                    class="flex items-baseline gap-3 py-3 group"
+                                >
+                                    <span class="flex-1 text-sm text-gray-300 group-hover:text-white transition-colors truncate">
+                                        {{ formatTripDate(trip.started_at) }}
+                                    </span>
+                                    <span class="text-sm tabular-nums text-gray-400">{{ trip.distance_km }} km</span>
+                                    <span class="text-xs text-gray-600 tabular-nums w-12 text-right">{{ formatTripDuration(trip.duration_seconds) }}</span>
+                                </Link>
                             </div>
-                        </div>
+                        </section>
 
                         <!-- Valoracions -->
-                        <div v-if="mapRoute.is_public" class="px-4 py-3 border-t border-gray-800">
-                            <div class="flex items-center justify-between mb-2">
-                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">{{ $t('routes.ratings') }}</h3>
-                                <span v-if="mapRoute.reviews && mapRoute.reviews.length" class="text-brand-neon font-bold text-sm">⭐ {{ (mapRoute.reviews.reduce((a, b) => a + b.rating, 0) / mapRoute.reviews.length).toFixed(1) }}</span>
+                        <section v-if="mapRoute.is_public" class="px-5 pt-6">
+                            <div class="flex items-center justify-between gap-3">
+                                <p class="cc-section-label">{{ $t('routes.ratings') }}</p>
+                                <span v-if="mapRoute.reviews && mapRoute.reviews.length" class="text-sm text-white tabular-nums">
+                                    ★ {{ (mapRoute.reviews.reduce((a, b) => a + b.rating, 0) / mapRoute.reviews.length).toFixed(1) }}
+                                </span>
                             </div>
-                            <div v-if="mapRoute.reviews && mapRoute.reviews.length" class="space-y-2 mb-3">
-                                <div v-for="review in mapRoute.reviews" :key="review.id" class="bg-brand-surface border border-brand-dark p-2 rounded-lg text-sm">
-                                    <div class="flex justify-between items-start mb-1">
-                                        <span class="font-bold text-gray-200">{{ review.user.name }}</span>
-                                        <span class="text-yellow-400 text-xs">⭐ {{ review.rating }}/5</span>
-                                    </div>
-                                    <p class="text-gray-400 text-xs">{{ review.comment }}</p>
-                                </div>
-                            </div>
-                            <p v-else class="text-xs text-gray-500 italic mb-3">{{ $t('routes.no_reviews_yet') }}</p>
 
-                            <div v-if="$page.props.auth && $page.props.auth.user && mapRoute.user_id !== $page.props.auth.user.id" class="space-y-2 mt-3 pt-3 border-t border-gray-800/50">
-                                <div v-if="userHasReviewed" class="text-xs text-brand-neon bg-brand-neon/10 border border-brand-neon/30 p-2 rounded text-center font-bold">
-                                    {{ $t('routes.already_reviewed') }}
-                                </div>
-                                <form v-else @submit.prevent="submitReview" class="flex flex-col gap-2">
-                                    <p class="text-[10px] uppercase font-bold text-gray-400 text-center">{{ $t('routes.leave_review') }}</p>
-                                    <div class="flex items-center gap-1 justify-center py-1">
-                                        <button type="button" @click="reviewForm.rating = n" v-for="n in 5" :key="n" :class="reviewForm.rating >= n ? 'text-yellow-400' : 'text-gray-600'" class="text-2xl transition-transform hover:scale-110">★</button>
+                            <div v-if="mapRoute.reviews && mapRoute.reviews.length" class="mt-2 divide-y divide-white/[0.06]">
+                                <div v-for="review in mapRoute.reviews" :key="review.id" class="py-3">
+                                    <div class="flex items-baseline justify-between gap-3">
+                                        <span class="text-sm text-gray-200">{{ review.user.name }}</span>
+                                        <span class="text-xs text-gray-500 tabular-nums">★ {{ review.rating }}</span>
                                     </div>
-                                    <textarea v-model="reviewForm.comment" rows="2" :placeholder="$t('routes.review_placeholder')" class="w-full bg-brand-black/50 border border-brand-dark rounded-lg text-white text-xs p-2 focus:border-brand-neon focus:ring-1 focus:ring-brand-neon transition"></textarea>
-                                    <button type="submit" :disabled="reviewForm.processing || reviewForm.rating === 0" class="w-full bg-gray-800 text-white text-xs font-bold py-2 rounded-lg hover:bg-brand-neon hover:text-black transition uppercase tracking-widest disabled:opacity-50">{{ $t('routes.publish_review') }}</button>
+                                    <p v-if="review.comment" class="mt-1 text-xs text-gray-500 leading-relaxed">{{ review.comment }}</p>
+                                </div>
+                            </div>
+                            <p v-else class="mt-2 text-sm text-gray-500">{{ $t('routes.no_reviews_yet') }}</p>
+
+                            <div v-if="$page.props.auth?.user && mapRoute.user_id !== $page.props.auth.user.id" class="mt-4">
+                                <p v-if="userHasReviewed" class="text-sm text-gray-500">{{ $t('routes.already_reviewed') }}</p>
+                                <form v-else @submit.prevent="submitReview" class="space-y-3">
+                                    <div class="flex items-center gap-1">
+                                        <button
+                                            v-for="n in 5"
+                                            :key="n"
+                                            type="button"
+                                            @click="reviewForm.rating = n"
+                                            class="text-xl transition-colors"
+                                            :class="reviewForm.rating >= n ? 'text-white' : 'text-gray-700 hover:text-gray-500'"
+                                        >★</button>
+                                    </div>
+                                    <textarea
+                                        v-model="reviewForm.comment"
+                                        rows="2"
+                                        :placeholder="$t('routes.review_placeholder')"
+                                        class="w-full rounded-xl bg-white/[0.04] border-white/[0.08] text-white text-sm focus:border-white/30 focus:ring-0"
+                                    ></textarea>
+                                    <button type="submit" :disabled="reviewForm.processing || reviewForm.rating === 0" class="cc-btn-secondary w-full py-2.5 disabled:opacity-40">
+                                        {{ $t('routes.publish_review') }}
+                                    </button>
                                 </form>
                             </div>
-                        </div>
+                        </section>
 
-                        <!-- Accions principals (igual que els mini botons de dalt) -->
-                        <div class="p-4 flex items-center gap-2 border-t border-gray-800">
-                            <a :href="googleMapsLink" target="_blank" class="flex-1 flex items-center justify-center gap-1.5 bg-brand-neon/10 text-brand-neon border border-brand-neon/30 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-brand-neon/20 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M8.161 2.58a1.875 1.875 0 0 1 1.678 0l4.993 2.498c.106.052.23.052.336 0l3.869-1.935A1.875 1.875 0 0 1 21.75 4.82v12.485c0 .71-.401 1.36-1.037 1.677l-4.875 2.437a1.875 1.875 0 0 1-1.678 0l-4.993-2.498a.75.75 0 0 0-.336 0l-3.868 1.935A1.875 1.875 0 0 1 2.25 19.18V6.695c0-.71.401-1.36 1.036-1.677l4.875-2.437ZM9 6a.75.75 0 0 1 .75.75V15a.75.75 0 0 1-1.5 0V6.75A.75.75 0 0 1 9 6Zm6.75 3a.75.75 0 0 0-1.5 0v8.25a.75.75 0 0 0 1.5 0V9Z" clip-rule="evenodd" /></svg>
-                                {{ $t('routes.navigate') }}
-                            </a>
-                            <button v-if="$page.props.auth.user && mapRoute.user_id !== $page.props.auth.user.id" @click="router.post(route('routes.clone', mapRoute.id))" class="flex-1 flex items-center justify-center gap-1.5 bg-gray-800 text-brand-neon border border-brand-neon/30 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-brand-neon/20 transition" title="Guardar i Editar">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" /></svg>
-                                {{ $t('routes.save_route') }}
-                            </button>
-                            <button v-if="!isRecording" @click="startRecording" class="flex-1 flex items-center justify-center gap-1.5 bg-red-600/10 text-red-500 border border-red-500/30 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600/20 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><circle cx="12" cy="12" r="8" fill="currentColor" /></svg>
-                                {{ $t('routes.follow') }}
-                            </button>
-                            <button v-else @click="stopRecording" class="flex-1 flex items-center justify-center gap-1.5 bg-red-900 border border-red-500 text-white py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest animate-pulse">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z" fill="currentColor" /></svg>
-                                {{ $t('routes.stop') }}
-                            </button>
-                            <Link v-if="$page.props.auth.user && !isRecording" :href="route('routes.habitual', { route: mapRoute.id })" class="flex-1 flex items-center justify-center gap-1.5 bg-rose-600/10 text-rose-400 border border-rose-500/30 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-600/20 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                        <!-- Accions secundàries: text, mai una graella de botons -->
+                        <nav class="px-5 py-6 mt-2 flex flex-wrap gap-2 border-t border-white/[0.06]">
+                            <Link
+                                v-if="$page.props.auth.user && !isRecording"
+                                :href="route('routes.habitual', { route: mapRoute.id })"
+                                class="cc-btn-text"
+                            >
                                 {{ $t('routes.add_to_habitual') }}
                             </Link>
-                        </div>
-                        <div v-if="!$page.props.auth.user || mapRoute.user_id !== $page.props.auth.user.id" class="px-4 pb-4">
+                            <button
+                                v-if="$page.props.auth.user && mapRoute.user_id !== $page.props.auth.user.id"
+                                type="button"
+                                @click="router.post(route('routes.clone', mapRoute.id))"
+                                class="cc-btn-text"
+                            >
+                                {{ $t('routes.save_route') }}
+                            </button>
+                            <template v-if="$page.props.auth.user && mapRoute.user_id === $page.props.auth.user.id">
+                                <button type="button" @click="copyShareLink" class="cc-btn-text">
+                                    {{ copyLinkSuccess ? $t('routes.link_copied') : $t('routes.share') }}
+                                </button>
+                                <Link :href="route('routes.edit', mapRoute.id)" class="cc-btn-text">
+                                    {{ $t('routes.edit') }}
+                                </Link>
+                            </template>
                             <ReportButton
+                                v-if="!$page.props.auth.user || mapRoute.user_id !== $page.props.auth.user.id"
                                 reportable-type="route"
                                 :reportable-id="mapRoute.id"
                                 label="Denunciar ruta"
                                 :context-label="`Denunciar ruta: ${mapRoute.title}`"
-                                button-class="w-full flex items-center justify-center gap-1.5 bg-red-600/10 text-red-400 border border-red-500/30 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600/20 transition"
+                                button-class="cc-btn-text border-red-500/25 text-red-400 hover:text-red-300 hover:border-red-500/50"
                             />
-                        </div>
-
-                        <!-- ELS TEUS RECORREGUTS SOBRE AQUESTA RUTA -->
-                        <div v-if="$page.props.auth.user && myRouteTrips.length > 0" class="px-4 pb-4 pt-2 border-t border-gray-800">
-                            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest mb-3 flex items-center gap-1.5">
-                                <AppIcon name="pin" size="xs" class="text-brand-neon" />
-                                Els teus recorreguts
-                            </p>
-                            
-                            <button @click="toggleAllTripsMap" class="w-full mb-3 flex items-center justify-center gap-2 bg-brand-neon/10 hover:bg-brand-neon/20 border border-brand-neon/50 text-brand-neon py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0v11.25A2.25 2.25 0 0 1 19.5 16.5h-2.25m-9 0h9m-9 0a2.25 2.25 0 0 0-2.25 2.25v2.25m11.25-4.5a2.25 2.25 0 0 1 2.25 2.25v2.25" /></svg>
-                                {{ showingAllTrips ? 'Ocultar del mapa general' : 'Veure tots al mapa general' }}
-                            </button>
-
-                            <div class="space-y-2">
-                                <Link v-for="trip in myRouteTrips" :key="trip.id" :href="route('trips.show', trip.id)"
-                                    class="flex items-center justify-between bg-brand-surface border border-brand-dark rounded-xl px-3 py-2.5 hover:border-red-500/50 transition group">
-                                    <div>
-                                        <span class="text-white font-bold text-xs block">{{ formatTripDate(trip.started_at) }}</span>
-                                        <span class="text-brand-neon font-mono text-xs">{{ trip.distance_km }} km</span>
-                                        <span class="text-gray-500 text-xs ml-2">{{ formatTripDuration(trip.duration_seconds) }}</span>
-                                    </div>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-gray-600 group-hover:text-red-400 transition"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
-                                </Link>
-                            </div>
-                        </div>
-
+                        </nav>
                     </div>
                 </div>
             </div>
         </div>
     </AppLayout>
     <div v-else class="h-screen bg-gray-900 flex items-center justify-center text-white">
-        <p class="animate-pulse">{{ $t('routes.loading_route') }}</p>
+        <p class="animate-pulse text-gray-400">{{ $t('routes.loading_route') }}</p>
     </div>
 </template>
 
 <script setup>
 import { onMounted, computed, ref, nextTick } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import AppIcon from '@/Components/AppIcon.vue';
 import ReportButton from '@/Components/ReportButton.vue';
 import { Link, router, useForm, usePage } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import { smartBack, visitWithoutStack } from '@/Composables/navigationStack.js';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -261,6 +233,8 @@ const props = defineProps({
     mapRoute: Object,
     motorcycle: Object
 });
+
+const { t } = useI18n();
 
 const map = ref(null);
 const copyLinkSuccess = ref(false);
@@ -410,6 +384,17 @@ const copyShareLink = async () => {
     }
 };
 
+/** Qui l'ha feta, on i si és pública: context, no xips. */
+const subtitleLine = computed(() => {
+    const parts = [];
+    if (props.mapRoute?.location_city) parts.push(props.mapRoute.location_city);
+    if (props.mapRoute?.user?.name) parts.push(props.mapRoute.user.name);
+    if (props.motorcycle) parts.push(props.motorcycle.alias || props.motorcycle.model);
+    if (!props.mapRoute?.is_public) parts.push(t('routes.private_badge'));
+
+    return parts.join(' · ');
+});
+
 const formattedDuration = computed(() => {
     if (!props.mapRoute || !props.mapRoute.duration_seconds) return '0h 0m';
     const h = Math.floor(props.mapRoute.duration_seconds / 3600);
@@ -478,17 +463,17 @@ onMounted(async () => {
 
         if (validPoints.length > 0) {
             const polyline = L.polyline(validPoints, {
-                color: '#0CE1B5',
+                color: '#fafafa',
                 weight: 5,
-                opacity: 0.9,
+                opacity: 0.95,
                 lineJoin: 'round'
             }).addTo(map.value);
 
             const first = validPoints[0];
             const last = validPoints[validPoints.length - 1];
 
-            L.circleMarker([first[0], first[1]], { radius: 6, color: '#22c55e', fillColor: '#22c55e', fillOpacity: 1 }).addTo(map.value);
-            L.circleMarker([last[0], last[1]], { radius: 6, color: '#ef4444', fillColor: '#ef4444', fillOpacity: 1 }).addTo(map.value);
+            L.circleMarker([first[0], first[1]], { radius: 6, color: '#0a0a0a', weight: 3, fillColor: '#fafafa', fillOpacity: 1 }).addTo(map.value);
+            L.circleMarker([last[0], last[1]], { radius: 6, color: '#fafafa', weight: 2, fillColor: '#0a0a0a', fillOpacity: 1 }).addTo(map.value);
 
             try {
                 map.value.fitBounds(polyline.getBounds(), { padding: [50, 150] });

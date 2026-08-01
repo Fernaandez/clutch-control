@@ -5,47 +5,51 @@
 
             <div id="map-freeride" class="absolute inset-0 z-0 bg-gray-900"></div>
 
-            <Link :href="route('dashboard', motorcycle.id)" class="absolute top-safe-top left-4 z-50 w-10 h-10 rounded-full bg-brand-neon hover:bg-white text-black flex items-center justify-center flex-shrink-0 transition shadow-[0_0_15px_rgba(12,225,181,0.3)] mt-2">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+            <Link
+                :href="route('dashboard', motorcycle.id)"
+                class="cc-icon-btn absolute top-safe-top left-4 z-50 mt-2 bg-black/50 backdrop-blur-md border-white/20 text-white"
+                :aria-label="$t('common.back')"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
             </Link>
 
             <!-- LIVE TRACKING OVERLAY -->
-            <div v-show="isRecording" class="absolute top-safe-top left-1/2 -translate-x-1/2 z-50 bg-brand-black/90 backdrop-blur-xl border border-brand-dark rounded-full px-6 py-3 shadow-[0_0_20px_rgba(239,68,68,0.3)] mt-2 flex items-center gap-6">
+            <div v-show="isRecording" class="absolute top-safe-top left-1/2 -translate-x-1/2 z-50 bg-black/80 backdrop-blur-xl border border-white/[0.08] rounded-full px-6 py-3 mt-2 flex items-center gap-6">
                 <div class="flex items-center gap-2">
                     <span class="relative flex h-3 w-3">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
                     </span>
-                    <span class="text-xs font-black text-red-500 uppercase tracking-widest">LIVE</span>
+                    <span class="text-xs font-semibold text-red-400 tracking-tight">LIVE</span>
                 </div>
                 <div class="flex flex-col items-center">
-                    <span class="text-[10px] text-gray-500 uppercase font-bold leading-none mb-1">{{ $t('free_ride.chrono') }}</span>
-                    <span class="text-lg font-mono font-bold text-white leading-none">{{ formattedRecordingTime }}</span>
+                    <span class="text-[10px] text-gray-500 font-medium leading-none mb-1">{{ $t('free_ride.chrono') }}</span>
+                    <span class="text-xl font-mono font-semibold text-white leading-none">{{ formattedRecordingTime }}</span>
                 </div>
                 <div class="flex flex-col items-center">
-                    <span class="text-[10px] text-gray-500 uppercase font-bold leading-none mb-1">{{ $t('free_ride.distance') }}</span>
-                    <span class="text-lg font-mono font-bold text-brand-neon leading-none">{{ (recordedDistance / 1000).toFixed(2) }}<span class="text-xs text-gray-400 ml-1">km</span></span>
+                    <span class="text-[10px] text-gray-500 font-medium leading-none mb-1">{{ $t('free_ride.distance') }}</span>
+                    <span class="text-xl font-mono font-semibold text-white leading-none">{{ (recordedDistance / 1000).toFixed(2) }}<span class="text-xs text-gray-400 ml-1">km</span></span>
                 </div>
             </div>
 
             <!-- TAULER INFERIOR -->
-            <div class="absolute bottom-6 left-0 w-full p-4 z-10 pb-safe-bottom">
-                <div class="bg-brand-black/95 backdrop-blur-xl border border-brand-dark rounded-2xl shadow-2xl overflow-hidden p-4">
-                    
+            <div class="absolute bottom-6 left-0 w-full px-4 z-10 pb-safe-bottom">
+                <div class="cc-card bg-brand-black/95 backdrop-blur-xl border-white/[0.08] overflow-hidden p-4 cc-fade-in">
+
                     <div class="mb-4 text-center">
-                        <h1 class="text-2xl font-black text-white uppercase tracking-tighter">{{ $t('free_ride.title').toUpperCase() }}</h1>
-                        <p class="text-xs text-brand-neon font-bold flex items-center justify-center gap-1 mt-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path d="M8 16.25a.75.75 0 01.75-.75h2.5a.75.75 0 010 1.5h-2.5a.75.75 0 01-.75-.75z" /><path fill-rule="evenodd" d="M4 4a3 3 0 013-3h6a3 3 0 013 3v12a3 3 0 01-3 3H7a3 3 0 01-3-3V4zm4-1.5a.75.75 0 000 1.5h4a.75.75 0 000-1.5H8z" clip-rule="evenodd" /></svg>
+                        <h1 class="cc-title">{{ $t('free_ride.title') }}</h1>
+                        <p class="text-xs text-gray-400 font-medium flex items-center justify-center gap-1.5 mt-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5"><path d="M8 16.25a.75.75 0 01.75-.75h2.5a.75.75 0 010 1.5h-2.5a.75.75 0 01-.75-.75z" /><path fill-rule="evenodd" d="M4 4a3 3 0 013-3h6a3 3 0 013 3v12a3 3 0 01-3 3H7a3 3 0 01-3-3V4zm4-1.5a.75.75 0 000 1.5h4a.75.75 0 000-1.5H8z" clip-rule="evenodd" /></svg>
                             {{ motorcycle.brand }} {{ motorcycle.model }}
                         </p>
                     </div>
 
                     <div class="flex gap-2">
-                        <button v-if="!isRecording" @click="startRecording" class="flex-1 flex items-center justify-center gap-2 bg-red-600/10 text-red-500 border border-red-500/30 py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-red-600/20 transition shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+                        <button v-if="!isRecording" @click="startRecording" class="cc-btn-danger flex-1 py-4">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><circle cx="12" cy="12" r="8" fill="currentColor" /></svg>
                             {{ $t('free_ride.start_recording') }}
                         </button>
-                        <button v-else @click="stopRecording" class="flex-1 flex items-center justify-center gap-2 bg-red-900 border border-red-500 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest animate-pulse shadow-lg">
+                        <button v-else @click="stopRecording" class="cc-btn-danger flex-1 py-4 animate-pulse bg-red-500/20 border-red-500/30">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z" fill="currentColor" /></svg>
                             {{ $t('free_ride.stop_round') }}
                         </button>
@@ -112,7 +116,7 @@ onMounted(async () => {
         map.value.setView([position.coords.latitude, position.coords.longitude], 15);
         
         currentLocationMarker.value = L.circleMarker([position.coords.latitude, position.coords.longitude], {
-            radius: 8, color: '#0CE1B5', fillColor: '#1e293b', weight: 3, fillOpacity: 1
+            radius: 8, color: '#fafafa', fillColor: '#0a0a0a', weight: 3, fillOpacity: 1
         }).addTo(map.value);
 
     } catch (e) {

@@ -1,117 +1,111 @@
 <template>
     <AppLayout :current-moto-id="motorcycle.id">
-        <div class="w-full max-w-full min-w-0 overflow-x-hidden box-border px-4 py-6 pb-24">
-            
-            <div class="mb-6 space-y-3 w-full min-w-0">
-                <div class="flex items-start gap-3 min-w-0">
-                    <button type="button" @click="goBack" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]" aria-label="Enrere">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
-                    </button>
-                    <div class="min-w-0 flex-1 pt-0.5">
-                        <h1 class="text-2xl font-bold text-white break-words">{{ $t('maintenance.title') }}</h1>
-                        <p class="text-brand-muted text-sm truncate">{{ motorcycle.brand }} {{ motorcycle.model }}</p>
-                    </div>
-                </div>
-                <div class="flex flex-wrap gap-2 w-full">
-                    <Link :href="route('motorcycles.maintenance.history', motorcycle.id)" class="flex-1 min-w-[calc(50%-0.25rem)] sm:flex-initial sm:min-w-0 inline-flex justify-center items-center bg-brand-black border border-brand-dark text-gray-300 px-4 py-2.5 rounded-lg font-bold text-sm hover:border-brand-neon hover:text-brand-neon transition">
-                        {{ $t('maintenance.history') }}
-                    </Link>
-                    <button type="button" @click="openCreateModal" class="flex-1 min-w-[calc(50%-0.25rem)] sm:flex-initial sm:min-w-0 bg-brand-neon text-brand-black px-4 py-2.5 rounded-lg font-bold text-sm shadow-neon hover:bg-white transition">
-                        {{ $t('maintenance.new_task') }}
+        <div class="max-w-xl mx-auto px-6 py-6 pb-24 cc-fade-in">
+
+            <header class="flex items-center gap-3 mb-6">
+                <button type="button" @click="goBack" class="cc-icon-btn" :aria-label="$t('common.back')">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                    </svg>
+                </button>
+                <h1 class="cc-title flex-1 truncate">{{ $t('maintenance.title') }}</h1>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <button type="button" @click="openCreateModal" class="cc-icon-btn" :aria-label="$t('maintenance.new_task')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
                     </button>
                 </div>
-            </div>
+            </header>
 
-            <div v-if="tasks.length === 0" class="text-center py-10 text-gray-500 bg-brand-surface rounded-xl border border-brand-dark border-dashed">
-                <p>{{ $t('maintenance.no_tasks') }}</p>
-            </div>
+            <p v-if="motorcycle.brand" class="text-sm text-gray-500 mb-8 truncate">{{ motorcycle.brand }} {{ motorcycle.model }}</p>
 
-            <div v-else class="space-y-4">
-                <div v-for="task in tasks" :key="task.id" class="bg-brand-surface rounded-xl p-5 border border-brand-dark shadow-lg relative overflow-hidden group">
-                    
-                    <div class="flex justify-between items-start mb-2 relative z-10">
-                        <div>
-                            <h3 class="text-lg font-bold text-white">{{ task.title }}</h3>
-                            <p class="text-xs text-gray-400">
-                                {{ $t('maintenance.done_at') }} <span class="text-gray-200">{{ task.last_km_done }} km</span> | 
-                                {{ $t('maintenance.cycle') }} {{ task.frequency_km }} km
-                            </p>
-                        </div>
-                        
-                        <div class="text-right">
-                             <span v-if="task.status === 'red'" class="text-red-500 font-bold text-sm flex items-center gap-1 justify-end">
-                                {{ $t('maintenance.due_now') }}
-                             </span>
-                             <span v-else-if="task.status === 'yellow'" class="text-yellow-400 font-bold text-sm">
-                                {{ $t('maintenance.coming_soon') }}
-                             </span>
-                             <span v-else class="text-green-500 font-bold text-sm">
-                                {{ $t('maintenance.ok') }}
-                             </span>
-
-                             <p v-if="task.km_remaining < 0" class="text-xs text-red-400 font-bold mt-1">
-                                {{ $t('maintenance.over_km', { n: Math.abs(task.km_remaining).toFixed(0) }) }}
-                             </p>
-                             <p v-else class="text-xs text-gray-500 mt-1">
-                                {{ $t('maintenance.remaining_km', { n: task.km_remaining.toFixed(0) }) }}
-                             </p>
-                        </div>
-                    </div>
-
-                    <div class="w-full bg-brand-black h-3 rounded-full overflow-hidden mb-4 relative z-10 border border-brand-dark/50">
-                        <div 
-                            class="h-full transition-all duration-500 ease-out rounded-full"
-                            :class="{
-                                'bg-green-500': task.status === 'green',
-                                'bg-yellow-400': task.status === 'yellow',
-                                'bg-red-500 animate-pulse': task.status === 'red' 
-                            }"
-                            :style="{ width: task.percentage + '%' }"
-                        ></div>
-                    </div>
-
-                    <div class="flex justify-end gap-3 relative z-10">
-                        <button @click="openShowModal(task)" class="text-gray-500 hover:text-brand-neon transition p-1" title="Inspeccionar">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
-                        </button>
-                        <button @click="deleteTask(task)" class="text-gray-600 hover:text-red-500 transition p-1" :title="$t('maintenance.delete_task_confirm')">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
-                        </button>
-                        
-                        <button 
-                            @click="openCompleteModal(task)"
-                            class="bg-brand-dark border border-brand-neon/30 text-brand-neon hover:bg-brand-neon hover:text-brand-black px-3 py-1 rounded text-sm font-bold transition flex items-center gap-1 active:scale-95 shadow-lg"
+            <div v-if="tasks.length" class="divide-y divide-white/[0.06]">
+                <div
+                    v-for="task in tasks"
+                    :key="task.id"
+                    class="flex items-start gap-3 py-5"
+                >
+                    <span
+                        v-if="task.status === 'red' || task.km_remaining < 0"
+                        class="w-1.5 h-1.5 rounded-full bg-red-400 mt-2 flex-shrink-0"
+                    ></span>
+                    <div class="flex-1 min-w-0" :class="task.status !== 'red' && task.km_remaining >= 0 ? 'pl-[18px]' : ''">
+                        <p class="text-[15px] font-medium text-gray-100">{{ task.title }}</p>
+                        <p
+                            class="mt-1 text-sm"
+                            :class="task.status === 'red' || task.km_remaining < 0 ? 'text-red-400' : 'text-gray-500'"
                         >
+                            <template v-if="task.km_remaining < 0">
+                                {{ $t('maintenance.over_km', { n: Math.abs(task.km_remaining).toFixed(0) }) }}
+                            </template>
+                            <template v-else-if="task.status === 'red'">
+                                {{ $t('maintenance.due_now') }}
+                            </template>
+                            <template v-else>
+                                {{ $t('maintenance.remaining_km', { n: task.km_remaining.toFixed(0) }) }}
+                            </template>
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-1 flex-shrink-0">
+                        <button type="button" @click="openShowModal(task)" class="cc-icon-btn" title="Inspeccionar">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                            </svg>
+                        </button>
+                        <button type="button" @click="deleteTask(task)" class="cc-icon-btn text-gray-500 hover:text-red-400" :title="$t('maintenance.delete_task_confirm')">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                            </svg>
+                        </button>
+                        <button type="button" @click="openCompleteModal(task)" class="cc-btn-text ml-1">
                             {{ $t('maintenance.register') }}
                         </button>
                     </div>
                 </div>
             </div>
+
+            <div v-else class="flex flex-col items-center justify-center text-center py-16 px-6">
+                <p class="text-base font-semibold text-gray-300">{{ $t('maintenance.no_tasks') }}</p>
+                <p v-if="$t('maintenance.no_tasks_hint')" class="mt-1 text-sm text-gray-500 max-w-xs">{{ $t('maintenance.no_tasks_hint') }}</p>
+                <div class="mt-6">
+                    <button type="button" @click="openCreateModal" class="cc-btn-secondary">
+                        {{ $t('maintenance.new_task') }}
+                    </button>
+                </div>
+            </div>
+
+            <nav class="mt-12 pt-8 border-t border-white/[0.06]">
+                <Link :href="route('motorcycles.maintenance.history', motorcycle.id)" class="cc-btn-text">
+                    {{ $t('maintenance.history') }}
+                </Link>
+            </nav>
         </div>
 
         <div v-if="showCreateModal" class="fixed inset-0 z-[4000] flex items-center justify-center p-4">
-            <div @click="showCreateModal = false" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-            <div class="relative bg-brand-surface border border-brand-dark rounded-xl p-6 w-full max-w-sm max-h-[min(90vh,32rem)] overflow-y-auto overscroll-contain shadow-neon">
-                <h3 class="text-xl font-bold text-white mb-4">{{ $t('maintenance.new_task_title') }}</h3>
+            <div @click="showCreateModal = false" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+            <div class="relative bg-brand-surface border border-white/[0.08] rounded-2xl p-6 max-w-sm w-full max-h-[min(90vh,32rem)] overflow-y-auto overscroll-contain">
+                <h3 class="text-lg font-medium text-white mb-6">{{ $t('maintenance.new_task_title') }}</h3>
                 <form @submit.prevent="submitCreate">
-                    <div class="space-y-4">
+                    <div class="space-y-5">
                         <div>
-                            <label class="text-gray-400 text-sm">{{ $t('maintenance.task_what') }}</label>
-                            <input v-model="createForm.title" type="text" :placeholder="$t('maintenance.task_placeholder')" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
-                            <p v-if="createForm.errors.title" class="text-red-500 text-xs mt-1">{{ createForm.errors.title }}</p>
+                            <label class="cc-section-label">{{ $t('maintenance.task_what') }}</label>
+                            <input v-model="createForm.title" type="text" :placeholder="$t('maintenance.task_placeholder')" class="w-full mt-2" required>
+                            <p v-if="createForm.errors.title" class="text-red-400 text-xs mt-1">{{ createForm.errors.title }}</p>
                         </div>
                         <div>
-                            <label class="text-gray-400 text-sm">{{ $t('maintenance.task_frequency') }}</label>
-                            <input v-model="createForm.frequency_km" type="number" :placeholder="$t('maintenance.task_frequency_placeholder')" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
-                            <p v-if="createForm.errors.frequency_km" class="text-red-500 text-xs mt-1">{{ createForm.errors.frequency_km }}</p>
+                            <label class="cc-section-label">{{ $t('maintenance.task_frequency') }}</label>
+                            <input v-model="createForm.frequency_km" type="number" :placeholder="$t('maintenance.task_frequency_placeholder')" class="w-full mt-2" required>
+                            <p v-if="createForm.errors.frequency_km" class="text-red-400 text-xs mt-1">{{ createForm.errors.frequency_km }}</p>
                         </div>
                         <div>
-                            <label class="text-gray-400 text-sm">{{ $t('maintenance.task_last_done') }}</label>
-                            <input v-model="createForm.last_km_done" type="number" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
-                            <p v-if="createForm.errors.last_km_done" class="text-red-500 text-xs mt-1">{{ createForm.errors.last_km_done }}</p>
+                            <label class="cc-section-label">{{ $t('maintenance.task_last_done') }}</label>
+                            <input v-model="createForm.last_km_done" type="number" class="w-full mt-2" required>
+                            <p v-if="createForm.errors.last_km_done" class="text-red-400 text-xs mt-1">{{ createForm.errors.last_km_done }}</p>
                         </div>
                     </div>
-                    <button type="submit" :disabled="createForm.processing" class="mt-6 w-full bg-brand-neon text-brand-black font-bold py-2 rounded hover:bg-white transition">
+                    <button type="submit" :disabled="createForm.processing" class="cc-btn-primary w-full mt-6">
                         {{ $t('maintenance.save_task') }}
                     </button>
                 </form>
@@ -119,95 +113,77 @@
         </div>
 
         <div v-if="showCompleteModal" class="fixed inset-0 z-[4000] flex items-center justify-center p-4">
-            <div @click="closeCompleteModal" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-            <div class="relative bg-brand-surface border border-brand-neon rounded-xl p-6 w-full max-w-sm max-h-[min(90vh,36rem)] overflow-y-auto overscroll-contain shadow-[0_0_20px_rgba(12,225,181,0.2)]">
-                
-                <h3 class="text-xl font-bold text-white mb-1">{{ $t('maintenance.register_title') }}</h3>
-                <p class="text-sm text-brand-muted mb-4">{{ $t('maintenance.register_for') }} <span class="text-brand-neon">{{ selectedTask?.title }}</span></p>
-                
+            <div @click="closeCompleteModal" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+            <div class="relative bg-brand-surface border border-white/[0.08] rounded-2xl p-6 max-w-sm w-full max-h-[min(90vh,36rem)] overflow-y-auto overscroll-contain">
+                <h3 class="text-lg font-medium text-white mb-1">{{ $t('maintenance.register_title') }}</h3>
+                <p class="text-sm text-gray-500 mb-6">{{ $t('maintenance.register_for') }} {{ selectedTask?.title }}</p>
                 <form @submit.prevent="submitComplete">
-                    <div class="space-y-4">
+                    <div class="space-y-5">
                         <div>
-                            <label class="text-gray-400 text-sm">{{ $t('maintenance.date') }}</label>
-                            <input v-model="completeForm.date" type="date" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
-                            <p v-if="completeForm.errors.date" class="text-red-500 text-xs mt-1">{{ completeForm.errors.date }}</p>
+                            <label class="cc-section-label">{{ $t('maintenance.date') }}</label>
+                            <input v-model="completeForm.date" type="date" class="w-full mt-2" required>
+                            <p v-if="completeForm.errors.date" class="text-red-400 text-xs mt-1">{{ completeForm.errors.date }}</p>
                         </div>
-                        
                         <div>
-                            <label class="text-gray-400 text-sm">{{ $t('maintenance.km_current') }}</label>
-                            <input v-model="completeForm.km_at_moment" type="number" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
-                            <p v-if="completeForm.errors.km_at_moment" class="text-red-500 text-xs mt-1">{{ completeForm.errors.km_at_moment }}</p>
+                            <label class="cc-section-label">{{ $t('maintenance.km_current') }}</label>
+                            <input v-model="completeForm.km_at_moment" type="number" class="w-full mt-2" required>
+                            <p v-if="completeForm.errors.km_at_moment" class="text-red-400 text-xs mt-1">{{ completeForm.errors.km_at_moment }}</p>
                         </div>
-
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="text-gray-400 text-sm">{{ $t('maintenance.price') }}</label>
-                                <input v-model="completeForm.cost" type="number" step="0.01" placeholder="0.00" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
-                                <p v-if="completeForm.errors.cost" class="text-red-500 text-xs mt-1">{{ completeForm.errors.cost }}</p>
+                                <label class="cc-section-label">{{ $t('maintenance.price') }}</label>
+                                <input v-model="completeForm.cost" type="number" step="0.01" placeholder="0.00" class="w-full mt-2" required>
+                                <p v-if="completeForm.errors.cost" class="text-red-400 text-xs mt-1">{{ completeForm.errors.cost }}</p>
                             </div>
                             <div>
-                                <label class="text-gray-400 text-sm">{{ $t('maintenance.workshop') }}</label>
-                                <input v-model="completeForm.description" type="text" :placeholder="$t('maintenance.workshop_placeholder')" class="w-full bg-brand-black border-brand-dark rounded text-white focus:border-brand-neon" required>
-                                <p v-if="completeForm.errors.description" class="text-red-500 text-xs mt-1">{{ completeForm.errors.description }}</p>
+                                <label class="cc-section-label">{{ $t('maintenance.workshop') }}</label>
+                                <input v-model="completeForm.description" type="text" :placeholder="$t('maintenance.workshop_placeholder')" class="w-full mt-2" required>
+                                <p v-if="completeForm.errors.description" class="text-red-400 text-xs mt-1">{{ completeForm.errors.description }}</p>
                             </div>
                         </div>
-
                         <div>
-                            <label class="text-gray-400 text-sm">{{ $t('maintenance.invoice_photo') }}</label>
-                            <input @change="e => completeForm.invoice_photo = e.target.files[0]" type="file" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-brand-base/20 file:text-brand-neon hover:file:bg-brand-base/30 cursor-pointer mt-1">
-                            <p v-if="completeForm.errors.invoice_photo" class="text-red-500 text-xs mt-1">{{ completeForm.errors.invoice_photo }}</p>
+                            <label class="cc-section-label">{{ $t('maintenance.invoice_photo') }}</label>
+                            <input @change="e => completeForm.invoice_photo = e.target.files[0]" type="file" accept="image/*" class="w-full text-sm text-gray-500 mt-2">
+                            <p v-if="completeForm.errors.invoice_photo" class="text-red-400 text-xs mt-1">{{ completeForm.errors.invoice_photo }}</p>
                         </div>
                     </div>
-                    
-                    <button type="submit" :disabled="completeForm.processing" class="mt-6 w-full bg-brand-neon text-brand-black font-bold py-3 rounded-lg hover:bg-white transition transform active:scale-95 shadow-neon">
+                    <button type="submit" :disabled="completeForm.processing" class="cc-btn-primary w-full mt-6">
                         {{ $t('maintenance.confirm_register') }}
                     </button>
                 </form>
             </div>
         </div>
 
-
-        <!-- MODAL SHOW (Read-only) -->
         <div v-if="showShowModal" class="fixed inset-0 z-[4000] flex items-center justify-center p-4">
-            <div @click="showShowModal = false" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-            <div class="relative bg-brand-surface border border-brand-neon/30 rounded-xl p-6 w-full max-w-sm max-h-[min(90vh,32rem)] overflow-y-auto overscroll-contain shadow-[0_0_20px_rgba(12,225,181,0.15)]">
-                <button @click="showShowModal = false" class="absolute top-4 right-4 inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
+            <div @click="showShowModal = false" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+            <div class="relative bg-brand-surface border border-white/[0.08] rounded-2xl p-6 max-w-sm w-full max-h-[min(90vh,32rem)] overflow-y-auto overscroll-contain">
+                <button type="button" @click="showShowModal = false" class="cc-icon-btn absolute top-4 right-4" :aria-label="$t('common.back')">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
                 </button>
-                <h3 class="text-xl font-bold text-white mb-1 pr-10">{{ selectedShowTask?.title }}</h3>
-                <p class="text-xs text-brand-muted uppercase tracking-widest mb-4">{{ $t('maintenance.title') }}</p>
-
-                <div class="space-y-3">
-                    <!-- Barra de progrés -->
-                    <div class="bg-brand-black/60 rounded-lg p-3 border border-brand-dark">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs text-gray-400">{{ $t('maintenance.cycle') }} {{ selectedShowTask?.frequency_km }} km</span>
-                            <span :class="{
-                                'text-green-400': selectedShowTask?.status === 'green',
-                                'text-yellow-400': selectedShowTask?.status === 'yellow',
-                                'text-red-400': selectedShowTask?.status === 'red'
-                            }" class="text-xs font-bold">
-                                {{ selectedShowTask?.status === 'red' ? $t('maintenance.due_now') : selectedShowTask?.status === 'yellow' ? $t('maintenance.coming_soon') : $t('maintenance.ok') }}
-                            </span>
-                        </div>
-                        <div class="w-full bg-brand-black h-2.5 rounded-full overflow-hidden border border-brand-dark/50">
-                            <div class="h-full rounded-full transition-all" :class="{
-                                'bg-green-500': selectedShowTask?.status === 'green',
-                                'bg-yellow-400': selectedShowTask?.status === 'yellow',
-                                'bg-red-500': selectedShowTask?.status === 'red'
-                            }" :style="{ width: selectedShowTask?.percentage + '%' }"></div>
-                        </div>
+                <h3 class="text-lg font-medium text-white mb-1 pr-10">{{ selectedShowTask?.title }}</h3>
+                <p class="text-sm text-gray-500 mb-6">{{ $t('maintenance.title') }}</p>
+                <div class="space-y-4">
+                    <div>
+                        <p class="cc-section-label">{{ $t('maintenance.cycle') }}</p>
+                        <p class="text-white tabular-nums mt-1">{{ selectedShowTask?.frequency_km }} km</p>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-2">
-                        <div class="bg-brand-black/60 rounded-lg p-3 border border-brand-dark">
-                            <p class="text-xs text-gray-500 mb-1">{{ $t('maintenance.done_at') }}</p>
-                            <p class="text-white font-bold font-mono text-sm">{{ selectedShowTask?.last_km_done }} km</p>
-                        </div>
-                        <div class="bg-brand-black/60 rounded-lg p-3 border border-brand-dark">
-                            <p class="text-xs text-gray-500 mb-1">{{ selectedShowTask?.km_remaining >= 0 ? 'Queden' : 'Passats' }}</p>
-                            <p :class="selectedShowTask?.km_remaining < 0 ? 'text-red-400' : 'text-brand-neon'" class="font-bold font-mono text-sm">{{ Math.abs(selectedShowTask?.km_remaining ?? 0).toFixed(0) }} km</p>
-                        </div>
+                    <div>
+                        <p class="cc-section-label">{{ $t('maintenance.done_at') }}</p>
+                        <p class="text-white tabular-nums mt-1">{{ selectedShowTask?.last_km_done }} km</p>
+                    </div>
+                    <div>
+                        <p class="cc-section-label">{{ selectedShowTask?.km_remaining >= 0 ? 'Queden' : 'Passats' }}</p>
+                        <p class="tabular-nums mt-1" :class="selectedShowTask?.km_remaining < 0 ? 'text-red-400' : 'text-white'">
+                            {{ Math.abs(selectedShowTask?.km_remaining ?? 0).toFixed(0) }} km
+                        </p>
+                    </div>
+                    <div>
+                        <p class="cc-section-label">Estat</p>
+                        <p class="mt-1" :class="selectedShowTask?.status === 'red' ? 'text-red-400' : 'text-gray-400'">
+                            {{ selectedShowTask?.status === 'red' ? $t('maintenance.due_now') : selectedShowTask?.status === 'yellow' ? $t('maintenance.coming_soon') : $t('maintenance.ok') }}
+                        </p>
                     </div>
                 </div>
             </div>

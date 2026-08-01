@@ -21,7 +21,7 @@
             <!-- Centrat absolutament per garantir simetria perfecta -->
             <div class="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 whitespace-nowrap">
                 <img :src="appLogo" alt="Clutch Control Logo" class="h-5 w-auto flex-shrink-0">
-                <span class="text-[15px] font-bold tracking-tight text-white">Clutch<span class="text-brand-neon">Control</span></span>
+                <span class="text-[15px] font-semibold tracking-tight text-gray-400">Clutch<span class="text-white">Control</span></span>
             </div>
 
             <div class="relative min-w-[1.75rem] flex justify-end">

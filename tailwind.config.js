@@ -19,12 +19,12 @@ export default {
             },
             colors: {
                 brand: {
-                    base: 'var(--color-brand-base)',
-                    muted: 'var(--color-brand-muted)',
-                    neon: 'var(--color-brand-neon)',
-                    dark: 'var(--color-brand-dark)',
-                    black: 'var(--color-brand-black)',
-                    surface: 'var(--color-brand-surface)',
+                    base: 'rgb(var(--brand-base) / <alpha-value>)',
+                    muted: 'rgb(var(--brand-muted) / <alpha-value>)',
+                    neon: 'rgb(var(--brand-neon) / <alpha-value>)',
+                    dark: 'rgb(var(--brand-dark) / <alpha-value>)',
+                    black: 'rgb(var(--brand-black) / <alpha-value>)',
+                    surface: 'rgb(var(--brand-surface) / <alpha-value>)',
                 }
             },
             boxShadow: {
@@ -39,7 +39,7 @@ export default {
                 '3xl': '1.5rem',
             },
             borderColor: {
-                DEFAULT: 'var(--color-brand-dark)',
+                DEFAULT: 'rgb(var(--brand-dark) / 1)',
             },
         },
     },
