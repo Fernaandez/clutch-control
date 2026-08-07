@@ -4,6 +4,28 @@
   "webDir": "dist",
   "server": {
     "url": "https://clutchcontrol.es",
-    "errorPath": "error.html"
+    "errorPath": "error.html",
+    "allowNavigation": [
+      "clutchcontrol.es",
+      "*.clutchcontrol.es",
+      "accounts.google.com",
+      "*.google.com",
+      "*.googleapis.com"
+    ]
+  },
+  "ios": {
+    "contentInset": "automatic",
+    "preferredContentMode": "mobile",
+    "scrollEnabled": true,
+    "backgroundColor": "#0a0a0a"
+  },
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon_config_sample",
+      "iconColor": "#0a0a0a"
+    }
   }
 }

@@ -1,104 +1,100 @@
 <template>
     <Head :title="$t('register.title')" />
 
-    <div class="min-h-screen flex flex-col justify-center items-center bg-brand-black px-6 py-12">
-        
+    <div class="min-h-screen flex flex-col justify-center items-center bg-brand-black text-white px-6 py-12">
         <div class="w-full max-w-sm">
-            
             <div class="flex justify-center mb-10">
-                <Link :href="route('welcome')" class="flex items-center gap-3 group hover:scale-105 transition duration-300">
-                    <div class="p-2 border-2 border-brand-neon rounded-full shadow-[0_0_15px_rgba(12,225,181,0.2)] group-hover:shadow-[0_0_25px_rgba(12,225,181,0.5)] transition duration-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8 text-brand-neon">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 0 0 6.16-12.12A14.98 14.98 0 0 0 9.631 8.41m5.96 5.96a14.926 14.926 0 0 1-5.841 2.58m-.119-8.54a6 6 0 0 0-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 0 0-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 0 1-2.448-2.448 14.9 14.9 0 0 1 .06-.312m-2.24 2.39a4.493 4.493 0 0 0-1.757 4.306 4.493 4.493 0 0 0 4.306-1.758M16.5 9a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
-                        </svg>
-                    </div>
-                    <span class="text-3xl font-black text-white tracking-tighter drop-shadow-lg group-hover:text-brand-neon transition duration-300">
-                        CLUTCH<span class="text-brand-neon group-hover:text-white transition duration-300">CONTROL</span>
-                    </span>
+                <Link :href="route('welcome')">
+                    <img
+                        :src="appLogo"
+                        alt="Clutch Control"
+                        class="h-14 w-auto opacity-90"
+                    >
                 </Link>
             </div>
 
             <form @submit.prevent="submit" class="space-y-5">
-                
                 <div>
-                    <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="name">{{ $t('register.name') }}</label>
-                    <input 
-                        id="name" 
-                        type="text" 
-                        class="w-full rounded-xl bg-brand-surface border border-brand-dark text-white focus:border-brand-neon focus:ring-brand-neon transition py-3 px-4 placeholder-gray-600 shadow-none"
+                    <label class="block text-sm text-gray-400 mb-2" for="name">{{ $t('register.name') }}</label>
+                    <input
+                        id="name"
+                        type="text"
+                        class="w-full rounded-xl bg-white/[0.04] border border-white/[0.08] text-white focus:border-white/30 focus:ring-0 py-3 px-4 placeholder-gray-600"
                         :placeholder="$t('register.name_placeholder')"
-                        v-model="form.name" 
-                        required 
-                        autofocus 
-                        autocomplete="name" 
-                    />
-                    <div v-if="form.errors.name" class="text-red-500 text-xs mt-1 ml-1">{{ form.errors.name }}</div>
+                        v-model="form.name"
+                        required
+                        autofocus
+                        autocomplete="name"
+                    >
+                    <div v-if="form.errors.name" class="text-red-400 text-xs mt-1.5">{{ form.errors.name }}</div>
                 </div>
 
                 <div>
-                    <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="email">{{ $t('register.email') }}</label>
-                    <input 
-                        id="email" 
-                        type="email" 
-                        class="w-full rounded-xl bg-brand-surface border border-brand-dark text-white focus:border-brand-neon focus:ring-brand-neon transition py-3 px-4 placeholder-gray-600 shadow-none"
+                    <label class="block text-sm text-gray-400 mb-2" for="email">{{ $t('register.email') }}</label>
+                    <input
+                        id="email"
+                        type="email"
+                        class="w-full rounded-xl bg-white/[0.04] border border-white/[0.08] text-white focus:border-white/30 focus:ring-0 py-3 px-4 placeholder-gray-600"
                         placeholder="exemple@correu.com"
-                        v-model="form.email" 
-                        required 
-                        autocomplete="username" 
-                    />
-                    <div v-if="form.errors.email" class="text-red-500 text-xs mt-1 ml-1">{{ form.errors.email }}</div>
+                        v-model="form.email"
+                        required
+                        autocomplete="username"
+                    >
+                    <div v-if="form.errors.email" class="text-red-400 text-xs mt-1.5">{{ form.errors.email }}</div>
                 </div>
 
                 <div>
-                    <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="password">{{ $t('register.password') }}</label>
-                    <input 
-                        id="password" 
-                        type="password" 
-                        class="w-full rounded-xl bg-brand-surface border border-brand-dark text-white focus:border-brand-neon focus:ring-brand-neon transition py-3 px-4 placeholder-gray-600 shadow-none"
+                    <label class="block text-sm text-gray-400 mb-2" for="password">{{ $t('register.password') }}</label>
+                    <input
+                        id="password"
+                        type="password"
+                        class="w-full rounded-xl bg-white/[0.04] border border-white/[0.08] text-white focus:border-white/30 focus:ring-0 py-3 px-4 placeholder-gray-600"
                         placeholder="••••••••"
-                        v-model="form.password" 
-                        required 
-                        autocomplete="new-password" 
-                    />
-                    <div v-if="form.errors.password" class="text-red-500 text-xs mt-1 ml-1">{{ form.errors.password }}</div>
+                        v-model="form.password"
+                        required
+                        autocomplete="new-password"
+                    >
+                    <div v-if="form.errors.password" class="text-red-400 text-xs mt-1.5">{{ form.errors.password }}</div>
                 </div>
 
                 <div>
-                    <label class="block font-bold text-sm text-gray-400 mb-2 ml-1" for="password_confirmation">{{ $t('register.confirm_password') }}</label>
-                    <input 
-                        id="password_confirmation" 
-                        type="password" 
-                        class="w-full rounded-xl bg-brand-surface border border-brand-dark text-white focus:border-brand-neon focus:ring-brand-neon transition py-3 px-4 placeholder-gray-600 shadow-none"
+                    <label class="block text-sm text-gray-400 mb-2" for="password_confirmation">{{ $t('register.confirm_password') }}</label>
+                    <input
+                        id="password_confirmation"
+                        type="password"
+                        class="w-full rounded-xl bg-white/[0.04] border border-white/[0.08] text-white focus:border-white/30 focus:ring-0 py-3 px-4 placeholder-gray-600"
                         placeholder="••••••••"
-                        v-model="form.password_confirmation" 
-                        required 
-                        autocomplete="new-password" 
-                    />
-                    <div v-if="form.errors.password_confirmation" class="text-red-500 text-xs mt-1 ml-1">{{ form.errors.password_confirmation }}</div>
+                        v-model="form.password_confirmation"
+                        required
+                        autocomplete="new-password"
+                    >
+                    <div v-if="form.errors.password_confirmation" class="text-red-400 text-xs mt-1.5">{{ form.errors.password_confirmation }}</div>
                 </div>
 
-                <div class="mt-4 pt-2">
-                    <p class="text-[11px] text-gray-500 text-center uppercase tracking-wide">
-                        {{ $t('legal.auth_accept') }} 
-                        <Link :href="route('terms.service')" target="_blank" class="text-brand-neon hover:text-white underline transition">
-                            {{ $t('legal.terms_title') }}
-                        </Link> 
-                        {{ $t('legal.and') }} 
-                        <Link :href="route('privacy.policy')" target="_blank" class="text-brand-neon hover:text-white underline transition">
-                            {{ $t('legal.privacy_title') }}
-                        </Link>.
-                    </p>
-                </div>
+                <p class="text-[11px] text-gray-500 text-center leading-relaxed">
+                    {{ $t('legal.auth_accept') }}
+                    <Link :href="route('terms.service')" target="_blank" class="text-gray-300 underline underline-offset-2 hover:text-white transition-colors">
+                        {{ $t('legal.terms_title') }}
+                    </Link>
+                    {{ $t('legal.and') }}
+                    <Link :href="route('privacy.policy')" target="_blank" class="text-gray-300 underline underline-offset-2 hover:text-white transition-colors">
+                        {{ $t('legal.privacy_title') }}
+                    </Link>.
+                </p>
 
-                <button 
-                    type="submit" 
-                    :disabled="form.processing" 
-                    class="w-full mt-8 bg-brand-neon text-brand-black px-6 py-4 rounded-xl font-black uppercase tracking-wider text-sm hover:bg-white hover:scale-[1.02] transition duration-300 shadow-[0_0_20px_rgba(12,225,181,0.4)]"
+                <button
+                    type="submit"
+                    :disabled="form.processing"
+                    class="cc-btn-primary w-full py-4"
                 >
                     {{ $t('register.submit') }}
                 </button>
 
-                <button type="button" @click="loginWithGoogle" class="w-full mt-4 flex items-center justify-center gap-3 bg-white text-black px-6 py-4 rounded-xl font-black uppercase tracking-wider text-sm hover:bg-gray-200 hover:scale-[1.02] transition duration-300">
+                <button
+                    type="button"
+                    @click="loginWithGoogle"
+                    class="cc-btn-secondary w-full py-4 gap-3"
+                >
                     <svg class="w-5 h-5" viewBox="0 0 24 24">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -108,9 +104,9 @@
                     {{ $t('register.continue_with_google') }}
                 </button>
 
-                <div class="pt-8 text-center">
+                <div class="pt-6 flex flex-col items-center gap-3">
                     <span class="text-gray-500 text-sm">{{ $t('register.already') }}</span>
-                    <Link :href="route('login')" class="ml-2 text-white font-bold hover:text-brand-neon transition">
+                    <Link :href="route('login')" class="cc-btn-text">
                         {{ $t('register.login_here') }}
                     </Link>
                 </div>
@@ -122,6 +118,7 @@
 <script setup>
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import { Capacitor } from '@capacitor/core';
+import appLogo from '@/../images/logo.svg';
 
 const form = useForm({
     name: '',

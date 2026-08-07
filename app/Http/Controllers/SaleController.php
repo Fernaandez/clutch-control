@@ -13,35 +13,72 @@ use Illuminate\Support\Str;
 
 class SaleController extends Controller
 {
-    // 1. APARADOR (Llistat d'anuncis amb filtres frontend)
+    // 1. APARADOR unificat: Mercat | Meus | Guardats
     public function index(Request $request)
     {
-        $sales = SaleListing::with(['motorcycle', 'images'])
+        $user = Auth::user();
+        $userId = $user?->id;
+
+        $decorate = function ($sale) use ($user) {
+            $sale->is_favorited = $sale->isFavoritedBy($user);
+            $sale->is_owner = $user && (int) ($sale->motorcycle->user_id ?? 0) === (int) $user->id;
+            return $sale;
+        };
+
+        $marketSales = SaleListing::with(['motorcycle:id,user_id,brand,model,year,current_km,cc,power_cv,license_type,type', 'images'])
             ->withCount('favoritedBy')
             ->whereIn('state', SaleListing::PUBLIC_STATES)
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($sale) {
-                $sale->is_favorited = $sale->isFavoritedBy(Auth::user());
-                return $sale;
-            });
+            ->map($decorate);
 
-        return Inertia::render('Sales/Index', ['sales' => $sales]);
+        $myMotoIds = $userId
+            ? Motorcycle::where('user_id', $userId)->pluck('id')
+            : collect();
+
+        $mySales = $userId
+            ? SaleListing::with(['motorcycle:id,user_id,brand,model,year,current_km,cc,power_cv,license_type,type', 'images'])
+                ->withCount('favoritedBy')
+                ->whereIn('motorcycle_id', $myMotoIds)
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map($decorate)
+            : collect();
+
+        $favoriteSales = $user
+            ? $user->favoriteSales()
+                ->with(['motorcycle:id,user_id,brand,model,year,current_km,cc,power_cv,license_type,type', 'images'])
+                ->withCount('favoritedBy')
+                ->whereIn('state', SaleListing::PUBLIC_STATES)
+                ->orderBy('sale_favorites.created_at', 'desc')
+                ->get()
+                ->map(function ($sale) use ($decorate) {
+                    $sale = $decorate($sale);
+                    $sale->is_favorited = true;
+                    return $sale;
+                })
+            : collect();
+
+        $tab = $request->query('tab', 'market');
+        if (!in_array($tab, ['market', 'mine', 'favorites'], true)) {
+            $tab = 'market';
+        }
+
+        return Inertia::render('Sales/Index', [
+            'marketSales' => $marketSales,
+            'mySales' => $mySales,
+            'favoriteSales' => $favoriteSales,
+            'initialTab' => $tab,
+            'marketCount' => $marketSales->count(),
+        ]);
     }
 
-    // 2. ELS MEUS ANUNCIS
+    // 2. ELS MEUS ANUNCIS → tab
     public function mine()
     {
-        $myMotoIds = Motorcycle::where('user_id', Auth::id())->pluck('id');
-
-        $sales = SaleListing::with(['motorcycle', 'images'])
-            ->withCount('favoritedBy')
-            ->whereIn('motorcycle_id', $myMotoIds)
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return Inertia::render('Sales/MySales', ['sales' => $sales]);
+        return redirect()->route('sales.index', ['tab' => 'mine']);
     }
+
 
     // 3. FORMULARI CREAR
     public function create()
@@ -114,7 +151,7 @@ class SaleController extends Controller
             }
         }
 
-        return redirect()->route('sales.mine');
+        return redirect()->route('sales.index', ['tab' => 'mine']);
     }
 
     // 5. VEURE DETALL
@@ -212,7 +249,7 @@ class SaleController extends Controller
             }
         }
 
-        return redirect()->route('sales.mine');
+        return redirect()->route('sales.show', $sale);
     }
 
     // 8. MARCAR COM A VENUT (ràpid, sense entrar a l'edit)
@@ -246,7 +283,7 @@ class SaleController extends Controller
         }
 
         $sale->delete();
-        return redirect()->route('sales.mine');
+        return redirect()->route('sales.index', ['tab' => 'mine']);
     }
 
     // 11. AFEGIR / TREURE FAVORITS
@@ -258,22 +295,9 @@ class SaleController extends Controller
         return back();
     }
 
-    // 12. LLISTA DE FAVORITS
+    // 12. LLISTA DE FAVORITS → tab
     public function favorites()
     {
-        $user = Auth::user();
-        
-        $sales = $user->favoriteSales()
-            ->with(['motorcycle', 'images'])
-            ->withCount('favoritedBy')
-            ->whereIn('state', SaleListing::PUBLIC_STATES)
-            ->orderBy('sale_favorites.created_at', 'desc')
-            ->get()
-            ->map(function ($sale) {
-                $sale->is_favorited = true; // Tots aquí són favorits
-                return $sale;
-            });
-
-        return Inertia::render('Sales/Favorites', ['sales' => $sales]);
+        return redirect()->route('sales.index', ['tab' => 'favorites']);
     }
 }

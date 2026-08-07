@@ -13,26 +13,47 @@
                 <span v-if="stats.longest_km">{{ $t('routes.longest', { n: Math.round(stats.longest_km) }) }}</span>
             </div>
 
-            <Link
-                v-if="defaultMotorcycleId"
-                :href="route('routes.free-ride', defaultMotorcycleId)"
-                class="cc-btn-primary w-full py-3.5 mt-8"
-            >
-                {{ $t('routes.record_now') }}
-            </Link>
-
-            <!-- Última sortida: contingut, no un botó cap a una llista -->
-            <section v-if="stats.last_trip" class="mt-10">
-                <p class="cc-section-label">{{ $t('dashboard.last_ride') }}</p>
-                <Link :href="route('trips.show', stats.last_trip.id)" class="mt-3 flex items-baseline gap-3 group">
-                    <span class="text-[28px] font-light leading-none tabular-nums text-white">
-                        {{ stats.last_trip.distance_km }}<span class="text-base text-gray-500 ml-1.5">km</span>
-                    </span>
-                    <span class="text-sm text-gray-500 group-hover:text-gray-300 transition-colors truncate">
-                        <template v-if="stats.last_trip.title">{{ stats.last_trip.title }} · </template>
-                        {{ relativeDate(stats.last_trip.started_at) }}
-                    </span>
+            <!-- Tres maneres de tenir una ruta: sense copy de més -->
+            <nav class="mt-8 grid grid-cols-2 gap-3">
+                <Link
+                    :href="route('routes.plan')"
+                    class="col-span-2 rounded-2xl border border-white/[0.07] bg-white/[0.03] px-4 py-4 text-center text-[15px] font-medium text-gray-100 transition-colors hover:bg-white/[0.06] hover:border-white/20 hover:text-white"
+                >
+                    {{ $t('routes.hub_auto_route') }}
                 </Link>
+
+                <Link
+                    v-if="defaultMotorcycleId"
+                    :href="route('routes.free-ride', defaultMotorcycleId)"
+                    class="rounded-2xl border border-white/[0.07] bg-white/[0.03] px-4 py-4 text-center text-[15px] font-medium text-gray-100 transition-colors hover:bg-white/[0.06] hover:border-white/20 hover:text-white"
+                >
+                    {{ $t('routes.record_now') }}
+                </Link>
+
+                <Link
+                    :href="route('routes.create')"
+                    class="rounded-2xl border border-white/[0.07] bg-white/[0.03] px-4 py-4 text-center text-[15px] font-medium text-gray-100 transition-colors hover:bg-white/[0.06] hover:border-white/20 hover:text-white"
+                    :class="!defaultMotorcycleId ? 'col-span-2' : ''"
+                >
+                    {{ $t('routes.hub_create') }}
+                </Link>
+            </nav>
+
+            <!-- Última sortida: contingut + botó explícit -->
+            <section v-if="stats.last_trip" class="mt-10">
+                <div class="flex items-center justify-between gap-3">
+                    <p class="cc-section-label">{{ $t('dashboard.last_ride') }}</p>
+                    <Link :href="route('trips.show', stats.last_trip.id)" class="cc-btn-text">
+                        {{ $t('common.view') }}
+                    </Link>
+                </div>
+                <p class="mt-3 text-[28px] font-light leading-none tabular-nums text-white">
+                    {{ stats.last_trip.distance_km }}<span class="text-base text-gray-500 ml-1.5">km</span>
+                </p>
+                <p class="mt-2 text-sm text-gray-500">
+                    <template v-if="stats.last_trip.title">{{ stats.last_trip.title }} · </template>
+                    {{ relativeDate(stats.last_trip.started_at) }}
+                </p>
             </section>
 
             <!-- Segments -->
@@ -49,10 +70,6 @@
                     <span v-if="tab.count" class="ml-1 text-gray-600 tabular-nums">{{ tab.count }}</span>
                     <span v-if="activeTab === tab.id" class="absolute inset-x-0 -bottom-px h-px bg-white"></span>
                 </button>
-
-                <Link :href="route('routes.create')" class="cc-btn-text ml-auto mb-2.5">
-                    {{ $t('routes.create_short') }}
-                </Link>
             </div>
 
             <input
@@ -98,9 +115,14 @@
 
                 <div v-else class="py-16 text-center">
                     <p class="text-base font-semibold text-gray-300">{{ emptyTitle }}</p>
-                    <Link v-if="activeTab === 'mine'" :href="route('routes.create')" class="cc-btn-text mt-4">
-                        {{ $t('routes.create_one') }}
-                    </Link>
+                    <div v-if="activeTab === 'mine'" class="mt-5 flex flex-col items-center gap-3">
+                        <Link :href="route('routes.plan')" class="cc-btn-primary px-6 py-2.5">
+                            {{ $t('routes.hub_auto_route') }}
+                        </Link>
+                        <Link :href="route('routes.create')" class="cc-btn-text">
+                            {{ $t('routes.hub_create') }}
+                        </Link>
+                    </div>
                 </div>
             </div>
 

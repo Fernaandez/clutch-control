@@ -46,7 +46,8 @@ class ConversationController extends Controller
             });
 
         return Inertia::render('Chats/Index', [
-            'conversations' => $conversations
+            'conversations' => $conversations,
+            'unreadTotal' => (int) $conversations->sum('unread_count'),
         ]);
     }
 

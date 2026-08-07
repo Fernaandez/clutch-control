@@ -1,184 +1,185 @@
 <template>
-    <AppLayout v-if="event" :title="event.title || $t('events.loading_event')">
-        <div class="px-4 py-6 pb-24">
+    <AppLayout v-if="event" :title="event.title || $t('events.loading_event')" :hide-bottom-nav="isMapOpen">
+        <div class="px-6 pt-10 pb-28 max-w-xl mx-auto cc-fade-in">
 
-            <div class="mb-6 space-y-3">
-                <div class="flex items-start gap-3">
-                    <button type="button" @click="goBack" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]" aria-label="Enrere">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
-                    </button>
-                    <div class="min-w-0 flex-1 pt-0.5">
-                        <h1 class="text-2xl font-bold text-white uppercase tracking-tight break-words">{{ event.title || $t('events.no_title') }}</h1>
-                        <p class="text-gray-400 text-sm mt-1 flex items-center gap-1.5 truncate">
-                            <AppIcon name="pin" size="sm" class="text-brand-neon flex-shrink-0" />
-                            <span class="truncate">{{ event.location || $t('events.no_location_info') }}</span>
-                        </p>
-                    </div>
+            <header class="flex items-center gap-3 mb-8">
+                <button type="button" @click="goBack" class="cc-icon-btn" :aria-label="$t('common.back')">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                    </svg>
+                </button>
+                <h1 class="cc-title flex-1 truncate">{{ event.title || $t('events.no_title') }}</h1>
+            </header>
+
+            <!-- Hero: el dia mana -->
+            <p class="text-sm text-gray-500">{{ $t('events.date_time') }}</p>
+            <p class="mt-3 text-[48px] leading-[0.95] font-light tracking-tight text-white">
+                {{ formatDateLong(event.start_time) }}
+            </p>
+            <p class="mt-2 text-sm text-gray-500 tabular-nums">{{ formatTime(event.start_time) }}</p>
+
+            <p class="mt-4 text-sm text-gray-400">
+                {{ event.location || $t('events.no_location_info') }}
+                <template v-if="event.organizer"> · {{ event.organizer.name }}</template>
+            </p>
+
+            <!-- Riders -->
+            <div class="mt-10 flex items-baseline gap-8">
+                <div>
+                    <p
+                        class="text-[28px] font-light leading-none tabular-nums"
+                        :class="isFull ? 'text-red-400' : 'text-white'"
+                    >
+                        <template v-if="event.max_participants">
+                            {{ event.participants_count || 0 }}<span class="text-base text-gray-500">/{{ event.max_participants }}</span>
+                        </template>
+                        <template v-else>{{ event.participants_count || 0 }}</template>
+                    </p>
+                    <p class="mt-1.5 text-xs text-gray-500">{{ $t('events.riders_label') }}</p>
                 </div>
-
-                <div class="flex flex-wrap items-center gap-2">
-                    <ReportButton
-                        v-if="!$page.props.auth.user || event.user_id !== $page.props.auth.user.id"
-                        reportable-type="event"
-                        :reportable-id="event.id"
-                        label="Denunciar"
-                        :context-label="`Denunciar quedada: ${event.title}`"
-                        button-class="bg-red-600/10 hover:bg-red-600/20 text-red-400 px-3 py-1.5 rounded-lg transition border border-red-500/40 flex items-center gap-2 text-xs font-bold"
-                    />
-                    <button v-if="$page.props.auth.user && event.user_id === $page.props.auth.user.id" @click="copyShareLink" class="bg-gray-800 hover:bg-brand-neon hover:text-black text-white px-3 py-1.5 rounded-lg transition border border-gray-700 flex items-center gap-2 text-xs font-bold">
-                        <span v-if="copyLinkSuccess">{{ $t('events.link_copied') }}</span>
-                        <span v-else>{{ $t('events.copy_link') }}</span>
-                    </button>
+                <div v-if="totalDistance > 0">
+                    <p class="text-[28px] font-light leading-none tabular-nums text-white">
+                        {{ totalDistance }}<span class="text-base text-gray-500 ml-1">km</span>
+                    </p>
+                    <p class="mt-1.5 text-xs text-gray-500">{{ $t('events.total_km') }}</p>
                 </div>
             </div>
 
-            <div v-if="event.photo" class="relative h-56 w-full overflow-hidden mb-6 rounded-xl border border-brand-dark shadow-lg">
-                <img :src="$page.props.storageUrl + '/' + event.photo" :alt="$t('events.event_title')" class="absolute inset-0 w-full h-full object-cover">
-                <div class="absolute inset-0 photo-gradient-overlay"></div>
-            </div>
+            <p v-if="isFull" class="mt-3 text-sm text-red-400">{{ $t('events.full', { n: event.max_participants }) }}</p>
 
-            <div v-if="event.organizer" class="mb-6 flex items-center justify-between gap-3 rounded-xl border border-brand-dark bg-brand-surface px-4 py-3">
-                <p class="text-xs text-gray-400">Organitza <span class="font-bold text-white">{{ event.organizer.name }}</span></p>
-                <ReportButton
-                    v-if="!$page.props.auth.user || event.organizer.id !== $page.props.auth.user.id"
-                    reportable-type="user"
-                    :reportable-id="event.organizer.id"
-                    label="Denunciar usuari"
-                    :context-label="`Denunciar usuari: ${event.organizer.name}`"
-                    button-class="text-[10px] font-bold uppercase tracking-widest text-red-400 hover:text-red-300 underline"
-                />
-            </div>
-
-            <div class="bg-brand-surface rounded-xl p-5 border border-brand-dark shadow-lg mb-8">
-                <div class="flex flex-wrap items-center gap-4 text-sm font-bold text-white mb-4">
-                    <span v-if="event.start_time" class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark flex items-center gap-1.5">
-                        <AppIcon name="calendar" size="sm" class="text-brand-neon" />
-                        {{ formatDate(event.start_time) }}
-                    </span>
-                    <span v-if="event.start_time" class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark flex items-center gap-1.5">
-                        <AppIcon name="clock" size="sm" class="text-brand-neon" />
-                        {{ formatTime(event.start_time) }}
-                    </span>
-
-                    <span class="bg-brand-black px-3 py-1.5 rounded-lg border border-brand-dark flex items-center gap-2" :class="{'text-red-400': event.max_participants && (event.participants_count || 0) >= event.max_participants, 'text-brand-neon': !event.max_participants}">
-                        <AppIcon name="users" size="sm" />
-                        <span v-if="event.max_participants">
-                            {{ event.participants_count || 0 }} / {{ event.max_participants }}
-                        </span>
-                        <span v-else>
-                            {{ $t('events.num_attendees', { n: event.participants_count || 0 }) }}
-                        </span>
-                        <span v-if="event.max_participants && (event.participants_count || 0) >= event.max_participants" class="ml-1 text-[9px] bg-red-500 text-black px-1 rounded uppercase">FULL</span>
-                    </span>
-                </div>
-                <p class="text-gray-300 text-sm mb-6">{{ event.description || $t('events.no_description') }}</p>
-
-                <!-- Botons d'apuntar-se / desapuntar-se -->
-                <div v-if="$page.props.auth.user && event.user_id !== $page.props.auth.user.id" class="border-t border-brand-dark pt-5 flex justify-center">
-                    <div v-if="event.is_attending" class="flex flex-col sm:flex-row gap-3">
-                        <Link v-if="event.group_chat_id" :href="route('chats.show', event.group_chat_id)" class="bg-purple-500/10 text-purple-400 border border-purple-500/50 hover:bg-purple-500 hover:text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest transition flex items-center justify-center gap-2 shadow-lg w-full sm:w-auto">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" /></svg>
-                            {{ $t('events.open_chat') }}
-                        </Link>
-                        <Link :href="route('events.leave', event.id)" method="post" as="button" class="bg-red-500/10 text-red-500 border border-red-500/50 hover:bg-red-500 hover:text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest transition flex items-center justify-center gap-2 shadow-lg w-full sm:w-auto">
-                            {{ $t('events.leave') }}
-                        </Link>
-                    </div>
-                    <div v-else>
-                        <div v-if="event.max_participants && (event.participants_count || 0) >= event.max_participants" class="text-red-500 font-bold bg-red-500/10 px-6 py-3 rounded-xl border border-red-500/30 text-center">
-                            {{ $t('events.full', { n: event.max_participants }) }}
-                        </div>
-                        <Link v-else :href="route('events.join', event.id)" method="post" as="button" class="bg-brand-neon text-brand-black hover:bg-white hover:scale-105 px-8 py-3 rounded-xl font-black uppercase tracking-widest transition flex items-center gap-2 shadow-[0_0_20px_rgba(12,225,181,0.4)]">
-                            {{ $t('events.join') }}
-                        </Link>
-                    </div>
-                </div>
-
-                <div v-else-if="!$page.props.auth.user" class="border-t border-brand-dark pt-5">
-                    <p class="text-center text-gray-400 text-sm mb-3">{{ $t('events.login_to_join') }}</p>
-                    <div class="flex justify-center gap-4">
-                        <Link :href="route('login')" class="bg-brand-dark text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-700 transition">{{ $t('events.login') }}</Link>
-                        <Link :href="route('register')" class="bg-brand-neon text-brand-black px-6 py-2 rounded-lg font-bold hover:bg-white transition shadow-neon">{{ $t('events.register') }}</Link>
-                    </div>
-                </div>
-
-                <div v-else class="border-t border-brand-dark pt-5 flex flex-col items-center gap-3">
-                    <div class="text-brand-neon font-bold text-sm bg-brand-neon/10 rounded-lg p-3 w-full text-center flex items-center justify-center gap-2">
-                        <AppIcon name="crown" size="md" />
-                        {{ $t('events.organizer') }}
-                    </div>
-                    <Link v-if="event.group_chat_id" :href="route('chats.show', event.group_chat_id)" class="bg-purple-500/10 text-purple-400 border border-purple-500/50 hover:bg-purple-500 hover:text-white px-8 py-3 rounded-xl font-black uppercase tracking-widest transition flex items-center justify-center gap-2 shadow-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" /></svg>
-                        {{ $t('events.open_event_chat') }}
+            <!-- CTA principal -->
+            <div class="mt-8 space-y-3">
+                <template v-if="$page.props.auth.user && event.user_id !== $page.props.auth.user.id">
+                    <Link
+                        v-if="!event.is_attending && !isFull"
+                        :href="route('events.join', event.id)"
+                        method="post"
+                        as="button"
+                        class="cc-btn-primary w-full py-3.5"
+                    >
+                        {{ $t('events.join_short') }}
                     </Link>
-                </div>
+                    <Link
+                        v-else-if="event.is_attending"
+                        :href="route('events.leave', event.id)"
+                        method="post"
+                        as="button"
+                        class="cc-btn-secondary w-full py-3.5"
+                    >
+                        {{ $t('events.leave_short') }}
+                    </Link>
+                </template>
+
+                <template v-else-if="!$page.props.auth.user">
+                    <p class="text-sm text-gray-500 text-center">{{ $t('events.login_to_join') }}</p>
+                    <Link :href="route('login')" class="cc-btn-primary w-full py-3.5 text-center">{{ $t('events.login') }}</Link>
+                </template>
             </div>
 
-            <div v-if="event.routes && event.routes.length > 0" class="mb-8">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-black text-brand-neon uppercase tracking-widest flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" /></svg>
-                        {{ $t('events.itinerary') }} ({{ event.routes.length }})
-                    </h3>
+            <p v-if="event.description" class="mt-10 text-sm text-gray-400 leading-relaxed">
+                {{ event.description }}
+            </p>
 
-                    <button @click="openGlobalMap" class="text-xs font-bold bg-brand-neon text-brand-black px-3 py-1.5 rounded uppercase shadow-[0_0_10px_rgba(12,225,181,0.3)] hover:scale-105 transition">
+            <div v-if="event.photo" class="mt-8 overflow-hidden rounded-2xl">
+                <img :src="$page.props.storageUrl + '/' + event.photo" alt="" class="w-full h-44 object-cover">
+            </div>
+
+            <!-- Itinerari -->
+            <section v-if="event.routes && event.routes.length" class="mt-12">
+                <div class="flex items-center justify-between gap-3">
+                    <p class="cc-section-label">{{ $t('events.itinerary') }}</p>
+                    <button type="button" @click="openGlobalMap" class="cc-btn-text">
                         {{ $t('events.view_full_map') }}
                     </button>
                 </div>
 
-                <div class="space-y-3">
+                <div class="mt-2 divide-y divide-white/[0.06]">
                     <Link
                         v-for="(ruta, index) in event.routes"
                         :key="ruta.id"
                         :href="route('routes.show', ruta.id) + '?from_event=' + event.id"
-                        class="bg-brand-black border border-brand-dark rounded-xl p-3 flex items-center justify-between group hover:border-brand-neon transition shadow-lg relative overflow-hidden"
+                        class="flex items-center gap-4 py-4 group"
                     >
-                        <div class="absolute left-0 top-0 bottom-0 w-1" :style="{ backgroundColor: mapColors[index % mapColors.length] }"></div>
-
-                        <div class="flex items-center gap-3 pl-2">
-                            <div class="w-8 h-8 rounded-full bg-brand-surface flex items-center justify-center text-xs font-bold border border-brand-dark transition" :style="{ color: mapColors[index % mapColors.length], borderColor: mapColors[index % mapColors.length] }">
-                                {{ index + 1 }}
-                            </div>
-                            <div>
-                                <h4 class="text-white font-bold text-sm truncate max-w-[200px]">{{ ruta.title }}</h4>
-                                <div class="flex items-center gap-2 mt-1">
-                                    <span class="text-[10px] text-gray-500 font-mono">{{ ruta.planned_distance_km }} km</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="text-gray-600 group-hover:text-brand-neon transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
-                        </div>
+                        <span class="text-sm text-gray-600 tabular-nums w-5">{{ index + 1 }}</span>
+                        <span class="min-w-0 flex-1">
+                            <span class="block text-[15px] font-medium text-gray-100 group-hover:text-white transition-colors truncate">
+                                {{ ruta.title }}
+                            </span>
+                        </span>
+                        <span class="text-[15px] tabular-nums text-gray-400 flex-shrink-0">
+                            {{ Math.round(ruta.planned_distance_km || 0) }}<span class="text-xs text-gray-600 ml-1">km</span>
+                        </span>
                     </Link>
                 </div>
-            </div>
+            </section>
 
+            <!-- Accions terciàries -->
+            <nav class="mt-12 pt-6 border-t border-white/[0.06] flex flex-wrap gap-2">
+                <Link
+                    v-if="event.group_chat_id"
+                    :href="route('chats.show', event.group_chat_id)"
+                    class="cc-btn-text"
+                >
+                    {{ $t('events.open_chat') }}
+                </Link>
+                <button
+                    v-if="$page.props.auth.user && event.user_id === $page.props.auth.user.id"
+                    type="button"
+                    @click="copyShareLink"
+                    class="cc-btn-text"
+                >
+                    {{ copyLinkSuccess ? $t('events.link_copied') : $t('events.copy_link_short') }}
+                </button>
+                <Link
+                    v-if="$page.props.auth.user && event.user_id === $page.props.auth.user.id"
+                    :href="route('events.edit', event.id)"
+                    class="cc-btn-text"
+                >
+                    {{ $t('common.edit') }}
+                </Link>
+                <ReportButton
+                    v-if="!$page.props.auth.user || event.user_id !== $page.props.auth.user.id"
+                    reportable-type="event"
+                    :reportable-id="event.id"
+                    label="Denunciar"
+                    :context-label="`Denunciar quedada: ${event.title}`"
+                    button-class="cc-btn-text border-red-500/25 text-red-400 hover:text-red-300 hover:border-red-500/50"
+                />
+            </nav>
         </div>
 
-        <div v-show="isMapOpen" class="fixed inset-0 z-[5000] bg-gray-900 flex flex-col">
-            <div id="event-global-map" class="absolute inset-0 w-full h-full z-0 bg-gray-900"></div>
+        <Teleport to="body">
+            <div v-show="isMapOpen" class="fixed inset-0 z-[6000] bg-brand-black flex flex-col">
+                <div id="event-global-map" class="absolute inset-0 w-full h-full z-0"></div>
 
-            <button @click="closeMap" class="absolute top-safe-top left-4 z-[5010] w-10 h-10 rounded-full bg-brand-neon backdrop-blur-md flex items-center justify-center text-brand-black hover:scale-110 border border-brand-neon/50 transition shadow-[0_0_15px_rgba(12,225,181,0.6)] mt-2">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
-            </button>
+                <button
+                    type="button"
+                    @click="closeMap"
+                    class="cc-icon-btn absolute top-4 left-4 z-[6010] bg-black/50 backdrop-blur-md border-white/20"
+                    :aria-label="$t('common.back')"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                    </svg>
+                </button>
 
-            <div class="absolute bottom-6 left-0 w-full p-4 z-[5010] pb-safe-bottom pointer-events-none">
-                <div class="bg-brand-black/95 backdrop-blur-xl border border-brand-dark rounded-2xl shadow-2xl p-4 flex items-center justify-between pointer-events-auto max-w-lg mx-auto">
-                    <div>
-                        <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">{{ $t('events.full_itinerary') }}</p>
-                        <h2 class="text-lg font-black text-white uppercase mt-0.5">{{ event.routes ? event.routes.length : 0 }} {{ $t('events.sections') }}</h2>
-                    </div>
-                    <div class="text-right">
-                        <span class="block text-2xl font-mono font-bold text-brand-neon">{{ totalDistance }}</span>
-                        <span class="text-[10px] text-gray-500 uppercase">{{ $t('events.total_km') }}</span>
+                <div class="absolute bottom-6 left-0 w-full px-4 z-[6010] pointer-events-none">
+                    <div class="pointer-events-auto mx-auto max-w-sm rounded-2xl border border-white/[0.08] bg-brand-black/95 backdrop-blur-xl px-5 py-4 flex items-baseline justify-between">
+                        <div>
+                            <p class="cc-section-label">{{ $t('events.full_itinerary') }}</p>
+                            <p class="mt-1 text-sm text-gray-300">{{ (event.routes || []).length }} {{ $t('events.sections') }}</p>
+                        </div>
+                        <p class="text-[26px] font-light tabular-nums text-white">
+                            {{ totalDistance }}<span class="text-sm text-gray-500 ml-1">km</span>
+                        </p>
                     </div>
                 </div>
             </div>
-        </div>
-
+        </Teleport>
     </AppLayout>
-    <div v-else class="h-screen bg-gray-900 flex items-center justify-center text-white">
-        <p class="animate-pulse">{{ $t('events.loading_event') }}</p>
+
+    <div v-else class="h-screen bg-brand-black flex items-center justify-center text-gray-500">
+        {{ $t('events.loading_event') }}
     </div>
 </template>
 
@@ -187,18 +188,15 @@ import { ref, computed, nextTick } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import AppIcon from '@/Components/AppIcon.vue';
 import ReportButton from '@/Components/ReportButton.vue';
 import { smartBack } from '@/Composables/navigationStack.js';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { addMapTileLayer } from '@/config/mapTiles.js';
 
-const { locale } = useI18n();
+const { t, locale } = useI18n();
 
 const props = defineProps({ event: Object });
-
-const mapColors = ['#0CE1B5', '#E10C38', '#0C84E1', '#E1B50C', '#B50CE1'];
 
 const isMapOpen = ref(false);
 const map = ref(null);
@@ -207,14 +205,30 @@ const copyLinkSuccess = ref(false);
 
 const goBack = () => smartBack(route('events.index'));
 
-const formatDate = (dateStr) => {
+const isFull = computed(() =>
+    props.event?.max_participants && (props.event.participants_count || 0) >= props.event.max_participants,
+);
+
+const formatDateLong = (dateStr) => {
     if (!dateStr) return '';
-    try { return new Date(dateStr).toLocaleDateString(locale.value); } catch (e) { return ''; }
+    try {
+        return new Date(dateStr).toLocaleDateString(locale.value, {
+            weekday: 'short',
+            day: 'numeric',
+            month: 'long',
+        });
+    } catch {
+        return '';
+    }
 };
 
 const formatTime = (dateStr) => {
     if (!dateStr) return '';
-    try { return new Date(dateStr).toLocaleTimeString(locale.value, { hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; }
+    try {
+        return new Date(dateStr).toLocaleTimeString(locale.value, { hour: '2-digit', minute: '2-digit' });
+    } catch {
+        return '';
+    }
 };
 
 const writeToClipboard = async (text) => {
@@ -223,7 +237,7 @@ const writeToClipboard = async (text) => {
             await navigator.clipboard.writeText(text);
             return true;
         }
-    } catch (e) { /* fallthrough */ }
+    } catch { /* fallthrough */ }
     try {
         const ta = document.createElement('textarea');
         ta.value = text;
@@ -235,7 +249,7 @@ const writeToClipboard = async (text) => {
         const ok = document.execCommand('copy');
         document.body.removeChild(ta);
         return ok;
-    } catch (e) {
+    } catch {
         return false;
     }
 };
@@ -243,79 +257,100 @@ const writeToClipboard = async (text) => {
 const copyShareLink = async () => {
     if (!props.event?.id) return;
 
-    // URL publica amb share_token (no requereix login i no es endevinable).
     const shareToken = props.event.share_token;
     const shareUrl = shareToken
         ? `${window.location.origin}/e/${shareToken}`
         : `${window.location.origin}/events/${props.event.id}`;
-    const shareTitle = props.event.title || 'Quedada compartida';
-    const shareText = `Mira aquesta quedada: ${shareTitle}`;
+    const shareTitle = props.event.title || 'Quedada';
 
     if (navigator.share) {
         try {
-            await navigator.share({
-                title: shareTitle,
-                text: shareText,
-                url: shareUrl,
-            });
+            await navigator.share({ title: shareTitle, text: shareTitle, url: shareUrl });
             return;
         } catch (error) {
             if (error?.name === 'AbortError') return;
         }
     }
 
-    const ok = await writeToClipboard(shareUrl);
-    if (ok) {
+    if (await writeToClipboard(shareUrl)) {
         copyLinkSuccess.value = true;
         setTimeout(() => { copyLinkSuccess.value = false; }, 3000);
     }
 };
 
 const totalDistance = computed(() => {
-    if (!props.event || !props.event.routes) return 0;
-    return props.event.routes.reduce((acc, route) => acc + parseFloat(route.planned_distance_km || 0), 0).toFixed(1);
+    if (!props.event?.routes) return 0;
+    return props.event.routes
+        .reduce((acc, route) => acc + parseFloat(route.planned_distance_km || 0), 0)
+        .toFixed(0);
 });
 
 const openGlobalMap = async () => {
     isMapOpen.value = true;
     await nextTick();
-    if (!map.value) {
-        map.value = L.map('event-global-map', { zoomControl: false, attributionControl: false }).setView([41.3851, 2.1734], 13);
-        addMapTileLayer(map.value, L);
-    } else {
-        mapLayers.value.forEach(layer => { if (map.value && layer) map.value.removeLayer(layer); });
-        mapLayers.value = [];
-        map.value.invalidateSize();
-    }
-    let allPoints = [];
-    if (props.event && props.event.routes) {
-        props.event.routes.forEach((route, index) => {
-            let data = route.geo_json;
-            if (!data) return;
-            if (typeof data === 'string') {
-                try { data = JSON.parse(data); if (typeof data === 'string') data = JSON.parse(data); } catch (e) { return; }
+
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            if (!map.value) {
+                map.value = L.map('event-global-map', { zoomControl: false, attributionControl: false })
+                    .setView([41.3851, 2.1734], 13);
+                addMapTileLayer(map.value, L);
+            } else {
+                mapLayers.value.forEach((layer) => { if (map.value && layer) map.value.removeLayer(layer); });
+                mapLayers.value = [];
+                map.value.invalidateSize();
             }
-            if (Array.isArray(data) && data.length > 0) {
-                const color = mapColors[index % mapColors.length];
-                const points = data.map(p => [p.lat || p.latitude, p.lng || p.longitude]);
-                const validPoints = points.filter(p => p[0] != null && p[1] != null);
-                if (validPoints.length === 0) return;
-                const polyline = L.polyline(validPoints, { color, weight: 6, opacity: 0.9, lineJoin: 'round' }).addTo(map.value);
-                const startMarker = L.circleMarker(validPoints[0], { radius: 6, color, fillColor: '#111827', fillOpacity: 1, weight: 3 }).addTo(map.value);
-                mapLayers.value.push(polyline, startMarker);
-                allPoints = allPoints.concat(validPoints);
+
+            let allPoints = [];
+            (props.event?.routes || []).forEach((route) => {
+                let data = route.geo_json;
+                if (!data) return;
+                if (typeof data === 'string') {
+                    try {
+                        data = JSON.parse(data);
+                        if (typeof data === 'string') data = JSON.parse(data);
+                    } catch {
+                        return;
+                    }
+                }
+                if (!Array.isArray(data) || !data.length) return;
+
+                const points = data
+                    .map((p) => {
+                        if (Array.isArray(p) && p.length >= 2) return [p[1], p[0]];
+                        return [p.lat ?? p.latitude, p.lng ?? p.longitude];
+                    })
+                    .filter((p) => p[0] != null && p[1] != null);
+
+                if (!points.length) return;
+
+                const polyline = L.polyline(points, {
+                    color: '#fafafa',
+                    weight: 5,
+                    opacity: 0.9,
+                    lineJoin: 'round',
+                }).addTo(map.value);
+
+                const start = L.circleMarker(points[0], {
+                    radius: 6,
+                    color: '#0a0a0a',
+                    weight: 3,
+                    fillColor: '#fafafa',
+                    fillOpacity: 1,
+                }).addTo(map.value);
+
+                mapLayers.value.push(polyline, start);
+                allPoints = allPoints.concat(points);
+            });
+
+            if (allPoints.length && map.value) {
+                try {
+                    map.value.fitBounds(L.latLngBounds(allPoints), { padding: [50, 100] });
+                } catch { /* ignore */ }
             }
-        });
-    }
-    if (allPoints.length > 0 && map.value) {
-        try { map.value.fitBounds(L.latLngBounds(allPoints), { padding: [50, 100] }); } catch (e) {}
-    }
+        }, 80);
+    });
 };
 
 const closeMap = () => { isMapOpen.value = false; };
 </script>
-
-<style scoped>
-.pt-safe-top { padding-top: env(safe-area-inset-top, 20px); }
-.pb-safe-bottom { padding-bottom: env(safe-area-inset-bottom, 20px); }
-</style>

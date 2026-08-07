@@ -4,7 +4,10 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "cap:sync": "npx cap sync",
+        "cap:ios": "npx cap open ios",
+        "ios:prepare": "npx cap sync ios"
     },
     "devDependencies": {
         "@capacitor/assets": "^3.0.5",

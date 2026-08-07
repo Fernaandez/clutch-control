@@ -1,256 +1,163 @@
 <template>
     <AppLayout :title="$t('sales.marketplace_title')">
-        <div class="px-4 py-6 pb-24 max-w-7xl mx-auto">
-            
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">{{ $t('sales.marketplace_title') }}</h1>
-                </div>
-                <Link :href="route('sales.create')" class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.4)] hover:scale-110 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                </Link>
+        <div class="px-6 pt-10 pb-28 max-w-xl mx-auto cc-fade-in">
+
+            <p class="text-sm text-gray-500">{{ $t('sales.marketplace_title') }}</p>
+            <p class="mt-3 text-[64px] leading-[0.9] font-light tracking-[-0.04em] text-white tabular-nums">
+                {{ marketCount }}
+            </p>
+            <p class="mt-2 text-sm text-gray-500">{{ $t('sales.for_sale_label') }}</p>
+
+            <Link :href="route('sales.create')" class="cc-btn-primary w-full py-3.5 mt-8 text-center">
+                {{ $t('sales.publish_short') }}
+            </Link>
+
+            <!-- Segments -->
+            <div class="mt-10 flex items-center gap-5 border-b border-white/[0.06]">
+                <button
+                    v-for="tab in tabs"
+                    :key="tab.id"
+                    type="button"
+                    @click="activeTab = tab.id"
+                    class="relative -mb-px pb-3 text-[13px] font-medium transition-colors whitespace-nowrap"
+                    :class="activeTab === tab.id ? 'text-white' : 'text-gray-500 hover:text-gray-300'"
+                >
+                    {{ tab.label }}
+                    <span v-if="tab.count" class="ml-1 text-gray-600 tabular-nums">{{ tab.count }}</span>
+                    <span v-if="activeTab === tab.id" class="absolute inset-x-0 -bottom-px h-px bg-white"></span>
+                </button>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <Link :href="route('sales.mine')" class="w-full bg-brand-surface border border-brand-neon/30 text-white py-3 rounded-xl flex items-center justify-between px-4 hover:bg-brand-neon/10 transition group shadow-lg">
-                    <span class="font-bold uppercase flex items-center gap-2 text-sm">
-                        <AppIcon name="tag" size="md" class="text-brand-neon" />
-                        {{ $t('sales.manage_mine') }}
-                    </span>
-                    <span class="text-brand-neon group-hover:translate-x-1 transition">&rarr;</span>
-                </Link>
-
-                <Link :href="route('sales.favorites')" class="w-full bg-brand-surface border border-red-500/30 text-white py-3 rounded-xl flex items-center justify-between px-4 hover:bg-red-500/10 transition group shadow-lg">
-                    <span class="font-bold uppercase flex items-center gap-2 text-sm">
-                        ❤️ {{ $t('sales.favorites') }}
-                    </span>
-                    <span class="text-red-400 group-hover:translate-x-1 transition">&rarr;</span>
-                </Link>
+            <div v-if="activeTab === 'market'" class="mt-4 flex items-center gap-2">
+                <input
+                    v-if="baseList.length > 4 || search"
+                    v-model="search"
+                    type="search"
+                    :placeholder="$t('sales.search_placeholder')"
+                    class="flex-1 rounded-xl bg-white/[0.04] border-white/[0.08] text-white text-sm focus:border-white/30 focus:ring-0"
+                >
+                <button type="button" @click="showFilters = !showFilters" class="cc-btn-text flex-shrink-0">
+                    {{ showFilters ? $t('common.hide_filters') : $t('common.filter') }}
+                    <span v-if="activeFiltersCount" class="ml-1 tabular-nums text-gray-400">{{ activeFiltersCount }}</span>
+                </button>
             </div>
 
-            <button 
-                @click="showFilters = !showFilters"
-                class="w-full mb-6 flex items-center justify-between bg-brand-surface border border-brand-dark p-3 rounded-xl text-sm font-bold text-gray-300 hover:text-white hover:border-brand-neon transition shadow-lg"
-            >
-                <span class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-brand-neon"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
-                    {{ showFilters ? $t('sales.hide_filters') : $t('sales.show_filters') }}
-                </span>
-                <span v-if="activeFiltersCount > 0" class="bg-brand-neon text-brand-black text-xs rounded-full w-5 h-5 flex items-center justify-center font-black">
-                    {{ activeFiltersCount }}
-                </span>
-                <span v-else>▼</span>
-            </button>
-
-            <div v-if="showFilters" class="bg-brand-black border border-brand-dark rounded-xl p-5 mb-6 shadow-2xl space-y-6 animate-fade-in">
-                
-                <div>
-                    <label class="text-[10px] text-gray-500 uppercase tracking-widest font-black mb-1 block">{{ $t('sales.search') }}</label>
-                    <input v-model="filters.search" type="text" :placeholder="$t('sales.search_placeholder')" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
-                    <div class="space-y-4 bg-brand-surface/50 p-4 rounded-xl border border-brand-dark/50">
-                        <h3 class="text-xs font-black text-brand-neon uppercase tracking-widest mb-3 border-b border-brand-dark pb-2">{{ $t('sales.filter_price') }} &amp; Estat</h3>
-                        
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="text-[10px] text-gray-500 uppercase font-bold block mb-1">{{ $t('sales.price_min') }} (€)</label>
-                                <input v-model="filters.priceMin" type="number" placeholder="0" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
-                            </div>
-                            <div>
-                                <label class="text-[10px] text-gray-500 uppercase font-bold block mb-1">{{ $t('sales.price_max') }} (€)</label>
-                                <input v-model="filters.priceMax" type="number" :placeholder="$t('common.no')" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="text-[10px] text-gray-500 uppercase font-bold block mb-1">{{ $t('sales.year_min') }}</label>
-                                <input v-model="filters.yearMin" type="number" placeholder="Ex: 2010" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
-                            </div>
-                            <div>
-                                <label class="text-[10px] text-gray-500 uppercase font-bold block mb-1">{{ $t('sales.km_max') }}</label>
-                                <input v-model="filters.kmMax" type="number" placeholder="Ex: 50000" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
-                            </div>
-                        </div>
+            <div v-if="activeTab === 'market' && showFilters" class="mt-4 space-y-3 pb-2">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">{{ $t('sales.price_min') }}</label>
+                        <input v-model="filters.priceMin" type="number" placeholder="0" class="w-full rounded-xl bg-white/[0.04] border-white/[0.08] text-white text-sm focus:border-white/30 focus:ring-0">
                     </div>
-
-                    <div class="space-y-4 bg-brand-surface/50 p-4 rounded-xl border border-brand-dark/50">
-                        <h3 class="text-xs font-black text-brand-neon uppercase tracking-widest mb-3 border-b border-brand-dark pb-2">Especificacions</h3>
-                        
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="text-[10px] text-gray-500 uppercase font-bold block mb-1">Carnet</label>
-                                <select v-model="filters.license" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
-                                    <option value="all">Tots</option>
-                                    <option value="AM">AM</option><option value="A1">A1</option>
-                                    <option value="A2">A2</option><option value="A">A</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="text-[10px] text-gray-500 uppercase font-bold block mb-1">Tipus</label>
-                                <select v-model="filters.type" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
-                                    <option value="all">Tots els estils</option>
-                                    <option value="Naked">Naked</option><option value="Sport">Sport / R</option>
-                                    <option value="Trail">Trail / Adventure</option><option value="Custom">Custom / Cruiser</option>
-                                    <option value="Scooter">Scooter / Maxi</option><option value="Touring">Touring</option>
-                                    <option value="Off-Road">Off-Road / Enduro</option><option value="Classic">Clàssica</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="flex items-center gap-2">
-                                <div class="flex-1">
-                                    <label class="text-[10px] text-gray-500 uppercase font-bold block mb-1">Min CC</label>
-                                    <input v-model="filters.ccMin" type="number" placeholder="125" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
-                                </div>
-                                <div class="flex-1">
-                                    <label class="text-[10px] text-gray-500 uppercase font-bold block mb-1">Max CC</label>
-                                    <input v-model="filters.ccMax" type="number" placeholder="1000" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="flex-1">
-                                    <label class="text-[10px] text-gray-500 uppercase font-bold block mb-1">Min CV</label>
-                                    <input v-model="filters.cvMin" type="number" placeholder="15" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
-                                </div>
-                                <div class="flex-1">
-                                    <label class="text-[10px] text-gray-500 uppercase font-bold block mb-1">Max CV</label>
-                                    <input v-model="filters.cvMax" type="number" placeholder="200" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
-                                </div>
-                            </div>
-                        </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">{{ $t('sales.price_max') }}</label>
+                        <input v-model="filters.priceMax" type="number" :placeholder="$t('common.no')" class="w-full rounded-xl bg-white/[0.04] border-white/[0.08] text-white text-sm focus:border-white/30 focus:ring-0">
                     </div>
-                </div>
-
-                <div class="border-t border-brand-dark pt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div class="w-full sm:w-auto flex items-center gap-2">
-                        <label class="text-xs text-gray-400 uppercase font-bold">{{ $t('sales.sort_by') }}</label>
-                        <select v-model="filters.sortBy" class="bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon focus:ring-0">
-                            <option value="created_at">{{ $t('sales.sort_date') }}</option>
-                            <option value="price">{{ $t('sales.sort_price') }}</option>
-                            <option value="year">{{ $t('sales.sort_year') }}</option>
-                            <option value="current_km">{{ $t('sales.sort_km') }}</option>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">{{ $t('sales.year_min') }}</label>
+                        <input v-model="filters.yearMin" type="number" placeholder="2010" class="w-full rounded-xl bg-white/[0.04] border-white/[0.08] text-white text-sm focus:border-white/30 focus:ring-0">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">{{ $t('sales.km_max') }}</label>
+                        <input v-model="filters.kmMax" type="number" placeholder="50000" class="w-full rounded-xl bg-white/[0.04] border-white/[0.08] text-white text-sm focus:border-white/30 focus:ring-0">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">{{ $t('sales.license') }}</label>
+                        <select v-model="filters.license" class="w-full rounded-xl bg-white/[0.04] border-white/[0.08] text-white text-sm focus:border-white/30 focus:ring-0">
+                            <option value="all">{{ $t('sales.all') }}</option>
+                            <option value="AM">AM</option>
+                            <option value="A1">A1</option>
+                            <option value="A2">A2</option>
+                            <option value="A">A</option>
                         </select>
-                        <button @click="toggleSortDir" class="bg-brand-surface border border-brand-dark px-3 py-2 rounded-lg text-white hover:border-brand-neon transition text-xs font-bold">
-                            {{ filters.sortDir === 'asc' ? $t('common.asc') : $t('common.desc') }}
-                        </button>
                     </div>
-                    
-                    <button @click="resetFilters" class="w-full sm:w-auto text-xs font-bold text-red-400 hover:text-red-300 uppercase tracking-widest px-4 py-2 border border-red-900/50 bg-red-900/10 rounded-lg transition">
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">{{ $t('sales.style') }}</label>
+                        <select v-model="filters.type" class="w-full rounded-xl bg-white/[0.04] border-white/[0.08] text-white text-sm focus:border-white/30 focus:ring-0">
+                            <option value="all">{{ $t('sales.all') }}</option>
+                            <option value="Naked">Naked</option>
+                            <option value="Sport">Sport</option>
+                            <option value="Trail">Trail</option>
+                            <option value="Custom">Custom</option>
+                            <option value="Scooter">Scooter</option>
+                            <option value="Touring">Touring</option>
+                            <option value="Off-Road">Off-Road</option>
+                            <option value="Classic">Classic</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <select v-model="filters.sortBy" class="flex-1 rounded-xl bg-white/[0.04] border-white/[0.08] text-white text-sm focus:border-white/30 focus:ring-0">
+                        <option value="created_at">{{ $t('sales.sort_date') }}</option>
+                        <option value="price">{{ $t('sales.sort_price') }}</option>
+                        <option value="year">{{ $t('sales.sort_year') }}</option>
+                        <option value="current_km">{{ $t('sales.sort_km') }}</option>
+                    </select>
+                    <button type="button" @click="filters.sortDir = filters.sortDir === 'asc' ? 'desc' : 'asc'" class="cc-btn-text">
+                        {{ filters.sortDir === 'asc' ? $t('common.asc') : $t('common.desc') }}
+                    </button>
+                    <button v-if="activeFiltersCount" type="button" @click="resetFilters" class="cc-btn-text text-red-400 border-red-500/25">
                         {{ $t('sales.clear_filters') }}
                     </button>
                 </div>
             </div>
 
-            <div v-if="filteredSales.length === 0" class="flex flex-col items-center justify-center py-16 text-center opacity-80 bg-brand-surface rounded-xl border border-brand-dark border-dashed">
-                <div class="p-4 bg-brand-black rounded-full mb-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-gray-500"><path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" /></svg>
+            <div v-if="filteredSales.length" class="divide-y divide-white/[0.06] mt-2">
+                <div
+                    v-for="sale in filteredSales"
+                    :key="sale.id"
+                    class="flex items-center gap-3 py-4"
+                >
+                    <div class="w-14 h-14 rounded-xl overflow-hidden bg-white/[0.04] border border-white/[0.06] flex-shrink-0">
+                        <img
+                            v-if="sale.images?.[0]"
+                            :src="$page.props.storageUrl + '/' + sale.images[0].image_path"
+                            alt=""
+                            class="w-full h-full object-cover"
+                        >
+                        <div v-else class="w-full h-full flex items-center justify-center text-[10px] text-gray-600 uppercase tracking-wider px-1 text-center">
+                            {{ sale.motorcycle?.brand || '—' }}
+                        </div>
+                    </div>
+
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[15px] font-medium text-gray-100 truncate">{{ sale.title }}</p>
+                        <p class="mt-1 text-xs text-gray-500 truncate">{{ metaLine(sale) }}</p>
+                        <p
+                            v-if="activeTab === 'mine' && sale.state !== 'actiu'"
+                            class="mt-1 text-xs"
+                            :class="sale.state === 'venuda' ? 'text-red-400' : 'text-gray-500'"
+                        >
+                            {{ stateLabel(sale.state) }}
+                        </p>
+                    </div>
+
+                    <div class="text-right flex-shrink-0">
+                        <p
+                            class="text-[15px] tabular-nums font-medium"
+                            :class="sale.state === 'venuda' ? 'text-red-400' : 'text-white'"
+                        >
+                            {{ formatPrice(sale.price) }}
+                        </p>
+                    </div>
+
+                    <Link
+                        :href="route('sales.show', sale.id) + showQuery"
+                        class="cc-btn-text flex-shrink-0"
+                    >
+                        {{ $t('common.view') }}
+                    </Link>
                 </div>
-                <p class="text-white font-black uppercase tracking-widest text-lg">{{ $t('sales.no_results') }}</p>
-                <p class="text-gray-400 text-sm mt-1">{{ $t('sales.clear_all_filters') }}...</p>
-                <button @click="resetFilters" class="bg-brand-neon text-black px-6 py-2 rounded-lg text-sm font-black uppercase tracking-widest mt-4 hover:bg-white transition">{{ $t('common.no_results') }}</button>
             </div>
 
-            <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <div v-for="sale in filteredSales" :key="sale.id" class="bg-brand-surface rounded-xl overflow-hidden border border-brand-dark shadow-lg hover:border-brand-neon transition duration-300 flex flex-col group animate-fade-in relative">
-                    
-                    <div v-if="sale.state === 'venuda'" class="absolute inset-0 bg-black/60 backdrop-blur-sm z-30 flex items-center justify-center">
-                        <span class="bg-red-600 text-white px-6 py-2 font-black uppercase tracking-widest text-xl transform -rotate-12 border-2 border-red-900 shadow-2xl">Venuda</span>
-                    </div>
-                    <div v-else-if="sale.state === 'reservat'" class="absolute inset-0 bg-black/40 backdrop-blur-sm z-30 flex items-center justify-center">
-                        <span class="bg-yellow-500 text-black px-6 py-2 font-black uppercase tracking-widest text-xl transform -rotate-12 border-2 border-yellow-700 shadow-2xl">Reservada</span>
-                    </div>
-
-                    <div class="h-40 bg-gray-900 relative w-full overflow-hidden flex items-center justify-center">
-                        <!-- Foto real si n'hi ha -->
-                        <img
-                            v-if="sale.images && sale.images.length > 0"
-                            :src="$page.props.storageUrl + '/' + sale.images[0].image_path"
-                            class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                            alt="Foto"
-                        >
-                        <!-- Placeholder si no hi ha fotos -->
-                        <template v-else>
-                            <div class="absolute inset-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-                            <h2 class="relative z-20 text-3xl font-black text-white/50 uppercase tracking-widest text-center px-4">
-                                {{ sale.motorcycle?.brand }}
-                            </h2>
-                        </template>
-                        <div class="absolute inset-0 bg-gradient-to-t from-brand-surface via-transparent to-transparent z-10"></div>
-
-                        <!-- Botó de Favorit (Cor) a dalt a l'esquerra (només si no ets l'amo) -->
-                        <Link 
-                            v-if="!$page.props.auth.user || sale.motorcycle?.user_id !== $page.props.auth.user.id"
-                            :href="route('sales.toggle-favorite', sale.id)" 
-                            method="post" 
-                            as="button" 
-                            preserve-scroll
-                            class="absolute top-2 left-2 z-40 p-2 rounded-full backdrop-blur-md shadow-lg transition-transform hover:scale-110 flex items-center justify-center"
-                            :class="sale.is_favorited ? 'bg-white/20' : 'bg-black/40 hover:bg-white/20'"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" :fill="sale.is_favorited ? '#ef4444' : 'none'" viewBox="0 0 24 24" stroke-width="2" :stroke="sale.is_favorited ? '#ef4444' : 'white'" class="w-5 h-5 transition-colors">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                            </svg>
-                        </Link>
-
-                        <!-- Preu -->
-                        <div class="absolute top-2 right-2 px-3 py-1.5 rounded text-sm font-black tracking-wide z-20 bg-brand-neon text-black shadow-lg">
-                            {{ parseFloat(sale.price).toLocaleString('ca-ES') }} €
-                        </div>
-                    </div>
-
-                    <div class="p-4 flex-1 flex flex-col justify-between relative z-20">
-                        <div>
-                            <h3 class="text-lg font-bold text-white mb-1 truncate">{{ sale.title }}</h3>
-                            <p class="text-[10px] text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                                <AppIcon name="pin" size="sm" class="text-brand-neon" />
-                                {{ sale.location }}
-                            </p>
-                            
-                            <div class="flex flex-wrap gap-2 text-[10px] text-brand-neon uppercase font-bold tracking-widest mb-3">
-                                <span v-if="sale.motorcycle?.type" class="bg-brand-neon/10 border border-brand-neon/30 px-2 py-0.5 rounded">{{ sale.motorcycle.type }}</span>
-                                <span v-if="sale.motorcycle?.license_type" class="bg-brand-neon/10 border border-brand-neon/30 px-2 py-0.5 rounded">Carnet {{ sale.motorcycle.license_type }}</span>
-                                <span class="bg-gray-800 text-gray-300 border border-gray-700 px-2 py-0.5 rounded flex items-center gap-1">
-                                    <AppIcon name="eye" size="xs" />
-                                    {{ sale.views_count || 0 }}
-                                </span>
-                                <span v-if="sale.favorited_by_count > 0" class="bg-red-900/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded flex items-center gap-1">
-                                    <AppIcon name="heart" size="xs" />
-                                    {{ sale.favorited_by_count }}
-                                </span>
-                            </div>
-
-                            <div class="grid grid-cols-4 gap-1 text-xs text-gray-300 font-mono bg-brand-black/50 p-2 rounded-lg mb-3">
-                                <div class="flex flex-col items-center text-center p-1 border-r border-gray-700">
-                                    <span class="text-[9px] text-gray-500 uppercase">Any</span>
-                                    <span class="font-bold">{{ sale.motorcycle?.year || '-' }}</span>
-                                </div>
-                                <div class="flex flex-col items-center text-center p-1 border-r border-gray-700">
-                                    <span class="text-[9px] text-gray-500 uppercase">CC</span>
-                                    <span class="font-bold">{{ sale.motorcycle?.cc || '-' }}</span>
-                                </div>
-                                <div class="flex flex-col items-center text-center p-1 border-r border-gray-700">
-                                    <span class="text-[9px] text-gray-500 uppercase">CV</span>
-                                    <span class="font-bold">{{ sale.motorcycle?.power_cv || '-' }}</span>
-                                </div>
-                                <div class="flex flex-col items-center text-center p-1">
-                                    <span class="text-[9px] text-gray-500 uppercase">KM</span>
-                                    <span class="font-bold text-brand-neon">{{ parseFloat(sale.motorcycle?.current_km || 0).toLocaleString('ca-ES') }}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-2 pt-4 border-t border-brand-dark/50">
-                            <Link :href="route('sales.show', sale.id)" prefetch="hover" class="block w-full text-center bg-brand-dark hover:bg-white hover:text-black text-white text-xs font-bold uppercase py-2.5 rounded transition">
-                                {{ $t('sales.view_detail') }}
-                            </Link>
-                        </div>
-                    </div>
-                </div>
+            <div v-else class="py-16 text-center">
+                <p class="text-base font-semibold text-gray-300">{{ emptyTitle }}</p>
+                <Link
+                    v-if="activeTab === 'mine'"
+                    :href="route('sales.create')"
+                    class="cc-btn-text mt-4 inline-flex"
+                >
+                    {{ $t('sales.create_listing') }}
+                </Link>
             </div>
         </div>
     </AppLayout>
@@ -259,123 +166,153 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
-import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import AppIcon from '@/Components/AppIcon.vue';
+import { useI18n } from 'vue-i18n';
 
-const { t } = useI18n();
+const props = defineProps({
+    marketSales: { type: Array, default: () => [] },
+    mySales: { type: Array, default: () => [] },
+    favoriteSales: { type: Array, default: () => [] },
+    initialTab: { type: String, default: 'market' },
+    marketCount: { type: Number, default: 0 },
+});
 
-const props = defineProps({ sales: Array });
+const { t, locale } = useI18n();
 
+const VALID = ['market', 'mine', 'favorites'];
+const activeTab = ref(VALID.includes(props.initialTab) ? props.initialTab : 'market');
+const search = ref('');
 const showFilters = ref(false);
 
 const filters = ref({
-    search: '',
     priceMin: '',
     priceMax: '',
     yearMin: '',
     kmMax: '',
-    ccMin: '',
-    ccMax: '',
-    cvMin: '',
-    cvMax: '',
     license: 'all',
     type: 'all',
     sortBy: 'created_at',
-    sortDir: 'desc'
+    sortDir: 'desc',
+});
+
+const tabs = computed(() => [
+    { id: 'market', label: t('sales.tab_market'), count: props.marketSales.length },
+    { id: 'mine', label: t('sales.tab_mine'), count: props.mySales.length },
+    { id: 'favorites', label: t('sales.tab_favorites'), count: props.favoriteSales.length },
+]);
+
+const baseList = computed(() => {
+    if (activeTab.value === 'mine') return props.mySales;
+    if (activeTab.value === 'favorites') return props.favoriteSales;
+    return props.marketSales;
+});
+
+const showQuery = computed(() => {
+    if (activeTab.value === 'mine') return '?from=mine';
+    if (activeTab.value === 'favorites') return '?from=fav';
+    return '';
 });
 
 const activeFiltersCount = computed(() => {
-    let count = 0;
-    if (filters.value.search) count++;
-    if (filters.value.priceMin !== '' || filters.value.priceMax !== '') count++;
-    if (filters.value.yearMin !== '' || filters.value.kmMax !== '') count++;
-    if (filters.value.ccMin !== '' || filters.value.ccMax !== '') count++;
-    if (filters.value.cvMin !== '' || filters.value.cvMax !== '') count++;
-    if (filters.value.license !== 'all') count++;
-    if (filters.value.type !== 'all') count++;
-    return count;
+    let n = 0;
+    if (filters.value.priceMin !== '' || filters.value.priceMax !== '') n++;
+    if (filters.value.yearMin !== '' || filters.value.kmMax !== '') n++;
+    if (filters.value.license !== 'all') n++;
+    if (filters.value.type !== 'all') n++;
+    return n;
 });
-
-const toggleSortDir = () => {
-    filters.value.sortDir = filters.value.sortDir === 'asc' ? 'desc' : 'asc';
-};
 
 const resetFilters = () => {
     filters.value = {
-        search: '',
-        priceMin: '', priceMax: '',
-        yearMin: '', kmMax: '',
-        ccMin: '', ccMax: '',
-        cvMin: '', cvMax: '',
-        license: 'all', type: 'all',
-        sortBy: 'created_at', sortDir: 'desc'
+        priceMin: '', priceMax: '', yearMin: '', kmMax: '',
+        license: 'all', type: 'all', sortBy: 'created_at', sortDir: 'desc',
     };
 };
 
+const emptyTitle = computed(() => {
+    if (activeTab.value === 'mine') return t('sales.no_listings');
+    if (activeTab.value === 'favorites') return t('sales.no_favorites_short');
+    return t('sales.no_results');
+});
+
+const formatPrice = (price) =>
+    `${parseFloat(price || 0).toLocaleString(locale.value, { maximumFractionDigits: 0 })} €`;
+
+const stateLabel = (state) => {
+    const map = {
+        actiu: t('sales.state_active'),
+        reservat: t('sales.state_reserved'),
+        venuda: t('sales.state_sold'),
+        pausat: t('sales.state_paused'),
+    };
+    return map[state] || state;
+};
+
+const metaLine = (sale) => {
+    const m = sale.motorcycle || {};
+    const parts = [];
+    if (m.brand || m.model) parts.push([m.brand, m.model].filter(Boolean).join(' '));
+    if (m.year) parts.push(String(m.year));
+    if (m.current_km != null) {
+        parts.push(`${parseFloat(m.current_km).toLocaleString(locale.value, { maximumFractionDigits: 0 })} km`);
+    }
+    if (sale.location) parts.push(sale.location);
+    return parts.join(' · ');
+};
+
 const filteredSales = computed(() => {
-    let result = [...props.sales];
-    
-    // Filtre text
-    if (filters.value.search) {
-        const q = filters.value.search.toLowerCase();
-        result = result.filter(s => 
-            s.title.toLowerCase().includes(q) || 
-            s.location.toLowerCase().includes(q) ||
-            (s.motorcycle && s.motorcycle.brand.toLowerCase().includes(q)) ||
-            (s.motorcycle && s.motorcycle.model.toLowerCase().includes(q))
+    let result = [...baseList.value];
+
+    if (activeTab.value !== 'market') {
+        const q = search.value.trim().toLowerCase();
+        if (q) {
+            result = result.filter((s) =>
+                (s.title || '').toLowerCase().includes(q) ||
+                (s.location || '').toLowerCase().includes(q) ||
+                (s.motorcycle?.brand || '').toLowerCase().includes(q) ||
+                (s.motorcycle?.model || '').toLowerCase().includes(q),
+            );
+        }
+        return result;
+    }
+
+    const q = search.value.trim().toLowerCase();
+    if (q) {
+        result = result.filter((s) =>
+            (s.title || '').toLowerCase().includes(q) ||
+            (s.location || '').toLowerCase().includes(q) ||
+            (s.motorcycle?.brand || '').toLowerCase().includes(q) ||
+            (s.motorcycle?.model || '').toLowerCase().includes(q),
         );
     }
 
-    // Selects
     if (filters.value.license !== 'all') {
-        result = result.filter(s => s.motorcycle && s.motorcycle.license_type === filters.value.license);
+        result = result.filter((s) => s.motorcycle?.license_type === filters.value.license);
     }
     if (filters.value.type !== 'all') {
-        result = result.filter(s => s.motorcycle && s.motorcycle.type === filters.value.type);
+        result = result.filter((s) => s.motorcycle?.type === filters.value.type);
     }
+    if (filters.value.priceMin !== '') result = result.filter((s) => parseFloat(s.price) >= Number(filters.value.priceMin));
+    if (filters.value.priceMax !== '') result = result.filter((s) => parseFloat(s.price) <= Number(filters.value.priceMax));
+    if (filters.value.yearMin !== '') result = result.filter((s) => (s.motorcycle?.year || 0) >= Number(filters.value.yearMin));
+    if (filters.value.kmMax !== '') result = result.filter((s) => (s.motorcycle?.current_km || 0) <= Number(filters.value.kmMax));
 
-    // Preu
-    if (filters.value.priceMin !== '') result = result.filter(s => parseFloat(s.price) >= filters.value.priceMin);
-    if (filters.value.priceMax !== '') result = result.filter(s => parseFloat(s.price) <= filters.value.priceMax);
-
-    // Any i KM
-    if (filters.value.yearMin !== '') result = result.filter(s => s.motorcycle && s.motorcycle.year >= filters.value.yearMin);
-    if (filters.value.kmMax !== '') result = result.filter(s => s.motorcycle && s.motorcycle.current_km <= filters.value.kmMax);
-
-    // CC
-    if (filters.value.ccMin !== '') result = result.filter(s => s.motorcycle && s.motorcycle.cc >= filters.value.ccMin);
-    if (filters.value.ccMax !== '') result = result.filter(s => s.motorcycle && s.motorcycle.cc <= filters.value.ccMax);
-
-    // CV
-    if (filters.value.cvMin !== '') result = result.filter(s => s.motorcycle && s.motorcycle.power_cv >= filters.value.cvMin);
-    if (filters.value.cvMax !== '') result = result.filter(s => s.motorcycle && s.motorcycle.power_cv <= filters.value.cvMax);
-
-    // Ordenació
     return result.sort((a, b) => {
-        let fieldA, fieldB;
-
-        // Si ordenem per dades de la moto (KM o Any)
+        let fieldA;
+        let fieldB;
         if (filters.value.sortBy === 'year' || filters.value.sortBy === 'current_km') {
-            fieldA = a.motorcycle ? parseFloat(a.motorcycle[filters.value.sortBy] || 0) : 0;
-            fieldB = b.motorcycle ? parseFloat(b.motorcycle[filters.value.sortBy] || 0) : 0;
+            fieldA = parseFloat(a.motorcycle?.[filters.value.sortBy] || 0);
+            fieldB = parseFloat(b.motorcycle?.[filters.value.sortBy] || 0);
+        } else if (filters.value.sortBy === 'price') {
+            fieldA = parseFloat(a.price);
+            fieldB = parseFloat(b.price);
         } else {
             fieldA = a[filters.value.sortBy];
             fieldB = b[filters.value.sortBy];
-            if (filters.value.sortBy === 'price') {
-                fieldA = parseFloat(fieldA);
-                fieldB = parseFloat(fieldB);
-            }
         }
-
         if (fieldA < fieldB) return filters.value.sortDir === 'asc' ? -1 : 1;
         if (fieldA > fieldB) return filters.value.sortDir === 'asc' ? 1 : -1;
         return 0;
     });
 });
 </script>
-
-<style scoped>
-.animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-</style>

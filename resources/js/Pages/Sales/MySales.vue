@@ -1,172 +1,83 @@
 <template>
     <AppLayout :title="$t('sales.my_listings_title')">
-        <div class="px-4 py-6 pb-24">
-            
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-3">
-                    <button type="button" @click="goBack" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]" aria-label="Enrere">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
-                    </button>
-                    <h1 class="text-2xl font-black uppercase tracking-tighter text-white leading-none">{{ $t('sales.my_listings_title') }}</h1>
+        <div class="px-6 pt-10 pb-28 max-w-xl mx-auto cc-fade-in">
+            <p class="text-sm text-gray-500">{{ $t('sales.my_listings_title') }}</p>
+            <p class="mt-3 text-[64px] leading-[0.9] font-light tracking-[-0.04em] text-white tabular-nums">
+                {{ sales.length }}
+            </p>
+            <p class="mt-2 text-sm text-gray-500">{{ $t('sales.tab_mine') }}</p>
+
+            <Link :href="route('sales.create')" class="cc-btn-primary w-full py-3.5 mt-8 text-center">
+                {{ $t('sales.publish_short') }}
+            </Link>
+
+            <div v-if="sales.length" class="divide-y divide-white/[0.06] mt-10">
+                <div v-for="sale in sales" :key="sale.id" class="flex items-center gap-3 py-4">
+                    <div class="w-14 h-14 rounded-xl overflow-hidden bg-white/[0.04] border border-white/[0.06] flex-shrink-0">
+                        <img
+                            v-if="sale.images?.[0]"
+                            :src="$page.props.storageUrl + '/' + sale.images[0].image_path"
+                            alt=""
+                            class="w-full h-full object-cover"
+                        >
+                        <div v-else class="w-full h-full flex items-center justify-center text-[10px] text-gray-600 uppercase tracking-wider px-1 text-center">
+                            {{ sale.motorcycle?.brand || '—' }}
+                        </div>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[15px] font-medium text-gray-100 truncate">{{ sale.title }}</p>
+                        <p class="mt-1 text-xs text-gray-500 truncate">
+                            {{ [sale.motorcycle?.brand, sale.motorcycle?.model].filter(Boolean).join(' ') }}
+                        </p>
+                        <p
+                            v-if="sale.state !== 'actiu'"
+                            class="mt-1 text-xs"
+                            :class="sale.state === 'venuda' ? 'text-red-400' : 'text-gray-500'"
+                        >
+                            {{ stateLabel(sale.state) }}
+                        </p>
+                    </div>
+                    <p
+                        class="text-[15px] tabular-nums font-medium flex-shrink-0"
+                        :class="sale.state === 'venuda' ? 'text-red-400' : 'text-white'"
+                    >
+                        {{ formatPrice(sale.price) }}
+                    </p>
+                    <Link :href="route('sales.show', { sale: sale.id, from: 'mine' })" class="cc-btn-text flex-shrink-0">
+                        {{ $t('common.view') }}
+                    </Link>
                 </div>
-                <Link :href="route('sales.create')" class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.4)] hover:scale-110 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+            </div>
+
+            <div v-else class="py-16 text-center mt-10">
+                <p class="text-base font-semibold text-gray-300">{{ $t('sales.no_listings') }}</p>
+                <Link :href="route('sales.create')" class="cc-btn-text mt-4 inline-flex">
+                    {{ $t('sales.create_listing') }}
                 </Link>
             </div>
-
-
-
-            <div v-if="sales.length === 0" class="flex flex-col items-center justify-center py-12 text-center opacity-60 bg-brand-surface rounded-xl border border-brand-dark border-dashed">
-                <p class="text-gray-400 font-medium">{{ $t('sales.no_listings') }}</p>
-                <Link :href="route('sales.create')" class="text-brand-neon text-sm font-bold mt-2 hover:underline">{{ $t('sales.create_listing') }}</Link>
-            </div>
-
-            <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <div v-for="sale in sales" :key="sale.id" class="bg-brand-surface rounded-xl overflow-hidden border border-brand-dark shadow-lg group hover:border-brand-neon transition duration-300 flex flex-col animate-fade-in" :class="sale.state === 'venuda' ? 'opacity-70 grayscale-[30%]' : (sale.state === 'reservat' ? 'ring-1 ring-yellow-500/50' : (sale.state === 'pausat' ? 'opacity-60' : ''))">
-                    
-                    <div class="h-40 bg-gray-900 relative w-full overflow-hidden flex items-center justify-center">
-                        <img v-if="sale.images && sale.images.length > 0" :src="$page.props.storageUrl + '/' + sale.images[0].image_path" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Foto">
-                        <template v-else>
-                            <div class="absolute inset-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-                            <h2 class="relative z-20 text-3xl font-black text-white/50 uppercase tracking-widest text-center px-4">{{ sale.motorcycle?.brand }}</h2>
-                        </template>
-                        <div class="absolute inset-0 bg-gradient-to-t from-brand-surface via-transparent to-transparent z-10"></div>
-
-                        <!-- Pill d'estat a dalt esquerra -->
-                        <div v-if="sale.state === 'venuda'" class="absolute top-2 left-2 bg-red-600/90 border border-red-500 text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md">{{ $t('sales.sold') }}</div>
-                        <div v-else-if="sale.state === 'reservat'" class="absolute top-2 left-2 bg-yellow-500/90 border border-yellow-400 text-black px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md">{{ $t('sales.state_reserved') }}</div>
-                        <div v-else-if="sale.state === 'pausat'" class="absolute top-2 left-2 bg-gray-600/90 border border-gray-500 text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md">{{ $t('sales.state_paused') }}</div>
-                        <div v-else class="absolute top-2 left-2 bg-brand-neon/90 border border-brand-neon text-black px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] shadow-md">{{ $t('sales.active') }}</div>
-
-                        <!-- Vistes & Cors (badges petits on normalment aniria la dificultat) a dalt dreta -->
-                        <div class="absolute top-2 right-2 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] bg-brand-black/80 text-white shadow-md border border-brand-dark flex gap-2 backdrop-blur-sm">
-                            <span class="text-brand-neon">👁️ {{ sale.views_count || 0 }}</span>
-                            <span v-if="sale.favorited_by_count > 0" class="text-red-400">❤️ {{ sale.favorited_by_count }}</span>
-                        </div>
-                    </div>
-
-                    <div class="p-4 flex-1 flex flex-col justify-between relative z-20">
-                        <div>
-                            <h3 class="text-lg font-bold text-white mb-1 truncate">{{ sale.title }}</h3>
-                            <p class="text-xs text-gray-400 mb-3 truncate uppercase tracking-widest">{{ sale.motorcycle?.brand }} {{ sale.motorcycle?.model }}</p>
-                            
-                            <div class="flex items-center gap-4 text-xs text-brand-neon font-black font-mono tracking-wider bg-brand-black/30 p-2 rounded-lg">
-                                <span>{{ parseFloat(sale.price).toLocaleString('ca-ES') }} €</span>
-                                <span class="text-[9px] text-gray-500 font-sans tracking-tight uppercase ml-auto">{{ new Date(sale.created_at).toLocaleDateString('ca-ES') }}</span>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-2 mt-4 pt-4 border-t border-brand-dark/50">
-                            <Link :href="route('sales.show', { sale: sale.id, from: 'mine' })" prefetch="hover" class="flex-1 text-center bg-brand-dark hover:bg-white hover:text-black text-white text-xs font-bold uppercase py-2 rounded transition">
-                                {{ $t('sales.view_detail') }}
-                            </Link>
-
-                            <Link :href="route('sales.edit', sale.id)" class="px-3 flex items-center justify-center bg-brand-dark border border-gray-600 hover:border-brand-neon hover:text-brand-neon text-gray-400 rounded transition" :title="$t('common.edit')">
-                                <AppIcon name="pencil" size="md" />
-                            </Link>
-
-                            <Link 
-                                v-if="sale.state !== 'venuda'"
-                                :href="route('sales.mark-sold', sale.id)"
-                                method="patch" as="button"
-                                class="px-3 flex items-center justify-center bg-brand-dark border border-red-900/50 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 rounded transition" 
-                                :title="$t('sales.mark_sold')"
-                            >
-                                <AppIcon name="check" size="md" />
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </AppLayout>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import AppIcon from '@/Components/AppIcon.vue';
-import { smartBack } from '@/Composables/navigationStack.js';
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
-const props = defineProps({ sales: Array });
+defineProps({ sales: { type: Array, default: () => [] } });
 
-const goBack = () => smartBack(route('sales.index'));
+const formatPrice = (price) =>
+    `${parseFloat(price || 0).toLocaleString(locale.value, { maximumFractionDigits: 0 })} €`;
 
-const showFilters = ref(false);
-
-const filters = ref({
-    search: '',
-    state: 'all',
-    sortBy: 'created_at',
-    sortDir: 'desc'
-});
-
-const activeFiltersCount = computed(() => {
-    let count = 0;
-    if (filters.value.search) count++;
-    if (filters.value.state !== 'all') count++;
-    return count;
-});
-
-const toggleSortDir = () => {
-    filters.value.sortDir = filters.value.sortDir === 'asc' ? 'desc' : 'asc';
-};
-
-const resetFilters = () => {
-    filters.value = {
-        search: '',
-        state: 'all',
-        sortBy: 'created_at',
-        sortDir: 'desc'
+const stateLabel = (state) => {
+    const map = {
+        actiu: t('sales.state_active'),
+        reservat: t('sales.state_reserved'),
+        venuda: t('sales.state_sold'),
+        pausat: t('sales.state_paused'),
     };
+    return map[state] || state;
 };
-
-const filteredSales = computed(() => {
-    let result = [...props.sales];
-    
-    // Filtre text
-    if (filters.value.search) {
-        const q = filters.value.search.toLowerCase();
-        result = result.filter(s => 
-            s.title.toLowerCase().includes(q) || 
-            (s.motorcycle && s.motorcycle.brand.toLowerCase().includes(q)) ||
-            (s.motorcycle && s.motorcycle.model.toLowerCase().includes(q))
-        );
-    }
-    
-    // Filtre estat
-    if (filters.value.state !== 'all') {
-        result = result.filter(s => s.state === filters.value.state);
-    }
-
-    // Ordenació
-    return result.sort((a, b) => {
-        let fieldA = a[filters.value.sortBy];
-        let fieldB = b[filters.value.sortBy];
-
-        if (filters.value.sortBy === 'price' || filters.value.sortBy === 'views_count' || filters.value.sortBy === 'favorited_by_count') {
-            fieldA = parseFloat(fieldA || 0);
-            fieldB = parseFloat(fieldB || 0);
-        }
-
-        if (fieldA < fieldB) return filters.value.sortDir === 'asc' ? -1 : 1;
-        if (fieldA > fieldB) return filters.value.sortDir === 'asc' ? 1 : -1;
-        return 0;
-    });
-});
 </script>
-
-<style scoped>
-.animate-fade-in {
-    animation: fadeIn 0.3s ease-out forwards;
-}
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-</style>

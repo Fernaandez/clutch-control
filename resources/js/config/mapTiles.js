@@ -1,12 +1,8 @@
 /**
  * Map tile providers for Leaflet.
  *
- * Stadia Alidade Smooth Dark (Waze-like) requires an API key in production.
- * Without it, tiles return 404. Carto Dark Matter is the free fallback (OSM data,
- * secondary roads included).
- *
- * Set VITE_STADIA_API_KEY in .env / Forge for the smooth dark style in production.
- * Free tier: https://stadiamaps.com (no credit card).
+ * Stadia Alidade Smooth Dark requires VITE_STADIA_API_KEY.
+ * Without it we use Carto Dark Matter (free, works in local and prod).
  */
 
 const CARTO_DARK = {
@@ -26,16 +22,10 @@ const STADIA_DARK = {
     },
 };
 
-function isLocalDev() {
-    if (typeof window === 'undefined') return false;
-    const host = window.location.hostname;
-    return host === 'localhost' || host === '127.0.0.1';
-}
-
 export function getMapTileProvider() {
     const apiKey = import.meta.env.VITE_STADIA_API_KEY;
+    // Sense clau, Stadia falla en molts entorns. Fallback gratis: Carto.
     if (apiKey) return 'stadia';
-    if (isLocalDev()) return 'stadia';
     return 'carto';
 }
 

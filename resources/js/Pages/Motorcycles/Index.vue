@@ -27,99 +27,106 @@
             </div>
 
             <template v-else>
-                <button
-                    type="button"
-                    @click="showFilters = !showFilters"
-                    class="cc-btn-text"
-                >
-                    {{ showFilters ? $t('motorcycles.hide_filters') : $t('motorcycles.show_filters') }}
-                    <span v-if="activeFiltersCount > 0" class="ml-1 tabular-nums">({{ activeFiltersCount }})</span>
-                </button>
-
-                <div v-if="showFilters" class="mt-6 space-y-4">
-                    <div class="grid grid-cols-1 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('motorcycles.search') }}</label>
-                            <input v-model="filters.search" type="text" :placeholder="$t('motorcycles.search_placeholder')" class="w-full text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('motorcycles.style') }}</label>
-                            <select v-model="filters.type" class="w-full text-sm">
-                                <option value="all">{{ $t('motorcycles.all_styles') }}</option>
-                                <option value="Naked">Naked</option>
-                                <option value="Sport">Sport / R</option>
-                                <option value="Trail">Trail / Adventure</option>
-                                <option value="Custom">Custom / Cruiser</option>
-                                <option value="Scooter">Scooter / Maxi</option>
-                                <option value="Touring">Touring</option>
-                                <option value="Off-Road">Off-Road / Enduro</option>
-                                <option value="Classic">{{ $t('motorcycles.style_classic') }}</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('motorcycles.year_min') }}</label>
-                            <input v-model="filters.yearMin" type="number" placeholder="2010" class="w-full text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('motorcycles.year_max') }}</label>
-                            <input v-model="filters.yearMax" type="number" placeholder="2024" class="w-full text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('motorcycles.km_max') }}</label>
-                            <input v-model="filters.kmMax" type="number" placeholder="50000" class="w-full text-sm">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('motorcycles.sort_by') }}</label>
-                        <div class="flex gap-2">
-                            <select v-model="filters.sortBy" class="flex-1 text-sm">
-                                <option value="brand">{{ $t('motorcycles.sort_brand') }}</option>
-                                <option value="year">{{ $t('motorcycles.sort_year') }}</option>
-                                <option value="current_km">{{ $t('motorcycles.sort_km') }}</option>
-                                <option value="created_at">{{ $t('motorcycles.sort_date') }}</option>
-                            </select>
-                            <button type="button" @click="toggleSortDir" class="cc-btn-ghost px-3 text-sm">
-                                {{ filters.sortDir === 'asc' ? $t('motorcycles.asc') : $t('motorcycles.desc') }}
-                            </button>
-                        </div>
-                    </div>
-
-                    <button type="button" @click="resetFilters" class="cc-btn-text">
-                        {{ $t('motorcycles.clear_all_filters') }}
+                <!-- Filtres només amb moltes motos (perfil tipus concessionari) -->
+                <template v-if="motos.length > 6">
+                    <button
+                        type="button"
+                        @click="showFilters = !showFilters"
+                        class="cc-btn-text"
+                    >
+                        {{ showFilters ? $t('motorcycles.hide_filters') : $t('motorcycles.show_filters') }}
+                        <span v-if="activeFiltersCount > 0" class="ml-1 tabular-nums">({{ activeFiltersCount }})</span>
                     </button>
-                </div>
+
+                    <div v-if="showFilters" class="mt-6 space-y-4">
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('motorcycles.search') }}</label>
+                                <input v-model="filters.search" type="text" :placeholder="$t('motorcycles.search_placeholder')" class="w-full text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('motorcycles.style') }}</label>
+                                <select v-model="filters.type" class="w-full text-sm">
+                                    <option value="all">{{ $t('motorcycles.all_styles') }}</option>
+                                    <option value="Naked">Naked</option>
+                                    <option value="Sport">Sport / R</option>
+                                    <option value="Trail">Trail / Adventure</option>
+                                    <option value="Custom">Custom / Cruiser</option>
+                                    <option value="Scooter">Scooter / Maxi</option>
+                                    <option value="Touring">Touring</option>
+                                    <option value="Off-Road">Off-Road / Enduro</option>
+                                    <option value="Classic">{{ $t('motorcycles.style_classic') }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('motorcycles.year_min') }}</label>
+                                <input v-model="filters.yearMin" type="number" placeholder="2010" class="w-full text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('motorcycles.year_max') }}</label>
+                                <input v-model="filters.yearMax" type="number" placeholder="2024" class="w-full text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('motorcycles.km_max') }}</label>
+                                <input v-model="filters.kmMax" type="number" placeholder="50000" class="w-full text-sm">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('motorcycles.sort_by') }}</label>
+                            <div class="flex gap-2">
+                                <select v-model="filters.sortBy" class="flex-1 text-sm">
+                                    <option value="brand">{{ $t('motorcycles.sort_brand') }}</option>
+                                    <option value="year">{{ $t('motorcycles.sort_year') }}</option>
+                                    <option value="current_km">{{ $t('motorcycles.sort_km') }}</option>
+                                    <option value="created_at">{{ $t('motorcycles.sort_date') }}</option>
+                                </select>
+                                <button type="button" @click="toggleSortDir" class="cc-btn-ghost px-3 text-sm">
+                                    {{ filters.sortDir === 'asc' ? $t('motorcycles.asc') : $t('motorcycles.desc') }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="button" @click="resetFilters" class="cc-btn-text">
+                            {{ $t('motorcycles.clear_all_filters') }}
+                        </button>
+                    </div>
+                </template>
 
                 <div v-if="filteredMotos.length === 0" class="mt-12 text-center">
                     <p class="text-sm text-gray-500">{{ $t('motorcycles.no_results') }}</p>
-                    <button type="button" @click="resetFilters" class="cc-btn-text mt-3">
+                    <button v-if="motos.length > 6" type="button" @click="resetFilters" class="cc-btn-text mt-3">
                         {{ $t('motorcycles.clear_filters') }}
                     </button>
                 </div>
 
-                <div v-else class="mt-8 divide-y divide-white/[0.06]">
-                    <Link
+                <div v-else class="mt-2 divide-y divide-white/[0.06]">
+                    <div
                         v-for="moto in filteredMotos"
                         :key="moto.id"
-                        :href="route('dashboard', moto.id)"
-                        class="block py-5 group"
+                        class="flex items-center gap-4 py-5"
                     >
-                        <p class="text-lg font-medium text-gray-200 group-hover:text-white transition-colors">
-                            {{ moto.brand }} {{ moto.model }}
-                        </p>
-                        <div class="mt-2 flex items-baseline gap-1.5">
-                            <span class="text-[28px] font-light tracking-tight tabular-nums text-white leading-none">
-                                {{ moto.current_km }}
-                            </span>
-                            <span class="text-sm text-gray-500">km</span>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-lg font-medium text-gray-200 truncate">
+                                {{ moto.brand }} {{ moto.model }}
+                            </p>
+                            <div class="mt-2 flex items-baseline gap-1.5">
+                                <span class="text-[28px] font-light tracking-tight tabular-nums text-white leading-none">
+                                    {{ moto.current_km }}
+                                </span>
+                                <span class="text-sm text-gray-500">km</span>
+                            </div>
+                            <p v-if="moto.itv_status && moto.itv_status !== 'ok'" class="mt-2 text-sm text-red-400">
+                                {{ $t('motorcycles.itv_badge') }} · {{ $t(`motorcycles.status_${moto.itv_status}`) }}
+                            </p>
                         </div>
-                        <p v-if="moto.itv_status && moto.itv_status !== 'ok'" class="mt-2 text-sm text-red-400">
-                            {{ $t('motorcycles.itv_badge') }} · {{ $t(`motorcycles.status_${moto.itv_status}`) }}
-                        </p>
-                    </Link>
+                        <Link :href="route('dashboard', moto.id)" class="cc-btn-text flex-shrink-0">
+                            {{ $t('common.view') }}
+                        </Link>
+                    </div>
                 </div>
             </template>
 

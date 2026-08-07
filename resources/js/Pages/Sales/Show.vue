@@ -1,207 +1,227 @@
 <template>
     <AppLayout :title="sale.title">
-        <div class="px-4 py-6 pb-32 max-w-3xl mx-auto">
-            
-            <div class="flex items-center justify-between mb-4">
-                <button type="button" @click="goBack" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]" aria-label="Enrere">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
-                </button>
-                <div class="flex items-center gap-2">
-                    <ReportButton
-                        v-if="!isOwner"
-                        reportable-type="sale"
-                        :reportable-id="sale.id"
-                        label="Denunciar"
-                        :context-label="`Denunciar venda: ${sale.title}`"
-                        button-class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500 hover:text-white transition"
-                    />
-                    <div v-if="sale.state === 'venuda'" class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-red-500/20 text-red-400 border border-red-500/30">Venuda</div>
-                    <div v-else-if="sale.state === 'reservat'" class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-yellow-500/20 text-yellow-500 border border-yellow-500/30">Reservada</div>
-                    <div v-else class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-brand-neon/10 text-brand-neon border border-brand-neon/20">{{ $t('sales.state_active') }}</div>
-                </div>
-            </div>
+        <div class="px-6 pt-10 pb-28 max-w-xl mx-auto cc-fade-in">
 
-            <!-- Galeria de fotos -->
-            <div v-if="sale.images && sale.images.length > 0" class="mb-6">
-                <!-- Foto principal gran -->
-                <div class="relative h-64 sm:h-80 rounded-2xl overflow-hidden border border-brand-dark shadow-2xl mb-2 cursor-pointer" @click="activePhoto = selectedPhoto">
-                    <img :src="$page.props.storageUrl + '/' + currentPhoto" class="w-full h-full object-cover transition duration-500" alt="Foto principal">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-                    <span class="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">{{ selectedPhoto + 1 }} / {{ sale.images.length }}</span>
-                </div>
-                <!-- Miniatures -->
-                <div v-if="sale.images.length > 1" class="flex gap-2 overflow-x-auto pb-1">
-                    <button 
-                        v-for="(img, i) in sale.images" :key="img.id"
-                        @click="selectedPhoto = i"
-                        class="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition"
-                        :class="selectedPhoto === i ? 'border-brand-neon' : 'border-transparent opacity-60 hover:opacity-100'"
+            <header class="flex items-center gap-3 mb-8">
+                <button type="button" @click="goBack" class="cc-icon-btn" :aria-label="$t('common.back')">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                    </svg>
+                </button>
+                <h1 class="cc-title flex-1 truncate">{{ sale.title }}</h1>
+            </header>
+
+            <!-- Galeria -->
+            <div v-if="sale.images?.length" class="mb-8">
+                <div class="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.03] aspect-[16/10]">
+                    <img
+                        :src="$page.props.storageUrl + '/' + currentPhoto"
+                        alt=""
+                        class="w-full h-full object-cover cursor-pointer"
+                        @click="lightbox = true"
                     >
-                        <img :src="$page.props.storageUrl + '/' + img.image_path" class="w-full h-full object-cover">
+                    <span v-if="sale.images.length > 1" class="absolute bottom-3 right-3 text-xs tabular-nums text-white/80 bg-black/50 px-2 py-1 rounded-lg">
+                        {{ selectedPhoto + 1 }}/{{ sale.images.length }}
+                    </span>
+                </div>
+                <div v-if="sale.images.length > 1" class="mt-3 flex gap-2 overflow-x-auto">
+                    <button
+                        v-for="(img, i) in sale.images"
+                        :key="img.id"
+                        type="button"
+                        @click="selectedPhoto = i"
+                        class="w-14 h-14 rounded-xl overflow-hidden border flex-shrink-0 transition"
+                        :class="selectedPhoto === i ? 'border-white/40' : 'border-white/[0.06] opacity-60'"
+                    >
+                        <img :src="$page.props.storageUrl + '/' + img.image_path" alt="" class="w-full h-full object-cover">
                     </button>
                 </div>
             </div>
-            <!-- Placeholder si no hi ha fotos -->
-            <div v-else class="w-full h-56 bg-gray-900 rounded-2xl overflow-hidden relative mb-6 border border-brand-dark shadow-2xl flex items-center justify-center">
-                <div class="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-                <h2 class="relative z-10 text-5xl font-black text-white/20 uppercase tracking-widest">{{ sale.motorcycle?.brand }}</h2>
-            </div>
 
-            <!-- Títol i preu -->
-            <div class="mb-6">
-                <h1 class="text-3xl font-black text-white uppercase tracking-tighter leading-tight">{{ sale.title }}</h1>
-                <div class="flex items-center justify-between mt-2 flex-wrap gap-2">
-                    <p class="text-3xl font-mono font-bold text-brand-neon">{{ parseFloat(sale.price).toLocaleString('ca-ES') }} €</p>
-                    
-                    <div class="flex gap-4 items-center">
-                        <p class="text-sm text-gray-400 font-bold uppercase flex items-center gap-1.5">
-                            <AppIcon name="pin" size="sm" class="text-brand-neon" />
-                            {{ sale.location }}
-                        </p>
-                        <!-- Favorits a la dreta del preu -->
-                        <Link 
-                            v-if="!isOwner"
-                            :href="route('sales.toggle-favorite', sale.id)" 
-                            method="post" 
-                            as="button" 
-                            preserve-scroll
-                            class="p-2 rounded-full border shadow-lg transition-transform hover:scale-110 flex items-center justify-center gap-2 text-sm font-bold uppercase"
-                            :class="sale.is_favorited ? 'bg-red-500/10 border-red-500/50 text-red-500' : 'bg-brand-surface border-brand-dark text-gray-400 hover:text-white'"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" :fill="sale.is_favorited ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                            </svg>
-                            <span v-if="sale.is_favorited">{{ $t('sales.saved_fav') }}</span>
-                        </Link>
-                    </div>
+            <!-- Hero: el preu mana -->
+            <p class="text-sm text-gray-500">{{ $t('sales.price') }}</p>
+            <p
+                class="mt-3 text-[48px] leading-[0.95] font-light tracking-tight tabular-nums"
+                :class="sale.state === 'venuda' ? 'text-red-400' : 'text-white'"
+            >
+                {{ formatPrice(sale.price) }}
+            </p>
+            <p class="mt-2 text-sm text-gray-500">
+                {{ sale.location }}
+                <template v-if="sale.state !== 'actiu'"> · {{ stateLabel }}</template>
+            </p>
+
+            <div class="mt-8 flex items-baseline gap-8">
+                <div v-if="sale.motorcycle?.year">
+                    <p class="text-[28px] font-light leading-none tabular-nums text-white">{{ sale.motorcycle.year }}</p>
+                    <p class="mt-1.5 text-xs text-gray-500">{{ $t('sales.year') }}</p>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 flex items-center gap-3 flex-wrap">
-                    <span>Venedor: <span class="text-white">{{ sale.motorcycle?.user?.name || 'Rider' }}</span></span>
-                    <span>• Publicat el {{ new Date(sale.created_at).toLocaleDateString('ca-ES') }}</span>
-                    <span class="inline-flex items-center gap-1">
-                        •
-                        <AppIcon name="eye" size="xs" />
-                        {{ sale.views_count || 0 }} {{ $t('sales.views') }}
-                    </span>
-                    <span v-if="sale.favorited_by_count > 0" class="inline-flex items-center gap-1">
-                        •
-                        <AppIcon name="heart" size="xs" class="text-red-400" />
-                        {{ sale.favorited_by_count }} {{ $t('sales.saved_count') }}
-                    </span>
-                </p>
-                <div v-if="!isOwner && sale.motorcycle?.user" class="mt-3">
-                    <ReportButton
-                        reportable-type="user"
-                        :reportable-id="sale.motorcycle.user.id"
-                        label="Denunciar venedor"
-                        :context-label="`Denunciar venedor: ${sale.motorcycle.user.name}`"
-                        button-class="text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-300 underline"
-                    />
+                <div v-if="sale.motorcycle?.current_km != null">
+                    <p class="text-[28px] font-light leading-none tabular-nums text-white">
+                        {{ formatKm(sale.motorcycle.current_km) }}
+                    </p>
+                    <p class="mt-1.5 text-xs text-gray-500">km</p>
+                </div>
+                <div v-if="sale.motorcycle?.cc">
+                    <p class="text-[28px] font-light leading-none tabular-nums text-white">{{ sale.motorcycle.cc }}</p>
+                    <p class="mt-1.5 text-xs text-gray-500">cc</p>
                 </div>
             </div>
 
-            <!-- Fitxa tècnica -->
-            <div class="bg-brand-surface border border-brand-dark rounded-xl p-5 shadow-lg mb-6 relative overflow-hidden">
-                <h3 class="text-sm font-black text-brand-neon uppercase tracking-widest mb-4 border-b border-brand-dark pb-2">{{ $t('sales.technical_specs') }}</h3>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-y-5 gap-x-4">
-                    <div><p class="text-[10px] text-gray-500 uppercase font-bold">Marca</p><p class="text-sm text-white font-medium">{{ sale.motorcycle?.brand }}</p></div>
-                    <div><p class="text-[10px] text-gray-500 uppercase font-bold">Model</p><p class="text-sm text-white font-medium">{{ sale.motorcycle?.model }}</p></div>
-                    <div><p class="text-[10px] text-gray-500 uppercase font-bold">Any</p><p class="text-sm text-white font-medium">{{ sale.motorcycle?.year }}</p></div>
-                    <div><p class="text-[10px] text-brand-neon uppercase font-bold">{{ $t('nav.km') }}</p><p class="text-sm text-brand-neon font-bold font-mono">{{ parseFloat(sale.motorcycle?.current_km || 0).toLocaleString('ca-ES') }}</p></div>
-                    <div><p class="text-[10px] text-gray-500 uppercase font-bold">Cilindrada</p><p class="text-sm text-white font-medium">{{ sale.motorcycle?.cc ? sale.motorcycle.cc + ' cc' : '-' }}</p></div>
-                    <div><p class="text-[10px] text-gray-500 uppercase font-bold">Potència</p><p class="text-sm text-white font-medium">{{ sale.motorcycle?.power_cv ? sale.motorcycle.power_cv + ' CV' : '-' }}</p></div>
-                    <div><p class="text-[10px] text-gray-500 uppercase font-bold">Carnet</p><p class="text-sm text-white font-medium">{{ sale.motorcycle?.license_type || '-' }}</p></div>
-                    <div><p class="text-[10px] text-gray-500 uppercase font-bold">Estil</p><p class="text-sm text-white font-medium">{{ sale.motorcycle?.type || '-' }}</p></div>
-                </div>
-            </div>
+            <!-- CTA -->
+            <div class="mt-8 space-y-3">
+                <Link
+                    v-if="!isOwner && sale.state !== 'venuda'"
+                    :href="route('chats.start')"
+                    method="post"
+                    as="button"
+                    :data="{ other_user_id: sale.motorcycle?.user_id, motorcycle_id: sale.motorcycle_id }"
+                    class="cc-btn-primary w-full py-3.5"
+                >
+                    {{ $t('sales.chat_with_seller') }}
+                </Link>
 
-            <!-- Descripció -->
-            <div class="mb-6">
-                <h3 class="text-sm font-black text-brand-neon uppercase tracking-widest mb-3">{{ $t('sales.seller_comments') }}</h3>
-                <div class="bg-brand-black border border-brand-dark rounded-xl p-5 text-gray-300 text-sm whitespace-pre-line shadow-inner leading-relaxed">
-                    {{ sale.description || $t('sales.no_seller_desc') }}
-                </div>
-            </div>
-
-            <!-- Extres -->
-            <div v-if="sale.motorcycle?.extras" class="mb-6">
-                <h3 class="text-sm font-black text-brand-neon uppercase tracking-widest mb-3">{{ $t('sales.equipped_extras') }}</h3>
-                <div class="bg-brand-surface border border-brand-dark rounded-xl p-4 text-gray-300 text-sm whitespace-pre-line shadow-lg">
-                    ✨ {{ sale.motorcycle.extras }}
-                </div>
-            </div>
-
-            <!-- Historial de manteniment públic -->
-            <div v-if="sale.show_history" class="mb-6">
-                <h3 class="text-sm font-black text-brand-neon uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
-                    Historial de Manteniment
-                </h3>
-                <div class="bg-brand-surface border border-brand-dark rounded-xl p-5 shadow-lg relative overflow-hidden flex flex-col gap-4">
-                    <div class="absolute -right-6 -bottom-6 opacity-5 pointer-events-none text-9xl">📖</div>
-                    <p class="text-xs text-gray-400">Aquesta moto té l'historial de revisions/factures públic. El venedor aporta transparència documentada.</p>
-                    <Link :href="route('sales.history', sale.id)" class="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-6 py-3 bg-brand-black border border-brand-dark hover:border-brand-neon/50 text-white rounded-xl uppercase font-black text-xs tracking-widest transition">
-                        Obrir Informe Detallat
-                    </Link>
-                </div>
-            </div>
-
-            <!-- Botons propietari (si és el teu anunci) -->
-            <div v-if="isOwner" class="mb-6 flex gap-3">
-                <Link 
-                    v-if="sale.state !== 'venuda'"
+                <Link
+                    v-if="isOwner && sale.state !== 'venuda'"
                     :href="route('sales.mark-sold', sale.id)"
-                    method="patch" as="button"
-                    class="flex-1 bg-red-900/30 border border-red-700/30 text-red-400 hover:bg-red-900/60 font-bold uppercase tracking-wider text-xs py-3 rounded-xl text-center transition"
+                    method="patch"
+                    as="button"
+                    class="cc-btn-secondary w-full py-3.5"
                 >
                     {{ $t('sales.mark_sold_btn') }}
                 </Link>
             </div>
 
-        </div>
+            <p v-if="sale.description" class="mt-10 text-sm text-gray-400 leading-relaxed whitespace-pre-line">
+                {{ sale.description }}
+            </p>
 
-        <!-- Barra de contacte fixa (si no és el teu anunci i no està venut) -->
-        <div v-if="!isOwner && sale.state !== 'venuda'" class="fixed bottom-16 left-0 w-full p-4 bg-brand-black/90 backdrop-blur-xl border-t border-brand-dark z-50">
-            <div class="max-w-3xl mx-auto">
-                <Link 
-                    :href="route('chats.start')"
+            <!-- Specs -->
+            <section class="mt-12">
+                <p class="cc-section-label">{{ $t('sales.technical_specs') }}</p>
+                <div class="mt-2 divide-y divide-white/[0.06]">
+                    <div v-for="row in specRows" :key="row.label" class="flex items-center justify-between py-3.5">
+                        <span class="text-sm text-gray-500">{{ row.label }}</span>
+                        <span class="text-sm text-gray-200 tabular-nums">{{ row.value }}</span>
+                    </div>
+                </div>
+            </section>
+
+            <section v-if="sale.motorcycle?.extras" class="mt-10">
+                <p class="cc-section-label">{{ $t('sales.equipped_extras') }}</p>
+                <p class="mt-3 text-sm text-gray-400 leading-relaxed whitespace-pre-line">{{ sale.motorcycle.extras }}</p>
+            </section>
+
+            <nav class="mt-12 pt-6 border-t border-white/[0.06] flex flex-wrap gap-2">
+                <Link
+                    v-if="!isOwner"
+                    :href="route('sales.toggle-favorite', sale.id)"
                     method="post"
                     as="button"
-                    :data="{ other_user_id: sale.motorcycle?.user_id, motorcycle_id: sale.motorcycle_id }"
-                    class="w-full bg-brand-neon text-brand-black font-black uppercase tracking-wider py-4 rounded-xl shadow-[0_0_20px_rgba(12,225,181,0.4)] hover:scale-[1.02] transition text-center flex items-center justify-center gap-2"
+                    preserve-scroll
+                    class="cc-btn-text"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" /></svg>
-                    {{ $t('sales.chat_with_seller') }}
+                    {{ sale.is_favorited ? $t('sales.remove_fav') : $t('sales.save_fav') }}
                 </Link>
-            </div>
+                <Link
+                    v-if="sale.show_history"
+                    :href="route('sales.history', sale.id)"
+                    class="cc-btn-text"
+                >
+                    {{ $t('sales.view_history') }}
+                </Link>
+                <Link
+                    v-if="isOwner"
+                    :href="route('sales.edit', sale.id)"
+                    class="cc-btn-text"
+                >
+                    {{ $t('common.edit') }}
+                </Link>
+                <ReportButton
+                    v-if="!isOwner"
+                    reportable-type="sale"
+                    :reportable-id="sale.id"
+                    :label="$t('sales.report')"
+                    :context-label="`${$t('sales.report')}: ${sale.title}`"
+                    button-class="cc-btn-text border-red-500/25 text-red-400 hover:text-red-300 hover:border-red-500/50"
+                />
+            </nav>
+
+            <p class="mt-8 text-xs text-gray-600">
+                {{ sale.motorcycle?.user?.name || 'Rider' }}
+                · {{ new Date(sale.created_at).toLocaleDateString(locale) }}
+                · {{ sale.views_count || 0 }} {{ $t('sales.views') }}
+            </p>
         </div>
+
+        <Teleport to="body">
+            <div
+                v-if="lightbox && currentPhoto"
+                class="fixed inset-0 z-[6000] bg-black flex items-center justify-center"
+                @click="lightbox = false"
+            >
+                <img :src="$page.props.storageUrl + '/' + currentPhoto" alt="" class="max-w-full max-h-full object-contain">
+            </div>
+        </Teleport>
     </AppLayout>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
 import { Link, usePage, router } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import AppIcon from '@/Components/AppIcon.vue';
 import ReportButton from '@/Components/ReportButton.vue';
 import { smartBack } from '@/Composables/navigationStack.js';
 
 const props = defineProps({ sale: Object });
-
+const { t, locale } = useI18n();
 const page = usePage();
-const isOwner = computed(() => props.sale.motorcycle?.user_id === page.props.auth.user?.id);
 
+const isOwner = computed(() => props.sale.motorcycle?.user_id === page.props.auth.user?.id);
 const selectedPhoto = ref(0);
+const lightbox = ref(false);
 const currentPhoto = computed(() => props.sale.images?.[selectedPhoto.value]?.image_path || '');
+
+const formatPrice = (price) =>
+    `${parseFloat(price || 0).toLocaleString(locale.value, { maximumFractionDigits: 0 })} €`;
+
+const formatKm = (km) =>
+    parseFloat(km || 0).toLocaleString(locale.value, { maximumFractionDigits: 0 });
+
+const stateLabel = computed(() => {
+    const map = {
+        actiu: t('sales.state_active'),
+        reservat: t('sales.state_reserved'),
+        venuda: t('sales.state_sold'),
+        pausat: t('sales.state_paused'),
+    };
+    return map[props.sale.state] || props.sale.state;
+});
+
+const specRows = computed(() => {
+    const m = props.sale.motorcycle || {};
+    const rows = [
+        { label: t('sales.brand'), value: m.brand || '—' },
+        { label: t('sales.model'), value: m.model || '—' },
+        { label: t('sales.year'), value: m.year || '—' },
+        { label: 'km', value: m.current_km != null ? formatKm(m.current_km) : '—' },
+        { label: 'cc', value: m.cc || '—' },
+        { label: 'CV', value: m.power_cv || '—' },
+        { label: t('sales.license'), value: m.license_type || '—' },
+        { label: t('sales.style'), value: m.type || '—' },
+    ];
+    return rows;
+});
 
 const goBack = () => {
     const q = new URLSearchParams(window.location.search);
     if (q.get('from') === 'mine') {
-        router.visit(route('sales.mine'));
+        router.visit(route('sales.index', { tab: 'mine' }));
         return;
     }
     if (q.get('from') === 'fav') {
-        router.visit(route('sales.favorites'));
+        router.visit(route('sales.index', { tab: 'favorites' }));
         return;
     }
     smartBack(route('sales.index'));

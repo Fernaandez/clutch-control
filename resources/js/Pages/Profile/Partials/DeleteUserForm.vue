@@ -1,10 +1,8 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3';
 import { nextTick, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
 import Modal from '@/Components/Modal.vue';
 
-const { t } = useI18n();
 const confirmingUserDeletion = ref(false);
 const passwordInput = ref(null);
 
@@ -32,51 +30,51 @@ const closeModal = () => {
 </script>
 
 <template>
-    <section class="space-y-6">
-        <header>
-            <h2 class="text-lg font-bold text-red-500">{{ $t('profile.delete_account') }}</h2>
-            <p class="mt-1 text-sm text-gray-400">
-                {{ $t('profile.delete_account_hint') }}
-            </p>
-        </header>
+    <section>
+        <p class="cc-section-label text-red-400/80">{{ $t('profile.delete_account') }}</p>
+        <p class="mt-1 text-sm text-gray-500">
+            {{ $t('profile.delete_account_hint') }}
+        </p>
 
-        <button 
-            @click="confirmUserDeletion" 
-            class="bg-red-900/50 border border-red-700 text-red-400 px-4 py-2 rounded font-bold hover:bg-red-800 hover:text-white transition text-sm uppercase"
+        <button
+            type="button"
+            @click="confirmUserDeletion"
+            class="cc-btn-danger mt-6"
         >
             {{ $t('profile.delete_button') }}
         </button>
 
         <Modal :show="confirmingUserDeletion" @close="closeModal">
-            <div class="p-6 bg-brand-surface border border-brand-dark">
-                <h2 class="text-lg font-bold text-white">
+            <div class="p-6 bg-brand-black border border-white/[0.08]">
+                <h2 class="text-lg font-medium text-white">
                     {{ $t('profile.delete_confirm_title') }}
                 </h2>
 
-                <p class="mt-1 text-sm text-gray-400">
+                <p class="mt-2 text-sm text-gray-400">
                     {{ $t('profile.delete_confirm_hint') }}
                 </p>
 
                 <div class="mt-6">
-                    <label class="sr-only">{{ $t('profile.change_password') }}</label>
-                    <input 
+                    <label class="sr-only">{{ $t('profile.password_placeholder') }}</label>
+                    <input
                         ref="passwordInput"
                         v-model="form.password"
                         type="password"
-                        class="w-full rounded-lg bg-brand-black border-brand-dark text-white focus:border-red-500 focus:ring-red-500 transition"
+                        class="w-full rounded-xl bg-white/[0.04] border-white/[0.08] text-white focus:border-white/30 focus:ring-0"
                         :placeholder="$t('profile.password_placeholder')"
                         @keyup.enter="deleteUser"
                     />
-                    <div v-if="form.errors.password" class="text-red-500 text-xs mt-1">{{ form.errors.password }}</div>
+                    <p v-if="form.errors.password" class="text-red-400 text-xs mt-1">{{ form.errors.password }}</p>
                 </div>
 
                 <div class="mt-6 flex justify-end gap-3">
-                    <button @click="closeModal" class="text-gray-400 hover:text-white transition">
+                    <button type="button" @click="closeModal" class="cc-btn-text">
                         {{ $t('profile.cancel') }}
                     </button>
 
                     <button
-                        class="bg-red-600 text-white px-4 py-2 rounded font-bold hover:bg-red-500 transition shadow-lg"
+                        type="button"
+                        class="cc-btn-danger"
                         :class="{ 'opacity-25': form.processing }"
                         :disabled="form.processing"
                         @click="deleteUser"

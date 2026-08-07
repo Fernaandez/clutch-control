@@ -1,28 +1,28 @@
 <template>
     <div class="min-h-screen bg-brand-black text-gray-200 px-6 py-10 flex items-center justify-center">
-        <div class="w-full max-w-md bg-brand-surface border border-brand-dark rounded-2xl p-6 shadow-2xl">
-            <h1 class="text-2xl font-black text-white uppercase tracking-tight mb-3">{{ title }}</h1>
-            <p class="text-sm text-gray-400 mb-6">{{ subtitle }}</p>
+        <div class="w-full max-w-md">
+            <h1 class="cc-title">{{ title }}</h1>
+            <p class="mt-3 text-sm text-gray-500">{{ subtitle }}</p>
 
-            <div class="space-y-3">
+            <div class="mt-10 space-y-3">
                 <button
                     type="button"
                     @click="openApp"
-                    class="w-full bg-brand-neon text-brand-black px-4 py-3 rounded-xl font-black uppercase tracking-widest text-sm hover:bg-white transition"
+                    class="cc-btn-primary w-full py-3.5"
                 >
                     {{ openAppLabel }}
                 </button>
 
                 <a
                     :href="storeUrl"
-                    class="w-full inline-flex items-center justify-center bg-brand-dark border border-brand-neon/40 text-brand-neon px-4 py-3 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-brand-neon hover:text-brand-black transition"
+                    class="cc-btn-secondary w-full"
                 >
                     Descarregar app
                 </a>
 
                 <a
                     :href="webUrl"
-                    class="w-full inline-flex items-center justify-center text-gray-400 hover:text-white text-xs font-bold uppercase tracking-widest transition"
+                    class="cc-btn-text w-full justify-center"
                 >
                     {{ openWebLabel }}
                 </a>

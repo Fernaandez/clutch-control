@@ -20,39 +20,34 @@
                 <p class="text-gray-300 font-medium text-sm">{{ $t('routes.habitual_done_flash', { title: flashDone.title, km: flashDone.km }) }}</p>
             </div>
 
-            <div v-if="motorcycles.length === 0" class="cc-card">
-                <div class="flex flex-col items-center justify-center text-center py-16 px-6">
-                    <div class="mb-4 text-gray-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177A48.016 48.016 0 0 0 6 6.094V6a3 3 0 0 1 3-3h2.25" /></svg>
-                    </div>
-                    <p class="text-base font-semibold text-gray-300">{{ $t('routes.habitual_no_moto') }}</p>
-                    <div class="mt-6">
-                        <Link :href="route('motorcycles.create')" class="cc-btn-primary">
-                            {{ $t('motorcycles.add_title') }}
-                        </Link>
-                    </div>
-                </div>
+            <div v-if="motorcycles.length === 0" class="py-16 text-center">
+                <p class="text-base font-semibold text-gray-300">{{ $t('routes.habitual_no_moto') }}</p>
+                <Link :href="route('motorcycles.create')" class="cc-btn-primary mt-6 inline-flex px-6 py-2.5">
+                    {{ $t('motorcycles.add_title') }}
+                </Link>
             </div>
 
             <div v-else class="space-y-6">
                 <!-- Pestanyes: afegir / manual -->
-                <section class="cc-card overflow-hidden">
-                    <div class="flex items-center gap-1 p-1 border-b border-white/[0.06]">
+                <section>
+                    <div class="flex items-center gap-5 border-b border-white/[0.06]">
                         <button
                             type="button"
-                            class="flex-1 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
-                            :class="activePanel === 'add' ? 'bg-white/[0.1] text-white' : 'text-gray-500 hover:text-gray-300'"
+                            class="relative -mb-px pb-3 text-[13px] font-medium transition-colors"
+                            :class="activePanel === 'add' ? 'text-white' : 'text-gray-500 hover:text-gray-300'"
                             @click="activePanel = 'add'"
                         >
                             {{ $t('routes.habitual_tab_add') }}
+                            <span v-if="activePanel === 'add'" class="absolute inset-x-0 -bottom-px h-px bg-white"></span>
                         </button>
                         <button
                             type="button"
-                            class="flex-1 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
-                            :class="activePanel === 'manual' ? 'bg-white/[0.1] text-white' : 'text-gray-500 hover:text-gray-300'"
+                            class="relative -mb-px pb-3 text-[13px] font-medium transition-colors"
+                            :class="activePanel === 'manual' ? 'text-white' : 'text-gray-500 hover:text-gray-300'"
                             @click="activePanel = 'manual'"
                         >
                             {{ $t('routes.habitual_tab_manual') }}
+                            <span v-if="activePanel === 'manual'" class="absolute inset-x-0 -bottom-px h-px bg-white"></span>
                         </button>
                     </div>
 
@@ -145,13 +140,11 @@
                         {{ $t('routes.habitual_list_title') }}
                     </h2>
 
-                    <div v-if="habitualRoutes.length === 0" class="cc-card">
-                        <div class="flex flex-col items-center justify-center text-center py-12 px-6">
-                            <p class="text-base font-semibold text-gray-400">{{ $t('routes.habitual_list_empty') }}</p>
-                        </div>
+                    <div v-if="habitualRoutes.length === 0" class="py-12 text-center">
+                        <p class="text-base font-semibold text-gray-400">{{ $t('routes.habitual_list_empty') }}</p>
                     </div>
 
-                    <div v-else class="cc-card divide-y divide-white/[0.06]">
+                    <div v-else class="divide-y divide-white/[0.06]">
                         <div
                             v-for="item in habitualRoutes"
                             :key="item.id"
@@ -242,7 +235,7 @@ const defaultDatetime = () => {
     return d.toISOString().slice(0, 16);
 };
 
-const inputClass = 'w-full bg-brand-black border border-brand-dark rounded-xl px-4 py-3 text-white text-sm focus:border-brand-neon focus:ring-1 focus:ring-brand-neon outline-none transition';
+const inputClass = 'w-full rounded-xl bg-white/[0.04] border-white/[0.08] px-4 py-3 text-white text-sm focus:border-white/30 focus:ring-0 outline-none transition';
 
 const addForm = useForm({
     route_id: props.preselectedRouteId ?? '',

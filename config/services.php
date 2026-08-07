@@ -44,7 +44,7 @@ return [
     'app_links' => [
         'deep_link_base' => env('APP_DEEP_LINK_BASE', 'clutchcontrol://open'),
         'android_store_url' => env('ANDROID_STORE_URL', 'https://play.google.com/store/apps/details?id=com.clutchcontrol.app'),
-        'ios_store_url' => env('IOS_STORE_URL', 'https://apps.apple.com'),
+        'ios_store_url' => env('IOS_STORE_URL', 'https://apps.apple.com/app/clutch-control/idXXXXXXXXX'),
     ],
 
 ];

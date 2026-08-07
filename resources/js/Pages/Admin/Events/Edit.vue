@@ -146,7 +146,7 @@ onMounted(() => {
         addMapTileLayer(map, L);
 
         const bounds = L.latLngBounds();
-        const colors = ['#0CE1B5', '#f43f5e', '#a855f7', '#eab308', '#3b82f6'];
+        const colors = ['#fafafa', '#d4d4d4', '#a3a3a3', '#737373', '#525252'];
 
         props.eventRecord.routes.forEach((route, index) => {
             if (!route.geo_json) return;

@@ -1,204 +1,233 @@
 <template>
-    <AppLayout title="Editar Quedada">
-        <div class="max-w-4xl mx-auto px-4 py-6 pb-24">
-            
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-3">
-                    <button type="button" @click="goBack" class="inline-flex items-center justify-center w-10 h-10 flex-shrink-0 rounded-full bg-brand-dark border border-brand-neon/50 text-brand-neon hover:bg-brand-neon hover:text-brand-black transition shadow-[0_0_10px_rgba(12,225,181,0.2)]" aria-label="Enrere">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
-                    </button>
-                    <h1 class="text-2xl font-black uppercase tracking-tighter text-white leading-none">EDITAR QUEDADA</h1>
-                </div>
-            </div>
+    <AppLayout :title="$t('events.edit_title')">
+        <div class="max-w-xl mx-auto px-6 py-6 pb-24 cc-fade-in">
 
-            <form @submit.prevent="submit" class="space-y-8">
+            <header class="flex items-center gap-3 mb-8">
+                <button type="button" @click="goBack" class="cc-icon-btn" :aria-label="$t('common.back')">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                    </svg>
+                </button>
+                <h1 class="cc-title flex-1 truncate">{{ $t('events.edit_title') }}</h1>
+            </header>
 
-                <div v-if="Object.keys(form.errors).length > 0" class="p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
-                    <p class="text-red-500 font-black text-xs uppercase tracking-widest mb-2">{{ $t('events.check_errors') }}</p>
-                    <ul class="list-disc pl-5 text-red-400 text-sm space-y-1">
-                        <li v-for="(error, field) in form.errors" :key="field">{{ error }}</li>
+            <form @submit.prevent="submit">
+
+                <div v-if="Object.keys(form.errors).length > 0" class="mb-8">
+                    <p class="text-sm text-red-400 mb-2">{{ $t('events.check_errors') }}</p>
+                    <ul class="space-y-1">
+                        <li v-for="(error, field) in form.errors" :key="field" class="text-red-400 text-sm">{{ error }}</li>
                     </ul>
                 </div>
 
-                <!-- DADES GENERALS -->
-                <div class="bg-brand-surface p-6 rounded-xl border border-brand-dark shadow-lg space-y-5">
-                    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2 mb-4">Dades Generals</h2>
-                    
-                    <div class="grid md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Títol</label>
-                            <input v-model="form.title" type="text" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0">
-                            <div v-if="form.errors.title" class="text-red-500 text-xs mt-1">{{ form.errors.title }}</div>
-                        </div>
+                <section class="space-y-4">
+                    <p class="cc-section-label">{{ $t('events.basic_info') }}</p>
 
-                        <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Dia i Hora</label>
-                            <input v-model="form.start_time" type="datetime-local" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0 [color-scheme:dark]">
-                        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('events.event_title') }}</label>
+                        <input v-model="form.title" type="text" :class="inputClass(form.errors.title)">
+                        <p v-if="form.errors.title" class="text-red-400 text-xs mt-1">{{ form.errors.title }}</p>
                     </div>
 
-                    <div class="grid md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Límit de Riders (Opcional)</label>
-                            <input v-model="form.max_participants" type="number" min="1" placeholder="Sense límit" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0">
-                        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('events.date_time') }}</label>
+                        <input v-model="form.start_time" type="datetime-local" :class="[inputClass(form.errors.start_time), '[color-scheme:dark]']">
+                    </div>
 
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('events.description_plan') }}</label>
+                        <textarea v-model="form.description" rows="3" :class="[inputClass(), 'resize-none']"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Visibilitat</label>
-                            <div class="flex items-center gap-3 bg-brand-black p-2 rounded-lg border border-brand-dark h-[42px]">
-                                <button type="button" @click="form.is_public = true" class="flex-1 py-1 rounded text-xs font-bold uppercase transition flex items-center justify-center gap-1.5" :class="form.is_public ? 'bg-brand-neon text-black' : 'text-gray-500 hover:text-white'">
-                                    <AppIcon name="globe" size="sm" />
+                            <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('events.rider_limit') }}</label>
+                            <input
+                                v-model="form.max_participants"
+                                type="number"
+                                min="1"
+                                :placeholder="$t('events.unlimited')"
+                                :class="inputClass()"
+                            >
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('events.visibility') }}</label>
+                            <div class="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.04] p-1 h-[42px]">
+                                <button
+                                    type="button"
+                                    @click="form.is_public = true"
+                                    class="flex-1 py-1.5 rounded-lg text-xs font-medium transition"
+                                    :class="form.is_public ? 'bg-white text-brand-black' : 'text-gray-500 hover:text-white'"
+                                >
                                     {{ $t('events.public') }}
                                 </button>
-                                <button type="button" @click="form.is_public = false" class="flex-1 py-1 rounded text-xs font-bold uppercase transition flex items-center justify-center gap-1.5" :class="!form.is_public ? 'bg-gray-700 text-white' : 'text-gray-500 hover:text-white'">
-                                    <AppIcon name="lock" size="sm" />
-                                    {{ $t('events.private') }}
+                                <button
+                                    type="button"
+                                    @click="form.is_public = false"
+                                    class="flex-1 py-1.5 rounded-lg text-xs font-medium transition"
+                                    :class="!form.is_public ? 'bg-white/[0.12] text-white' : 'text-gray-500 hover:text-white'"
+                                >
+                                    {{ $t('events.private_label') }}
                                 </button>
                             </div>
                         </div>
                     </div>
+                </section>
 
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Descripció / Pla</label>
-                        <textarea v-model="form.description" rows="3" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0"></textarea>
+                <section class="mt-10 space-y-4">
+                    <p class="cc-section-label">{{ $t('events.event_photo') }}</p>
+
+                    <div v-if="event.photo" class="overflow-hidden rounded-2xl">
+                        <img :src="$page.props.storageUrl + '/' + event.photo" alt="" class="w-full h-40 object-cover">
                     </div>
 
-                    <!-- FOTO -->
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Foto de la Quedada</label>
-                        <div v-if="event.photo" class="mb-3">
-                            <img :src="$page.props.storageUrl + '/' + event.photo" alt="Foto Quedada" class="h-40 w-full object-cover rounded-xl border border-brand-dark">
-                        </div>
-                        <input @change="e => form.photo = e.target.files[0]" type="file" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-brand-base/20 file:text-brand-neon hover:file:bg-brand-base/30 transition cursor-pointer">
-                        <div v-if="form.errors.photo" class="text-red-500 text-xs mt-1">{{ form.errors.photo }}</div>
-                        <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">Recomanat: <span class="text-brand-neon font-bold">1200×800 px</span> — Deixa-ho en blanc per mantenir la foto actual.</p>
-                    </div>
+                    <input
+                        @change="e => form.photo = e.target.files[0]"
+                        type="file"
+                        accept="image/*"
+                        class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-white/[0.06] file:text-white hover:file:bg-white/[0.1] transition cursor-pointer"
+                    >
+                    <p v-if="form.errors.photo" class="text-red-400 text-xs">{{ form.errors.photo }}</p>
 
-                    <!-- FOTO DEL XAT DE GRUP -->
                     <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2 flex items-center gap-2">
-                            <AppIcon name="chat" size="sm" class="text-brand-neon" />
-                            {{ $t('events.chat_photo') }}
-                        </label>
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-brand-dark bg-brand-black flex items-center justify-center flex-shrink-0">
+                        <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('events.chat_photo') }}</label>
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full overflow-hidden border border-white/[0.08] bg-white/[0.04] flex items-center justify-center flex-shrink-0">
                                 <img v-if="chatPhotoPreview" :src="chatPhotoPreview" alt="" class="w-full h-full object-cover">
-                                <img v-else-if="event.chat_photo" :src="$page.props.storageUrl + '/' + event.chat_photo" alt="" class="w-full h-full object-cover">
-                                <AppIcon v-else name="users" size="md" class="text-gray-600" />
+                                <img v-else-if="event.chat_photo && !form.remove_chat_photo" :src="$page.props.storageUrl + '/' + event.chat_photo" alt="" class="w-full h-full object-cover">
+                                <span v-else class="text-xs text-gray-600">·</span>
                             </div>
-                            <input @change="onChatPhotoChange" type="file" accept="image/*" class="flex-1 text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-brand-base/20 file:text-brand-neon hover:file:bg-brand-base/30 transition cursor-pointer">
+                            <input
+                                @change="onChatPhotoChange"
+                                type="file"
+                                accept="image/*"
+                                class="flex-1 text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-white/[0.06] file:text-white hover:file:bg-white/[0.1] transition cursor-pointer"
+                            >
                         </div>
-                        <button v-if="event.chat_photo && !form.chat_photo && !form.remove_chat_photo" type="button" @click="form.remove_chat_photo = true" class="text-xs text-red-400 hover:text-red-300 underline">
+                        <button
+                            v-if="event.chat_photo && !form.chat_photo && !form.remove_chat_photo"
+                            type="button"
+                            @click="form.remove_chat_photo = true"
+                            class="mt-2 text-xs text-red-400 hover:text-red-300"
+                        >
                             {{ $t('events.remove_chat_photo') }}
                         </button>
-                        <p v-else-if="form.remove_chat_photo" class="text-xs text-yellow-500 flex items-center gap-2">
+                        <p v-else-if="form.remove_chat_photo" class="mt-2 text-xs text-gray-500">
                             {{ $t('events.chat_photo_will_be_removed') }}
-                            <button type="button" @click="form.remove_chat_photo = false" class="text-brand-neon underline">{{ $t('events.undo') }}</button>
+                            <button type="button" @click="form.remove_chat_photo = false" class="text-white underline ml-1">{{ $t('events.undo') }}</button>
                         </p>
-                        <div v-if="form.errors.chat_photo" class="text-red-500 text-xs mt-1">{{ form.errors.chat_photo }}</div>
-                        <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">{{ $t('events.chat_photo_hint') }}</p>
                     </div>
-                </div>
+                </section>
 
-                <!-- ITINERARI amb DRAG & DROP -->
-                <div class="bg-brand-surface p-6 rounded-xl border border-brand-dark shadow-lg">
-                    <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-2">
-                        <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest">Itinerari / Ruta</h2>
-                        <span class="text-xs text-brand-neon bg-brand-neon/10 px-2 py-1 rounded border border-brand-neon/20 font-bold">{{ stages.length }} Etapes</span>
+                <section class="mt-10">
+                    <div class="flex items-baseline justify-between gap-3 mb-2">
+                        <p class="cc-section-label mb-0">{{ $t('events.itinerary_section') }}</p>
+                        <span class="text-xs text-gray-600 tabular-nums">{{ $t('events.stages', { n: stages.length }) }}</span>
                     </div>
-
-                    <p class="text-[11px] text-gray-500 mb-4 flex items-center gap-1">
-                        <span>☰</span> Arrossega les etapes per reordenar-les
-                    </p>
+                    <p class="text-xs text-gray-600 mb-4">{{ $t('events.drag_hint') }}</p>
 
                     <draggable
                         v-model="stages"
                         item-key="id"
                         handle=".drag-handle"
-                        class="space-y-4"
+                        class="divide-y divide-white/[0.06]"
                         ghost-class="opacity-40"
                         animation="200"
                     >
                         <template #item="{ element: stage, index }">
-                            <div class="relative group bg-brand-black border border-brand-dark rounded-xl p-4 transition hover:border-gray-500">
-                                
-                                <!-- Número + drag handle a l'esquerra -->
-                                <div class="absolute -left-3 top-4 w-6 h-6 bg-brand-neon text-black font-black text-xs rounded-full flex items-center justify-center shadow-lg border-2 border-brand-surface z-10">
-                                    {{ index + 1 }}
+                            <div class="py-5">
+                                <div class="flex items-center justify-between gap-3 mb-3">
+                                    <div class="flex items-center gap-3">
+                                        <button type="button" class="drag-handle text-gray-600 hover:text-gray-300 cursor-grab active:cursor-grabbing p-1" :aria-label="$t('events.drag_hint')">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                                            </svg>
+                                        </button>
+                                        <span class="text-sm text-gray-500 tabular-nums">{{ index + 1 }}</span>
+                                    </div>
+                                    <button
+                                        v-if="stages.length > 1"
+                                        type="button"
+                                        @click="removeStage(index)"
+                                        class="text-xs text-gray-600 hover:text-red-400 transition"
+                                    >
+                                        {{ $t('common.delete') }}
+                                    </button>
                                 </div>
 
-                                <!-- Botó drag -->
-                                <div class="drag-handle absolute top-2 left-4 text-gray-600 hover:text-gray-300 cursor-grab active:cursor-grabbing p-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
-                                </div>
-
-                                <!-- Botó eliminar -->
-                                <button @click="removeStage(index)" type="button" class="absolute top-2 right-2 text-gray-600 hover:text-red-500 p-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                </button>
-
-                                <div class="grid md:grid-cols-12 gap-4 items-start ml-6 mt-4">
-                                    <div class="md:col-span-4">
-                                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Tipus</label>
-                                        <select v-model="stage.type" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-xs focus:border-brand-neon py-2.5">
-                                            <option value="location">📍 Punt de Trobada</option>
-                                            <option value="route">🏍️ Ruta GPS</option>
-                                        </select>
+                                <div class="space-y-3">
+                                    <div class="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.04] p-1">
+                                        <button
+                                            type="button"
+                                            @click="stage.type = 'location'"
+                                            class="flex-1 py-1.5 rounded-lg text-xs font-medium transition"
+                                            :class="stage.type === 'location' ? 'bg-white text-brand-black' : 'text-gray-500 hover:text-white'"
+                                        >
+                                            {{ $t('events.stage_meeting_point') }}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            @click="stage.type = 'route'"
+                                            class="flex-1 py-1.5 rounded-lg text-xs font-medium transition"
+                                            :class="stage.type === 'route' ? 'bg-white text-brand-black' : 'text-gray-500 hover:text-white'"
+                                        >
+                                            {{ $t('events.stage_route') }}
+                                        </button>
                                     </div>
 
-                                    <div class="md:col-span-8">
-                                        <div v-if="stage.type === 'route'">
-                                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Selecciona Ruta</label>
-                                            <select v-model="stage.route_id" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon py-2.5">
-                                                <option :value="null">-- Tria una ruta --</option>
-                                                <option v-for="r in myRoutes" :key="r.id" :value="r.id">
-                                                    {{ r.title }} ({{ r.planned_distance_km }} km)
-                                                </option>
-                                            </select>
-                                        </div>
-                                        <div v-else>
-                                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Nom del Lloc</label>
-                                            <input v-model="stage.location_name" type="text" placeholder="Ex: Hotel, Benzinera..." class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon">
-                                        </div>
+                                    <div v-if="stage.type === 'route'">
+                                        <select v-model="stage.route_id" :class="inputClass()">
+                                            <option :value="null">{{ $t('events.route_placeholder') }}</option>
+                                            <option v-for="r in myRoutes" :key="r.id" :value="r.id">
+                                                {{ r.title }} ({{ r.planned_distance_km }} km)
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div v-else>
+                                        <input
+                                            v-model="stage.location_name"
+                                            type="text"
+                                            :placeholder="$t('events.place_placeholder')"
+                                            :class="inputClass()"
+                                        >
                                     </div>
                                 </div>
                             </div>
                         </template>
                     </draggable>
 
-                    <button type="button" @click="addStage" class="mt-4 w-full border-2 border-dashed border-gray-700 hover:border-brand-neon hover:text-brand-neon text-gray-500 rounded-xl py-3 flex items-center justify-center gap-2 text-sm font-bold uppercase transition bg-transparent hover:bg-brand-neon/5">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                        Afegir Etapa / Parada
+                    <button type="button" @click="addStage" class="cc-btn-text w-full mt-4 justify-center">
+                        {{ $t('events.add_stage') }}
                     </button>
-                </div>
+                </section>
 
-                <div class="pt-2 pb-12 flex gap-4">
-                    <button type="submit" :disabled="form.processing" class="flex-1 bg-brand-neon text-brand-black font-black py-4 rounded-xl uppercase tracking-widest hover:bg-white transition shadow-[0_0_20px_rgba(12,225,181,0.4)] disabled:opacity-50">
-                        Guardar Canvis
+                <div class="mt-12 space-y-3">
+                    <button type="submit" :disabled="form.processing" class="cc-btn-primary w-full py-3.5">
+                        {{ $t('events.save_changes') }}
                     </button>
-                    
-                    <Link :href="route('events.mine')" class="px-6 flex items-center justify-center border border-gray-600 text-gray-400 font-bold rounded-xl hover:bg-gray-800 hover:text-white transition">
-                        Cancel·lar
+                    <Link :href="route('events.show', event.id)" class="cc-btn-text w-full justify-center">
+                        {{ $t('common.cancel') }}
                     </Link>
                 </div>
-
             </form>
         </div>
     </AppLayout>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import AppIcon from '@/Components/AppIcon.vue';
 import draggable from 'vuedraggable';
 import { smartBack } from '@/Composables/navigationStack.js';
+
+const { t } = useI18n();
 
 const props = defineProps({
     event: Object,
     myRoutes: Array,
-    currentStages: Array
+    currentStages: Array,
 });
 
 const goBack = () => smartBack(route('events.show', props.event.id));
@@ -210,15 +239,14 @@ const formatDateForInput = (dateString) => {
     return (new Date(date.getTime() - offset)).toISOString().slice(0, 16);
 };
 
-// Inicialitzem les stages com a ref reactiu (per vuedraggable)
 const stages = ref(
     props.currentStages && props.currentStages.length > 0
         ? props.currentStages.map((s, i) => ({ ...s, id: Date.now() + i }))
-        : [{ id: Date.now(), type: 'location', route_id: null, location_name: props.event.location || '', latitude: null, longitude: null }]
+        : [{ id: Date.now(), type: 'location', route_id: null, location_name: props.event.location || '', latitude: null, longitude: null }],
 );
 
 const form = useForm({
-    _method: 'PUT',   // Spoofing del mètode per a Laravel (necessari per a multipart file upload)
+    _method: 'PUT',
     title: props.event.title,
     description: props.event.description,
     start_time: formatDateForInput(props.event.start_time),
@@ -231,6 +259,11 @@ const form = useForm({
 });
 
 const chatPhotoPreview = ref(null);
+
+const inputClass = (error) =>
+    error
+        ? 'w-full rounded-xl bg-brand-black border-red-500 ring-1 ring-red-500 text-white focus:border-red-400 focus:ring-0'
+        : 'w-full rounded-xl bg-white/[0.04] border-white/[0.08] text-white focus:border-white/30 focus:ring-0';
 
 const onChatPhotoChange = (e) => {
     const file = e.target.files[0];
@@ -252,23 +285,17 @@ const addStage = () => {
         route_id: null,
         location_name: '',
         latitude: null,
-        longitude: null
+        longitude: null,
     });
 };
 
 const removeStage = (index) => {
-    if (stages.value.length > 1) {
-        stages.value.splice(index, 1);
-    } else {
-        alert("Has de mantenir almenys una etapa.");
-    }
+    if (stages.value.length > 1) stages.value.splice(index, 1);
+    else alert(t('events.min_one_stage'));
 };
 
 const submit = () => {
-    // Serialitzem les stages com JSON string
     form.stages_json = JSON.stringify(stages.value);
-    // Usem form.post() amb _method:'PUT' en lloc de form.put() — és el patró estàndard per a
-    // file uploads a Laravel+Inertia (form.put + forceFormData no serialitza bé en alguns builds)
     form.post(route('events.update', props.event.id), { forceFormData: true });
 };
 </script>

@@ -166,7 +166,7 @@ onMounted(() => {
 
             if (validPoints.length > 0) {
                 const polyline = L.polyline(validPoints, {
-                    color: '#0CE1B5',
+                    color: '#fafafa',
                     weight: 3,
                     opacity: 1
                 }).addTo(map);

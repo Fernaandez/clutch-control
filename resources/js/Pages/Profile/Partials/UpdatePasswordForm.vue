@@ -27,58 +27,62 @@ const updatePassword = () => {
         },
     });
 };
+
+const inputClass = (error) =>
+    error
+        ? 'w-full rounded-xl bg-white/[0.04] border-red-500 ring-1 ring-red-500 text-white focus:border-red-400 focus:ring-0'
+        : 'w-full rounded-xl bg-white/[0.04] border-white/[0.08] text-white focus:border-white/30 focus:ring-0';
 </script>
 
 <template>
     <section>
-        <header>
-            <h2 class="text-lg font-bold text-white">{{ $t('profile.update_password') }}</h2>
-            <p class="mt-1 text-sm text-gray-400">
-                {{ $t('profile.update_password_hint') }}
-            </p>
-        </header>
+        <p class="cc-section-label">{{ $t('profile.update_password') }}</p>
+        <p class="mt-1 text-sm text-gray-500">
+            {{ $t('profile.update_password_hint') }}
+        </p>
 
-        <form @submit.prevent="updatePassword" class="mt-6 space-y-6">
-            
+        <form @submit.prevent="updatePassword" class="mt-6 space-y-5">
+
             <div>
-                <label class="block font-medium text-sm text-gray-400 mb-1">{{ $t('profile.current_password') }}</label>
-                <input 
+                <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('profile.current_password') }}</label>
+                <input
                     ref="currentPasswordInput"
-                    type="password" 
-                    class="w-full rounded-lg bg-brand-black border-brand-dark text-white focus:border-brand-neon focus:ring-brand-neon transition"
-                    v-model="form.current_password" 
-                    autocomplete="current-password" 
+                    type="password"
+                    :class="inputClass(form.errors.current_password)"
+                    v-model="form.current_password"
+                    autocomplete="current-password"
                 />
-                <div v-if="form.errors.current_password" class="text-red-500 text-xs mt-1">{{ form.errors.current_password }}</div>
+                <p v-if="form.errors.current_password" class="text-red-400 text-xs mt-1">{{ form.errors.current_password }}</p>
             </div>
 
             <div>
-                <label class="block font-medium text-sm text-gray-400 mb-1">{{ $t('profile.new_password') }}</label>
-                <input 
+                <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('profile.new_password') }}</label>
+                <input
                     ref="passwordInput"
-                    type="password" 
-                    class="w-full rounded-lg bg-brand-black border-brand-dark text-white focus:border-brand-neon focus:ring-brand-neon transition"
-                    v-model="form.password" 
-                    autocomplete="new-password" 
+                    type="password"
+                    :class="inputClass(form.errors.password)"
+                    v-model="form.password"
+                    autocomplete="new-password"
                 />
-                <div v-if="form.errors.password" class="text-red-500 text-xs mt-1">{{ form.errors.password }}</div>
+                <p v-if="form.errors.password" class="text-red-400 text-xs mt-1">{{ form.errors.password }}</p>
             </div>
 
             <div>
-                <label class="block font-medium text-sm text-gray-400 mb-1">{{ $t('profile.confirm_password') }}</label>
-                <input 
-                    type="password" 
-                    class="w-full rounded-lg bg-brand-black border-brand-dark text-white focus:border-brand-neon focus:ring-brand-neon transition"
-                    v-model="form.password_confirmation" 
-                    autocomplete="new-password" 
+                <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('profile.confirm_password') }}</label>
+                <input
+                    type="password"
+                    :class="inputClass(form.errors.password_confirmation)"
+                    v-model="form.password_confirmation"
+                    autocomplete="new-password"
                 />
-                <div v-if="form.errors.password_confirmation" class="text-red-500 text-xs mt-1">{{ form.errors.password_confirmation }}</div>
+                <p v-if="form.errors.password_confirmation" class="text-red-400 text-xs mt-1">{{ form.errors.password_confirmation }}</p>
             </div>
 
-            <div class="flex items-center gap-4">
-                <button 
-                    :disabled="form.processing" 
-                    class="bg-brand-base text-brand-black px-4 py-2 rounded font-bold hover:bg-brand-neon transition shadow-neon text-sm uppercase"
+            <div class="flex items-center gap-4 pt-2">
+                <button
+                    type="submit"
+                    :disabled="form.processing"
+                    class="cc-btn-primary"
                 >
                     {{ $t('profile.change_password') }}
                 </button>
@@ -89,7 +93,7 @@ const updatePassword = () => {
                     leave-active-class="transition ease-in-out"
                     leave-to-class="opacity-0"
                 >
-                    <p v-if="form.recentlySuccessful" class="text-sm text-green-400">{{ $t('profile.saved') }}</p>
+                    <p v-if="form.recentlySuccessful" class="text-sm text-gray-400">{{ $t('profile.saved') }}</p>
                 </Transition>
             </div>
         </form>

@@ -1,265 +1,191 @@
 <template>
     <AppLayout :title="$t('events.title')">
-        <div class="px-4 py-6 pb-24">
-            
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h1 class="text-3xl font-black text-white uppercase tracking-tighter">{{ $t('events.title') }}</h1>
-                </div>
-                <Link :href="route('events.create')" class="bg-brand-neon text-brand-black p-3 rounded-full shadow-[0_0_15px_rgba(12,225,181,0.4)] hover:scale-110 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                </Link>
-            </div>
+        <div class="px-6 pt-10 pb-28 max-w-xl mx-auto cc-fade-in">
 
-            <Link :href="route('events.mine')" class="w-full mb-4 bg-brand-surface border border-brand-neon/30 text-white py-3 rounded-xl flex items-center justify-between px-4 hover:bg-brand-neon/10 transition group shadow-lg">
-                <span class="font-bold uppercase flex items-center gap-2 text-sm">
-                    <AppIcon name="calendar" size="md" class="text-brand-neon" />
-                    {{ $t('events.manage_mine') }}
-                </span>
-                <span class="text-brand-neon group-hover:translate-x-1 transition">&rarr;</span>
+            <!-- Hero: quant queda fins a la teva pròxima quedada -->
+            <template v-if="nextEvent">
+                <p class="text-sm text-gray-500">{{ $t('events.next_label') }}</p>
+                <p class="mt-3 text-[64px] leading-[0.9] font-light tracking-[-0.04em] text-white tabular-nums">
+                    {{ heroPrimary }}
+                </p>
+                <p class="mt-2 text-sm text-gray-500">{{ heroSecondary }}</p>
+
+                <div class="mt-4 flex items-center justify-between gap-3">
+                    <p class="text-sm text-gray-400 truncate min-w-0">{{ nextEvent.title }}</p>
+                    <Link :href="route('events.show', nextEvent.id)" class="cc-btn-text flex-shrink-0">
+                        {{ $t('common.view') }}
+                    </Link>
+                </div>
+            </template>
+
+            <template v-else>
+                <p class="text-sm text-gray-500">{{ $t('events.title') }}</p>
+                <p class="mt-3 text-[40px] leading-[0.95] font-light tracking-tight text-white">
+                    {{ $t('events.no_upcoming_short') }}
+                </p>
+            </template>
+
+            <Link :href="route('events.create')" class="cc-btn-primary w-full py-3.5 mt-8 text-center">
+                {{ $t('events.create_short') }}
             </Link>
 
-            <button 
-                @click="showFilters = !showFilters"
-                class="w-full mb-6 flex items-center justify-between bg-brand-surface border border-brand-dark p-3 rounded-xl text-sm font-bold text-gray-300 hover:text-white hover:border-brand-neon transition"
-            >
-                <span class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
-                    {{ showFilters ? $t('events.hide_filters') : $t('events.show_filters') }}
-                </span>
-                <span v-if="activeFiltersCount > 0" class="bg-brand-neon text-brand-black text-xs rounded-full w-5 h-5 flex items-center justify-center font-black">
-                    {{ activeFiltersCount }}
-                </span>
-                <span v-else>▼</span>
-            </button>
-
-            <div v-if="showFilters" class="bg-brand-black border border-brand-dark rounded-xl p-4 mb-6 shadow-inner space-y-4 animate-fade-in">
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('events.search') }}</label>
-                        <input v-model="filters.search" type="text" :placeholder="$t('events.search_placeholder')" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('events.availability') }}</label>
-                        <select v-model="filters.availability" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1">
-                            <option value="all">{{ $t('events.all') }}</option>
-                            <option value="available">{{ $t('events.only_available') }}</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('events.date_from') }}</label>
-                        <input v-model="filters.dateStart" type="date" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1 [color-scheme:dark]">
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500 uppercase font-bold">{{ $t('events.date_to') }}</label>
-                        <input v-model="filters.dateEnd" type="date" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon mt-1 [color-scheme:dark]">
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-2 mt-2">
-                    <input type="checkbox" id="weekend" v-model="filters.onlyWeekend" class="rounded bg-brand-surface border-brand-dark text-brand-neon focus:ring-brand-neon focus:ring-offset-gray-900">
-                    <label for="weekend" class="text-sm text-gray-300 font-bold">{{ $t('events.only_weekend') }}</label>
-                </div>
-
-                <div class="border-t border-brand-dark pt-3 mt-2">
-                    <label class="text-xs text-brand-neon uppercase font-bold mb-2 block">{{ $t('events.sort_by') }}</label>
-                    <div class="flex gap-2">
-                        <select v-model="filters.sortBy" class="flex-1 bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon">
-                            <option value="start_time">{{ $t('events.sort_date') }}</option>
-                            <option value="participants_count">{{ $t('events.sort_participants') }}</option>
-                        </select>
-                        <button @click="toggleSortDir" class="bg-brand-surface border border-brand-dark px-3 rounded-lg text-white hover:border-brand-neon transition">
-                            {{ filters.sortDir === 'asc' ? $t('common.asc') : $t('common.desc') }}
-                        </button>
-                    </div>
-                </div>
-                
-                <button @click="resetFilters" class="cc-btn-text mt-2">
-                    {{ $t('events.clear_all_filters') }}
+            <!-- Segments -->
+            <div class="mt-10 flex items-center gap-5 border-b border-white/[0.06]">
+                <button
+                    v-for="tab in tabs"
+                    :key="tab.id"
+                    type="button"
+                    @click="activeTab = tab.id"
+                    class="relative -mb-px pb-3 text-[13px] font-medium transition-colors"
+                    :class="activeTab === tab.id ? 'text-white' : 'text-gray-500 hover:text-gray-300'"
+                >
+                    {{ tab.label }}
+                    <span v-if="tab.count" class="ml-1 text-gray-600 tabular-nums">{{ tab.count }}</span>
+                    <span v-if="activeTab === tab.id" class="absolute inset-x-0 -bottom-px h-px bg-white"></span>
                 </button>
             </div>
 
-            <div v-if="filteredEvents.length === 0" class="flex flex-col items-center justify-center py-12 text-center opacity-60 bg-brand-surface rounded-xl border border-brand-dark border-dashed">
-                <p class="text-gray-400 font-medium">{{ $t('events.no_results') }}</p>
-                <button @click="resetFilters" class="text-brand-neon text-sm font-bold mt-2 hover:underline">{{ $t('events.clear_filters') }}</button>
-            </div>
+            <input
+                v-if="currentEvents.length > 6"
+                v-model="search"
+                type="search"
+                :placeholder="$t('events.search_placeholder')"
+                class="w-full mt-4 rounded-xl bg-white/[0.04] border-white/[0.08] text-white text-sm focus:border-white/30 focus:ring-0"
+            >
 
-            <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <div v-for="event in filteredEvents" :key="event.id" class="bg-brand-surface rounded-xl overflow-hidden border border-brand-dark shadow-lg hover:border-brand-neon transition duration-300 flex flex-col animate-fade-in">
-                    
-                    <div class="h-40 bg-gray-900 relative w-full overflow-hidden">
-                        <img v-if="event.photo" :src="eventPhotoUrl(event.photo)" :alt="event.title" class="absolute inset-0 w-full h-full object-cover" @error="onPhotoError">
-                        <div v-else class="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-brand-surface via-brand-surface/30 to-transparent z-[5]"></div>
-                        
-                        <div class="absolute top-2 right-2 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] bg-brand-black text-brand-neon shadow-[0_0_15px_rgba(0,0,0,0.9)] border border-brand-neon/30">
-                            {{ new Date(event.start_time).toLocaleDateString(currentLocale, { day: '2-digit', month: 'short' }) }}
-                        </div>
-                        <div v-if="event.is_attending" class="absolute top-2 left-2 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide z-[400] bg-green-500/80 text-white shadow-[0_0_15px_rgba(0,0,0,0.9)]">{{ $t('events.attending') }}</div>
+            <div v-if="filteredEvents.length" class="divide-y divide-white/[0.06]">
+                <div
+                    v-for="event in filteredEvents"
+                    :key="event.id"
+                    class="flex items-center gap-4 py-4"
+                >
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[15px] font-medium text-gray-100 truncate">{{ event.title }}</p>
+                        <p class="mt-1 text-xs text-gray-500 truncate">{{ metaLine(event) }}</p>
                     </div>
 
-                    <div class="p-4 flex-1 flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-lg font-bold text-white mb-1 truncate uppercase">{{ event.title }}</h3>
-                            
-                            <div class="flex flex-col gap-1 text-[11px] text-gray-300 bg-brand-black/30 p-2 rounded-lg mt-2">
-                                <div class="flex items-center justify-between">
-                                    <span class="truncate flex items-center gap-1.5 min-w-0">
-                                        <AppIcon name="pin" size="sm" class="text-brand-neon flex-shrink-0" />
-                                        <span class="truncate">{{ event.location || $t('events.pending_location') }}</span>
-                                    </span>
-                                    <span class="font-mono font-bold flex items-center gap-1 flex-shrink-0" 
-                                          :class="{'text-red-400': event.max_participants && event.participants_count >= event.max_participants, 'text-brand-neon': !event.max_participants}">
-                                        <AppIcon name="users" size="sm" />
-                                        <span v-if="event.max_participants">
-                                            {{ event.participants_count }} / {{ event.max_participants }}
-                                        </span>
-                                        <span v-else class="flex items-center gap-0.5">
-                                            {{ event.participants_count }}
-                                            <AppIcon name="infinity" size="sm" />
-                                        </span>
-                                        <span v-if="event.max_participants && event.participants_count >= event.max_participants" class="ml-1 text-[9px] bg-red-500 text-black px-1 rounded uppercase">FULL</span>
-                                    </span>
-                                </div>
-                                <div class="flex items-center justify-between text-gray-400 border-t border-brand-dark/50 pt-1 mt-1">
-                                    <span class="flex items-center gap-1.5">
-                                        <AppIcon name="map" size="sm" class="text-brand-neon" />
-                                        {{ event.routes_count || 0 }} Rutes
-                                    </span>
-                                    <span class="font-mono font-bold bg-brand-dark px-1.5 py-0.5 rounded text-white shadow-inner">
-                                        {{ parseFloat(event.total_km || 0).toFixed(1) }} KM
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-2 mt-4 pt-4 border-t border-brand-dark/50">
-                            <Link :href="route('events.show', event.id)" prefetch="hover" class="flex-1 text-center bg-brand-dark hover:bg-white hover:text-black text-white text-xs font-bold uppercase py-2 rounded transition">
-                                {{ $t('events.view_detail') }}
-                            </Link>
-                        </div>
+                    <div class="text-right flex-shrink-0">
+                        <p class="text-[15px] tabular-nums text-gray-300">{{ dayMonth(event.start_time) }}</p>
+                        <p
+                            class="mt-1 text-xs tabular-nums"
+                            :class="isFull(event) ? 'text-red-400' : 'text-gray-600'"
+                        >
+                            {{ ridersLabel(event) }}
+                        </p>
                     </div>
+
+                    <Link :href="route('events.show', event.id)" class="cc-btn-text flex-shrink-0">
+                        {{ $t('common.view') }}
+                    </Link>
                 </div>
             </div>
-        </div>
 
+            <div v-else class="py-16 text-center">
+                <p class="text-base font-semibold text-gray-300">{{ emptyTitle }}</p>
+                <Link
+                    v-if="activeTab === 'mine'"
+                    :href="route('events.create')"
+                    class="cc-btn-text mt-4 inline-flex"
+                >
+                    {{ $t('events.create_one') }}
+                </Link>
+            </div>
+        </div>
     </AppLayout>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
-import { useI18n } from 'vue-i18n';
+import { Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import AppIcon from '@/Components/AppIcon.vue';
+import { useI18n } from 'vue-i18n';
 
-const { locale } = useI18n();
-const currentLocale = computed(() => locale.value + '-ES');
-const page = usePage();
-
-const props = defineProps({ events: Array });
-const showFilters = ref(false);
-
-const eventPhotoUrl = (photo) => {
-    if (!photo) return '';
-    if (photo.startsWith('http')) return photo;
-    const base = (page.props.storageUrl || '/storage').replace(/\/$/, '');
-    return `${base}/${photo}`;
-};
-
-const onPhotoError = (event) => {
-    if (event?.target) {
-        event.target.style.display = 'none';
-    }
-};
-
-const filters = ref({
-    search: '',
-    availability: 'all',
-    dateStart: '',
-    dateEnd: '',
-    onlyWeekend: false,
-    sortBy: 'start_time',
-    sortDir: 'asc'
+const props = defineProps({
+    myEvents: { type: Array, default: () => [] },
+    discoverEvents: { type: Array, default: () => [] },
+    initialTab: { type: String, default: 'mine' },
+    nextEvent: { type: Object, default: null },
 });
 
-const activeFiltersCount = computed(() => {
-    let count = 0;
-    if (filters.value.search) count++;
-    if (filters.value.availability !== 'all') count++;
-    if (filters.value.dateStart || filters.value.dateEnd) count++;
-    if (filters.value.onlyWeekend) count++;
-    return count;
-});
+const { t, locale } = useI18n();
 
-const toggleSortDir = () => {
-    filters.value.sortDir = filters.value.sortDir === 'asc' ? 'desc' : 'asc';
-};
+const VALID = ['mine', 'discover'];
+const activeTab = ref(VALID.includes(props.initialTab) ? props.initialTab : 'mine');
+const search = ref('');
 
-const resetFilters = () => {
-    filters.value = {
-        search: '',
-        availability: 'all',
-        dateStart: '',
-        dateEnd: '',
-        onlyWeekend: false,
-        sortBy: 'start_time',
-        sortDir: 'asc'
-    };
-};
+const tabs = computed(() => [
+    { id: 'mine', label: t('events.tab_mine'), count: props.myEvents.length },
+    { id: 'discover', label: t('events.tab_discover'), count: props.discoverEvents.length },
+]);
+
+const currentEvents = computed(() =>
+    activeTab.value === 'discover' ? props.discoverEvents : props.myEvents,
+);
 
 const filteredEvents = computed(() => {
-    let result = [...props.events];
-    
-    if (filters.value.search) {
-        const q = filters.value.search.toLowerCase();
-        result = result.filter(e => e.title.toLowerCase().includes(q) || (e.location && e.location.toLowerCase().includes(q)));
-    }
-    
-    if (filters.value.availability === 'available') {
-        result = result.filter(e => !e.max_participants || e.participants_count < e.max_participants);
-    }
+    const q = search.value.trim().toLowerCase();
+    if (!q) return currentEvents.value;
 
-    if (filters.value.dateStart) {
-        result = result.filter(e => e.start_time >= filters.value.dateStart);
-    }
-    if (filters.value.dateEnd) {
-        result = result.filter(e => e.start_time <= filters.value.dateEnd + 'T23:59:59');
-    }
+    return currentEvents.value.filter((e) =>
+        (e.title || '').toLowerCase().includes(q) ||
+        (e.location || '').toLowerCase().includes(q),
+    );
+});
 
-    if (filters.value.onlyWeekend) {
-        result = result.filter(e => {
-            const day = new Date(e.start_time).getDay();
-            return day === 0 || day === 6;
+const emptyTitle = computed(() =>
+    activeTab.value === 'discover' ? t('events.no_discover') : t('events.no_events'),
+);
+
+const daysUntil = (date) => {
+    if (!date) return null;
+    const diff = new Date(date).setHours(0, 0, 0, 0) - new Date().setHours(0, 0, 0, 0);
+    return Math.round(diff / 86400000);
+};
+
+const heroPrimary = computed(() => {
+    if (!props.nextEvent?.start_time) return '—';
+    const days = daysUntil(props.nextEvent.start_time);
+    if (days === 0) return t('events.today');
+    if (days === 1) return t('events.tomorrow');
+    return String(Math.abs(days));
+});
+
+const heroSecondary = computed(() => {
+    if (!props.nextEvent?.start_time) return '';
+    const days = daysUntil(props.nextEvent.start_time);
+    if (days === 0 || days === 1) {
+        return new Date(props.nextEvent.start_time).toLocaleTimeString(locale.value, {
+            hour: '2-digit',
+            minute: '2-digit',
         });
     }
-
-    return result.sort((a, b) => {
-        let fieldA = a[filters.value.sortBy];
-        let fieldB = b[filters.value.sortBy];
-
-        if (filters.value.sortBy === 'participants_count') {
-            fieldA = parseInt(fieldA || 0);
-            fieldB = parseInt(fieldB || 0);
-        }
-
-        if (fieldA < fieldB) return filters.value.sortDir === 'asc' ? -1 : 1;
-        if (fieldA > fieldB) return filters.value.sortDir === 'asc' ? 1 : -1;
-        return 0;
-    });
+    return t('events.days_until', { n: days });
 });
-</script>
 
-<style scoped>
-.animate-fade-in {
-    animation: fadeIn 0.3s ease-out forwards;
-}
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-</style>
+const dayMonth = (date) => {
+    if (!date) return '';
+    return new Date(date).toLocaleDateString(locale.value, { day: 'numeric', month: 'short' });
+};
+
+const isFull = (event) =>
+    event.max_participants && event.participants_count >= event.max_participants;
+
+const ridersLabel = (event) => {
+    if (isFull(event)) return t('events.full_short');
+    if (event.max_participants) return `${event.participants_count}/${event.max_participants}`;
+    return String(event.participants_count ?? 0);
+};
+
+const metaLine = (event) => {
+    const parts = [];
+    if (event.location) parts.push(event.location);
+    else parts.push(t('events.pending_location'));
+
+    if (!event.is_public) parts.push(t('events.private'));
+    if (event.is_organizer) parts.push(t('events.you_organize'));
+    else if (event.is_attending) parts.push(t('events.attending'));
+    else if (event.organizer?.name) parts.push(event.organizer.name);
+
+    return parts.join(' · ');
+};
+</script>

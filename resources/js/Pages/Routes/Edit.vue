@@ -1,5 +1,5 @@
 <template>
-    <AppLayout :title="$t('routes.edit')">
+    <AppLayout :title="$t('routes.edit')" :hide-bottom-nav="isMapOpen">
         <div class="max-w-3xl mx-auto px-4 py-6 pb-24 cc-fade-in">
 
             <div v-show="!isMapOpen">
@@ -62,15 +62,15 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-400 mb-2">{{ $t('routes.difficulty_label') }}</label>
                                 <div class="grid grid-cols-3 gap-2">
-                                    <button type="button" @click="form.difficulty = 'easy'" :class="form.difficulty === 'easy' ? 'bg-green-500/20 border-green-500 text-green-400' : 'bg-white/[0.04] border-white/[0.08] text-gray-500'" class="rounded-xl border py-2 px-1 text-xs font-medium transition hover:border-white/[0.15]">{{ $t('routes.difficulty_easy') }}</button>
-                                    <button type="button" @click="form.difficulty = 'medium'" :class="form.difficulty === 'medium' ? 'bg-yellow-500/20 border-yellow-500 text-yellow-400' : 'bg-white/[0.04] border-white/[0.08] text-gray-500'" class="rounded-xl border py-2 px-1 text-xs font-medium transition hover:border-white/[0.15]">{{ $t('routes.difficulty_medium') }}</button>
-                                    <button type="button" @click="form.difficulty = 'hard'" :class="form.difficulty === 'hard' ? 'bg-red-500/20 border-red-500 text-red-400' : 'bg-white/[0.04] border-white/[0.08] text-gray-500'" class="rounded-xl border py-2 px-1 text-xs font-medium transition hover:border-white/[0.15]">{{ $t('routes.difficulty_hard') }}</button>
+                                    <button type="button" @click="form.difficulty = 'easy'" :class="form.difficulty === 'easy' ? 'bg-white/[0.1] border-white/25 text-white' : 'bg-white/[0.04] border-white/[0.08] text-gray-500'" class="rounded-xl border py-2 px-1 text-xs font-medium transition hover:border-white/[0.15]">{{ $t('routes.difficulty_easy') }}</button>
+                                    <button type="button" @click="form.difficulty = 'medium'" :class="form.difficulty === 'medium' ? 'bg-white/[0.1] border-white/25 text-white' : 'bg-white/[0.04] border-white/[0.08] text-gray-500'" class="rounded-xl border py-2 px-1 text-xs font-medium transition hover:border-white/[0.15]">{{ $t('routes.difficulty_medium') }}</button>
+                                    <button type="button" @click="form.difficulty = 'hard'" :class="form.difficulty === 'hard' ? 'bg-white/[0.1] border-white/25 text-white' : 'bg-white/[0.04] border-white/[0.08] text-gray-500'" class="rounded-xl border py-2 px-1 text-xs font-medium transition hover:border-white/[0.15]">{{ $t('routes.difficulty_hard') }}</button>
                                 </div>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-400 mb-2">{{ $t('routes.visibility_label') }}</label>
                                 <div class="flex items-center gap-2 bg-white/[0.04] p-1.5 rounded-xl border border-white/[0.08] h-[42px]">
-                                    <button type="button" @click="form.is_public = true" class="flex-1 py-1.5 rounded-lg text-xs font-medium transition flex items-center justify-center gap-1.5" :class="form.is_public ? 'bg-brand-neon text-brand-black' : 'text-gray-500 hover:text-white'">
+                                    <button type="button" @click="form.is_public = true" class="flex-1 py-1.5 rounded-lg text-xs font-medium transition flex items-center justify-center gap-1.5" :class="form.is_public ? 'bg-white/[0.1] text-white' : 'text-gray-500 hover:text-white'">
                                         <AppIcon name="globe" size="xs" />
                                         {{ $t('routes.public_badge') }}
                                     </button>
@@ -129,7 +129,8 @@
                 </form>
             </div>
 
-            <div v-show="isMapOpen" class="fixed inset-0 z-[5000] bg-gray-900 flex flex-col">
+            <Teleport to="body">
+            <div v-show="isMapOpen" class="fixed inset-0 z-[6000] bg-brand-black flex flex-col">
 
                 <div id="map" class="absolute inset-0 w-full h-full z-0"></div>
 
@@ -181,7 +182,7 @@
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
                                         </div>
 
-                                        <div class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold flex-shrink-0" :class="index === 0 ? 'bg-green-500 text-black' : (index === uiWaypoints.length -1 ? 'bg-red-500 text-white' : 'bg-white/[0.15] text-white')">
+                                        <div class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold flex-shrink-0" :class="index === 0 ? 'bg-white text-black' : (index === uiWaypoints.length -1 ? 'bg-red-500 text-white' : 'bg-white/[0.15] text-white')">
                                             {{ index + 1 }}
                                         </div>
 
@@ -218,6 +219,7 @@
                     </div>
                 </div>
             </div>
+            </Teleport>
         </div>
     </AppLayout>
 </template>
@@ -344,17 +346,18 @@ const selectSearchResult = (result) => {
 const openMap = async () => {
     isMapOpen.value = true;
     await nextTick();
-    
-    if (map.value) {
-        // 1. Arreglem el problema de "mapa gris"
-        map.value.invalidateSize();
 
-        // 2. FIX: Si tenim punts, fem zoom perquè es vegi tota la ruta
-        if (uiWaypoints.value.length > 0) {
-            const group = L.latLngBounds(uiWaypoints.value.map(wp => [wp.lat, wp.lng]));
-            map.value.fitBounds(group, { padding: [50, 50] });
-        }
-    }
+    // Leaflet amb v-show: cal esperar que el contenidor tingui mida real
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            if (!map.value) return;
+            map.value.invalidateSize();
+            if (uiWaypoints.value.length > 0) {
+                const group = L.latLngBounds(uiWaypoints.value.map(wp => [wp.lat, wp.lng]));
+                map.value.fitBounds(group, { padding: [50, 80] });
+            }
+        }, 80);
+    });
 };
 
 const closeMap = () => {
@@ -374,7 +377,7 @@ const locateUser = async () => {
         map.value.flyTo([lat, lng], 15);
         if (uiWaypoints.value.length === 0) addPointToMap(L.latLng(lat, lng), "La meva ubicació");
         if (userLocationMarker.value) map.value.removeLayer(userLocationMarker.value);
-        userLocationMarker.value = L.circleMarker([lat, lng], { radius: 8, fillColor: '#3b82f6', color: '#ffffff', weight: 2, opacity: 1, fillOpacity: 1 }).addTo(map.value);
+        userLocationMarker.value = L.circleMarker([lat, lng], { radius: 8, fillColor: '#fafafa', color: '#0a0a0a', weight: 2, opacity: 1, fillOpacity: 1 }).addTo(map.value);
     } catch (err) {
         console.warn("No s'ha pogut localitzar:", err);
     }

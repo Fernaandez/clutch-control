@@ -18,22 +18,24 @@
             </div>
 
             <!-- Tipus de trajecte -->
-            <div class="flex items-center gap-1 p-1 rounded-xl bg-white/[0.04] border border-white/[0.06] mb-4">
+            <div class="flex items-center gap-5 border-b border-white/[0.06] mb-6">
                 <button
                     type="button"
-                    class="flex-1 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
-                    :class="tripType === 'p2p' ? 'bg-white/[0.1] text-white' : 'text-gray-500 hover:text-gray-300'"
+                    class="relative -mb-px pb-3 text-[13px] font-medium transition-colors"
+                    :class="tripType === 'p2p' ? 'text-white' : 'text-gray-500 hover:text-gray-300'"
                     @click="switchTripType('p2p')"
                 >
                     {{ $t('routes.plan_p2p') }}
+                    <span v-if="tripType === 'p2p'" class="absolute inset-x-0 -bottom-px h-px bg-white"></span>
                 </button>
                 <button
                     type="button"
-                    class="flex-1 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
-                    :class="tripType === 'loop' ? 'bg-white/[0.1] text-white' : 'text-gray-500 hover:text-gray-300'"
+                    class="relative -mb-px pb-3 text-[13px] font-medium transition-colors"
+                    :class="tripType === 'loop' ? 'text-white' : 'text-gray-500 hover:text-gray-300'"
                     @click="switchTripType('loop')"
                 >
                     {{ $t('routes.plan_loop') }}
+                    <span v-if="tripType === 'loop'" class="absolute inset-x-0 -bottom-px h-px bg-white"></span>
                 </button>
             </div>
 

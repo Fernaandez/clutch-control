@@ -12,53 +12,65 @@ use Illuminate\Support\Facades\Schema;
 
 class EventController extends Controller
 {
-// 1. INDEX: NOMÉS PÚBLIQUES (El taulell d'anuncis)
-    public function index()
-    {
-        $events = Event::with(['organizer', 'participants', 'routes'])
-            ->where('is_public', true) // Només públiques
-            ->where('start_time', '>=', now()->subDay()) // Futures
-            ->orderBy('start_time', 'asc')
-            ->get()
-            ->map(function ($event) {
-                $event->is_attending = $event->participants->contains(Auth::id());
-                $event->participants_count = $event->participants->count();
-                $event->routes_count = $event->routes->count();
-                $event->total_km = $event->routes->sum('planned_distance_km');
-                return $event;
-            });
-
-        return Inertia::render('Events/Index', [
-            'events' => $events
-        ]);
-    }
-
-    // 2. NOVA FUNCIÓ: LES MEVES QUEDADES (Gestió)
-    public function myEvents()
+// INDEX: una sola pantalla amb segments (Meves | Descobrir), com Rutes
+    public function index(Request $request)
     {
         $userId = Auth::id();
 
-        // Busquem events on: (Sóc l'organitzador) O (M'he apuntat)
-        $events = Event::with(['organizer', 'participants', 'routes'])
-            ->where(function($query) use ($userId) {
+        $decorate = function ($event) use ($userId) {
+            $event->is_attending = $event->participants->contains($userId);
+            $event->is_organizer = (int) $event->user_id === (int) $userId;
+            $event->participants_count = $event->participants->count();
+            $event->routes_count = $event->routes->count();
+            $event->total_km = round((float) $event->routes->sum('planned_distance_km'), 1);
+
+            // Llista densa: no cal enviar participants/routes sencers
+            $event->unsetRelation('participants');
+            $event->unsetRelation('routes');
+
+            return $event;
+        };
+
+        $myEvents = Event::with(['organizer:id,name', 'participants:id', 'routes:id,planned_distance_km'])
+            ->where(function ($query) use ($userId) {
                 $query->where('user_id', $userId)
-                      ->orWhereHas('participants', function($q) use ($userId) {
-                          $q->where('user_id', $userId);
-                      });
+                    ->orWhereHas('participants', fn ($q) => $q->where('user_id', $userId));
             })
+            ->where('start_time', '>=', now()->subDay())
             ->orderBy('start_time', 'asc')
             ->get()
-            ->map(function ($event) {
-                $event->is_attending = $event->participants->contains(Auth::id());
-                $event->participants_count = $event->participants->count();
-                $event->routes_count = $event->routes->count();
-                $event->total_km = $event->routes->sum('planned_distance_km');
-                return $event;
-            });
+            ->map($decorate)
+            ->values();
 
-        return Inertia::render('Events/MyEvents', [ // Crearem aquest fitxer ara
-            'events' => $events
+        $discoverEvents = Event::with(['organizer:id,name', 'participants:id', 'routes:id,planned_distance_km'])
+            ->where('is_public', true)
+            ->where('start_time', '>=', now()->subDay())
+            ->where('user_id', '!=', $userId)
+            ->whereDoesntHave('participants', fn ($q) => $q->where('user_id', $userId))
+            ->orderBy('start_time', 'asc')
+            ->get()
+            ->map($decorate)
+            ->values();
+
+        $next = $myEvents->first();
+
+        return Inertia::render('Events/Index', [
+            'myEvents'       => $myEvents,
+            'discoverEvents' => $discoverEvents,
+            'initialTab'     => $request->query('tab', 'mine'),
+            'nextEvent'      => $next ? [
+                'id'         => $next->id,
+                'title'      => $next->title,
+                'start_time' => $next->start_time,
+                'location'   => $next->location,
+            ] : null,
         ]);
+    }
+
+    // Redirect: bookmarks antics de /my-events
+    public function myEvents()
+    {
+        return redirect()->route('events.index', ['tab' => 'mine']);
     }
 
     // NOVA FUNCIÓ: PREVISUALITZAR EVENT VIA ENLLAÇ (Guest/Public)
@@ -242,7 +254,7 @@ class EventController extends Controller
             }
         }
 
-        return redirect()->route('events.index');
+        return redirect()->route('events.index', ['tab' => 'mine']);
         }
 
     // 4. VEURE DETALL (SHOW)
@@ -325,7 +337,7 @@ class EventController extends Controller
 
             $event->delete();
 
-            return redirect()->route('events.index');
+            return redirect()->route('events.index', ['tab' => 'mine']);
         }
     
     // EDITAR (Només la funció buida per ara, per a que no doni error el botó)
@@ -468,6 +480,6 @@ class EventController extends Controller
             }
         }
 
-        return redirect()->route('events.mine');
+        return redirect()->route('events.show', $event);
     }
 }

@@ -1,173 +1,175 @@
 <template>
-    <AppLayout :title="$t('events.create_title')">
-        <div class="max-w-4xl mx-auto px-4 py-6 pb-24">
-            
-            <div class="flex items-center justify-between mb-6">
-                <button type="button" @click="goBack" class="text-gray-500 hover:text-white flex items-center gap-1 text-sm">
-                    {{ $t('events.cancel') }}
-                </button>
-                <h1 class="text-xl font-black text-white uppercase tracking-tighter">{{ $t('events.create_title') }} <span class="text-brand-neon"></span></h1>
-            </div>
+    <AppLayout :title="$t('events.create_title')" :hide-bottom-nav="isPickerOpen">
+        <div class="max-w-xl mx-auto px-6 py-6 pb-24 cc-fade-in">
 
-            <form @submit.prevent="submit" class="space-y-8">
+            <div v-show="!isPickerOpen">
+                <header class="flex items-center gap-3 mb-8">
+                    <button type="button" @click="goBack" class="cc-icon-btn" :aria-label="$t('common.back')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                        </svg>
+                    </button>
+                    <h1 class="cc-title flex-1 truncate">{{ $t('events.create_title') }}</h1>
+                </header>
 
-                <div v-if="Object.keys(form.errors).length > 0" class="p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
-                    <p class="text-red-500 font-black text-xs uppercase tracking-widest mb-2">{{ $t('events.check_errors') }}</p>
-                    <ul class="list-disc pl-5 text-red-400 text-sm space-y-1">
-                        <li v-for="(error, field) in form.errors" :key="field">{{ error }}</li>
-                    </ul>
-                </div>
+                <form @submit.prevent="submit">
 
-                <p class="text-[10px] text-gray-600 uppercase tracking-widest"><span class="text-red-400 font-bold">*</span> {{ $t('events.required_field') }}</p>
+                    <div v-if="Object.keys(form.errors).length > 0" class="mb-8">
+                        <p class="text-sm text-red-400 mb-2">{{ $t('events.check_errors') }}</p>
+                        <ul class="space-y-1">
+                            <li v-for="(error, field) in form.errors" :key="field" class="text-red-400 text-sm">{{ error }}</li>
+                        </ul>
+                    </div>
 
-                <div class="bg-brand-surface p-6 rounded-xl border border-brand-dark shadow-lg space-y-5">
-                    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-700 pb-2 mb-4">{{ $t('events.basic_info') }}</h2>
-                    
-                    <div class="grid md:grid-cols-2 gap-6">
+                    <section class="space-y-4">
+                        <p class="cc-section-label">{{ $t('events.basic_info') }}</p>
+
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">
-                                {{ $t('events.event_title') }} <span class="text-red-400">*</span>
-                            </label>
-                            <input v-model="form.title" type="text" :placeholder="$t('events.event_title_placeholder')"
-                                :class="form.errors.title ? 'w-full bg-brand-black border-red-500 ring-1 ring-red-500 rounded-lg text-white focus:border-red-400 focus:ring-0' : 'w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0'">
-                            <p v-if="form.errors.title" class="text-red-400 text-xs mt-1">⚠ {{ form.errors.title }}</p>
+                            <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('events.event_title') }}</label>
+                            <input v-model="form.title" type="text" :placeholder="$t('events.event_title_placeholder')" :class="inputClass(form.errors.title)">
+                            <p v-if="form.errors.title" class="text-red-400 text-xs mt-1">{{ form.errors.title }}</p>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">
-                                {{ $t('events.date_time') }} <span class="text-red-400">*</span>
-                            </label>
-                            <input v-model="form.start_time" type="datetime-local"
-                                :class="form.errors.start_time ? 'w-full bg-brand-black border-red-500 ring-1 ring-red-500 rounded-lg text-white focus:border-red-400 focus:ring-0 [color-scheme:dark]' : 'w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0 [color-scheme:dark]'">
-                            <p class="text-[10px] text-gray-500 mt-1">{{ $t('events.date_format') }}</p>
-                            <p v-if="form.errors.start_time" class="text-red-400 text-xs mt-1">⚠ {{ form.errors.start_time }}</p>
+                            <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('events.date_time') }}</label>
+                            <input v-model="form.start_time" type="datetime-local" :class="[inputClass(form.errors.start_time), '[color-scheme:dark]']">
+                            <p v-if="form.errors.start_time" class="text-red-400 text-xs mt-1">{{ form.errors.start_time }}</p>
                         </div>
-                    </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('events.description_plan') }}</label>
-                        <textarea v-model="form.description" rows="3" :placeholder="$t('events.description_placeholder')" class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0"></textarea>
-                    </div>
-
-                    <div class="grid md:grid-cols-2 gap-6 pt-2">
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">
-                                {{ $t('events.rider_limit') }} <span class="text-gray-600 font-normal">{{ $t('events.rider_limit_optional') }}</span>
-                            </label>
-                            <div class="relative">
-                                <input 
-                                    v-model="form.max_participants" 
-                                    type="number" 
-                                    min="2" 
+                            <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('events.description_plan') }}</label>
+                            <textarea v-model="form.description" rows="3" :placeholder="$t('events.description_placeholder')" :class="[inputClass(), 'resize-none']"></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('events.rider_limit') }}</label>
+                                <input
+                                    v-model="form.max_participants"
+                                    type="number"
+                                    min="2"
                                     max="999"
-                                    :placeholder="$t('common.no') + ' (' + '∞' + ')'"
-                                    class="w-full bg-brand-black border-brand-dark rounded-lg text-white focus:border-brand-neon focus:ring-0 placeholder-gray-600"
+                                    :placeholder="$t('events.unlimited')"
+                                    :class="inputClass(form.errors.max_participants)"
                                 >
-                                <div class="absolute right-3 top-2.5 text-xs text-gray-500 pointer-events-none">
-                                    {{ form.max_participants ? $t('events.persons') : $t('events.unlimited') }}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('events.visibility') }}</label>
+                                <div class="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.04] p-1 h-[42px]">
+                                    <button
+                                        type="button"
+                                        @click="form.is_public = true"
+                                        class="flex-1 py-1.5 rounded-lg text-xs font-medium transition"
+                                        :class="form.is_public ? 'bg-white text-brand-black' : 'text-gray-500 hover:text-white'"
+                                    >
+                                        {{ $t('events.public') }}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        @click="form.is_public = false"
+                                        class="flex-1 py-1.5 rounded-lg text-xs font-medium transition"
+                                        :class="!form.is_public ? 'bg-white/[0.12] text-white' : 'text-gray-500 hover:text-white'"
+                                    >
+                                        {{ $t('events.private_label') }}
+                                    </button>
                                 </div>
                             </div>
-                            <p class="text-[10px] text-gray-500 mt-1">{{ $t('events.unlimited_hint') }}</p>
                         </div>
+                    </section>
+
+                    <section class="mt-10 space-y-4">
+                        <p class="cc-section-label">{{ $t('events.event_photo') }}</p>
+                        <input
+                            @change="e => form.photo = e.target.files[0]"
+                            type="file"
+                            accept="image/*"
+                            class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-white/[0.06] file:text-white hover:file:bg-white/[0.1] transition cursor-pointer"
+                        >
+                        <p v-if="form.errors.photo" class="text-red-400 text-xs">{{ form.errors.photo }}</p>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('events.visibility') }}</label>
-                            <div class="flex items-center gap-3 bg-brand-black p-2 rounded-lg border border-brand-dark h-[42px]">
-                                <button type="button" @click="form.is_public = true" class="flex-1 py-1 rounded text-xs font-bold uppercase transition flex items-center justify-center gap-1.5" :class="form.is_public ? 'bg-brand-neon text-black' : 'text-gray-500 hover:text-white'">
-                                    <AppIcon name="globe" size="xs" />
-                                    {{ $t('events.public') }}
-                                </button>
-                                <button type="button" @click="form.is_public = false" class="flex-1 py-1 rounded text-xs font-bold uppercase transition flex items-center justify-center gap-1.5" :class="!form.is_public ? 'bg-gray-600 text-white' : 'text-gray-500 hover:text-white'">
-                                    <AppIcon name="lock" size="xs" />
-                                    {{ $t('events.private_label') }}
-                                </button>
+                            <label class="block text-sm font-medium text-gray-400 mb-1.5">{{ $t('events.chat_photo') }}</label>
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-full overflow-hidden border border-white/[0.08] bg-white/[0.04] flex items-center justify-center flex-shrink-0">
+                                    <img v-if="chatPhotoPreview" :src="chatPhotoPreview" alt="" class="w-full h-full object-cover">
+                                    <span v-else class="text-xs text-gray-600">·</span>
+                                </div>
+                                <input
+                                    @change="onChatPhotoChange"
+                                    type="file"
+                                    accept="image/*"
+                                    class="flex-1 text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-white/[0.06] file:text-white hover:file:bg-white/[0.1] transition cursor-pointer"
+                                >
                             </div>
                         </div>
-                    </div>
+                    </section>
 
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">{{ $t('events.event_photo') }}</label>
-                        <input @change="e => form.photo = e.target.files[0]" type="file" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-brand-base/20 file:text-brand-neon hover:file:bg-brand-base/30 transition cursor-pointer">
-                        <div v-if="form.errors.photo" class="text-red-500 text-xs mt-1">{{ form.errors.photo }}</div>
-                        <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">{{ $t('events.photo_hint') }}</p>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2 flex items-center gap-2">
-                            <AppIcon name="chat" size="sm" class="text-brand-neon" />
-                            {{ $t('events.chat_photo') }}
-                        </label>
-                        <div class="flex items-center gap-3">
-                            <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-brand-dark bg-brand-black flex items-center justify-center flex-shrink-0">
-                                <img v-if="chatPhotoPreview" :src="chatPhotoPreview" alt="" class="w-full h-full object-cover">
-                                <AppIcon v-else name="users" size="md" class="text-gray-600" />
-                            </div>
-                            <input @change="onChatPhotoChange" type="file" accept="image/*" class="flex-1 text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-brand-base/20 file:text-brand-neon hover:file:bg-brand-base/30 transition cursor-pointer">
+                    <section class="mt-10">
+                        <div class="flex items-baseline justify-between gap-3 mb-4">
+                            <p class="cc-section-label mb-0">{{ $t('events.itinerary_section') }}</p>
+                            <span class="text-xs text-gray-600 tabular-nums">{{ $t('events.stages', { n: form.stages.length }) }}</span>
                         </div>
-                        <div v-if="form.errors.chat_photo" class="text-red-500 text-xs mt-1">{{ form.errors.chat_photo }}</div>
-                        <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">{{ $t('events.chat_photo_hint') }}</p>
-                    </div>
-                </div>
+                        <p v-if="form.errors.stages" class="text-red-400 text-xs mb-3">{{ form.errors.stages }}</p>
 
-                <div class="bg-brand-surface p-6 rounded-xl border border-brand-dark shadow-lg">
-                    <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-2">
-                        <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest">
-                            {{ $t('events.itinerary_section') }} <span class="text-red-400">*</span>
-                        </h2>
-                        <span class="text-xs text-brand-neon bg-brand-neon/10 px-2 py-1 rounded border border-brand-neon/20 font-bold">{{ $t('events.stages', { n: form.stages.length }) }}</span>
-                    </div>
-                    <p v-if="form.errors.stages" class="text-red-400 text-xs mb-3">⚠ {{ form.errors.stages }}</p>
-
-                    <div class="space-y-4">
-                        <div v-for="(stage, index) in form.stages" :key="index" class="relative group bg-brand-black border border-brand-dark rounded-xl p-4 transition hover:border-gray-500">
-                            
-                            <div class="absolute -left-3 top-4 w-6 h-6 bg-brand-neon text-black font-black text-xs rounded-full flex items-center justify-center shadow-lg border-2 border-brand-surface z-10">
-                                {{ index + 1 }}
-                            </div>
-
-                            <button @click="removeStage(index)" type="button" class="absolute top-2 right-2 text-gray-600 hover:text-red-500 p-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                            </button>
-
-                            <div class="grid md:grid-cols-12 gap-4 items-start ml-3">
-                                <div class="md:col-span-4">
-                                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">{{ $t('events.stage_type') }}</label>
-                                    <select v-model="stage.type" class="w-full bg-brand-surface border-brand-dark rounded-lg text-white text-xs focus:border-brand-neon py-2.5">
-                                        <option value="location">{{ $t('events.stage_meeting_point') }}</option>
-                                        <option value="route">{{ $t('events.stage_route') }}</option>
-                                    </select>
+                        <div class="divide-y divide-white/[0.06]">
+                            <div v-for="(stage, index) in form.stages" :key="index" class="py-5">
+                                <div class="flex items-center justify-between gap-3 mb-3">
+                                    <span class="text-sm text-gray-500 tabular-nums">{{ index + 1 }}</span>
+                                    <button
+                                        v-if="form.stages.length > 1"
+                                        type="button"
+                                        @click="removeStage(index)"
+                                        class="text-xs text-gray-600 hover:text-red-400 transition"
+                                    >
+                                        {{ $t('common.delete') }}
+                                    </button>
                                 </div>
 
-                                <div class="md:col-span-8">
+                                <div class="space-y-3">
+                                    <div class="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.04] p-1">
+                                        <button
+                                            type="button"
+                                            @click="stage.type = 'location'"
+                                            class="flex-1 py-1.5 rounded-lg text-xs font-medium transition"
+                                            :class="stage.type === 'location' ? 'bg-white text-brand-black' : 'text-gray-500 hover:text-white'"
+                                        >
+                                            {{ $t('events.stage_meeting_point') }}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            @click="stage.type = 'route'"
+                                            class="flex-1 py-1.5 rounded-lg text-xs font-medium transition"
+                                            :class="stage.type === 'route' ? 'bg-white text-brand-black' : 'text-gray-500 hover:text-white'"
+                                        >
+                                            {{ $t('events.stage_route') }}
+                                        </button>
+                                    </div>
+
                                     <div v-if="stage.type === 'route'">
-                                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">
-                                            {{ $t('events.select_route') }} <span class="text-red-400">*</span>
-                                        </label>
-                                        <select v-model="stage.route_id"
-                                            :class="form.errors[`stages.${index}.route_id`] ? 'w-full bg-brand-surface border-red-500 ring-1 ring-red-500 rounded-lg text-white text-sm focus:border-red-400 focus:ring-0 py-2.5' : 'w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon py-2.5'">
+                                        <select v-model="stage.route_id" :class="inputClass(form.errors[`stages.${index}.route_id`])">
                                             <option :value="null">{{ $t('events.route_placeholder') }}</option>
                                             <option v-for="r in myRoutes" :key="r.id" :value="r.id">
                                                 {{ r.title }} ({{ r.planned_distance_km }} km)
                                             </option>
                                         </select>
-                                        <p v-if="form.errors[`stages.${index}.route_id`]" class="text-red-400 text-xs mt-1">⚠ {{ form.errors[`stages.${index}.route_id`] }}</p>
-                                        <p v-else-if="myRoutes.length === 0" class="text-[10px] text-red-400 mt-1">{{ $t('events.no_routes') }}</p>
+                                        <p v-if="form.errors[`stages.${index}.route_id`]" class="text-red-400 text-xs mt-1">{{ form.errors[`stages.${index}.route_id`] }}</p>
+                                        <p v-else-if="myRoutes.length === 0" class="text-red-400 text-xs mt-1">{{ $t('events.no_routes') }}</p>
                                     </div>
+
                                     <div v-else class="space-y-3">
-                                        <div>
-                                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">
-                                                {{ $t('events.place_name') }} <span class="text-red-400">*</span>
-                                            </label>
-                                            <input v-model="stage.location_name" type="text" :placeholder="$t('events.place_placeholder')"
-                                                :class="form.errors[`stages.${index}.location_name`] ? 'w-full bg-brand-surface border-red-500 ring-1 ring-red-500 rounded-lg text-white text-sm focus:border-red-400 focus:ring-0' : 'w-full bg-brand-surface border-brand-dark rounded-lg text-white text-sm focus:border-brand-neon'">
-                                            <p v-if="form.errors[`stages.${index}.location_name`]" class="text-red-400 text-xs mt-1">⚠ {{ form.errors[`stages.${index}.location_name`] }}</p>
-                                        </div>
+                                        <input
+                                            v-model="stage.location_name"
+                                            type="text"
+                                            :placeholder="$t('events.place_placeholder')"
+                                            :class="inputClass(form.errors[`stages.${index}.location_name`])"
+                                        >
+                                        <p v-if="form.errors[`stages.${index}.location_name`]" class="text-red-400 text-xs">{{ form.errors[`stages.${index}.location_name`] }}</p>
                                         <div class="flex items-center gap-2">
-                                            <div class="flex-1 bg-gray-800/50 rounded px-3 py-2 text-xs text-gray-400 border border-brand-dark truncate">
+                                            <p class="flex-1 text-xs text-gray-500 truncate">
                                                 <span v-if="stage.latitude">{{ $t('events.coords_saved') }}</span>
-                                                <span v-else class="italic">{{ $t('events.no_coords') }}</span>
-                                            </div>
-                                            <button type="button" @click="openLocationPicker(index)" class="bg-brand-dark hover:bg-brand-neon hover:text-black text-white px-3 py-2 rounded-lg text-xs font-bold uppercase transition flex items-center gap-2 border border-gray-600 hover:border-brand-neon">
+                                                <span v-else>{{ $t('events.no_coords') }}</span>
+                                            </p>
+                                            <button type="button" @click="openLocationPicker(index)" class="cc-btn-text">
                                                 {{ $t('events.map_button') }}
                                             </button>
                                         </div>
@@ -175,49 +177,55 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <button type="button" @click="addStage" class="mt-4 w-full border-2 border-dashed border-gray-700 hover:border-brand-neon hover:text-brand-neon text-gray-500 rounded-xl py-3 flex items-center justify-center gap-2 text-sm font-bold uppercase transition bg-transparent hover:bg-brand-neon/5">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                        {{ $t('events.add_stage') }}
-                    </button>
-                </div>
+                        <button type="button" @click="addStage" class="cc-btn-text w-full mt-4 justify-center">
+                            {{ $t('events.add_stage') }}
+                        </button>
+                    </section>
 
-                <div class="pt-6 pb-12">
-                    <button type="submit" :disabled="form.processing" class="w-full bg-brand-neon text-brand-black font-black py-4 rounded-xl uppercase tracking-widest hover:bg-white transition shadow-[0_0_20px_rgba(12,225,181,0.4)] disabled:opacity-50">
+                    <button type="submit" :disabled="form.processing" class="cc-btn-primary w-full mt-12 py-3.5">
                         {{ $t('events.publish') }}
                     </button>
-                </div>
-            </form>
+                </form>
+            </div>
+        </div>
 
-            <div v-if="isPickerOpen" class="fixed inset-0 z-[6000] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
-                <div class="bg-brand-surface border border-brand-dark rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col h-[70vh]">
-                    <div class="p-4 bg-brand-black border-b border-brand-dark flex justify-between items-center">
-                        <h3 class="text-white font-bold uppercase text-sm">{{ $t('events.map_title') }}</h3>
-                        <button @click="closePicker" class="text-gray-400 hover:text-white p-2">✕</button>
-                    </div>
-                    <div class="flex-1 relative bg-gray-900 w-full">
-                        <div id="map-picker" class="absolute inset-0 w-full h-full z-0"></div>
-                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none text-brand-neon drop-shadow-2xl pb-8">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-12 h-12"><path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" /></svg>
-                        </div>
-                    </div>
-                    <div class="p-4 bg-brand-black border-t border-brand-dark">
-                        <button @click="confirmLocation" class="w-full bg-brand-neon text-brand-black font-black py-3 rounded-xl uppercase hover:bg-white transition">{{ $t('events.confirm_location') }}</button>
-                    </div>
+        <Teleport to="body">
+            <div v-if="isPickerOpen" class="fixed inset-0 z-[6000] bg-brand-black flex flex-col">
+                <div id="map-picker" class="absolute inset-0 w-full h-full z-0"></div>
+
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none pb-8 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-10 h-10 drop-shadow-lg">
+                        <path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+
+                <button
+                    type="button"
+                    @click="closePicker"
+                    class="cc-icon-btn absolute top-4 left-4 z-[6010] bg-black/50 backdrop-blur-md border-white/20"
+                    :aria-label="$t('common.back')"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                    </svg>
+                </button>
+
+                <div class="absolute bottom-6 left-0 w-full px-4 z-[6010]">
+                    <button type="button" @click="confirmLocation" class="cc-btn-primary w-full max-w-sm mx-auto py-3.5">
+                        {{ $t('events.confirm_location') }}
+                    </button>
                 </div>
             </div>
-
-        </div>
+        </Teleport>
     </AppLayout>
 </template>
 
 <script setup>
 import { ref, nextTick } from 'vue';
-import { useForm, Link } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import AppIcon from '@/Components/AppIcon.vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { smartBack } from '@/Composables/navigationStack.js';
@@ -225,7 +233,7 @@ import { addMapTileLayer } from '@/config/mapTiles.js';
 
 const { t } = useI18n();
 
-const props = defineProps({ myRoutes: Array });
+defineProps({ myRoutes: Array });
 
 const goBack = () => smartBack(route('events.index'));
 
@@ -237,13 +245,18 @@ const form = useForm({
     max_participants: null,
     photo: null,
     chat_photo: null,
-    stages: [{ type: 'location', route_id: null, location_name: '', latitude: null, longitude: null }]
+    stages: [{ type: 'location', route_id: null, location_name: '', latitude: null, longitude: null }],
 });
 
 const isPickerOpen = ref(false);
 const activeStageIndex = ref(null);
 const map = ref(null);
 const chatPhotoPreview = ref(null);
+
+const inputClass = (error) =>
+    error
+        ? 'w-full rounded-xl bg-brand-black border-red-500 ring-1 ring-red-500 text-white focus:border-red-400 focus:ring-0'
+        : 'w-full rounded-xl bg-white/[0.04] border-white/[0.08] text-white focus:border-white/30 focus:ring-0';
 
 const onChatPhotoChange = (e) => {
     const file = e.target.files[0];
@@ -258,36 +271,45 @@ const onChatPhotoChange = (e) => {
 };
 
 const addStage = () => form.stages.push({ type: 'route', route_id: null, location_name: '', latitude: null, longitude: null });
-const removeStage = (index) => form.stages.length > 1 ? form.stages.splice(index, 1) : alert(t('events.min_one_stage'));
+const removeStage = (index) => {
+    if (form.stages.length > 1) form.stages.splice(index, 1);
+    else alert(t('events.min_one_stage'));
+};
 
 const openLocationPicker = async (index) => {
     activeStageIndex.value = index;
     isPickerOpen.value = true;
     await nextTick();
-    if (!map.value) initMap();
-    else map.value.invalidateSize();
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            if (!map.value) {
+                map.value = L.map('map-picker', { zoomControl: false, attributionControl: false }).setView([41.3851, 2.1734], 13);
+                addMapTileLayer(map.value, L);
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition((pos) => {
+                        map.value?.flyTo([pos.coords.latitude, pos.coords.longitude], 15);
+                    });
+                }
+            } else {
+                map.value.invalidateSize();
+            }
+        }, 80);
+    });
 };
 
-const closePicker = () => isPickerOpen.value = false;
-
-const initMap = () => {
-    map.value = L.map('map-picker', { zoomControl: false }).setView([41.3851, 2.1734], 13);
-    addMapTileLayer(map.value, L);
-    if (navigator.geolocation) navigator.geolocation.getCurrentPosition(pos => map.value.flyTo([pos.coords.latitude, pos.coords.longitude], 15));
-};
+const closePicker = () => { isPickerOpen.value = false; };
 
 const confirmLocation = () => {
     if (map.value && activeStageIndex.value !== null) {
         const center = map.value.getCenter();
         form.stages[activeStageIndex.value].latitude = center.lat;
         form.stages[activeStageIndex.value].longitude = center.lng;
-        if (!form.stages[activeStageIndex.value].location_name) form.stages[activeStageIndex.value].location_name = `GPS (${center.lat.toFixed(4)}, ${center.lng.toFixed(4)})`;
+        if (!form.stages[activeStageIndex.value].location_name) {
+            form.stages[activeStageIndex.value].location_name = `GPS (${center.lat.toFixed(4)}, ${center.lng.toFixed(4)})`;
+        }
         closePicker();
     }
 };
 
 const submit = () => form.post(route('events.store'), { forceFormData: true });
 </script>
-
-<style>
-</style>

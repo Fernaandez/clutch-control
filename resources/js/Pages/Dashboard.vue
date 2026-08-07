@@ -58,35 +58,44 @@
                     </div>
                 </section>
 
-                <!-- ÚLTIM — el que has fet, no un botó cap a una llista -->
+                <!-- ÚLTIM — el fet és el contingut; l'acció és un botó explícit -->
                 <section v-if="pulse.last_trip" class="mt-12">
-                    <p class="cc-section-label">{{ $t('dashboard.last_ride') }}</p>
-                    <Link :href="route('trips.show', pulse.last_trip.id)" class="block mt-3 group">
-                        <p class="text-[28px] font-light tracking-tight text-white tabular-nums leading-none">
-                            {{ pulse.last_trip.distance_km }}<span class="text-base text-gray-500 ml-1.5">km</span>
-                        </p>
-                        <p class="mt-2 text-sm text-gray-400 group-hover:text-gray-200 transition-colors">
-                            <span v-if="pulse.last_trip.route_title">{{ pulse.last_trip.route_title }} · </span>
-                            {{ relativeDate(pulse.last_trip.started_at) }}
-                        </p>
-                    </Link>
+                    <div class="flex items-center justify-between gap-3">
+                        <p class="cc-section-label">{{ $t('dashboard.last_ride') }}</p>
+                        <Link :href="route('trips.show', pulse.last_trip.id)" class="cc-btn-text">
+                            {{ $t('common.view') }}
+                        </Link>
+                    </div>
+                    <p class="mt-3 text-[28px] font-light tracking-tight text-white tabular-nums leading-none">
+                        {{ pulse.last_trip.distance_km }}<span class="text-base text-gray-500 ml-1.5">km</span>
+                    </p>
+                    <p class="mt-2 text-sm text-gray-400">
+                        <span v-if="pulse.last_trip.route_title">{{ pulse.last_trip.route_title }} · </span>
+                        {{ relativeDate(pulse.last_trip.started_at) }}
+                    </p>
                 </section>
 
                 <!-- PRÒXIM -->
                 <section v-if="pulse.next_event" class="mt-12">
-                    <p class="cc-section-label">{{ $t('dashboard.upcoming') }}</p>
-                    <Link :href="route('events.show', pulse.next_event.id)" class="block mt-3 group">
-                        <p class="text-[15px] text-gray-200 group-hover:text-white transition-colors">
-                            {{ pulse.next_event.title }}
-                        </p>
-                        <p class="mt-1 text-sm text-gray-500">{{ relativeDate(pulse.next_event.start_time) }}</p>
-                    </Link>
+                    <div class="flex items-center justify-between gap-3">
+                        <p class="cc-section-label">{{ $t('dashboard.upcoming') }}</p>
+                        <Link :href="route('events.show', pulse.next_event.id)" class="cc-btn-text">
+                            {{ $t('common.view') }}
+                        </Link>
+                    </div>
+                    <p class="mt-3 text-[15px] text-gray-200">{{ pulse.next_event.title }}</p>
+                    <p class="mt-1 text-sm text-gray-500">{{ relativeDate(pulse.next_event.start_time) }}</p>
                 </section>
 
-                <!-- HISTORIAL — dues xifres, no dos botons -->
+                <!-- HISTORIAL — dues xifres + botó per obrir -->
                 <section v-if="pulse.logs_count > 0" class="mt-12">
-                    <p class="cc-section-label">{{ $t('dashboard.full_history') }}</p>
-                    <Link :href="route('motorcycles.global-history', moto.id)" class="flex items-baseline gap-8 mt-3 group">
+                    <div class="flex items-center justify-between gap-3">
+                        <p class="cc-section-label">{{ $t('dashboard.full_history') }}</p>
+                        <Link :href="route('motorcycles.global-history', moto.id)" class="cc-btn-text">
+                            {{ $t('common.view') }}
+                        </Link>
+                    </div>
+                    <div class="flex items-baseline gap-8 mt-3">
                         <span>
                             <span class="block text-[28px] font-light tracking-tight text-white tabular-nums leading-none">{{ pulse.logs_count }}</span>
                             <span class="block mt-1.5 text-xs text-gray-500">{{ $t('dashboard.records') }}</span>
@@ -95,7 +104,7 @@
                             <span class="block text-[28px] font-light tracking-tight text-white tabular-nums leading-none">{{ Math.round(pulse.total_spent) }}<span class="text-base text-gray-500 ml-1">€</span></span>
                             <span class="block mt-1.5 text-xs text-gray-500">{{ $t('dashboard.invested') }}</span>
                         </span>
-                    </Link>
+                    </div>
                 </section>
 
                 <!-- Els mòduls de la moto: ocupen l'espai que queda, no floten com a text -->
