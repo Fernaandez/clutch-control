@@ -109,7 +109,7 @@
                         :key="moto.id"
                         class="flex items-center gap-4 py-5"
                     >
-                        <div class="min-w-0 flex-1">
+                        <Link :href="route('dashboard', moto.id)" class="min-w-0 flex-1">
                             <p class="text-lg font-medium text-gray-200 truncate">
                                 {{ moto.brand }} {{ moto.model }}
                             </p>
@@ -122,9 +122,9 @@
                             <p v-if="moto.itv_status && moto.itv_status !== 'ok'" class="mt-2 text-sm text-red-400">
                                 {{ $t('motorcycles.itv_badge') }} · {{ $t(`motorcycles.status_${moto.itv_status}`) }}
                             </p>
-                        </div>
-                        <Link :href="route('dashboard', moto.id)" class="cc-btn-text flex-shrink-0">
-                            {{ $t('common.view') }}
+                        </Link>
+                        <Link :href="route('motorcycles.edit', moto.id)" class="cc-btn-text flex-shrink-0">
+                            {{ $t('common.edit') }}
                         </Link>
                     </div>
                 </div>

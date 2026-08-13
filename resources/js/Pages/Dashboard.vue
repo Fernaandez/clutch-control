@@ -16,15 +16,20 @@
             <div class="relative flex-1 flex flex-col px-6 pt-10 pb-28 w-full max-w-xl mx-auto">
 
                 <!-- Identitat: discreta. El protagonista és el número. -->
-                <Link
-                    :href="route('motorcycles.index')"
-                    class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-300 transition-colors"
-                >
-                    {{ moto.brand }} {{ moto.model }}
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-3.5 h-3.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                    </svg>
-                </Link>
+                <div class="flex items-center justify-between gap-3">
+                    <Link
+                        :href="route('motorcycles.index')"
+                        class="inline-flex items-center gap-2 min-w-0 text-sm text-gray-500 hover:text-gray-300 transition-colors"
+                    >
+                        <span class="truncate">{{ moto.brand }} {{ moto.model }}</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-3.5 h-3.5 flex-shrink-0">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </Link>
+                    <Link :href="route('motorcycles.edit', moto.id)" class="cc-btn-text flex-shrink-0">
+                        {{ $t('common.edit') }}
+                    </Link>
+                </div>
 
                 <!-- El quilometratge és LA xifra d'una moto -->
                 <p class="mt-6 text-[64px] leading-[0.9] font-light tracking-[-0.04em] text-white tabular-nums">
