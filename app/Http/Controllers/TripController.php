@@ -5,12 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Trip;
 use App\Models\Motorcycle;
 use App\Models\Route;
-use App\Models\HabitualRoute;
-use App\Services\ManualTripService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class TripController extends Controller
@@ -236,7 +234,7 @@ class TripController extends Controller
             'duration_seconds' => 'nullable|integer|min:0',
             'waypoints'        => 'required|array|min:2',
             'started_at'       => 'required|date',
-            'motorcycle_id'    => 'nullable|exists:motorcycles,id',
+            'motorcycle_id'    => ['nullable', Rule::exists('motorcycles', 'id')->where('user_id', Auth::id())],
             'route_id'         => 'nullable|exists:routes,id',
         ]);
 
@@ -324,31 +322,16 @@ class TripController extends Controller
         return redirect()->route('trips.show', $trip);
     }
 
-    public function completeFromHabitual(HabitualRoute $habitualRoute)
-    {
-        try {
-            $result = app(ManualTripService::class)->registerFromHabitual($habitualRoute);
-
-            return redirect()
-                ->route('routes.habitual')
-                ->with('habitual_done_title', $result['title'])
-                ->with('habitual_done_km', $result['km']);
-        } catch (\Throwable $e) {
-            Log::error('completeFromHabitual failed', ['message' => $e->getMessage()]);
-
-            return redirect()
-                ->route('routes.habitual')
-                ->withErrors(['habitual' => $e->getMessage() ?: 'No s\'ha pogut registrar el trajecte.']);
-        }
-    }
-
     public function destroy(Trip $trip)
     {
         if ($trip->user_id !== Auth::id()) {
             abort(403);
         }
 
-        if ($trip->manual_entry && $trip->motorcycle_id && $trip->distance_km) {
+        // store() suma km tant per als trajectes manuals com per als de GPS,
+        // per tant l'esborrat els ha de restar en tots dos casos. Abans només
+        // es restaven els manuals i el comptaquilòmetres quedava inflat.
+        if ($trip->motorcycle_id && $trip->distance_km) {
             $moto = Motorcycle::find($trip->motorcycle_id);
             if ($moto && $moto->user_id === Auth::id()) {
                 $this->subtractKmFromMotorcycle($moto, (float) $trip->distance_km);

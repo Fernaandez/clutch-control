@@ -6,12 +6,67 @@ use App\Models\Route;
 use App\Models\Motorcycle;
 use App\Models\HabitualRoute;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 
 class RouteController extends Controller
 {
+    /**
+     * Regla de validació per a motorcycle_id: ha d'existir I ser de l'usuari.
+     * Amb només `exists:motorcycles,id` qualsevol usuari podia assignar-se
+     * (i sumar km a) la moto d'un altre.
+     */
+    private function ownedMotorcycleRule(): array
+    {
+        return ['nullable', Rule::exists('motorcycles', 'id')->where('user_id', Auth::id())];
+    }
+
+    /** La moto de l'usuari, o null si no n'és el propietari. */
+    private function ownedMotorcycle(?int $motorcycleId): ?Motorcycle
+    {
+        if (empty($motorcycleId)) {
+            return null;
+        }
+
+        return Motorcycle::where('id', $motorcycleId)
+            ->where('user_id', Auth::id())
+            ->first();
+    }
+
+    private function addKmToMotorcycle(?Motorcycle $moto, ?float $km): void
+    {
+        if (! $moto || ! $km || $km <= 0) {
+            return;
+        }
+
+        $moto->current_km = ($moto->current_km ?? 0) + $km;
+        $moto->save();
+    }
+
+    private function subtractKmFromMotorcycle(?Motorcycle $moto, ?float $km): void
+    {
+        if (! $moto || ! $km || $km <= 0) {
+            return;
+        }
+
+        $moto->current_km = max(0, ($moto->current_km ?? 0) - $km);
+        $moto->save();
+    }
+
+    /**
+     * Qui pot veure una ruta: el propietari, un admin, o qualsevol si és
+     * pública. Les rutes privades només s'obren amb share_token.
+     */
+    private function canView(Route $route): bool
+    {
+        $user = Auth::user();
+
+        return (bool) $route->is_public
+            || ($user && (int) $route->user_id === (int) $user->id)
+            || ($user && ($user->role ?? null) === 'admin');
+    }
     /**
      * Pantalla única de Rutes: les meves, les de la comunitat i les habituals.
      * Substitueix el hub, l'explorador i "les meves rutes", que eren la mateixa
@@ -163,7 +218,7 @@ class RouteController extends Controller
             'waypoints' => 'required|array',
             'created_at' => 'required|date',
             'original_route_id' => 'nullable|exists:routes,id',
-            'motorcycle_id' => 'nullable|exists:motorcycles,id',
+            'motorcycle_id' => $this->ownedMotorcycleRule(),
         ]);
 
         // Crear la ruta a base de dades
@@ -193,15 +248,11 @@ class RouteController extends Controller
             ]);
         }
 
-        // Sumar KM a la moto
-        if (!empty($validated['motorcycle_id']) && !empty($validated['distance_km'])) {
-            $moto = \App\Models\Motorcycle::find($validated['motorcycle_id']);
-            if ($moto) {
-                // S'assegura que siguin números, parseFloat si cal (però el validat és numeric)
-                $moto->current_km += $validated['distance_km'];
-                $moto->save();
-            }
-        }
+        // Sumar KM a la moto (només si és de l'usuari autenticat)
+        $this->addKmToMotorcycle(
+            $this->ownedMotorcycle($validated['motorcycle_id'] ?? null),
+            isset($validated['distance_km']) ? (float) $validated['distance_km'] : null
+        );
 
         return response()->json(['success' => true, 'route_id' => $route->id]);
     }
@@ -240,7 +291,7 @@ class RouteController extends Controller
             'distance_km' => 'nullable|numeric|min:0',
             'duration_seconds' => 'nullable|integer|min:0',
             'difficulty' => 'required|in:easy,medium,hard',
-            'motorcycle_id' => 'nullable|exists:motorcycles,id',
+            'motorcycle_id' => $this->ownedMotorcycleRule(),
             'category_id' => 'nullable|exists:route_categories,id',
             'waypoints' => 'nullable|array', 
             'geo_json' => 'required', 
@@ -251,11 +302,11 @@ class RouteController extends Controller
 
         $route = $request->user()->routes()->create([
             'title' => $validated['title'],
-            'description' => $validated['description'],
+            'description' => $validated['description'] ?? null,
             'difficulty' => $validated['difficulty'],
-            'motorcycle_id' => $validated['motorcycle_id'],
+            'motorcycle_id' => $validated['motorcycle_id'] ?? null,
             'category_id' => $validated['category_id'] ?? null,
-            'planned_distance_km' => $validated['planned_distance_km'],
+            'planned_distance_km' => $validated['planned_distance_km'] ?? null,
             'distance_km' => $validated['distance_km'] ?? null,
             'duration_seconds' => $validated['duration_seconds'] ?? null,
             'geo_json' => is_string($request->geo_json) ? json_decode($request->geo_json) : $request->geo_json, 
@@ -283,12 +334,11 @@ class RouteController extends Controller
         }
 
         // AUTO-SUMAR KM A LA MOTO SI ÉS GRAVADA I TÉ MOTO
-        if (($request->is_recorded ?? false) && $route->motorcycle_id && isset($validated['distance_km'])) {
-            $moto = \App\Models\Motorcycle::find($route->motorcycle_id);
-            if ($moto) {
-                $moto->current_km += $validated['distance_km'];
-                $moto->save();
-            }
+        if ($route->is_recorded && $route->motorcycle_id && isset($validated['distance_km'])) {
+            $this->addKmToMotorcycle(
+                $this->ownedMotorcycle($route->motorcycle_id),
+                (float) $validated['distance_km']
+            );
         }
 
         // REDIRECT CANVIAT: Et porta a la teva llista privada
@@ -302,11 +352,7 @@ class RouteController extends Controller
         // l'usuari hi te dret a accedir. Les rutes privades nomes les pot
         // veure el propietari o un admin; la resta de gent ha d'accedir
         // amb el share_token (via /r/{token}).
-        $user = Auth::user();
-        $isOwner = $user && (int) $route->user_id === (int) $user->id;
-        $isAdmin = $user && ($user->role ?? null) === 'admin';
-
-        if (!$route->is_public && !$isOwner && !$isAdmin) {
+        if (! $this->canView($route)) {
             abort(403, 'Aquesta ruta es privada.');
         }
 
@@ -320,7 +366,6 @@ class RouteController extends Controller
         return Inertia::render('Routes/Show', [
             'mapRoute' => $route->load(['user', 'waypoints', 'reviews.user']),
             'motorcycle' => $route->motorcycle,
-            'motorcycles' => Auth::user()?->motorcycles()->select('id', 'brand', 'model')->get() ?? [],
         ]);
     }
 
@@ -346,7 +391,7 @@ class RouteController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'difficulty' => 'required|in:easy,medium,hard',
-            'motorcycle_id' => 'nullable|exists:motorcycles,id',
+            'motorcycle_id' => $this->ownedMotorcycleRule(),
             'category_id' => 'nullable|exists:route_categories,id',
             'is_public' => 'boolean',
             'is_recorded' => 'boolean',
@@ -361,13 +406,13 @@ class RouteController extends Controller
         // 2. Actualitzem les dades generals de la ruta
         $route->update([
             'title' => $validated['title'],
-            'description' => $validated['description'],
+            'description' => $validated['description'] ?? null,
             'difficulty' => $validated['difficulty'],
-            'motorcycle_id' => $validated['motorcycle_id'],
+            'motorcycle_id' => $validated['motorcycle_id'] ?? null,
             'category_id' => $validated['category_id'] ?? null,
             'is_public' => $request->is_public ?? false,
             'is_recorded' => $request->is_recorded ?? $route->is_recorded,
-            'planned_distance_km' => $validated['planned_distance_km'],
+            'planned_distance_km' => $validated['planned_distance_km'] ?? null,
             'distance_km' => $validated['distance_km'] ?? $route->distance_km,
             'duration_seconds' => $validated['duration_seconds'] ?? $route->duration_seconds,
             'geo_json' => is_string($request->geo_json) ? json_decode($request->geo_json) : $request->geo_json, 
@@ -406,6 +451,16 @@ class RouteController extends Controller
     public function destroy(Route $route)
     {
         if ($route->user_id !== Auth::id()) { abort(403); }
+
+        // Si en crear-la vam sumar km a la moto (ruta gravada), els restem
+        // en esborrar-la; si no, el comptaquilòmetres queda inflat per sempre.
+        if ($route->is_recorded && $route->motorcycle_id) {
+            $this->subtractKmFromMotorcycle(
+                $this->ownedMotorcycle($route->motorcycle_id),
+                (float) ($route->distance_km ?? 0)
+            );
+        }
+
         $route->delete();
         
         // REDIRECT CANVIAT
@@ -415,11 +470,23 @@ class RouteController extends Controller
     // CLONAR RUTA
     public function clone(Route $route)
     {
-        // 1. Copiem la ruta principal
+        // Sense aquesta comprovació qualsevol usuari podia clonar-se una ruta
+        // privada d'un altre només sabent-ne l'ID.
+        if (! $this->canView($route)) {
+            abort(403, 'Aquesta ruta es privada.');
+        }
+
+        // 1. Copiem la ruta principal. Una còpia és un traçat per rodar, no el
+        // registre d'algú altre: netegem la moto (que és d'un altre usuari) i
+        // les dades de gravació, que no s'han fet servir mai.
         $newRoute = $route->replicate();
         $newRoute->user_id = Auth::id();
         $newRoute->title = $route->title . ' (Còpia)';
-        $newRoute->is_public = false; 
+        $newRoute->is_public = false;
+        $newRoute->motorcycle_id = null;
+        $newRoute->is_recorded = false;
+        $newRoute->distance_km = null;
+        $newRoute->duration_seconds = null;
         $newRoute->share_token = \Illuminate\Support\Str::random(10);
         $newRoute->save();
 

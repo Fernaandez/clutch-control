@@ -12,6 +12,40 @@ use Illuminate\Support\Facades\Schema;
 
 class EventController extends Controller
 {
+    /**
+     * Dels route_id que arriben del formulari, quins pot enganxar realment
+     * l'organitzador. Amb només `exists:routes,id` es podia adjuntar la ruta
+     * privada d'un altre usuari a una quedada pública i quedava exposada.
+     */
+    private function attachableRouteIds(array $routeIds): array
+    {
+        $routeIds = array_values(array_unique(array_filter(array_map('intval', $routeIds))));
+
+        if (empty($routeIds)) {
+            return [];
+        }
+
+        return Route::whereIn('id', $routeIds)
+            ->where(function ($query) {
+                $query->where('user_id', Auth::id())->orWhere('is_public', true);
+            })
+            ->pluck('id')
+            ->all();
+    }
+
+    /** Etapes de tipus ruta, ja filtrades per permisos, en ordre. */
+    private function stageRouteIds(array $stages): array
+    {
+        $requested = [];
+        foreach ($stages as $stage) {
+            if (($stage['type'] ?? '') === 'route' && ! empty($stage['route_id'])) {
+                $requested[] = (int) $stage['route_id'];
+            }
+        }
+
+        return $this->attachableRouteIds($requested);
+    }
+
 // INDEX: una sola pantalla amb segments (Meves | Descobrir), com Rutes
     public function index(Request $request)
     {
@@ -245,11 +279,13 @@ class EventController extends Controller
             }
         }
 
-        // 4. GUARDEM RUTES
+        // 4. GUARDEM RUTES (només les que l'organitzador pot enganxar)
         if (Schema::hasTable('event_routes') && !empty($stages)) {
+            $allowedRouteIds = $this->stageRouteIds($stages);
             foreach ($stages as $index => $stage) {
-                if ($stage['type'] === 'route' && $stage['route_id']) {
-                    $event->routes()->attach($stage['route_id'], ['day_order' => $index + 1]);
+                $routeId = (int) ($stage['route_id'] ?? 0);
+                if (($stage['type'] ?? '') === 'route' && in_array($routeId, $allowedRouteIds, true)) {
+                    $event->routes()->attach($routeId, ['day_order' => $index + 1]);
                 }
             }
         }
@@ -302,7 +338,24 @@ class EventController extends Controller
     // 5. ACCIÓ: APUNTAR-SE (JOIN)
     public function join(Event $event)
         {
+            // show() ja bloqueja les quedades privades, pero join() era una
+            // porta oberta: amb l'ID n'hi havia prou per apuntar-s'hi.
+            $user = Auth::user();
+            $isOwner = $user && (int) $event->user_id === (int) $user->id;
+            $isAdmin = $user && ($user->role ?? null) === 'admin';
+
+            if (! $event->is_public && ! $isOwner && ! $isAdmin) {
+                abort(403, 'Aquesta quedada es privada.');
+            }
+
             if (!$event->participants->contains(Auth::id())) {
+                // Respectem el límit de places que va posar l'organitzador.
+                if ($event->max_participants && $event->participants->count() >= $event->max_participants) {
+                    return back()->withErrors([
+                        'join' => 'Aquesta quedada ja té totes les places ocupades.',
+                    ]);
+                }
+
                 $event->participants()->attach(Auth::id(), ['status' => 'confirmed']);
 
                 // Afegir al grup de xat de la quedada
@@ -473,10 +526,14 @@ class EventController extends Controller
         }
 
         // B. Actualitzem les Rutes / Etapes
+        // stages_json arriba com a text lliure: cal filtrar els route_id, que
+        // podrien apuntar a rutes privades d'altres usuaris.
+        $allowedRouteIds = $this->stageRouteIds($stages);
         $event->routes()->detach();
         foreach ($stages as $index => $stage) {
-            if (($stage['type'] ?? '') === 'route' && !empty($stage['route_id'])) {
-                $event->routes()->attach($stage['route_id'], ['day_order' => $index + 1]);
+            $routeId = (int) ($stage['route_id'] ?? 0);
+            if (($stage['type'] ?? '') === 'route' && in_array($routeId, $allowedRouteIds, true)) {
+                $event->routes()->attach($routeId, ['day_order' => $index + 1]);
             }
         }
 

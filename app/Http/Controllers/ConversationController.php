@@ -188,11 +188,19 @@ class ConversationController extends Controller
             $title = $conversation->type === 'group' ? "Grup: {$conversation->name}" : "Missatge de {$senderName}";
             
             foreach ($otherParticipants as $participant) {
-                if ($participant->fcm_token) {
+                if (! $participant->fcm_token) {
+                    continue;
+                }
+
+                // Un token caducat o invàlid (típic: reinstal·lació de l'app) no
+                // ha d'impedir que la resta de participants rebin l'avís.
+                try {
                     $notification = \Kreait\Firebase\Messaging\Notification::create($title, $message->body);
                     $cloudMessage = \Kreait\Firebase\Messaging\CloudMessage::withTarget('token', $participant->fcm_token)
                         ->withNotification($notification);
                     $messaging->send($cloudMessage);
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Push a l\'usuari ' . $participant->id . ' ha fallat: ' . $e->getMessage());
                 }
             }
             

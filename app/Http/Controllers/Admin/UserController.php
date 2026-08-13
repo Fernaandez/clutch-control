@@ -57,7 +57,13 @@ class UserController extends Controller
             'role' => 'required|string|in:user,admin',
         ]);
 
-        $user->update($validated);
+        $user->fill([
+            'name'  => $validated['name'],
+            'email' => $validated['email'],
+        ]);
+        // 'role' no és mass-assignable (privilegis): s'assigna explícitament aquí.
+        $user->role = $validated['role'];
+        $user->save();
 
         return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }

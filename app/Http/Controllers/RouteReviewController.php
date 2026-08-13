@@ -20,6 +20,12 @@ class RouteReviewController extends Controller
             return back()->with('error', 'No pots valorar la teva pròpia ruta.');
         }
 
+        // Només es poden valorar rutes que l'usuari pot veure. Sense això es
+        // podien deixar valoracions a rutes privades sabent-ne només l'ID.
+        if (! $route->is_public) {
+            abort(403, 'Aquesta ruta es privada.');
+        }
+
         RouteReview::updateOrCreate(
             ['route_id' => $route->id, 'user_id' => Auth::id()],
             ['rating' => $validated['rating'], 'comment' => $validated['comment']]

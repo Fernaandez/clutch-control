@@ -140,7 +140,7 @@ class MotorcycleController extends Controller
         return redirect()->route('motorcycles.index');
     }
 
-    public function dashboard(Motorcycle $motorcycle = null)
+    public function dashboard(?Motorcycle $motorcycle = null)
     {
         /** @var \App\Models\User $user */ 
         $user = Auth::user();

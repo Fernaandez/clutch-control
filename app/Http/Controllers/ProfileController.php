@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -45,11 +46,26 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        $request->validate([
-            'password' => ['required', 'current_password'],
-        ]);
-
         $user = $request->user();
+
+        // Els comptes creats amb Google no tenen contrasenya, i demanar-los
+        // 'current_password' feia impossible esborrar el compte (requisit de
+        // Google Play i de l'App Store). En aquest cas confirmem amb el correu.
+        if ($user->hasPassword()) {
+            $request->validate([
+                'password' => ['required', 'current_password'],
+            ]);
+        } else {
+            $request->validate([
+                'confirm_email' => ['required', 'string'],
+            ]);
+
+            if (strcasecmp(trim((string) $request->input('confirm_email')), (string) $user->email) !== 0) {
+                throw ValidationException::withMessages([
+                    'confirm_email' => __('El correu no coincideix amb el del teu compte.'),
+                ]);
+            }
+        }
 
         Auth::logout();
 

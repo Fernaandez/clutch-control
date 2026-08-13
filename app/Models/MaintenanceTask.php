@@ -15,7 +15,7 @@ class MaintenanceTask extends Model
         'last_km_done', 
         'last_date_done', 
         'is_recurring', 
-        'affiliate_link'
+        'affiliated_link'
     ];
 
     public function motorcycle() {

@@ -22,3 +22,23 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# --- Signatura d'apps: mai al repositori ---
+# La clau de signatura i les seves contrasenyes no han d'anar a git. Qui les te
+# pot publicar apps fent-se passar per Clutch Control.
+*.jks
+*.keystore
+*.p8
+*.p12
+*.mobileprovision
+keystore.properties
+!keystore.properties.example
+
+# --- Base de dades local de desenvolupament ---
+/database/*.sqlite
+/database/*.sqlite-journal
+
+# --- Artefactes de build i sortides de depuracio ---
+build_*.txt
+status.txt
+*.tmp

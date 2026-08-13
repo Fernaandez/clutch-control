@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\Motorcycle;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -17,7 +18,7 @@ class AuthenticationTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_users_can_authenticate_using_the_login_screen(): void
+    public function test_users_without_a_motorcycle_are_sent_to_the_garage(): void
     {
         $user = User::factory()->create();
 
@@ -27,7 +28,22 @@ class AuthenticationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        // Sense moto el dashboard no té res a mostrar: primer cal crear-ne una.
+        $response->assertRedirect(route('motorcycles.index', absolute: false));
+    }
+
+    public function test_users_with_a_motorcycle_are_sent_to_its_dashboard(): void
+    {
+        $user = User::factory()->create();
+        $motorcycle = Motorcycle::factory()->for($user)->create();
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('dashboard', ['motorcycle' => $motorcycle->id], absolute: false));
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void

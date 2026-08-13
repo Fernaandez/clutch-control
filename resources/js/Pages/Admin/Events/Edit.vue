@@ -123,7 +123,7 @@
 <script setup>
 import { useForm, Link } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { addMapTileLayer } from '@/config/mapTiles.js';
@@ -131,6 +131,8 @@ import { addMapTileLayer } from '@/config/mapTiles.js';
 const props = defineProps({
     eventRecord: Object,
 });
+
+const mapInstance = ref(null);
 
 onMounted(() => {
     if (props.eventRecord.routes && props.eventRecord.routes.length > 0) {
@@ -142,6 +144,7 @@ onMounted(() => {
             boxZoom: true,
             attributionControl: false
         });
+        mapInstance.value = map;
 
         addMapTileLayer(map, L);
 
@@ -209,4 +212,11 @@ const form = useForm({
 const submit = () => {
     form.put(route('admin.events.update', props.eventRecord.id));
 };
+
+onUnmounted(() => {
+    if (mapInstance.value) {
+        mapInstance.value.remove();
+        mapInstance.value = null;
+    }
+});
 </script>

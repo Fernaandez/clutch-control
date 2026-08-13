@@ -36,7 +36,7 @@ class MaintenanceController extends Controller
             'last_km_done' => 'nullable|integer|min:0',
             'last_date_done' => 'nullable|date',
             'is_recurring' => 'boolean',
-            'affiliate_link' => 'nullable|url|max:500',
+            'affiliated_link' => 'nullable|url|max:500',
         ]);
 
         $maintenance->update($validated);

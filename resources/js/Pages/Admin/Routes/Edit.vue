@@ -129,7 +129,7 @@
 <script setup>
 import { useForm, Link } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { addMapTileLayer } from '@/config/mapTiles.js';
@@ -139,6 +139,8 @@ const props = defineProps({
     userMotorcycles: Array,
 });
 
+const mapInstance = ref(null);
+
 onMounted(() => {
     if (props.routeRecord.geo_json && document.getElementById('interactive-route-map')) {
         const map = L.map('interactive-route-map', {
@@ -146,6 +148,7 @@ onMounted(() => {
             dragging: true,
             scrollWheelZoom: true,
         });
+        mapInstance.value = map;
 
         addMapTileLayer(map, L);
 
@@ -192,4 +195,11 @@ const form = useForm({
 const submit = () => {
     form.put(route('admin.routes.update', props.routeRecord.id));
 };
+
+onUnmounted(() => {
+    if (mapInstance.value) {
+        mapInstance.value.remove();
+        mapInstance.value = null;
+    }
+});
 </script>

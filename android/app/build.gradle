@@ -16,17 +16,42 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // Les credencials de signatura NO han d'estar al codi. Es llegeixen de
+    // keystore.properties (ignorat per git) o de variables d'entorn, per poder
+    // signar també des d'un CI sense escriure res al repositori.
+    def keystorePropsFile = rootProject.file('keystore.properties')
+    def keystoreProps = new Properties()
+    if (keystorePropsFile.exists()) {
+        keystoreProps.load(new FileInputStream(keystorePropsFile))
+    }
+
+    def resolveSigning = { String propKey, String envKey ->
+        return keystoreProps.getProperty(propKey) ?: System.getenv(envKey)
+    }
+
+    def storeFileName = resolveSigning('storeFile', 'CC_KEYSTORE_FILE') ?: 'clutch-release.jks'
+    def storePasswordValue = resolveSigning('storePassword', 'CC_KEYSTORE_PASSWORD')
+    def keyAliasValue = resolveSigning('keyAlias', 'CC_KEY_ALIAS')
+    def keyPasswordValue = resolveSigning('keyPassword', 'CC_KEY_PASSWORD')
+    def canSignRelease = storePasswordValue && keyAliasValue && keyPasswordValue && file(storeFileName).exists()
+
     signingConfigs {
         release {
-            storeFile file('clutch-release.jks')
-            storePassword 'clutch2026'
-            keyAlias 'clutch-key'
-            keyPassword 'clutch2026'
+            if (canSignRelease) {
+                storeFile file(storeFileName)
+                storePassword storePasswordValue
+                keyAlias keyAliasValue
+                keyPassword keyPasswordValue
+            }
         }
     }
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            if (canSignRelease) {
+                signingConfig signingConfigs.release
+            } else {
+                logger.warn('AVIS: no hi ha credencials de signatura (keystore.properties o variables CC_*). La release no anira signada.')
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

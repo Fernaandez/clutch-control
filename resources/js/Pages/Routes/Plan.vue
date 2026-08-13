@@ -714,6 +714,11 @@ const continueToCreate = () => {
 };
 
 onUnmounted(() => {
+    // Els debounce de cerca (Nominatim) han de morir amb la pàgina: si no,
+    // la petició torna quan el component ja no existeix.
+    if (originTimeout) clearTimeout(originTimeout);
+    if (destTimeout) clearTimeout(destTimeout);
+
     destroyResultMap();
     destroyPickerMap();
 });

@@ -225,7 +225,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue';
 import { useForm, Link, router } from '@inertiajs/vue3';
 import { Geolocation } from '@capacitor/geolocation';
 import AppLayout from '@/Layouts/AppLayout.vue';
@@ -456,6 +456,24 @@ const submit = () => {
         }))
         .post(route('routes.update', props.mapRoute.id), { forceFormData: true });
 };
+
+onUnmounted(() => {
+    // Sense això, Leaflet es queda amb el contenidor i els listeners: en tornar
+    // a entrar salta "Map container is already initialized".
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+        searchTimeout = null;
+    }
+
+    if (map.value) {
+        if (routingControl.value) {
+            map.value.removeControl(routingControl.value);
+            routingControl.value = null;
+        }
+        map.value.remove();
+        map.value = null;
+    }
+});
 </script>
 
 <style>

@@ -62,7 +62,7 @@
 </template>
 
 <script setup>
-import { onMounted, computed, ref, nextTick } from 'vue';
+import { onMounted, onUnmounted, computed, ref, nextTick } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
@@ -201,34 +201,50 @@ const startRecording = async () => {
     });
 };
 
-const stopRecording = () => {
-    isRecording.value = false;
-    if (timerInterval) clearInterval(timerInterval);
+/** Atura el cronòmetre i el GPS. Cridable més d'una vegada sense efectes. */
+const teardownTracking = () => {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
 
     if (recordWatcherId.value) {
-        BackgroundGeolocation.removeWatcher({ id: recordWatcherId.value });
+        BackgroundGeolocation.removeWatcher({ id: recordWatcherId.value }).catch(() => {});
         recordWatcherId.value = null;
     }
+};
+
+/** Desa el recorregut a la cua offline. Retorna els km, o null si no s'ha mogut. */
+const persistRecordedTrip = () => {
+    if (recordedWaypoints.value.length <= 1) return null;
+
+    const distanceKm = (recordedDistance.value / 1000).toFixed(2);
+    const existingPending = JSON.parse(localStorage.getItem('pending_trips') || '[]');
+
+    existingPending.push({
+        id: 'offline_' + Date.now(),
+        started_at: new Date(recordingStartTime).toISOString(),
+        motorcycle_id: props.motorcycle?.id || null,
+        route_id: null, // Free Ride mai va vinculat a una ruta
+        distance_km: parseFloat(distanceKm),
+        duration_seconds: recordingTime.value,
+        waypoints: recordedWaypoints.value,
+    });
+
+    localStorage.setItem('pending_trips', JSON.stringify(existingPending));
+
+    return distanceKm;
+};
+
+const stopRecording = () => {
+    isRecording.value = false;
+    teardownTracking();
 
     if (recordedWaypoints.value.length > 1) {
         const distanceKm = (recordedDistance.value / 1000).toFixed(2);
-        
+
         try {
-            const existingPending = JSON.parse(localStorage.getItem('pending_trips') || '[]');
-            
-            const newPendingTrip = {
-                id: 'offline_' + Date.now(),
-                started_at: new Date(recordingStartTime).toISOString(),
-                motorcycle_id: props.motorcycle?.id || null,
-                route_id: null, // Free Ride mai va vinculat a una ruta
-                distance_km: parseFloat(distanceKm),
-                duration_seconds: recordingTime.value,
-                waypoints: recordedWaypoints.value
-            };
-            
-            existingPending.push(newPendingTrip);
-            localStorage.setItem('pending_trips', JSON.stringify(existingPending));
-            
+            persistRecordedTrip();
             alert(t('free_ride.stopped_title') + `\n` + t('free_ride.stopped_msg', { km: distanceKm }));
         } catch (e) {
             console.error('Error saving offline trip:', e);
@@ -236,10 +252,33 @@ const stopRecording = () => {
         }
     } else {
         alert(t('free_ride.no_movement'));
-        if (trackingPolyline.value) map.value.removeLayer(trackingPolyline.value);
-        if (currentLocationMarker.value) map.value.removeLayer(currentLocationMarker.value);
+        if (map.value) {
+            if (trackingPolyline.value) map.value.removeLayer(trackingPolyline.value);
+            if (currentLocationMarker.value) map.value.removeLayer(currentLocationMarker.value);
+        }
     }
 };
+
+onUnmounted(() => {
+    // Sortir de la pantalla mentre es gravava deixava el watcher de GPS viu
+    // (bateria, ubicació en segon pla) i perdia el recorregut sencer. El desem
+    // a la cua offline i alliberem GPS, cronòmetre i mapa.
+    if (isRecording.value) {
+        try {
+            persistRecordedTrip();
+        } catch (e) {
+            console.error('Error saving trip on unmount:', e);
+        }
+        isRecording.value = false;
+    }
+
+    teardownTracking();
+
+    if (map.value) {
+        map.value.remove();
+        map.value = null;
+    }
+});
 </script>
 
 <style>

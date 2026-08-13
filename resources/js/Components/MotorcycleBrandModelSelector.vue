@@ -211,7 +211,7 @@ const handleModelBlur = () => {
             emit('update:model', modelQuery.value);
             // Intentem guardar el model personalitzat a la base de dades
             if (brandQuery.value) {
-                fetch('/api/motorcycle-brands/save-custom', {
+                fetch('/motorcycle-brands/save-custom', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' },
                     body: JSON.stringify({ brand: brandQuery.value, model: modelQuery.value }),

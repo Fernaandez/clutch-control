@@ -68,9 +68,9 @@
                 </div>
 
                 <div>
-                    <label for="affiliate_link" class="block text-sm font-medium text-gray-700">Affiliate / Part Link</label>
-                    <input id="affiliate_link" v-model="form.affiliate_link" type="url" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                    <p v-if="form.errors.affiliate_link" class="mt-2 text-sm text-red-600">{{ form.errors.affiliate_link }}</p>
+                    <label for="affiliated_link" class="block text-sm font-medium text-gray-700">Affiliate / Part Link</label>
+                    <input id="affiliated_link" v-model="form.affiliated_link" type="url" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <p v-if="form.errors.affiliated_link" class="mt-2 text-sm text-red-600">{{ form.errors.affiliated_link }}</p>
                 </div>
 
                 <div class="pt-4 border-t border-gray-100 flex justify-end space-x-3">
@@ -102,7 +102,7 @@ const form = useForm({
     last_km_done: props.maintenanceRecord.last_km_done,
     last_date_done: props.maintenanceRecord.last_date_done,
     is_recurring: props.maintenanceRecord.is_recurring == 1,
-    affiliate_link: props.maintenanceRecord.affiliate_link,
+    affiliated_link: props.maintenanceRecord.affiliated_link,
 });
 
 const submit = () => {

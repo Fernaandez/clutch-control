@@ -47,8 +47,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/device-token', [ProfileController::class, 'updateDeviceToken'])->name('profile.device-token');
 });
 
-// Ruta pública d'eliminació de compte
-Route::post('/public-account-deletion', [ProfileController::class, 'publicDestroy'])->name('profile.public_destroy');
+// Ruta pública d'eliminació de compte (requisit de Google Play / App Store).
+// Amb throttle: accepta email+password, i sense límit és un oracle de credencials.
+Route::post('/public-account-deletion', [ProfileController::class, 'publicDestroy'])
+    ->middleware('throttle:5,1')
+    ->name('profile.public_destroy');
 
 require __DIR__.'/auth.php';
 
@@ -57,9 +60,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/dashboard/{motorcycle?}', [MotorcycleController::class, 'dashboard'])->name('dashboard');
 
-    Route::resource('motorcycles', MotorcycleController::class);
+    // El detall d'una moto és el dashboard (/dashboard/{motorcycle}), no hi ha
+    // show(): registrar-lo donava un 500 a qui obrís /motorcycles/{id}.
+    Route::resource('motorcycles', MotorcycleController::class)->except(['show']);
     Route::post('/motorcycles/{motorcycle}/add-km', [MotorcycleController::class, 'addKm'])
         ->name('motorcycles.add-km');
+
+    // Marca/model personalitzats: escriu a la BD, per tant demana sessió i CSRF.
+    Route::post('/motorcycle-brands/save-custom', [\App\Http\Controllers\Api\MotorcycleBrandController::class, 'saveCustom'])
+        ->middleware('throttle:30,1')
+        ->name('motorcycle-brands.save-custom');
 
     Route::get('/motorcycles/{motorcycle}/documentation', [MotorcycleController::class, 'documentation'])
         ->name('motorcycles.documentation.show');
@@ -164,12 +174,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // --- ADMIN PANEL ---
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
-    Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
-    Route::resource('routes', \App\Http\Controllers\Admin\RouteController::class);
-    Route::resource('events', \App\Http\Controllers\Admin\EventController::class);
-    Route::resource('sales', \App\Http\Controllers\Admin\SaleController::class);
-    Route::resource('motorcycles', \App\Http\Controllers\Admin\MotorcycleController::class);
-    Route::resource('maintenance', \App\Http\Controllers\Admin\MaintenanceController::class);
+    // L'admin només llista, edita i esborra: no crea contingut d'usuaris.
+    // Registrar create/store/show donava 500 perquè els mètodes no existeixen.
+    $adminActions = ['index', 'edit', 'update', 'destroy'];
+    Route::resource('users', \App\Http\Controllers\Admin\UserController::class)->only($adminActions);
+    Route::resource('routes', \App\Http\Controllers\Admin\RouteController::class)->only($adminActions);
+    Route::resource('events', \App\Http\Controllers\Admin\EventController::class)->only($adminActions);
+    Route::resource('sales', \App\Http\Controllers\Admin\SaleController::class)->only($adminActions);
+    Route::resource('motorcycles', \App\Http\Controllers\Admin\MotorcycleController::class)->only($adminActions);
+    Route::resource('maintenance', \App\Http\Controllers\Admin\MaintenanceController::class)->only($adminActions);
     Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/{report}', [\App\Http\Controllers\Admin\ReportController::class, 'show'])->name('reports.show');
     Route::patch('/reports/{report}', [\App\Http\Controllers\Admin\ReportController::class, 'update'])->name('reports.update');

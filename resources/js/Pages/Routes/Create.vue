@@ -222,7 +222,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
 import { Geolocation } from '@capacitor/geolocation';
 import AppLayout from '@/Layouts/AppLayout.vue';
@@ -567,6 +567,24 @@ const submit = () => {
         geo_json: typeof data.geo_json === 'string' ? data.geo_json : JSON.stringify(data.geo_json)
     })).post(route('routes.store'), { forceFormData: true });
 };
+
+onUnmounted(() => {
+    // Sense això, Leaflet es queda amb el contenidor i els listeners: en tornar
+    // a entrar salta "Map container is already initialized".
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+        searchTimeout = null;
+    }
+
+    if (map.value) {
+        if (routingControl.value) {
+            map.value.removeControl(routingControl.value);
+            routingControl.value = null;
+        }
+        map.value.remove();
+        map.value = null;
+    }
+});
 </script>
 
 <style>

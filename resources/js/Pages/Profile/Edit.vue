@@ -57,7 +57,11 @@
                 />
             </section>
 
-            <section v-if="!$page.props.auth.user.google_id" class="mt-12 pt-12 border-t border-white/[0.06]">
+            <!-- Canviar la contrasenya demana la contrasenya actual: només té
+                 sentit si el compte en té. Abans s'amagava a tothom que tingués
+                 google_id, i això deixava sense opció qui s'havia registrat amb
+                 correu i després havia entrat amb Google. -->
+            <section v-if="$page.props.auth.user.has_password" class="mt-12 pt-12 border-t border-white/[0.06]">
                 <UpdatePasswordForm />
             </section>
 

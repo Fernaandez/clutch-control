@@ -184,7 +184,7 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from 'vue';
+import { ref, computed, nextTick, onUnmounted } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
@@ -285,12 +285,15 @@ const totalDistance = computed(() => {
         .toFixed(0);
 });
 
+let mapInitTimeout = null;
+
 const openGlobalMap = async () => {
     isMapOpen.value = true;
     await nextTick();
 
     requestAnimationFrame(() => {
-        setTimeout(() => {
+        if (mapInitTimeout) clearTimeout(mapInitTimeout);
+        mapInitTimeout = setTimeout(() => {
             if (!map.value) {
                 map.value = L.map('event-global-map', { zoomControl: false, attributionControl: false })
                     .setView([41.3851, 2.1734], 13);
@@ -353,4 +356,20 @@ const openGlobalMap = async () => {
 };
 
 const closeMap = () => { isMapOpen.value = false; };
+
+onUnmounted(() => {
+    // El mapa viu en un Teleport: en desmuntar la pàgina el contenidor
+    // desapareix, i sense això la instància de Leaflet i les seves capes queden
+    // penjades amb els listeners actius.
+    if (mapInitTimeout) {
+        clearTimeout(mapInitTimeout);
+        mapInitTimeout = null;
+    }
+
+    if (map.value) {
+        map.value.remove();
+        map.value = null;
+    }
+    mapLayers.value = [];
+});
 </script>

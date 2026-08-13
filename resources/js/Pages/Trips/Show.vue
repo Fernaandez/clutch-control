@@ -106,7 +106,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Link, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
@@ -234,6 +234,16 @@ const formatDuration = (sec) => {
     if (hrs > 0) return `${hrs}h ${mins}m`;
     return `${mins}m`;
 };
+
+onUnmounted(() => {
+    // Alliberem el mapa: si no, en tornar-hi Leaflet troba el contenidor ocupat.
+    if (map.value) {
+        map.value.remove();
+        map.value = null;
+    }
+    tripPolyline = null;
+    routePolyline = null;
+});
 </script>
 
 <style scoped>

@@ -222,7 +222,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, onUnmounted } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import AppLayout from '@/Layouts/AppLayout.vue';
@@ -276,12 +276,15 @@ const removeStage = (index) => {
     else alert(t('events.min_one_stage'));
 };
 
+let pickerInitTimeout = null;
+
 const openLocationPicker = async (index) => {
     activeStageIndex.value = index;
     isPickerOpen.value = true;
     await nextTick();
     requestAnimationFrame(() => {
-        setTimeout(() => {
+        if (pickerInitTimeout) clearTimeout(pickerInitTimeout);
+        pickerInitTimeout = setTimeout(() => {
             if (!map.value) {
                 map.value = L.map('map-picker', { zoomControl: false, attributionControl: false }).setView([41.3851, 2.1734], 13);
                 addMapTileLayer(map.value, L);
@@ -312,4 +315,18 @@ const confirmLocation = () => {
 };
 
 const submit = () => form.post(route('events.store'), { forceFormData: true });
+
+onUnmounted(() => {
+    // El selector de mapa es reutilitza entre etapes, per tant la instància viu
+    // tota la pàgina: cal alliberar-la explícitament en marxar.
+    if (pickerInitTimeout) {
+        clearTimeout(pickerInitTimeout);
+        pickerInitTimeout = null;
+    }
+
+    if (map.value) {
+        map.value.remove();
+        map.value = null;
+    }
+});
 </script>

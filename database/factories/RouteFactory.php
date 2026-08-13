@@ -24,11 +24,14 @@ class RouteFactory extends Factory
             ]
         ]);
 
+        $distance = fake()->randomFloat(2, 20, 150);
+
         return [
             'title' => 'Ruta ' . fake()->city(),
             'description' => fake()->sentence(),
-            'distance_km' => fake()->randomFloat(2, 20, 150),
-            'estimated_time' => fake()->time(),
+            'planned_distance_km' => $distance,
+            'distance_km' => $distance,
+            'duration_seconds' => fake()->numberBetween(1800, 21600),
             'geo_json' => $dummyGeoJson,
             'starting_lat' => 41.38 + (fake()->randomFloat(4, -0.1, 0.1)),
             'starting_lng' => 2.16 + (fake()->randomFloat(4, -0.1, 0.1)),
